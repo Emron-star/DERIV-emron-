@@ -103,6 +103,7 @@ padding: 0 clamp(8px, 2vw, 20px);
 background: var(--bg-card);
 border-bottom: 1px solid var(--border);
 backdrop-filter: blur(12px);
+-webkit-backdrop-filter: blur(12px);
 position: sticky;
 top: 0;
 z-index: 100;
@@ -186,7 +187,7 @@ gap: clamp(4px, 0.6vw, 12px);
 flex-shrink: 0;
 }
 .status-indicator {
-display: none;
+display: flex;
 align-items: center;
 gap: 4px;
 font-size: clamp(9px, 0.6vw, 11px);
@@ -379,6 +380,7 @@ min-height: calc(100dvh - var(--topbar-height) - var(--footer-height));
 .card {
 background: var(--glass-bg);
 backdrop-filter: blur(12px);
+-webkit-backdrop-filter: blur(12px);
 border: 1px solid var(--glass-border);
 border-radius: var(--radius-lg);
 padding: clamp(12px, 1.2vw, 18px);
@@ -1023,6 +1025,7 @@ position: fixed;
 inset: 0;
 background: rgba(0, 0, 0, 0.75);
 backdrop-filter: blur(6px);
+-webkit-backdrop-filter: blur(6px);
 display: none;
 align-items: center;
 justify-content: center;
@@ -2076,18 +2079,22 @@ Sign in or create a Deriv account using OAuth 2.0. Your token will be stored loc
 </p>
 <!-- OAuth Config -->
 <div class="form-group" style="margin-bottom:clamp(6px,0.4vw,10px);">
-<label>Client ID (App ID)</label>
-<input class="form-control" id="oauthClientId" placeholder="Your Deriv App ID" value="344HkEFdzdqT6w8dxRjcQ">
+<label>Client ID</label>
+<input class="form-control" id="oauthClientId" placeholder="Your Deriv OAuth2 client_id" value="1089">
 </div>
 <div class="form-group" style="margin-bottom:clamp(6px,0.4vw,10px);">
 <label>Redirect URI</label>
-<input class="form-control" id="oauthRedirectUri" placeholder="Your registered redirect_uri" value="https://emronai-4.netlify.app/callback">
+<input class="form-control" id="oauthRedirectUri" placeholder="Your registered redirect_uri" value="https://emrony.netlify.app/callback">
+</div>
+<div class="form-group" style="margin-bottom:clamp(6px,0.4vw,10px);">
+<label>Deriv WebSocket Endpoint</label>
+<input class="form-control" id="wsEndpoint" placeholder="wss://ws.derivws.com/websockets/v3?app_id=1089" value="wss://ws.derivws.com/websockets/v3?app_id=1089">
 </div>
 <div class="warning-box" style="font-size:clamp(9px,0.5vw,11px);">
 <strong>🔒 OAuth 2.0 with PKCE</strong> — your <code>code_verifier</code> and <code>state</code> are generated per session and never stored.
 </div>
 <div style="display:flex;gap:clamp(6px,0.4vw,10px);margin:clamp(8px,0.6vw,12px) 0;">
-<button class="btn btn-primary" id="oauthLoginBtn" style="flex:1;">🔑 Login with Deriv</button>
+<button class="btn btn-primary" id="oauthLoginBtn" style="flex:1;">🔑 Login</button>
 <button class="btn btn-success" id="oauthSignupBtn" style="flex:1;">📝 Sign Up</button>
 </div>
 <div style="display:flex;align-items:center;gap:clamp(6px,0.4vw,10px);margin:clamp(6px,0.4vw,10px) 0;flex-wrap:wrap;">
@@ -2199,6 +2206,8 @@ const qsTP = document.getElementById('qsTP');
 const qsSL = document.getElementById('qsSL');
 const qsMarket = document.getElementById('qsMarket');
 const qsApplyBtn = document.getElementById('qsApplyBtn');
+
+// OAuth elements
 const oauthClientId = document.getElementById('oauthClientId');
 const oauthRedirectUri = document.getElementById('oauthRedirectUri');
 const oauthLoginBtn = document.getElementById('oauthLoginBtn');
@@ -2207,29 +2216,7 @@ const oauthStatus = document.getElementById('oauthStatus');
 const oauthDisconnectBtn = document.getElementById('oauthDisconnectBtn');
 const manualToken = document.getElementById('manualToken');
 const manualTokenBtn = document.getElementById('manualTokenBtn');
-
-// =============================================
-// CORRECTED MARKET SYMBOLS
-// =============================================
-const MARKET_SYMBOLS = {
-'Volatility 10': 'R_10',
-'Volatility 25': 'R_25',
-'Volatility 50': 'R_50',
-'Volatility 75': 'R_75',
-'Volatility 100': 'R_100',
-'Volatility 10 (1s)': '1HZ10V',
-'Volatility 25 (1s)': '1HZ25V',
-'Volatility 50 (1s)': '1HZ50V',
-'Volatility 75 (1s)': '1HZ75V',
-'Volatility 100 (1s)': '1HZ100V',
-'Crash 500': 'CRASH500N',
-'Boom 500': 'BOOM500N',
-'Range Break': 'RDBREAK'
-};
-
-function getSymbol(marketName) {
-return MARKET_SYMBOLS[marketName] || 'R_50';
-}
+const wsEndpointInput = document.getElementById('wsEndpoint');
 
 // =============================================
 // State
@@ -2256,216 +2243,199 @@ let martingaleMultiplier = 1.5;
 let maxMartingaleLevel = 7;
 let consecutiveLosses = 0;
 let currentMarket = 'Volatility 50';
+
+// OAuth state
 let accessToken = null;
+
+// WebSocket
 let ws = null;
 let wsConnected = false;
 let wsReqId = 1;
-let pendingProposal = null;
-let activeContractId = null;
-let tickSubscriptionId = null;
-let isTradeInProgress = false;
 
 // =============================================
-// CORRECTED WEBSOCKET MANAGER
+// 1. APP ID & ENDPOINT (FORCE 1089)
 // =============================================
 function getAppId() {
-return '1089';
+  return '1089'; // Confirmed Deriv App ID
 }
 
 function getWsEndpoint() {
-const appId = getAppId();
-return `wss://ws.derivws.com/websockets/v3?app_id=${appId}`;
+  const appId = getAppId();
+  return `wss://ws.derivws.com/websockets/v3?app_id=${appId}`;
 }
 
+// =============================================
+// 2. FORCE AUTHORIZATION WEBSOCKET MANAGER
+// =============================================
 function connectWebSocket(token) {
-if (ws && ws.readyState === WebSocket.OPEN) {
-authorizeWebSocket(token);
-return;
-}
+  // Clean up any existing connection first
+  if (ws) {
+    ws.close();
+    ws = null;
+  }
 
-const endpoint = getWsEndpoint();
-console.log('Connecting to:', endpoint);
+  const endpoint = getWsEndpoint();
+  console.log('🔌 Connecting to:', endpoint);
+  
+  try {
+    ws = new WebSocket(endpoint);
+  } catch(e) {
+    console.error('❌ WS creation failed', e);
+    toast('WebSocket creation failed', 'error');
+    return;
+  }
 
-try {
-ws = new WebSocket(endpoint);
+  ws.onopen = function() {
+    console.log('✅ WS OPEN - forcing authorization');
+    wsConnected = true;
+    updateConnectionStatus(true);
+    
+    // 🔥 FORCE send token immediately, bypassing any readyState checks
+    ws.send(JSON.stringify({ authorize: token, req_id: wsReqId++ }));
+  };
 
-ws.onopen = () => {
-console.log('✅ WebSocket connected to Deriv');
-wsConnected = true;
-updateConnectionStatus(true);
-toast('✅ Connected to Deriv WebSocket', 'success');
-authorizeWebSocket(token);
-};
+  ws.onmessage = function(event) {
+    try {
+      const data = JSON.parse(event.data);
+      console.log('📩 WS message:', data.msg_type, data);
+      
+      // Intercept Authorize specifically here to guarantee it fires and updates UI
+      if (data.msg_type === 'authorize') {
+        if (data.error) {
+          console.error('❌ AUTH FAILED:', data.error.message);
+          toast('Auth failed: ' + data.error.message, 'error');
+          setAccessToken(null);
+        } else {
+          console.log('✅ AUTH SUCCESS! Logged in as:', data.authorize.loginid);
+          toast(`Welcome ${data.authorize.loginid}! Balance: $${data.authorize.balance}`, 'success');
+          balance = parseFloat(data.authorize.balance) || balance;
+          updateBalanceDisplay();
+          
+          // Subscribe to live balance updates
+          sendWsRequest({ balance: 1, subscribe: 1 });
+        }
+      }
+      
+      // Pass to your existing handler for ticks, proposals, buys, etc.
+      if (typeof handleWebSocketMessage === 'function') {
+         handleWebSocketMessage(event);
+      }
+      
+    } catch (e) {
+      console.error('WS parse error:', e);
+    }
+  };
 
-ws.onmessage = handleWebSocketMessage;
+  ws.onerror = (err) => {
+    console.error('❌ WebSocket error', err);
+    toast('WebSocket error. Check console.', 'error');
+  };
 
-ws.onerror = (err) => {
-console.error('❌ WebSocket error:', err);
-toast('WebSocket error. Check endpoint.', 'error');
-};
-
-ws.onclose = () => {
-wsConnected = false;
-updateConnectionStatus(false);
-console.log('WebSocket disconnected');
-
-// Auto-reconnect if we have a token
-if (accessToken && isActive) {
-toast('Reconnecting to Deriv...', 'info');
-setTimeout(() => connectWebSocket(accessToken), 3000);
-}
-};
-} catch (e) {
-console.error('WebSocket connection failed:', e);
-toast('WebSocket connection failed', 'error');
-}
+  ws.onclose = () => {
+    wsConnected = false;
+    updateConnectionStatus(false);
+    console.log('🔌 WebSocket disconnected');
+    
+    // Auto-reconnect if bot is active and we have a token
+    if (accessToken && isActive) {
+      console.log('Reconnecting in 3s...');
+      setTimeout(() => connectWebSocket(accessToken), 3000);
+    }
+  };
 }
 
 function updateConnectionStatus(connected) {
-const statusDot = document.querySelector('#internetStatus .status-dot');
-const statusLabel = document.querySelector('#internetStatus span');
-if (statusDot && statusLabel) {
-statusDot.className = 'status-dot' + (connected ? '' : ' offline');
-statusLabel.textContent = connected ? 'Online' : 'Offline';
-}
+  const statusDot = document.querySelector('#internetStatus .status-dot');
+  const statusLabel = document.querySelector('#internetStatus span');
+  if (statusDot && statusLabel) {
+    statusDot.className = 'status-dot' + (connected ? '' : ' offline');
+    statusLabel.textContent = connected ? 'Online (API)' : 'Offline';
+  }
 }
 
 function authorizeWebSocket(token) {
-if (!ws || ws.readyState !== WebSocket.OPEN) return;
-sendWsRequest({ authorize: token });
+  if (!ws || ws.readyState !== WebSocket.OPEN) return;
+  const req = {
+    authorize: token,
+    req_id: wsReqId++
+  };
+  ws.send(JSON.stringify(req));
 }
 
 function handleWebSocketMessage(event) {
 try {
 const data = JSON.parse(event.data);
-console.log('📩 WS:', data.msg_type, data);
+console.log('WS message:', data);
 
-switch (data.msg_type) {
-case 'authorize':
-handleAuthorize(data);
-break;
-case 'balance':
-handleBalance(data);
-break;
-case 'tick':
-handleTick(data);
-break;
-case 'proposal':
-handleProposal(data);
-break;
-case 'buy':
-handleBuy(data);
-break;
-case 'proposal_open_contract':
-handleContractUpdate(data);
-break;
-case 'forget':
-// Subscription forgotten
-break;
-case 'error':
-handleError(data);
-break;
-}
-} catch (e) {
-console.error('WS message parse error:', e);
-}
-}
-
-function handleAuthorize(data) {
+// Handle authorization response
+if (data.msg_type === 'authorize') {
 if (data.error) {
-toast('❌ Auth failed: ' + data.error.message, 'error');
-setAccessToken(null);
-return;
-}
-const auth = data.authorize;
-toast(`✅ Welcome, ${auth.loginid}! Balance: $${auth.balance}`, 'success');
-balance = parseFloat(auth.balance) || balance;
-updateBalanceDisplay();
-
-// Subscribe to balance updates
-sendWsRequest({ balance: 1, subscribe: 1 });
-
-// Subscribe to ticks for chart
+toast('Authorization failed: ' + data.error.message, 'error');
+} else {
+toast('Authorized successfully', 'success');
+// Get balance
+getBalance();
+// Subscribe to ticks if active
+if (isActive) {
 subscribeTicks();
 }
+}
+}
 
-function handleBalance(data) {
-if (data.error) return;
+// Handle balance
+if (data.msg_type === 'balance') {
 if (data.balance) {
 balance = parseFloat(data.balance.balance);
 updateBalanceDisplay();
 }
 }
 
-function handleTick(data) {
-if (data.error) return;
+// Handle tick
+if (data.msg_type === 'tick') {
 const tick = data.tick;
-if (tick && tick.quote) {
-const price = parseFloat(tick.quote);
-updateChartWithTick(price);
+// Update chart with tick data
+updateChartWithTick(tick);
+}
+
+// Handle contract proposal
+if (data.msg_type === 'proposal') {
+if (data.error) {
+toast('Proposal error: ' + data.error.message, 'error');
+} else {
+// Buy contract
+buyContract(data.proposal.id);
 }
 }
 
-function handleProposal(data) {
+// Handle buy response
+if (data.msg_type === 'buy') {
 if (data.error) {
-toast('❌ Proposal error: ' + data.error.message, 'error');
-isTradeInProgress = false;
-return;
-}
-if (data.proposal) {
-const proposal = data.proposal;
-// Buy the contract
-sendWsRequest({
-buy: proposal.id,
-price: proposal.ask_price
-});
-}
-}
-
-function handleBuy(data) {
-if (data.error) {
-toast('❌ Buy error: ' + data.error.message, 'error');
-isTradeInProgress = false;
-handleTradeResult(false, -currentStake);
-return;
-}
-if (data.buy) {
+toast('Buy error: ' + data.error.message, 'error');
+// Martingale logic on failed trade
+handleTradeResult(false);
+} else {
 const contract = data.buy;
-activeContractId = contract.contract_id;
-toast(`📈 Trade placed! ID: ${contract.contract_id} | Payout: $${contract.payout}`, 'success');
-
-// Subscribe to contract updates
-sendWsRequest({
-proposal_open_contract: 1,
-contract_id: contract.contract_id,
-subscribe: 1
-});
+toast(`Contract bought: ${contract.transaction_id}`, 'success');
+// We'll wait for the contract to settle via subscription
+subscribeContract(contract.contract_id);
 }
 }
 
-function handleContractUpdate(data) {
-if (data.error) return;
-const contract = data.proposal_open_contract;
-if (!contract) return;
-
-if (contract.is_sold) {
-const profit = parseFloat(contract.profit) || 0;
-const won = profit > 0;
-
-// Unsubscribe from this contract
-if (data.subscription) {
-sendWsRequest({ forget: data.subscription.id });
-}
-
-isTradeInProgress = false;
-activeContractId = null;
-handleTradeResult(won, profit);
+// Handle contract update
+if (data.msg_type === 'contract') {
+const contract = data.contract;
+if (contract.status === 'settled') {
+const profit = contract.profit || 0;
+handleTradeResult(profit > 0, profit);
 }
 }
 
-function handleError(data) {
-if (data.error) {
-toast('❌ API Error: ' + data.error.message, 'error');
+// Handle ping/pong
+if (data.ping) {
+ws.send(JSON.stringify({ pong: data.ping }));
+}
+} catch (e) {
+console.error('WS message error:', e);
 }
 }
 
@@ -2476,49 +2446,96 @@ return;
 }
 req.req_id = wsReqId++;
 ws.send(JSON.stringify(req));
-console.log('📤 WS:', req);
+}
+
+function getBalance() {
+sendWsRequest({ balance: 1, subscribe: 1 });
 }
 
 function subscribeTicks() {
-const symbol = getSymbol(currentMarket);
-// Forget old subscription first
-if (tickSubscriptionId) {
-sendWsRequest({ forget: tickSubscriptionId });
-tickSubscriptionId = null;
-}
-// Subscribe to new
-sendWsRequest({ ticks: symbol, subscribe: 1 });
-}
-
-function proposeContract() {
-if (isTradeInProgress) return;
-isTradeInProgress = true;
-
-const symbol = getSymbol(currentMarket);
-const stake = currentStake;
-
-console.log('📊 Proposing:', symbol, 'DIGITOVER', 'Barrier: 0', 'Stake:', stake);
-
+const symbol = currentMarketToSymbol(currentMarket);
+if (!symbol) return;
 sendWsRequest({
-proposal: 1,
-amount: stake,
-basis: 'stake',
-contract_type: 'DIGITOVER',
-currency: 'USD',
-duration: 1,
-duration_unit: 't',
-symbol: symbol,
-barrier: '0'
+ticks: symbol,
+subscribe: 1
 });
 }
 
+function subscribeContract(contractId) {
+sendWsRequest({
+contract: contractId,
+subscribe: 1
+});
+}
+
+function proposeContract(contractType, symbol, duration, barrier, stake) {
+// Map contract type
+const typeMap = {
+'DIGITOVER': 'DIGITOVER',
+'DIGITUNDER': 'DIGITUNDER',
+'DIGITMATCH': 'DIGITMATCH',
+'DIFFER': 'DIFFER'
+};
+const ct = typeMap[contractType] || 'DIGITOVER';
+
+// For digit contracts, we need to set the barrier as the digit
+const params = {
+amount: stake,
+contract_type: ct,
+currency: 'USD',
+duration: duration,
+duration_unit: 't',
+symbol: symbol,
+basis: 'stake',
+barrier: barrier.toString()
+};
+
+// For digit contracts, we may need to specify the digit
+if (ct === 'DIGITOVER' || ct === 'DIGITUNDER') {
+params.barrier = barrier.toString();
+}
+
+sendWsRequest({
+proposal: 1,
+...params
+});
+}
+
+function buyContract(proposalId) {
+sendWsRequest({
+buy: proposalId,
+price: 0 // Not needed for proposal
+});
+}
+
+// Helper to map market name to Deriv symbol
+function currentMarketToSymbol(market) {
+const map = {
+'Volatility 10': 'R_10',
+'Volatility 25': 'R_25',
+'Volatility 50': 'R_50',
+'Volatility 75': 'R_75',
+'Volatility 100': 'R_100',
+'Volatility 10 (1s)': '1HZ10V',
+'Volatility 25 (1s)': '1HZ25V',
+'Volatility 50 (1s)': '1HZ50V',
+'Volatility 75 (1s)': '1HZ75V',
+'Volatility 100 (1s)': '1HZ100V',
+'Crash 500': 'CRASH500N',
+'Boom 500': 'BOOM500N',
+'Range Break': 'RDBREAK'
+};
+return map[market] || 'R_50';
+}
+
 // =============================================
-// TRADING LOGIC
+// Trading Logic (Real or Simulated)
 // =============================================
-function handleTradeResult(win, profit) {
+function handleTradeResult(win, profit = 0) {
+// Called when a trade settles
 const pl = win ? profit : -currentStake;
 
-// Update balance
+// Update balance, window profit, etc.
 balance += pl;
 windowProfitValue += pl;
 updateBalanceDisplay();
@@ -2527,10 +2544,13 @@ updateProfitDisplay();
 // Record trade
 const now = new Date();
 const timeStr = now.toLocaleTimeString();
+const type = 'CALL';
+const symbol = currentMarket;
+
 trades.push({
 time: timeStr,
-type: 'OVER 0',
-symbol: currentMarket,
+type: type,
+symbol: symbol,
 stake: currentStake,
 pl: pl
 });
@@ -2542,14 +2562,11 @@ if (win) {
 consecutiveLosses = 0;
 martingaleLevel = 0;
 currentStake = baseStake;
-liveStakeDisplay.textContent = '$' + currentStake.toFixed(2);
 } else {
 consecutiveLosses++;
 martingaleLevel++;
 if (martingaleLevel <= maxMartingaleLevel) {
 currentStake = baseStake * Math.pow(martingaleMultiplier, martingaleLevel);
-liveStakeDisplay.textContent = '$' + currentStake.toFixed(2);
-toast(`⚡ Martingale Level ${martingaleLevel}: $${currentStake.toFixed(2)}`, 'info');
 } else {
 toast('⚠️ Max martingale level reached. Stopping.', 'error');
 stopTrading();
@@ -2557,47 +2574,50 @@ return;
 }
 }
 
-// Check Take Profit
+// Check TP/SL
 if (windowProfitValue >= profitTargetValue) {
 const profitAmt = windowProfitValue;
 sessions.push({ window: `Window ${++sessionCount}`, profit: profitAmt });
 renderSessions();
 tpAmount.textContent = profitAmt.toFixed(2);
 tpModal.classList.add('active');
-toast(`🎉 Take Profit hit! $${profitAmt.toFixed(2)}`, 'success');
+toast(`🎉 Take Profit hit! $${profitAmt.toFixed(2)} locked in.`, 'success');
 windowProfitValue = 0;
 updateProfitDisplay();
 consecutiveLosses = 0;
 martingaleLevel = 0;
 currentStake = baseStake;
-liveStakeDisplay.textContent = '$' + currentStake.toFixed(2);
 }
 
-// Check Stop Loss
 if (windowProfitValue <= -stopLossValue) {
 toast(`🛑 Stop Loss triggered at $${stopLossValue.toFixed(2)}`, 'error');
 stopTrading();
 return;
 }
 
-// Place next trade if still active
-if (isActive && !isTradeInProgress) {
-setTimeout(() => {
-if (isActive) placeTrade();
-}, 1500);
+// If still active, place next trade
+if (isActive) {
+placeTrade();
 }
 }
 
 function placeTrade() {
-if (!isActive || isTradeInProgress) return;
+if (!isActive) return;
 
 if (!accessToken) {
 toast('No access token. Please connect.', 'error');
 return;
 }
 
+// Use real WebSocket if connected
 if (wsConnected) {
-proposeContract();
+const symbol = currentMarketToSymbol(currentMarket);
+const contractType = 'DIGITOVER';
+const barrier = 0; // Over 0
+const duration = 1; // 1 tick
+const stake = currentStake;
+
+proposeContract(contractType, symbol, duration, barrier, stake);
 } else {
 // Fallback to simulation
 simulateTrade();
@@ -2605,15 +2625,20 @@ simulateTrade();
 }
 
 function simulateTrade() {
+// Original simulation logic
 const win = Math.random() < 0.90;
 const pl = win ? currentStake * 0.8 : -currentStake;
+
+// Update state
 handleTradeResult(win, pl);
 }
 
 // =============================================
-// Chart
+// Chart update with real tick data
 // =============================================
-function updateChartWithTick(price) {
+function updateChartWithTick(tick) {
+const price = parseFloat(tick.ask) || parseFloat(tick.bid) || 0;
+if (price) {
 const last = chartData.length > 0 ? chartData[chartData.length - 1].close : price;
 const open = last;
 const close = price;
@@ -2626,108 +2651,13 @@ if (chartData.length > 80) chartData.shift();
 chartPrice.textContent = close.toFixed(2);
 drawChart();
 }
-
-function initChart() {
-const rect = chartCanvas.getBoundingClientRect();
-const dpr = window.devicePixelRatio || 1;
-const w = rect.width || chartCanvas.parentElement.clientWidth || 300;
-const h = rect.height || chartCanvas.parentElement.clientHeight || 260;
-chartCanvas.width = w * dpr;
-chartCanvas.height = h * dpr;
-chartCanvas.style.height = h + 'px';
-chartCtx = chartCanvas.getContext('2d');
-chartCtx.scale(dpr, dpr);
-generateChartData();
-drawChart();
-}
-
-function generateChartData() {
-const n = 60;
-let base = 9732.91;
-chartData = [];
-for (let i = 0; i < n; i++) {
-const change = (Math.random() - 0.5) * 0.8;
-const open = base;
-const close = base + change;
-const high = Math.max(open, close) + Math.random() * 0.4;
-const low = Math.min(open, close) - Math.random() * 0.4;
-chartData.push({ open, high, low, close, time: i });
-base = close;
-}
-const last = chartData[chartData.length - 1];
-chartPrice.textContent = last.close.toFixed(2);
-}
-
-function drawChart() {
-if (!chartCtx) return;
-const canvas = chartCanvas;
-const w = canvas.width / (window.devicePixelRatio || 1);
-const h = canvas.height / (window.devicePixelRatio || 1);
-const ctx = chartCtx;
-ctx.clearRect(0, 0, w, h);
-
-const padding = { top: 12, bottom: 12, left: 28, right: 8 };
-const chartW = w - padding.left - padding.right;
-const chartH = h - padding.top - padding.bottom;
-const candleWidth = Math.min(chartW / chartData.length * 0.5, 5);
-const spacing = chartW / chartData.length;
-
-let min = Infinity, max = -Infinity;
-chartData.forEach(d => { if (d.low < min) min = d.low; if (d.high > max) max = d.high; });
-const range = max - min || 1;
-const scaleY = (val) => padding.top + chartH - ((val - min) / range) * chartH;
-
-ctx.strokeStyle = 'rgba(48,54,61,0.3)';
-ctx.lineWidth = 0.5;
-for (let i = 0; i < 3; i++) {
-const y = padding.top + (i / 2) * chartH;
-ctx.beginPath();
-ctx.moveTo(padding.left, y);
-ctx.lineTo(w - padding.right, y);
-ctx.stroke();
-const val = max - (i / 2) * range;
-ctx.fillStyle = '#6e7681';
-ctx.font = '7px monospace';
-ctx.textAlign = 'right';
-ctx.fillText(val.toFixed(1), padding.left - 3, y + 2);
-}
-
-chartData.forEach((d, i) => {
-const x = padding.left + i * spacing + spacing / 2;
-const yHigh = scaleY(d.high);
-const yLow = scaleY(d.low);
-const yOpen = scaleY(d.open);
-const yClose = scaleY(d.close);
-const color = d.close >= d.open ? '#00e676' : '#ff1744';
-
-ctx.beginPath();
-ctx.moveTo(x, yHigh);
-ctx.lineTo(x, yLow);
-ctx.strokeStyle = color;
-ctx.lineWidth = 1;
-ctx.stroke();
-
-const top = Math.min(yOpen, yClose);
-const bodyH = Math.abs(yClose - yOpen) || 1;
-ctx.fillStyle = color;
-ctx.fillRect(x - candleWidth / 2, top, candleWidth, bodyH);
-});
-
-ctx.fillStyle = '#6e7681';
-ctx.font = '7px monospace';
-ctx.textAlign = 'center';
-const step = Math.max(1, Math.floor(chartData.length / 4));
-chartData.forEach((d, i) => {
-if (i % step === 0 || i === chartData.length - 1) {
-ctx.fillText(i, padding.left + i * spacing + spacing / 2, h - 2);
-}
-});
 }
 
 // =============================================
 // OAuth 2.0 with PKCE
 // =============================================
-const AUTH_BASE = 'https://oauth.deriv.com/oauth2/authorize';
+const AUTH_BASE = 'https://auth.deriv.com/oauth2/auth';
+const TOKEN_ENDPOINT = 'https://auth.deriv.com/oauth2/token';
 
 function generateCodeVerifier() {
 const array = crypto.getRandomValues(new Uint8Array(64));
@@ -2756,7 +2686,7 @@ function storePKCE(verifier, state) {
 try {
 sessionStorage.setItem('oauth_code_verifier', verifier);
 sessionStorage.setItem('oauth_state', state);
-} catch (e) {}
+} catch (e) { /* ignore */ }
 }
 
 function getPKCE() {
@@ -2772,7 +2702,7 @@ function clearPKCE() {
 try {
 sessionStorage.removeItem('oauth_code_verifier');
 sessionStorage.removeItem('oauth_state');
-} catch (e) {}
+} catch (e) { /* ignore */ }
 }
 
 async function initiateAuth(prompt) {
@@ -2787,7 +2717,7 @@ return;
 localStorage.setItem('emron_oauth_client', clientId);
 localStorage.setItem('emron_oauth_redirect', redirectUri);
 
-const scope = 'read trade account_manage payments trading_information';
+const scope = 'trade account_manage application_read payment';
 const verifier = generateCodeVerifier();
 const state = generateState();
 storePKCE(verifier, state);
@@ -2801,15 +2731,48 @@ redirect_uri: redirectUri,
 scope: scope,
 state: state,
 code_challenge: challenge,
-code_challenge_method: 'S256',
-brand: 'deriv'
+code_challenge_method: 'S256'
 });
 
 if (prompt) params.append('prompt', prompt);
 
 const url = `${AUTH_BASE}?${params.toString()}`;
-console.log('Redirecting to:', url);
 window.location.href = url;
+}
+
+async function exchangeCode(code, verifier, redirectUri, clientId) {
+// Try to exchange via proxy or fallback to manual
+try {
+const response = await fetch('https://cors-anywhere.herokuapp.com/' + TOKEN_ENDPOINT, {
+method: 'POST',
+headers: {
+'Content-Type': 'application/x-www-form-urlencoded',
+'Origin': window.location.origin
+},
+body: new URLSearchParams({
+grant_type: 'authorization_code',
+client_id: clientId,
+code: code,
+code_verifier: verifier,
+redirect_uri: redirectUri
+})
+});
+
+if (!response.ok) {
+throw new Error(`HTTP ${response.status}`);
+}
+
+const data = await response.json();
+if (data.access_token) {
+return data.access_token;
+}
+
+throw new Error('No access_token in response');
+} catch (e) {
+console.warn('Token exchange via proxy failed, falling back to manual entry', e);
+toast('Token exchange failed. Please paste your token manually.', 'error');
+return null;
+}
 }
 
 function setAccessToken(token) {
@@ -2820,12 +2783,16 @@ connectBtn.textContent = '✅ Connected';
 connectBtn.className = 'btn btn-connected btn-sm';
 oauthStatus.textContent = '✅ Connected (token stored)';
 toast('Token set successfully', 'success');
+
+// Connect WebSocket with token
 connectWebSocket(token);
 } else {
 localStorage.removeItem('emron_access_token');
 connectBtn.textContent = 'Connect';
 connectBtn.className = 'btn btn-primary btn-sm';
 oauthStatus.textContent = 'Not connected';
+
+// Disconnect WebSocket
 if (ws) {
 ws.close();
 ws = null;
@@ -2842,10 +2809,12 @@ accessToken = token;
 connectBtn.textContent = '✅ Connected';
 connectBtn.className = 'btn btn-connected btn-sm';
 oauthStatus.textContent = '✅ Connected (stored)';
+
+// Connect WebSocket with token
 connectWebSocket(token);
 return true;
 }
-} catch (e) {}
+} catch (e) { /* ignore */ }
 return false;
 }
 
@@ -2855,35 +2824,28 @@ toast('Disconnected', 'info');
 }
 
 // =============================================
-// Handle OAuth callback
+// OAuth Event Listeners
+// =============================================
+oauthLoginBtn.addEventListener('click', () => initiateAuth(null));
+oauthSignupBtn.addEventListener('click', () => initiateAuth('registration'));
+oauthDisconnectBtn.addEventListener('click', disconnect);
+
+manualTokenBtn.addEventListener('click', () => {
+const token = manualToken.value.trim();
+if (token) {
+setAccessToken(token);
+manualToken.value = '';
+connectModal.classList.remove('active');
+} else {
+toast('Please paste a valid token', 'error');
+}
+});
+
+// =============================================
+// Handle OAuth callback on page load
 // =============================================
 async function handleOAuthCallback() {
 const params = new URLSearchParams(window.location.search);
-const hash = window.location.hash;
-
-// Deriv returns token in hash: #access_token=...
-let token = null;
-
-if (hash && hash.includes('access_token=')) {
-const hashParams = new URLSearchParams(hash.substring(1));
-token = hashParams.get('access_token');
-}
-
-// Also check query params
-if (!token) {
-token = params.get('token') || params.get('access_token');
-}
-
-if (token) {
-setAccessToken(token);
-toast('✅ Authentication successful!', 'success');
-// Clean URL
-window.history.replaceState({}, document.title, window.location.pathname);
-connectModal.classList.remove('active');
-return;
-}
-
-// Handle authorization code flow
 const code = params.get('code');
 const state = params.get('state');
 const error = params.get('error');
@@ -2902,105 +2864,55 @@ window.history.replaceState({}, document.title, window.location.pathname);
 return;
 }
 
-// Note: In production, exchange code on your backend
-// For now, show instructions
-toast('Authorization code received. Exchange it on your backend.', 'info');
+const clientId = oauthClientId.value.trim() || localStorage.getItem('emron_oauth_client') || '';
+const redirectUri = oauthRedirectUri.value.trim() || localStorage.getItem('emron_oauth_redirect') || '';
+
+if (!clientId || !redirectUri) {
+toast('Client ID or Redirect URI missing', 'error');
+window.history.replaceState({}, document.title, window.location.pathname);
+return;
+}
+
+const token = await exchangeCode(code, stored.verifier, redirectUri, clientId);
+
+if (token) {
+setAccessToken(token);
+toast('✅ Authentication successful!', 'success');
+} else {
+toast('Token exchange failed. You can paste the token manually.', 'error');
+}
+
 clearPKCE();
 window.history.replaceState({}, document.title, window.location.pathname);
+connectModal.classList.remove('active');
 }
 }
 
 // =============================================
-// Trading Lifecycle
+// Connect button handler
 // =============================================
-function startTrading() {
-if (isActive) return;
-isActive = true;
-statusBadge.className = 'status-badge active';
-statusText.textContent = 'ACTIVE';
-activateBtn.disabled = true;
-deactivateBtn.disabled = false;
-botState.textContent = 'RUNNING';
-windowTime.textContent = new Date().toLocaleTimeString();
-martingaleLevel = 0;
-consecutiveLosses = 0;
-currentStake = baseStake;
-liveStakeDisplay.textContent = '$' + currentStake.toFixed(2);
+connectBtn.addEventListener('click', () => {
+const savedClient = localStorage.getItem('emron_oauth_client');
+const savedRedirect = localStorage.getItem('emron_oauth_redirect');
+if (savedClient) oauthClientId.value = savedClient;
+if (savedRedirect) oauthRedirectUri.value = savedRedirect;
+connectModal.classList.add('active');
+});
 
-const mode = accessToken && wsConnected ? 'REAL' : 'SIMULATION';
-toast(`🚀 DigitEdge bot activated on ${currentMarket} — ${mode} mode`, 'success');
+// Save client/redirect/ws endpoint when modal closes
+document.querySelectorAll('.modal-close, .modal-overlay').forEach(el => {
+el.addEventListener('click', function(e) {
+if (e.target === this || this.classList.contains('modal-close')) {
+const client = oauthClientId.value.trim();
+const redirect = oauthRedirectUri.value.trim();
+const wsEndpoint = wsEndpointInput.value.trim();
 
-windowProfitValue = 0;
-updateProfitDisplay();
-
-if (accessToken && wsConnected) {
-isRealTrading = true;
-subscribeTicks();
-setTimeout(placeTrade, 1000);
-} else {
-isRealTrading = false;
-if (updateInterval) clearInterval(updateInterval);
-updateInterval = setInterval(() => {
-if (!isActive) return;
-simulateTrade();
-}, 2800);
+if (client) localStorage.setItem('emron_oauth_client', client);
+if (redirect) localStorage.setItem('emron_oauth_redirect', redirect);
+if (wsEndpoint) localStorage.setItem('emron_ws_endpoint', wsEndpoint);
 }
-}
-
-function stopTrading() {
-if (!isActive) return;
-isActive = false;
-statusBadge.className = 'status-badge inactive';
-statusText.textContent = 'INACTIVE';
-activateBtn.disabled = false;
-deactivateBtn.disabled = true;
-botState.textContent = 'IDLE';
-isTradeInProgress = false;
-
-if (updateInterval) {
-clearInterval(updateInterval);
-updateInterval = null;
-}
-
-if (ws && wsConnected) {
-sendWsRequest({ forget_all: 'ticks' });
-if (activeContractId) {
-sendWsRequest({ forget_all: 'proposal_open_contract' });
-}
-}
-
-toast('⏸ DigitEdge bot deactivated', 'error');
-}
-
-// =============================================
-// Quick Settings
-// =============================================
-function applyQuickSettings() {
-const stake = parseFloat(qsStake.value) || 10;
-const multi = parseFloat(qsMulti.value) || 1.5;
-const maxLvl = parseInt(qsMaxLevel.value) || 7;
-const tp = parseFloat(qsTP.value) || 20;
-const sl = parseFloat(qsSL.value) || 10000;
-const market = qsMarket.value;
-
-baseStake = stake;
-currentStake = stake;
-martingaleMultiplier = multi;
-maxMartingaleLevel = maxLvl;
-profitTargetValue = tp;
-stopLossValue = sl;
-
-liveStakeDisplay.textContent = '$' + stake.toFixed(2);
-updateProfitDisplay();
-updateMarketDisplay(market);
-
-// Re-subscribe to ticks if connected
-if (wsConnected) {
-subscribeTicks();
-}
-
-toast('⚡ Quick settings applied', 'success');
-}
+});
+});
 
 // =============================================
 // Presets
@@ -3014,12 +2926,14 @@ const presets = {
 };
 const p = presets[preset];
 if (!p) return;
+
 qsMarket.value = p.market;
 qsStake.value = p.stake;
 qsMulti.value = p.multi;
 qsMaxLevel.value = p.maxLvl;
 qsTP.value = p.tp;
 qsSL.value = p.sl;
+
 applyQuickSettings();
 toast(`Loaded preset: ${preset}`, 'success');
 }
@@ -3032,6 +2946,7 @@ const el = document.createElement('div');
 el.className = `toast ${type}`;
 el.textContent = message;
 toastContainer.appendChild(el);
+
 setTimeout(() => {
 el.classList.add('out');
 setTimeout(() => el.remove(), 300);
@@ -3044,28 +2959,31 @@ balanceValue.textContent = balance.toFixed(2);
 
 function updateProfitDisplay() {
 windowProfit.textContent = windowProfitValue.toFixed(2);
-const pct = Math.min(Math.max((windowProfitValue / profitTargetValue) * 100, 0), 100);
+const pct = Math.min((windowProfitValue / profitTargetValue) * 100, 100);
 profitFill.style.width = pct + '%';
 profitTargetDisplay.textContent = profitTargetValue.toFixed(2);
 }
 
 function renderSessions() {
 if (sessions.length === 0) {
-sessionsBody.innerHTML = `<tr><td colspan="3" class="empty-state"><span class="emoji">📋</span>No entries yet. Activate the strategy to start.</td></tr>`;
+sessionsBody.innerHTML =
+`<tr><td colspan="3" class="empty-state"><span class="emoji">📋</span>No entries yet. Activate the strategy to start.</td></tr>`;
 return;
 }
 let html = '';
 sessions.slice().reverse().forEach(s => {
 const cls = s.profit >= 0 ? 'profit' : 'loss';
 const status = s.profit >= 0 ? 'Won' : 'Lost';
-html += `<tr><td>${s.window}</td><td class="${cls}">$${s.profit.toFixed(2)}</td><td><span class="status-pill ${s.profit>=0?'won':'lost'}">${status}</span></td></tr>`;
+html +=
+`<tr><td>${s.window}</td><td class="${cls}">$${s.profit.toFixed(2)}</td><td><span class="status-pill ${s.profit>=0?'won':'lost'}">${status}</span></td></tr>`;
 });
 sessionsBody.innerHTML = html;
 }
 
 function renderTrades() {
 if (trades.length === 0) {
-tradesBody.innerHTML = `<tr><td colspan="5" class="empty-state"><span class="emoji">📊</span>No trades yet.</td></tr>`;
+tradesBody.innerHTML =
+`<tr><td colspan="5" class="empty-state"><span class="emoji">📊</span>No trades yet.</td></tr>`;
 return;
 }
 let html = '';
@@ -3073,7 +2991,8 @@ trades.slice().reverse().slice(0, 25).forEach(t => {
 const pl = t.pl;
 const cls = pl >= 0 ? 'profit' : 'loss';
 const sign = pl >= 0 ? '+' : '';
-html += `<tr><td>${t.time}</td><td>${t.type}</td><td>${t.symbol}</td><td>$${t.stake.toFixed(2)}</td><td class="${cls}">${sign}$${pl.toFixed(2)}</td></tr>`;
+html +=
+`<tr><td>${t.time}</td><td>${t.type}</td><td>${t.symbol}</td><td>$${t.stake.toFixed(2)}</td><td class="${cls}">${sign}$${pl.toFixed(2)}</td></tr>`;
 });
 tradesBody.innerHTML = html;
 }
@@ -3118,10 +3037,215 @@ const shortMap = {
 'Range Break': 'RANGE',
 };
 const short = shortMap[market] || 'VOL50';
+
 symbolOptions.forEach(el => {
 el.classList.toggle('active', el.dataset.symbol === short);
 });
+
 toast(`📊 Switched to ${market}`, 'info');
+}
+
+// =============================================
+// Chart
+// =============================================
+function initChart() {
+const rect = chartCanvas.getBoundingClientRect();
+const dpr = window.devicePixelRatio || 1;
+const w = rect.width || chartCanvas.parentElement.clientWidth || 300;
+const h = rect.height || chartCanvas.parentElement.clientHeight || 260;
+
+chartCanvas.width = w * dpr;
+chartCanvas.height = h * dpr;
+chartCanvas.style.height = h + 'px';
+
+chartCtx = chartCanvas.getContext('2d');
+chartCtx.scale(dpr, dpr);
+
+generateChartData();
+drawChart();
+}
+
+function generateChartData() {
+const n = 60;
+let base = 9732.91;
+chartData = [];
+
+for (let i = 0; i < n; i++) {
+const change = (Math.random() - 0.5) * 0.8;
+const open = base;
+const close = base + change;
+const high = Math.max(open, close) + Math.random() * 0.4;
+const low = Math.min(open, close) - Math.random() * 0.4;
+
+chartData.push({ open, high, low, close, time: i });
+base = close;
+}
+
+const last = chartData[chartData.length - 1];
+chartPrice.textContent = last.close.toFixed(2);
+}
+
+function drawChart() {
+if (!chartCtx) return;
+const canvas = chartCanvas;
+const w = canvas.width / (window.devicePixelRatio || 1);
+const h = canvas.height / (window.devicePixelRatio || 1);
+const ctx = chartCtx;
+
+ctx.clearRect(0, 0, w, h);
+
+const padding = { top: 12, bottom: 12, left: 28, right: 8 };
+const chartW = w - padding.left - padding.right;
+const chartH = h - padding.top - padding.bottom;
+
+const candleWidth = Math.min(chartW / chartData.length * 0.5, 5);
+const spacing = chartW / chartData.length;
+
+let min = Infinity,
+max = -Infinity;
+chartData.forEach(d => { if (d.low < min) min = d.low; if (d.high > max) max = d.high; });
+
+const range = max - min || 1;
+const scaleY = (val) => padding.top + chartH - ((val - min) / range) * chartH;
+
+ctx.strokeStyle = 'rgba(48,54,61,0.3)';
+ctx.lineWidth = 0.5;
+
+for (let i = 0; i < 3; i++) {
+const y = padding.top + (i / 2) * chartH;
+ctx.beginPath();
+ctx.moveTo(padding.left, y);
+ctx.lineTo(w - padding.right, y);
+ctx.stroke();
+
+const val = max - (i / 2) * range;
+ctx.fillStyle = '#6e7681';
+ctx.font = '7px monospace';
+ctx.textAlign = 'right';
+ctx.fillText(val.toFixed(1), padding.left - 3, y + 2);
+}
+
+chartData.forEach((d, i) => {
+const x = padding.left + i * spacing + spacing / 2;
+const yHigh = scaleY(d.high);
+const yLow = scaleY(d.low);
+const yOpen = scaleY(d.open);
+const yClose = scaleY(d.close);
+
+const color = d.close >= d.open ? '#00e676' : '#ff1744';
+
+ctx.beginPath();
+ctx.moveTo(x, yHigh);
+ctx.lineTo(x, yLow);
+ctx.strokeStyle = color;
+ctx.lineWidth = 1;
+ctx.stroke();
+
+const top = Math.min(yOpen, yClose);
+const bodyH = Math.abs(yClose - yOpen) || 1;
+
+ctx.fillStyle = color;
+ctx.fillRect(x - candleWidth / 2, top, candleWidth, bodyH);
+});
+
+ctx.fillStyle = '#6e7681';
+ctx.font = '7px monospace';
+ctx.textAlign = 'center';
+
+const step = Math.max(1, Math.floor(chartData.length / 4));
+chartData.forEach((d, i) => {
+if (i % step === 0 || i === chartData.length - 1) {
+ctx.fillText(i, padding.left + i * spacing + spacing / 2, h - 2);
+}
+});
+}
+
+// =============================================
+// Trading Lifecycle
+// =============================================
+function startTrading() {
+if (isActive) return;
+isActive = true;
+statusBadge.className = 'status-badge active';
+statusText.textContent = 'ACTIVE';
+activateBtn.disabled = true;
+deactivateBtn.disabled = false;
+botState.textContent = 'RUNNING';
+windowTime.textContent = new Date().toLocaleTimeString();
+martingaleLevel = 0;
+consecutiveLosses = 0;
+currentStake = baseStake;
+
+toast(`🚀 DigitEdge bot activated on ${currentMarket} — ${accessToken ? 'REAL' : 'SIMULATION'} trading`, 'success');
+
+windowProfitValue = 0;
+updateProfitDisplay();
+
+// If we have a token and WebSocket is connected, use real trading
+if (accessToken && wsConnected) {
+isRealTrading = true;
+subscribeTicks();
+
+// Place first trade after a small delay
+setTimeout(placeTrade, 1000);
+} else {
+isRealTrading = false;
+
+// Use simulation
+if (updateInterval) clearInterval(updateInterval);
+updateInterval = setInterval(() => {
+if (!isActive) return;
+simulateTrade();
+}, 2800);
+}
+}
+
+function stopTrading() {
+if (!isActive) return;
+isActive = false;
+statusBadge.className = 'status-badge inactive';
+statusText.textContent = 'INACTIVE';
+activateBtn.disabled = false;
+deactivateBtn.disabled = true;
+botState.textContent = 'IDLE';
+
+if (updateInterval) {
+clearInterval(updateInterval);
+updateInterval = null;
+}
+
+// Unsubscribe from ticks
+if (ws && wsConnected) {
+sendWsRequest({ forget_all: 'ticks' });
+}
+
+toast('⏸ DigitEdge bot deactivated', 'error');
+}
+
+// =============================================
+// Quick Settings
+// =============================================
+function applyQuickSettings() {
+const stake = parseFloat(qsStake.value) || 10;
+const multi = parseFloat(qsMulti.value) || 1.5;
+const maxLvl = parseInt(qsMaxLevel.value) || 7;
+const tp = parseFloat(qsTP.value) || 20;
+const sl = parseFloat(qsSL.value) || 10000;
+const market = qsMarket.value;
+
+baseStake = stake;
+currentStake = stake;
+martingaleMultiplier = multi;
+maxMartingaleLevel = maxLvl;
+profitTargetValue = tp;
+stopLossValue = sl;
+
+liveStakeDisplay.textContent = '$' + stake.toFixed(2);
+
+updateProfitDisplay();
+updateMarketDisplay(market);
+
+toast('⚡ Quick settings applied', 'success');
 }
 
 // =============================================
@@ -3134,9 +3258,20 @@ const signalType = document.getElementById('aiSignalType').value;
 const conf = Math.floor(50 + Math.random() * 45);
 const direction = signalType === 'buy' ? 'BUY' : signalType === 'sell' ? 'SELL' : 'NEUTRAL';
 const badgeClass = direction === 'BUY' ? 'buy' : direction === 'SELL' ? 'sell' : 'neutral';
+
 const target = (9732.91 + (direction === 'BUY' ? 50 : -50) + (Math.random() - 0.5) * 30).toFixed(2);
 const stop = (9732.91 + (direction === 'BUY' ? -50 : 50) + (Math.random() - 0.5) * 30).toFixed(2);
-const reasons = ['RSI oversold/overbought', 'Moving average crossover', 'Volume surge detected', 'Support/resistance breakout', 'MACD divergence', 'Bollinger band squeeze', 'DigitEdge pattern match', 'Last digit distribution skew'];
+
+const reasons = [
+'RSI oversold/overbought',
+'Moving average crossover',
+'Volume surge detected',
+'Support/resistance breakout',
+'MACD divergence',
+'Bollinger band squeeze',
+'DigitEdge pattern match',
+'Last digit distribution skew',
+];
 const selectedReasons = reasons.sort(() => Math.random() - 0.5).slice(0, 3);
 
 let html = `
@@ -3159,25 +3294,31 @@ ${selectedReasons.map(r => `<li>${r}</li>`).join('')}
 <div style="margin-top:6px;font-size:clamp(8px,0.4vw,10px);color:var(--accent-cyan);font-family:'JetBrains Mono',monospace;padding:4px 8px;background:var(--bg-surface);border-radius:var(--radius-sm);">
 🔓 DigitEdge feed: Over 0 · Barrier 0 · 1 tick · ${market}
 </div>
-</div>`;
+</div>
+`;
 signalOutput.innerHTML = html;
 
 const recent = document.getElementById('recentSignals');
 const card = document.createElement('div');
 card.className = 'analysis-card';
+const now = new Date();
+const timeAgo = 'just now';
 card.innerHTML = `
 <div class="analysis-card-header">
 <span class="symbol-pill">${market}</span>
-<span class="time-ago">just now</span>
+<span class="time-ago">${timeAgo}</span>
 </div>
 <div><span class="signal-badge ${badgeClass}">${direction}</span> <span style="color:var(--text-muted);font-size:clamp(10px,0.5vw,12px);">Confidence ${conf}%</span></div>
 <div style="margin-top:4px;font-size:clamp(9px,0.4vw,11px);color:var(--text-dim);">Target: ${target} · Stop: ${stop}</div>
-<div style="font-size:clamp(7px,0.4vw,9px);color:var(--accent-cyan);margin-top:3px;">DigitEdge · Over 0</div>`;
+<div style="font-size:clamp(7px,0.4vw,9px);color:var(--accent-cyan);margin-top:3px;">DigitEdge · Over 0</div>
+`;
+
 recent.prepend(card);
 if (recent.children.length > 6) recent.removeChild(recent.lastChild);
 
 signalCount++;
 totalSignalsToday.textContent = signalCount;
+
 toast(`📡 DigitEdge signal generated on ${market}`, 'info');
 }
 
@@ -3188,26 +3329,32 @@ function updateMonitor() {
 const buy = Math.floor(Math.random() * 5);
 const sell = Math.floor(Math.random() * 4);
 const neutral = Math.floor(Math.random() * 3);
+
 gaugeBuy.textContent = buy;
 gaugeSell.textContent = sell;
 gaugeNeutral.textContent = neutral;
+
 lastUpdate.textContent = new Date().toLocaleTimeString();
 totalSignalsToday.textContent = signalCount + Math.floor(Math.random() * 8);
 
-const symbols = ['VOL10', 'VOL25', 'VOL50', 'VOL75', 'VOL100', 'VOL10_1s', 'VOL25_1s', 'VOL50_1s', 'VOL75_1s', 'VOL100_1s', 'CRASH', 'BOOM', 'RANGE'];
+const symbols = ['VOL10', 'VOL25', 'VOL50', 'VOL75', 'VOL100', 'VOL10_1s', 'VOL25_1s', 'VOL50_1s',
+'VOL75_1s', 'VOL100_1s', 'CRASH', 'BOOM', 'RANGE'
+];
 const sym = symbols[Math.floor(Math.random() * symbols.length)];
 const dir = ['BUY', 'SELL', 'NEUTRAL'][Math.floor(Math.random() * 3)];
 const conf = Math.floor(50 + Math.random() * 45);
 
 const row = document.createElement('tr');
 const time = new Date().toLocaleTimeString();
-row.innerHTML = `<td>${time}</td><td>${sym}</td><td><span class="signal-badge ${dir.toLowerCase()}">${dir}</span></td><td>${conf}%</td>`;
+row.innerHTML =
+`<td>${time}</td><td>${sym}</td><td><span class="signal-badge ${dir.toLowerCase()}">${dir}</span></td><td>${conf}%</td>`;
 monitorSignals.prepend(row);
 if (monitorSignals.children.length > 10) monitorSignals.removeChild(monitorSignals.lastChild);
 
 const histRow = document.createElement('tr');
 const result = Math.random() > 0.5 ? 'Won' : 'Lost';
-histRow.innerHTML = `<td>${sym}</td><td><span class="signal-badge ${dir.toLowerCase()}">${dir}</span></td><td>${time}</td><td>${result}</td>`;
+histRow.innerHTML =
+`<td>${sym}</td><td><span class="signal-badge ${dir.toLowerCase()}">${dir}</span></td><td>${time}</td><td>${result}</td>`;
 monitorHistory.prepend(histRow);
 if (monitorHistory.children.length > 10) monitorHistory.removeChild(monitorHistory.lastChild);
 }
@@ -3223,9 +3370,11 @@ document.getElementById('ssSignal').value = 'Over';
 document.getElementById('ssSides').value = 'Over only';
 document.getElementById('ssBarrier').value = '0';
 document.getElementById('ssDuration').value = '1';
+
 for (let opt of ssMarket.options) {
 if (opt.value === currentMarket) { ssMarket.value = currentMarket; break; }
 }
+
 document.getElementById('ssEntry').value = 'None — trade every cycle';
 signalStrategyModal.classList.add('active');
 }
@@ -3233,14 +3382,11 @@ signalStrategyModal.classList.add('active');
 function saveSignalStrategy() {
 const strategy = document.getElementById('ssStrategy').value;
 const signal = document.getElementById('ssSignal').value;
+const sides = document.getElementById('ssSides').value;
 const barrier = document.getElementById('ssBarrier').value;
 const duration = document.getElementById('ssDuration').value;
 const market = document.getElementById('ssMarket').value;
-
-document.querySelector('[data-field="strategyMode"]').textContent = strategy;
-document.querySelector('[data-field="signalDir"]').textContent = signal;
-document.querySelector('[data-field="barrier"]').textContent = barrier;
-document.querySelector('[data-field="duration"]').textContent = duration + ' tick' + (duration > 1 ? 's' : '');
+const entry = document.getElementById('ssEntry').value;
 
 if (market !== 'Signal market (recommended)') {
 updateMarketDisplay(market);
@@ -3254,10 +3400,14 @@ toast('📡 DigitEdge signal strategy applied', 'success');
 // Risk Management Modal
 // =============================================
 function openRiskMgmt() {
+document.getElementById('rmTradeDiffers').value = 'No';
 document.getElementById('rmTP').value = profitTargetValue.toFixed(2);
 document.getElementById('rmSL').value = stopLossValue.toFixed(2);
+document.getElementById('rmMethod').value = 'Martingale';
 document.getElementById('rmMulti').value = martingaleMultiplier.toFixed(1);
 document.getElementById('rmMaxLevel').value = maxMartingaleLevel;
+document.getElementById('rmStopAfterMax').value = 'Yes';
+
 updateStakeLadder();
 riskMgmtModal.classList.add('active');
 }
@@ -3267,10 +3417,12 @@ const base = parseFloat(document.getElementById('rmMulti').value) || 1.5;
 const maxLvl = parseInt(document.getElementById('rmMaxLevel').value) || 7;
 const steps = [];
 let s = baseStake;
+
 for (let i = 0; i <= maxLvl; i++) {
 steps.push(s.toFixed(1));
 s = s * base;
 }
+
 document.getElementById('stakeLadderPreview').textContent = steps.join(' → ');
 }
 
@@ -3303,99 +3455,34 @@ document.getElementById('editStake').value = baseStake.toFixed(2);
 document.getElementById('editDuration').value = '1';
 document.getElementById('editContractType').value = 'DIGITOVER';
 document.getElementById('editExecution').value = 'Ultra Fast';
+
 for (let opt of editMarket.options) {
 if (opt.value === currentMarket) { editMarket.value = currentMarket; break; }
 }
+
 settingsModal.classList.add('active');
 }
 
 function saveSettings() {
 const stake = parseFloat(document.getElementById('editStake').value) || 10;
 const market = document.getElementById('editMarket').value;
+
 baseStake = stake;
 currentStake = stake;
+
 liveStakeDisplay.textContent = '$' + stake.toFixed(2);
 qsStake.value = stake.toFixed(2);
+
 updateMarketDisplay(market);
 settingsModal.classList.remove('active');
 toast('⚙️ Settings saved', 'success');
 }
 
 // =============================================
-// Event listeners
+// Symbol selector handler
 // =============================================
-tabs.forEach(tab => {
-tab.addEventListener('click', function() {
-const target = this.dataset.tab;
-tabs.forEach(t => t.classList.remove('active'));
-this.classList.add('active');
-Object.keys(contents).forEach(key => {
-contents[key].classList.toggle('active', key === target);
-});
-});
-});
-
-hamburger.addEventListener('click', function() {
-sidebar.classList.toggle('open');
-sidebarBackdrop.classList.toggle('show');
-});
-sidebarBackdrop.addEventListener('click', function() {
-sidebar.classList.remove('open');
-sidebarBackdrop.classList.remove('show');
-});
-
-activateBtn.addEventListener('click', startTrading);
-deactivateBtn.addEventListener('click', stopTrading);
-qsApplyBtn.addEventListener('click', applyQuickSettings);
-
-document.querySelectorAll('.preset-btn').forEach(btn => {
-btn.addEventListener('click', function() {
-applyPreset(this.dataset.preset);
-});
-});
-
-signalStrategyBtn.addEventListener('click', openSignalStrategy);
-ssSaveBtn.addEventListener('click', saveSignalStrategy);
-riskMgmtBtn.addEventListener('click', openRiskMgmt);
-document.getElementById('rmMulti').addEventListener('input', updateStakeLadder);
-document.getElementById('rmMaxLevel').addEventListener('input', updateStakeLadder);
-rmSaveBtn.addEventListener('click', saveRiskMgmt);
-editSettingsBtn.addEventListener('click', openSettingsModal);
-saveSettingsBtn.addEventListener('click', saveSettings);
-
-document.querySelectorAll('.modal-close').forEach(el => {
-el.addEventListener('click', function() {
-const modal = this.closest('.modal-overlay');
-if (modal) modal.classList.remove('active');
-});
-});
-document.querySelectorAll('.modal-overlay').forEach(overlay => {
-overlay.addEventListener('click', function(e) {
-if (e.target === this) this.classList.remove('active');
-});
-});
-
-tpProceedBtn.addEventListener('click', () => {
-tpModal.classList.remove('active');
-toast('✅ Session reset. Ready for next cycle.', 'info');
-});
-
-clearSessionsBtn.addEventListener('click', () => {
-sessions = [];
-renderSessions();
-toast('📋 Sessions cleared', 'info');
-});
-
-generateSignalBtn.addEventListener('click', generateAISignal);
-runAnalysisBtn.addEventListener('click', generateAISignal);
-document.getElementById('saveSignalBtn').addEventListener('click', () => {
-toast('💾 Signal saved to history', 'info');
-});
-
-symbolOptions.forEach(el => {
-el.addEventListener('click', function() {
-symbolOptions.forEach(o => o.classList.remove('active'));
-this.classList.add('active');
+function handleSymbolClick(el) {
+const symbol = el.dataset.symbol;
 const marketMap = {
 'VOL10': 'Volatility 10',
 'VOL25': 'Volatility 25',
@@ -3411,18 +3498,123 @@ const marketMap = {
 'BOOM': 'Boom 500',
 'RANGE': 'Range Break',
 };
-const market = marketMap[this.dataset.symbol];
-if (market) updateMarketDisplay(market);
+
+const market = marketMap[symbol];
+if (market) {
+updateMarketDisplay(market);
+}
+}
+
+// =============================================
+// Event listeners
+// =============================================
+// Tab switching
+tabs.forEach(tab => {
+tab.addEventListener('click', function() {
+const target = this.dataset.tab;
+tabs.forEach(t => t.classList.remove('active'));
+this.classList.add('active');
+Object.keys(contents).forEach(key => {
+contents[key].classList.toggle('active', key === target);
+});
 });
 });
 
+// Hamburger
+hamburger.addEventListener('click', function() {
+sidebar.classList.toggle('open');
+sidebarBackdrop.classList.toggle('show');
+});
+
+sidebarBackdrop.addEventListener('click', function() {
+sidebar.classList.remove('open');
+sidebarBackdrop.classList.remove('show');
+});
+
+// Activate / Deactivate
+activateBtn.addEventListener('click', startTrading);
+deactivateBtn.addEventListener('click', stopTrading);
+
+// Quick Settings
+qsApplyBtn.addEventListener('click', applyQuickSettings);
+
+// Preset Buttons
+document.querySelectorAll('.preset-btn').forEach(btn => {
+btn.addEventListener('click', function() {
+const preset = this.dataset.preset;
+applyPreset(preset);
+});
+});
+
+// Signal Strategy
+signalStrategyBtn.addEventListener('click', openSignalStrategy);
+ssSaveBtn.addEventListener('click', saveSignalStrategy);
+
+// Risk Management
+riskMgmtBtn.addEventListener('click', openRiskMgmt);
+document.getElementById('rmMulti').addEventListener('input', updateStakeLadder);
+document.getElementById('rmMaxLevel').addEventListener('input', updateStakeLadder);
+rmSaveBtn.addEventListener('click', saveRiskMgmt);
+
+// Full Settings
+editSettingsBtn.addEventListener('click', openSettingsModal);
+saveSettingsBtn.addEventListener('click', saveSettings);
+
+// Close modals
+document.querySelectorAll('.modal-close').forEach(el => {
+el.addEventListener('click', function() {
+const modal = this.closest('.modal-overlay');
+if (modal) modal.classList.remove('active');
+});
+});
+
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+overlay.addEventListener('click', function(e) {
+if (e.target === this) this.classList.remove('active');
+});
+});
+
+// TP modal proceed
+tpProceedBtn.addEventListener('click', () => {
+tpModal.classList.remove('active');
+toast('✅ Session reset. Ready for next cycle.', 'info');
+});
+
+// Clear sessions
+clearSessionsBtn.addEventListener('click', () => {
+sessions = [];
+renderSessions();
+toast('📋 Sessions cleared', 'info');
+});
+
+// Generate AI signal
+generateSignalBtn.addEventListener('click', generateAISignal);
+runAnalysisBtn.addEventListener('click', generateAISignal);
+
+document.getElementById('saveSignalBtn').addEventListener('click', () => {
+toast('💾 Signal saved to history', 'info');
+});
+
+// Symbol selector
+symbolOptions.forEach(el => {
+el.addEventListener('click', function() {
+symbolOptions.forEach(o => o.classList.remove('active'));
+this.classList.add('active');
+handleSymbolClick(this);
+});
+});
+
+// Pill tabs
 document.querySelectorAll('.pill-tab').forEach(tab => {
 tab.addEventListener('click', function() {
 document.querySelectorAll('.pill-tab').forEach(t => t.classList.remove('active'));
 this.classList.add('active');
+const filter = this.dataset.monitor;
+toast(`📊 Filter: ${filter}`, 'info');
 });
 });
 
+// Accordion
 document.querySelectorAll('.accordion-header').forEach(header => {
 header.addEventListener('click', function() {
 const item = this.closest('.accordion-item');
@@ -3430,6 +3622,7 @@ if (item) item.classList.toggle('open');
 });
 });
 
+// FAQ toggle
 document.querySelectorAll('.faq-question').forEach(q => {
 q.addEventListener('click', function() {
 const item = this.closest('.faq-item');
@@ -3440,6 +3633,7 @@ this.querySelector('.faq-toggle').textContent = item.classList.contains('open') 
 });
 });
 
+// Help search
 helpSearch.addEventListener('input', function() {
 const q = this.value.toLowerCase();
 document.querySelectorAll('.faq-item').forEach(item => {
@@ -3448,6 +3642,7 @@ item.style.display = text.includes(q) ? '' : 'none';
 });
 });
 
+// Collapse cards
 document.querySelectorAll('[data-collapse]').forEach(btn => {
 btn.addEventListener('click', function() {
 const card = document.getElementById(this.dataset.collapse);
@@ -3462,36 +3657,15 @@ this.textContent = isHidden ? '—' : '+';
 });
 });
 
+// Timeframe pills
 document.querySelectorAll('.tf-pill').forEach(pill => {
 pill.addEventListener('click', function() {
 document.querySelectorAll('.tf-pill').forEach(p => p.classList.remove('active'));
 this.classList.add('active');
 generateChartData();
 drawChart();
+toast(`⏱ Timeframe: ${this.textContent}`, 'info');
 });
-});
-
-// OAuth event listeners
-oauthLoginBtn.addEventListener('click', () => initiateAuth(null));
-oauthSignupBtn.addEventListener('click', () => initiateAuth('registration'));
-oauthDisconnectBtn.addEventListener('click', disconnect);
-manualTokenBtn.addEventListener('click', () => {
-const token = manualToken.value.trim();
-if (token) {
-setAccessToken(token);
-manualToken.value = '';
-connectModal.classList.remove('active');
-} else {
-toast('Please paste a valid token', 'error');
-}
-});
-
-connectBtn.addEventListener('click', () => {
-const savedClient = localStorage.getItem('emron_oauth_client');
-const savedRedirect = localStorage.getItem('emron_oauth_redirect');
-if (savedClient) oauthClientId.value = savedClient;
-if (savedRedirect) oauthRedirectUri.value = savedRedirect;
-connectModal.classList.add('active');
 });
 
 // =============================================
@@ -3510,9 +3684,17 @@ updateCountdown.textContent = countdown;
 // =============================================
 // Init
 // =============================================
+// Load stored token (OAuth)
 loadStoredToken();
+
+// Load saved WebSocket endpoint
+const savedWsEndpoint = localStorage.getItem('emron_ws_endpoint');
+if (savedWsEndpoint) wsEndpointInput.value = savedWsEndpoint;
+
+// Handle OAuth callback
 handleOAuthCallback();
 
+// Pre-fill OAuth fields from localStorage or defaults
 const savedClient = localStorage.getItem('emron_oauth_client');
 const savedRedirect = localStorage.getItem('emron_oauth_redirect');
 if (savedClient) oauthClientId.value = savedClient;
@@ -3532,13 +3714,13 @@ qsTP.value = profitTargetValue.toFixed(2);
 qsSL.value = stopLossValue.toFixed(2);
 
 setTimeout(updateMonitor, 500);
-setInterval(() => { if (!isActive) { generateChartData(); drawChart(); } }, 7000);
+setInterval(() => { if (!isActive) updateChart(); }, 7000);
 window.addEventListener('resize', initChart);
 
 console.log('🔷 EMRON AI — DigitEdge FREE & UNLOCKED');
 console.log('📡 OAuth 2.0 with PKCE + WebSocket integrated');
-console.log('📊 WebSocket endpoint: ' + getWsEndpoint());
 console.log('📊 Markets: Volatility 10–100 (2s & 1s), Crash, Boom, Range Break');
+console.log('🔑 Client ID: ' + oauthClientId.value);
 })();
 </script>
 </body>
