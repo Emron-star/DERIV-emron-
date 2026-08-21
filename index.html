@@ -1393,6 +1393,7 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 <div class="card-body">
 <div class="setting-row"><span class="label">Time window</span><span class="value" id="windowTime">—</span></div>
 <div class="setting-row"><span class="label">Bot state</span><span class="value" id="botState">IDLE</span></div>
+<div class="setting-row"><span class="label">Session Round</span><span class="value live" id="currentRound">0 / 200</span></div>
 <div class="setting-row"><span class="label">Digit feed</span><span class="value" style="color:var(--accent-cyan);">DigitEdge <span class="free-badge">FREE</span></span></div>
 <div class="progress-container">
 <div class="progress-label">
@@ -2081,7 +2082,7 @@ Sign in or create a Deriv account using OAuth 2.0. Your token will be stored loc
 </div>
 <div class="form-group" style="margin-bottom:clamp(6px,0.4vw,10px);">
 <label>Redirect URI</label>
-<input class="form-control" id="oauthRedirectUri" placeholder="Your registered redirect_uri" value="https://emronai-4.netlify.app/">
+<input class="form-control" id="oauthRedirectUri" placeholder="Your registered redirect_uri" value="https://emronai-4.netlify.app/callback">
 </div>
 <div class="warning-box" style="font-size:clamp(9px,0.5vw,11px);">
 <strong>🔒 OAuth 2.0 with PKCE</strong> — your <code>code_verifier</code> and <code>state</code> are generated per session and never stored.
@@ -2151,6 +2152,7 @@ const profitTargetDisplay = document.getElementById('profitTargetDisplay');
 const profitFill = document.getElementById('profitFill');
 const windowTime = document.getElementById('windowTime');
 const botState = document.getElementById('botState');
+const currentRound = document.getElementById('currentRound');
 const sessionsBody = document.getElementById('sessionsTable');
 const tradesBody = document.getElementById('tradesTable');
 const balanceValue = document.getElementById('balanceValue');
@@ -2237,6 +2239,7 @@ let windowProfitValue = 0;
 let profitTargetValue = 20.00;
 let stopLossValue = 10000.00;
 let sessionCount = 0;
+let sessionTradeCount = 0;
 let trades = [];
 let sessions = [];
 let signalCount = 0;
@@ -2260,65 +2263,58 @@ let pendingProposal = null;
 let activeContractId = null;
 let tickSubscriptionId = null;
 let isTradeInProgress = false;
+let authRetries = 0;
 // =============================================
 // CORRECTED WEBSOCKET MANAGER
 // =============================================
 function getAppId() {
-  return '1089'; // Hardcoded WebSocket App ID
+  return '1089'; // Hardcoded WebSocket App ID (numeric) — NOT the OAuth Client ID
 }
-
 function getWsEndpoint() {
-  const appId = getAppId();
-  return `wss://ws.derivws.com/websockets/v3?app_id=${appId}`;
+const appId = getAppId();
+return `wss://ws.derivws.com/websockets/v3?app_id=${appId}`;
 }
-
 function connectWebSocket(token) {
-  const endpoint = getWsEndpoint();
-  console.log('Connecting to:', endpoint);
-  
-  // If already open, force authorize immediately
-  if (ws && ws.readyState === WebSocket.OPEN) {
-    console.log('✅ WS already OPEN - forcing authorization');
-    ws.send(JSON.stringify({ authorize: token }));
-    return;
-  }
-
-  try {
-    ws = new WebSocket(endpoint);
-  } catch(e) {
-    console.error('WS fail', e);
-    toast('WebSocket connection failed', 'error');
-    return;
-  }
-
-  ws.onopen = function() {
-    console.log('✅ WS OPEN - forcing authorization');
-    wsConnected = true;
-    updateConnectionStatus(true);
-    toast('✅ Connected to Deriv WebSocket', 'success');
-    // FORCE send token directly, bypassing any readyState checks
-    ws.send(JSON.stringify({ authorize: token }));
-  };
-
-  ws.onmessage = handleWebSocketMessage;
-
-  ws.onerror = (err) => {
-    console.error('❌ WebSocket error:', err);
-    toast('WebSocket error. Check endpoint.', 'error');
-  };
-
-  ws.onclose = () => {
-    wsConnected = false;
-    updateConnectionStatus(false);
-    console.log('WebSocket disconnected');
-    // Auto-reconnect if we have a token
-    if (accessToken && isActive) {
-      toast('Reconnecting to Deriv...', 'info');
-      setTimeout(() => connectWebSocket(accessToken), 3000);
-    }
-  };
+const endpoint = getWsEndpoint();
+console.log('Connecting to:', endpoint);
+authRetries = 0;
+// If already open, force authorize immediately
+if (ws && ws.readyState === WebSocket.OPEN) {
+console.log('✅ WS already OPEN - forcing authorization');
+ws.send(JSON.stringify({ authorize: token }));
+return;
 }
-
+try {
+ws = new WebSocket(endpoint);
+} catch(e) {
+console.error('WS fail', e);
+toast('WebSocket connection failed', 'error');
+return;
+}
+ws.onopen = function() {
+console.log('✅ WS OPEN - forcing authorization');
+wsConnected = true;
+updateConnectionStatus(true);
+toast('✅ Connected to Deriv WebSocket', 'success');
+// FORCE send token directly, bypassing any readyState checks
+ws.send(JSON.stringify({ authorize: token }));
+};
+ws.onmessage = handleWebSocketMessage;
+ws.onerror = (err) => {
+console.error('❌ WebSocket error:', err);
+toast('WebSocket error. Check endpoint.', 'error');
+};
+ws.onclose = () => {
+wsConnected = false;
+updateConnectionStatus(false);
+console.log('WebSocket disconnected');
+// Auto-reconnect if we have a token (token is NEVER deleted here)
+if (accessToken && isActive) {
+toast('Reconnecting to Deriv...', 'info');
+setTimeout(() => connectWebSocket(accessToken), 3000);
+}
+};
+}
 function updateConnectionStatus(connected) {
 const statusDot = document.querySelector('#internetStatus .status-dot');
 const statusLabel = document.querySelector('#internetStatus span');
@@ -2361,12 +2357,30 @@ break;
 console.error('WS message parse error:', e);
 }
 }
+// =============================================
+// 🔒 TOKEN-SAFE AUTHORIZE HANDLER (THE FIX)
+// On auth error we KEEP the token in storage and
+// retry up to 3 times. We NEVER call setAccessToken(null).
+// =============================================
 function handleAuthorize(data) {
 if (data.error) {
-toast('❌ Auth failed: ' + data.error.message, 'error');
-setAccessToken(null);
+console.log('⚠️ Auth error — token KEPT in localStorage:', data.error);
+toast('⚠️ Auth error: ' + data.error.message + ' — token kept, retrying…', 'error');
+authRetries++;
+if (authRetries <= 3 && accessToken && ws && ws.readyState === WebSocket.OPEN) {
+setTimeout(() => {
+if (accessToken && ws && ws.readyState === WebSocket.OPEN) {
+console.log('🔄 Authorize retry', authRetries, 'of 3');
+ws.send(JSON.stringify({ authorize: accessToken }));
+}
+}, 2000);
+} else if (authRetries > 3) {
+toast('❌ Auth failed 3×. Token is STILL saved — verify it has Trade permission on Deriv.', 'error');
+}
 return;
 }
+// SUCCESS — reset retry counter
+authRetries = 0;
 const auth = data.authorize;
 toast(`✅ Welcome, ${auth.loginid}! Balance: $${auth.balance}`, 'success');
 balance = parseFloat(auth.balance) || balance;
@@ -2493,6 +2507,9 @@ balance += pl;
 windowProfitValue += pl;
 updateBalanceDisplay();
 updateProfitDisplay();
+// Increment Round Tracker
+sessionTradeCount++;
+if (currentRound) currentRound.textContent = `${sessionTradeCount} / 200`;
 // Record trade
 const now = new Date();
 const timeStr = now.toLocaleTimeString();
@@ -2524,6 +2541,14 @@ stopTrading();
 return;
 }
 }
+// MAX RUNS LIMIT (200)
+if (sessionTradeCount >= 200) {
+toast('🛑 Maximum 200 runs reached. Session complete.', 'info');
+stopTrading();
+return;
+}
+// MINIMUM 5 ROUNDS before TP / SL can end the session
+if (sessionTradeCount >= 5) {
 // Check Take Profit
 if (windowProfitValue >= profitTargetValue) {
 const profitAmt = windowProfitValue;
@@ -2544,6 +2569,7 @@ if (windowProfitValue <= -stopLossValue) {
 toast(`🛑 Stop Loss triggered at $${stopLossValue.toFixed(2)}`, 'error');
 stopTrading();
 return;
+}
 }
 // Place next trade if still active
 if (isActive && !isTradeInProgress) {
@@ -2723,7 +2749,6 @@ toast('Please enter Client ID and Redirect URI', 'error');
 return;
 }
 localStorage.setItem('emron_oauth_client', clientId);
-localStorage.setItem('emron_oauth_redirect', redirectUri);
 const scope = 'read trade account_manage payments trading_information';
 const verifier = generateCodeVerifier();
 const state = generateState();
@@ -2744,10 +2769,17 @@ const url = `${AUTH_BASE}?${params.toString()}`;
 console.log('Redirecting to:', url);
 window.location.href = url;
 }
+// =============================================
+// 🔒 TOKEN STORAGE — writes to ALL 3 keys so the
+// Console forced-save test also works.
+// Only manual Disconnect ever removes them.
+// =============================================
 function setAccessToken(token) {
 accessToken = token;
 if (token) {
 localStorage.setItem('emron_access_token', token);
+localStorage.setItem('deriv_token', token);
+localStorage.setItem('token', token);
 connectBtn.textContent = '✅ Connected';
 connectBtn.className = 'btn btn-connected btn-sm';
 oauthStatus.textContent = '✅ Connected (token stored)';
@@ -2755,6 +2787,8 @@ toast('Token set successfully', 'success');
 connectWebSocket(token);
 } else {
 localStorage.removeItem('emron_access_token');
+localStorage.removeItem('deriv_token');
+localStorage.removeItem('token');
 connectBtn.textContent = 'Connect';
 connectBtn.className = 'btn btn-primary btn-sm';
 oauthStatus.textContent = 'Not connected';
@@ -2767,9 +2801,13 @@ wsConnected = false;
 }
 function loadStoredToken() {
 try {
-const token = localStorage.getItem('emron_access_token');
+// Read from ANY of the 3 keys (supports Console forced-save)
+const token = localStorage.getItem('emron_access_token')
+|| localStorage.getItem('deriv_token')
+|| localStorage.getItem('token');
 if (token) {
 accessToken = token;
+localStorage.setItem('emron_access_token', token);
 connectBtn.textContent = '✅ Connected';
 connectBtn.className = 'btn btn-connected btn-sm';
 oauthStatus.textContent = '✅ Connected (stored)';
@@ -2842,6 +2880,8 @@ activateBtn.disabled = true;
 deactivateBtn.disabled = false;
 botState.textContent = 'RUNNING';
 windowTime.textContent = new Date().toLocaleTimeString();
+sessionTradeCount = 0;
+if (currentRound) currentRound.textContent = '0 / 200';
 martingaleLevel = 0;
 consecutiveLosses = 0;
 currentStake = baseStake;
@@ -3348,9 +3388,7 @@ toast('Please paste a valid token', 'error');
 });
 connectBtn.addEventListener('click', () => {
 const savedClient = localStorage.getItem('emron_oauth_client');
-const savedRedirect = localStorage.getItem('emron_oauth_redirect');
 if (savedClient) oauthClientId.value = savedClient;
-if (savedRedirect) oauthRedirectUri.value = savedRedirect;
 connectModal.classList.add('active');
 });
 // =============================================
@@ -3371,9 +3409,7 @@ updateCountdown.textContent = countdown;
 loadStoredToken();
 handleOAuthCallback();
 const savedClient = localStorage.getItem('emron_oauth_client');
-const savedRedirect = localStorage.getItem('emron_oauth_redirect');
 if (savedClient) oauthClientId.value = savedClient;
-if (savedRedirect) oauthRedirectUri.value = savedRedirect;
 updateBalanceDisplay();
 updateProfitDisplay();
 renderSessions();
@@ -3389,7 +3425,7 @@ setTimeout(updateMonitor, 500);
 setInterval(() => { if (!isActive) { generateChartData(); drawChart(); } }, 7000);
 window.addEventListener('resize', initChart);
 console.log('🔷 EMRON AI — DigitEdge FREE & UNLOCKED');
-console.log('📡 OAuth 2.0 with PKCE + WebSocket integrated');
+console.log('🔒 Token-safe auth: token is NEVER deleted on auth error');
 console.log('📊 WebSocket endpoint: ' + getWsEndpoint());
 console.log('📊 Markets: Volatility 10–100 (2s & 1s), Crash, Boom, Range Break');
 })();
