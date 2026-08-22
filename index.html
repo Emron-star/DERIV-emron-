@@ -2073,19 +2073,10 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 </div>
 <div class="modal-body">
 <p style="color:var(--text-muted);margin-bottom:clamp(6px,0.4vw,10px);font-size:clamp(11px,0.6vw,13px);">
-Sign in or create a Deriv account using OAuth 2.0. Your token will be stored locally.
+Sign in or create a Deriv account. We use Deriv's secure OAuth2 login.
 </p>
-<!-- OAuth Config -->
-<div class="form-group" style="margin-bottom:clamp(6px,0.4vw,10px);">
-<label>Client ID (OAuth2)</label>
-<input class="form-control" id="oauthClientId" placeholder="Your Deriv OAuth2 client_id" value="344HkEFdzdqT6w8dxRjcQ">
-</div>
-<div class="form-group" style="margin-bottom:clamp(6px,0.4vw,10px);">
-<label>Redirect URI</label>
-<input class="form-control" id="oauthRedirectUri" placeholder="Your registered redirect_uri" value="https://emronai-4.netlify.app/callback">
-</div>
 <div class="warning-box" style="font-size:clamp(9px,0.5vw,11px);">
-<strong>🔒 OAuth 2.0 with PKCE</strong> — your <code>code_verifier</code> and <code>state</code> are generated per session and never stored.
+<strong>🔒 Secure OAuth 2.0</strong> — Deriv handles the authentication securely. We never see your password.
 </div>
 <div style="display:flex;gap:clamp(6px,0.4vw,10px);margin:clamp(8px,0.6vw,12px) 0;">
 <button class="btn btn-primary" id="oauthLoginBtn" style="flex:1;">🔑 Login with Deriv</button>
@@ -2096,7 +2087,7 @@ Sign in or create a Deriv account using OAuth 2.0. Your token will be stored loc
 <button class="btn btn-ghost btn-sm" id="oauthDisconnectBtn" style="font-size:clamp(8px,0.4vw,10px);color:var(--accent-red);">🚫 Disconnect</button>
 </div>
 <div class="warning-box" style="margin-bottom:0;font-size:clamp(9px,0.5vw,11px);">
-<strong>📌 Note:</strong> Token exchange requires a backend. For demo, you can also paste a token manually below.
+<strong>📌 Note:</strong> If the automatic login gets stuck, you can paste an API token manually below.
 </div>
 <div class="form-group" style="margin-top:clamp(6px,0.4vw,10px);">
 <label>Manual Access Token (optional)</label>
@@ -2200,8 +2191,6 @@ const qsTP = document.getElementById('qsTP');
 const qsSL = document.getElementById('qsSL');
 const qsMarket = document.getElementById('qsMarket');
 const qsApplyBtn = document.getElementById('qsApplyBtn');
-const oauthClientId = document.getElementById('oauthClientId');
-const oauthRedirectUri = document.getElementById('oauthRedirectUri');
 const oauthLoginBtn = document.getElementById('oauthLoginBtn');
 const oauthSignupBtn = document.getElementById('oauthSignupBtn');
 const oauthStatus = document.getElementById('oauthStatus');
@@ -2268,7 +2257,7 @@ let authRetries = 0;
 // CORRECTED WEBSOCKET MANAGER
 // =============================================
 function getAppId() {
-  return '1089'; // Hardcoded WebSocket App ID (numeric) — NOT the OAuth Client ID
+return '1089'; // Hardcoded WebSocket App ID (numeric) — NOT the OAuth Client ID
 }
 function getWsEndpoint() {
 const appId = getAppId();
@@ -2698,76 +2687,16 @@ ctx.fillText(i, padding.left + i * spacing + spacing / 2, h - 2);
 });
 }
 // =============================================
-// OAuth 2.0 with PKCE
+// Simplified OAuth (Let Deriv handle the redirect)
 // =============================================
-const AUTH_BASE = 'https://oauth.deriv.com/oauth2/authorize';
-function generateCodeVerifier() {
-const array = crypto.getRandomValues(new Uint8Array(64));
-const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
-return Array.from(array).map(v => chars[v % chars.length]).join('');
+function initiateAuth(prompt) {
+const appId = getAppId(); // Returns '1089'
+let authUrl = `https://oauth.deriv.com/oauth2/authorize?app_id=${appId}&l=en&brand=deriv`;
+if (prompt === 'registration') {
+authUrl += '&prompt=registration';
 }
-async function generateCodeChallenge(verifier) {
-const encoder = new TextEncoder();
-const data = encoder.encode(verifier);
-const hash = await crypto.subtle.digest('SHA-256', data);
-const bytes = new Uint8Array(hash);
-const b64 = btoa(String.fromCharCode(...bytes))
-.replace(/\+/g, '-')
-.replace(/\//g, '_')
-.replace(/=+$/, '');
-return b64;
-}
-function generateState() {
-const arr = crypto.getRandomValues(new Uint8Array(16));
-return Array.from(arr).map(b => b.toString(16).padStart(2, '0')).join('');
-}
-function storePKCE(verifier, state) {
-try {
-sessionStorage.setItem('oauth_code_verifier', verifier);
-sessionStorage.setItem('oauth_state', state);
-} catch (e) {}
-}
-function getPKCE() {
-try {
-return {
-verifier: sessionStorage.getItem('oauth_code_verifier'),
-state: sessionStorage.getItem('oauth_state')
-};
-} catch (e) { return { verifier: null, state: null }; }
-}
-function clearPKCE() {
-try {
-sessionStorage.removeItem('oauth_code_verifier');
-sessionStorage.removeItem('oauth_state');
-} catch (e) {}
-}
-async function initiateAuth(prompt) {
-const clientId = oauthClientId.value.trim();
-const redirectUri = oauthRedirectUri.value.trim();
-if (!clientId || !redirectUri) {
-toast('Please enter Client ID and Redirect URI', 'error');
-return;
-}
-localStorage.setItem('emron_oauth_client', clientId);
-const scope = 'read trade account_manage payments trading_information';
-const verifier = generateCodeVerifier();
-const state = generateState();
-storePKCE(verifier, state);
-const challenge = await generateCodeChallenge(verifier);
-const params = new URLSearchParams({
-response_type: 'code',
-client_id: clientId,
-redirect_uri: redirectUri,
-scope: scope,
-state: state,
-code_challenge: challenge,
-code_challenge_method: 'S256',
-brand: 'deriv'
-});
-if (prompt) params.append('prompt', prompt);
-const url = `${AUTH_BASE}?${params.toString()}`;
-console.log('Redirecting to:', url);
-window.location.href = url;
+console.log('Redirecting to Deriv:', authUrl);
+window.location.href = authUrl;
 }
 // =============================================
 // 🔒 TOKEN STORAGE — writes to ALL 3 keys so the
@@ -2847,24 +2776,14 @@ return;
 }
 // Handle authorization code flow
 const code = params.get('code');
-const state = params.get('state');
 const error = params.get('error');
 if (error) {
 toast(`OAuth error: ${error}`, 'error');
 window.history.replaceState({}, document.title, window.location.pathname);
 return;
 }
-if (code && state) {
-const stored = getPKCE();
-if (state !== stored.state) {
-toast('State mismatch — possible CSRF attack', 'error');
-window.history.replaceState({}, document.title, window.location.pathname);
-return;
-}
-// Note: In production, exchange code on your backend
-// For now, show instructions
+if (code) {
 toast('Authorization code received. Exchange it on your backend.', 'info');
-clearPKCE();
 window.history.replaceState({}, document.title, window.location.pathname);
 }
 }
@@ -3387,8 +3306,6 @@ toast('Please paste a valid token', 'error');
 }
 });
 connectBtn.addEventListener('click', () => {
-const savedClient = localStorage.getItem('emron_oauth_client');
-if (savedClient) oauthClientId.value = savedClient;
 connectModal.classList.add('active');
 });
 // =============================================
@@ -3408,8 +3325,6 @@ updateCountdown.textContent = countdown;
 // =============================================
 loadStoredToken();
 handleOAuthCallback();
-const savedClient = localStorage.getItem('emron_oauth_client');
-if (savedClient) oauthClientId.value = savedClient;
 updateBalanceDisplay();
 updateProfitDisplay();
 renderSessions();
