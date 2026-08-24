@@ -2295,21 +2295,18 @@ Sign in or create a Deriv account using OAuth 2.0. Your token will be stored loc
 <script>
 (function() {
 'use strict';
-// =============================================
-// RUN LIMITS – user-configurable via UI
-// =============================================
-let MIN_RUNS_BEFORE_TP_SL = 5;   // will be updated from UI
-let MAX_RUNS_PER_SESSION = 200;  // will be updated from UI
 
 // =============================================
-// CONFIGURATION  (your account details)
+// CONFIGURATION (NEW API)
 // =============================================
-const API_TOKEN       = "";                // Optional: paste token here to auto-connect on load
-const APP_ID          = "1089";            // Deriv numeric WebSocket App ID
-const REAL_ACCOUNT_ID = "ROT90355563";     // ✅ Your REAL account (pasted)
-const DEMO_ACCOUNT_ID = "DOT90737951";     // ✅ Your DEMO account (pasted)
-let   MODE            = "DEMO";            // Change to "REAL" when you want to trade on your real account
-let   switchAttempted = false;
+const DERIV_APP_ID    = "34c3rTXvfnC6XKk5nbzJM"; // Your New API String App ID
+const REAL_ACCOUNT_ID = "ROT90355563";
+const DEMO_ACCOUNT_ID = "DOT90737951";
+let MODE              = "DEMO"; // Change to "REAL" when ready
+let switchAttempted = false;
+
+let MIN_RUNS_BEFORE_TP_SL = 5;
+let MAX_RUNS_PER_SESSION = 200;
 
 // =============================================
 // DOM refs
@@ -2424,7 +2421,6 @@ const MARKET_SYMBOLS = {
 'Boom 500': 'BOOM500N',
 'Range Break': 'RDBREAK'
 };
-
 function getSymbol(marketName) {
 return MARKET_SYMBOLS[marketName] || 'R_50';
 }
@@ -2459,541 +2455,497 @@ let accessToken = null;
 let ws = null;
 let wsConnected = false;
 let wsReqId = 1;
-let pendingProposal = null;
 let activeContractId = null;
 let tickSubscriptionId = null;
 let isTradeInProgress = false;
-let authRetries = 0;
 let accountInfo = null;
 
 // =============================================
-// CORRECTED WEBSOCKET MANAGER
+// 🚀 NEW API WEBSOCKET MANAGER
 // =============================================
-function getAppId() {
-return APP_ID; // '1089' — from CONFIGURATION
-}
-
-function getWsEndpoint() {
-const appId = getAppId();
-return `wss://ws.derivws.com/websockets/v3?app_id=${appId}`;
-}
-
-function connectWebSocket(token) {
-const endpoint = getWsEndpoint();
-console.log('Connecting to:', endpoint);
-authRetries = 0;
-
-if (ws && ws.readyState === WebSocket.OPEN) {
-console.log('✅ WS already OPEN - forcing authorization');
-ws.send(JSON.stringify({ authorize: token }));
-return;
-}
-
-try {
-ws = new WebSocket(endpoint);
-} catch(e) {
-console.error('WS fail', e);
-toast('WebSocket connection failed', 'error');
-return;
-}
-
-ws.onopen = function() {
-console.log('✅ WS OPEN - forcing authorization');
-wsConnected = true;
-updateConnectionStatus(true);
-toast('✅ Connected to Deriv WebSocket', 'success');
-ws.send(JSON.stringify({ authorize: token }));
-
-if (window.wsPingInterval) clearInterval(window.wsPingInterval);
-window.wsPingInterval = setInterval(() => {
-if (ws && ws.readyState === WebSocket.OPEN) {
-ws.send(JSON.stringify({ ping: 1 }));
-}
-}, 30000);
-};
-
-ws.onmessage = handleWebSocketMessage;
-
-ws.onerror = (err) => {
-console.error('❌ WebSocket error:', err);
-toast('WebSocket error. Check endpoint.', 'error');
-};
-
-ws.onclose = () => {
-if (window.wsPingInterval) clearInterval(window.wsPingInterval);
-wsConnected = false;
-updateConnectionStatus(false);
-console.log('WebSocket disconnected');
-if (accessToken && isActive) {
-toast('Reconnecting to Deriv...', 'info');
-setTimeout(() => connectWebSocket(accessToken), 3000);
-}
-};
+async function connectWebSocket(token) {
+    const accountId = (MODE === 'REAL') ? REAL_ACCOUNT_ID : DEMO_ACCOUNT_ID;
+    toast('🔐 Requesting secure WebSocket URL...', 'info');
+    
+    try {
+        // 1. Call your Vercel proxy to get the OTP URL
+        const response = await fetch('/api/get-otp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                token: token,
+                accountId: accountId,
+                appId: DERIV_APP_ID
+            })
+        });
+        
+        if (!response.ok) {
+            const err = await response.json();
+            throw new Error(err.error || 'Failed to get OTP');
+        }
+        
+        const { url } = await response.json();
+        console.log('Connecting to New API WS:', url);
+        
+        // 2. Connect to the new WebSocket URL
+        ws = new WebSocket(url);
+        
+        ws.onopen = function() {
+            console.log('✅ New API WS OPEN - Authenticated via OTP');
+            wsConnected = true;
+            updateConnectionStatus(true);
+            toast('✅ Connected to Deriv (New API)', 'success');
+            
+            accountInfo = {
+                loginid: accountId,
+                balance: 0,
+                currency: 'USD'
+            };
+            
+            // Update UI manually since we don't get an 'authorize' message
+            patAccountId.textContent = accountId;
+            patBalance.textContent = 'Fetching...';
+            if (MODE === 'DEMO') {
+                demoStatusDot.className = 'dot green';
+                demoStatusText.textContent = `Connected (${accountId})`;
+                realStatusDot.className = 'dot gray';
+                realStatusText.textContent = 'Not connected';
+                demoBalance.textContent = '—';
+                realBalance.textContent = '—';
+            } else {
+                realStatusDot.className = 'dot green';
+                realStatusText.textContent = `Connected (${accountId})`;
+                demoStatusDot.className = 'dot gray';
+                demoStatusText.textContent = 'Not connected';
+                demoBalance.textContent = '—';
+                realBalance.textContent = '—';
+            }
+            
+            // Start fetching data
+            sendWsRequest({ balance: 1, subscribe: 1 });
+            subscribeTicks();
+            
+            if (window.wsPingInterval) clearInterval(window.wsPingInterval);
+            window.wsPingInterval = setInterval(() => {
+                if (ws && ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({ ping: 1 }));
+                }
+            }, 30000);
+        };
+        
+        ws.onmessage = handleWebSocketMessage;
+        
+        ws.onerror = (err) => {
+            console.error('❌ WebSocket error:', err);
+            toast('WebSocket error. Check console.', 'error');
+        };
+        
+        ws.onclose = () => {
+            if (window.wsPingInterval) clearInterval(window.wsPingInterval);
+            wsConnected = false;
+            updateConnectionStatus(false);
+            console.log('WebSocket disconnected');
+            if (accessToken && isActive) {
+                toast('Reconnecting...', 'info');
+                setTimeout(() => connectWebSocket(accessToken), 3000);
+            }
+        };
+    } catch (err) {
+        console.error('OTP fetch failed:', err);
+        toast('❌ ' + err.message, 'error');
+    }
 }
 
 function updateConnectionStatus(connected) {
-const statusDot = document.querySelector('#internetStatus .status-dot');
-const statusLabel = document.querySelector('#internetStatus span');
-if (statusDot && statusLabel) {
-statusDot.className = 'status-dot' + (connected ? '' : ' offline');
-statusLabel.textContent = connected ? 'Online' : 'Offline';
-}
-if (connected && accessToken) {
-patStatus.textContent = '🟢 Connected';
-patStatus.className = 'status-text connected';
-demoStatusDot.className = 'dot green';
-demoStatusText.textContent = 'Connected';
-} else {
-patStatus.textContent = '🔴 Not connected';
-patStatus.className = 'status-text';
-demoStatusDot.className = 'dot gray';
-demoStatusText.textContent = 'Not connected';
-}
+    const statusDot = document.querySelector('#internetStatus .status-dot');
+    const statusLabel = document.querySelector('#internetStatus span');
+    if (statusDot && statusLabel) {
+        statusDot.className = 'status-dot' + (connected ? '' : ' offline');
+        statusLabel.textContent = connected ? 'Online' : 'Offline';
+    }
+    if (connected && accessToken) {
+        patStatus.textContent = '🟢 Connected';
+        patStatus.className = 'status-text connected';
+    } else {
+        patStatus.textContent = '🔴 Not connected';
+        patStatus.className = 'status-text';
+    }
 }
 
 function handleWebSocketMessage(event) {
-try {
-const data = JSON.parse(event.data);
-console.log('📩 WS:', data.msg_type, data);
-switch (data.msg_type) {
-case 'authorize':
-handleAuthorize(data);
-break;
-case 'balance':
-handleBalance(data);
-break;
-case 'tick':
-handleTick(data);
-break;
-case 'proposal':
-handleProposal(data);
-break;
-case 'buy':
-handleBuy(data);
-break;
-case 'proposal_open_contract':
-handleContractUpdate(data);
-break;
-case 'forget':
-break;
-case 'error':
-handleError(data);
-break;
-}
-} catch (e) {
-console.error('WS message parse error:', e);
-}
-}
-
-// =============================================
-// 🔒 TOKEN-SAFE AUTHORIZE HANDLER
-// =============================================
-function handleAuthorize(data) {
-if (data.error) {
-console.log('⚠️ Auth error — token KEPT in localStorage:', data.error);
-toast('⚠️ Auth error: ' + data.error.message + ' — token kept, retrying…', 'error');
-authRetries++;
-if (authRetries <= 3 && accessToken && ws && ws.readyState === WebSocket.OPEN) {
-setTimeout(() => {
-if (accessToken && ws && ws.readyState === WebSocket.OPEN) {
-console.log('🔄 Authorize retry', authRetries, 'of 3');
-ws.send(JSON.stringify({ authorize: accessToken }));
-}
-}, 2000);
-} else if (authRetries > 3) {
-toast('❌ Auth failed 3×. Token is STILL saved — verify it has Trade permission on Deriv.', 'error');
-}
-return;
-}
-
-authRetries = 0;
-const auth = data.authorize;
-accountInfo = {
-loginid: auth.loginid,
-balance: parseFloat(auth.balance),
-currency: auth.currency || 'USD'
-};
-
-toast(`✅ Welcome, ${auth.loginid}! Balance: $${auth.balance}`, 'success');
-balance = parseFloat(auth.balance) || balance;
-updateBalanceDisplay();
-
-patAccountId.textContent = auth.loginid;
-patBalance.textContent = `${auth.currency} ${parseFloat(auth.balance).toFixed(2)}`;
-
-// ---- MODE enforcement: DEMO vs REAL ----
-if (MODE === 'REAL' && auth.loginid !== REAL_ACCOUNT_ID && !switchAttempted) {
-switchAttempted = true;
-toast('🔁 Switching to REAL account ' + REAL_ACCOUNT_ID + '…', 'info');
-sendWsRequest({ switch_account: REAL_ACCOUNT_ID });
-return;
-}
-if (MODE === 'DEMO' && auth.loginid !== DEMO_ACCOUNT_ID && !switchAttempted) {
-switchAttempted = true;
-toast('🔁 Switching to DEMO account ' + DEMO_ACCOUNT_ID + '…', 'info');
-sendWsRequest({ switch_account: DEMO_ACCOUNT_ID });
-return;
-}
-switchAttempted = false;
-
-// ---- Light up the matching account card ----
-if (auth.loginid === DEMO_ACCOUNT_ID) {
-demoBalance.textContent = `${auth.currency} ${parseFloat(auth.balance).toFixed(2)}`;
-demoStatusDot.className = 'dot green';
-demoStatusText.textContent = `Connected (${auth.loginid})`;
-realBalance.textContent = '—';
-realStatusDot.className = 'dot gray';
-realStatusText.textContent = 'Not connected';
-} else if (auth.loginid === REAL_ACCOUNT_ID) {
-realBalance.textContent = `${auth.currency} ${parseFloat(auth.balance).toFixed(2)}`;
-realStatusDot.className = 'dot green';
-realStatusText.textContent = `Connected (${auth.loginid})`;
-demoBalance.textContent = '—';
-demoStatusDot.className = 'dot gray';
-demoStatusText.textContent = 'Not connected';
-}
-
-sendWsRequest({ balance: 1, subscribe: 1 });
-subscribeTicks();
+    try {
+        const data = JSON.parse(event.data);
+        console.log('📩 WS:', data.msg_type, data);
+        
+        switch (data.msg_type) {
+            case 'balance': handleBalance(data); break;
+            case 'tick': handleTick(data); break;
+            case 'proposal': handleProposal(data); break;
+            case 'buy': handleBuy(data); break;
+            case 'proposal_open_contract': handleContractUpdate(data); break;
+            case 'forget': break;
+            case 'error': handleError(data); break;
+            // Note: 'authorize' is no longer sent by the New API
+        }
+    } catch (e) {
+        console.error('WS message parse error:', e);
+    }
 }
 
 function handleBalance(data) {
-if (data.error) return;
-if (data.balance) {
-balance = parseFloat(data.balance.balance);
-updateBalanceDisplay();
-if (accountInfo) {
-accountInfo.balance = balance;
-patBalance.textContent = `${accountInfo.currency || 'USD'} ${balance.toFixed(2)}`;
-demoBalance.textContent = `${accountInfo.currency || 'USD'} ${balance.toFixed(2)}`;
-}
-}
+    if (data.error) return;
+    if (data.balance) {
+        balance = parseFloat(data.balance.balance);
+        updateBalanceDisplay();
+        
+        if (!accountInfo) {
+            accountInfo = { loginid: (MODE === 'REAL' ? REAL_ACCOUNT_ID : DEMO_ACCOUNT_ID), balance: balance, currency: data.balance.currency || 'USD' };
+        } else {
+            accountInfo.balance = balance;
+            if (data.balance.currency) accountInfo.currency = data.balance.currency;
+        }
+        
+        const curr = accountInfo.currency || 'USD';
+        patBalance.textContent = `${curr} ${balance.toFixed(2)}`;
+        
+        if (accountInfo.loginid === DEMO_ACCOUNT_ID) {
+            demoBalance.textContent = `${curr} ${balance.toFixed(2)}`;
+        } else if (accountInfo.loginid === REAL_ACCOUNT_ID) {
+            realBalance.textContent = `${curr} ${balance.toFixed(2)}`;
+        }
+    }
 }
 
 function handleTick(data) {
-if (data.error) return;
-const tick = data.tick;
-if (tick && tick.quote) {
-const price = parseFloat(tick.quote);
-updateChartWithTick(price);
-}
+    if (data.error) return;
+    const tick = data.tick;
+    if (tick && tick.quote) {
+        const price = parseFloat(tick.quote);
+        updateChartWithTick(price);
+    }
 }
 
 function handleProposal(data) {
-if (data.error) {
-toast('❌ Proposal error: ' + data.error.message, 'error');
-isTradeInProgress = false;
-return;
-}
-if (data.proposal) {
-const proposal = data.proposal;
-sendWsRequest({
-buy: proposal.id,
-price: proposal.ask_price
-});
-}
+    if (data.error) {
+        toast('❌ Proposal error: ' + data.error.message, 'error');
+        isTradeInProgress = false;
+        return;
+    }
+    if (data.proposal) {
+        const proposal = data.proposal;
+        sendWsRequest({
+            buy: proposal.id,
+            price: proposal.ask_price
+        });
+    }
 }
 
 function handleBuy(data) {
-if (data.error) {
-toast('❌ Buy error: ' + data.error.message, 'error');
-isTradeInProgress = false;
-handleTradeResult(false, -currentStake);
-return;
-}
-if (data.buy) {
-const contract = data.buy;
-activeContractId = contract.contract_id;
-toast(`📈 Trade placed! ID: ${contract.contract_id} | Payout: $${contract.payout}`, 'success');
-sendWsRequest({
-proposal_open_contract: 1,
-contract_id: contract.contract_id,
-subscribe: 1
-});
-}
+    if (data.error) {
+        toast('❌ Buy error: ' + data.error.message, 'error');
+        isTradeInProgress = false;
+        handleTradeResult(false, -currentStake);
+        return;
+    }
+    if (data.buy) {
+        const contract = data.buy;
+        activeContractId = contract.contract_id;
+        toast(`📈 Trade placed! ID: ${contract.contract_id} | Payout: $${contract.payout}`, 'success');
+        sendWsRequest({
+            proposal_open_contract: 1,
+            contract_id: contract.contract_id,
+            subscribe: 1
+        });
+    }
 }
 
 function handleContractUpdate(data) {
-if (data.error) return;
-const contract = data.proposal_open_contract;
-if (!contract) return;
-if (contract.is_sold) {
-const profit = parseFloat(contract.profit) || 0;
-const won = profit > 0;
-if (data.subscription) {
-sendWsRequest({ forget: data.subscription.id });
-}
-isTradeInProgress = false;
-activeContractId = null;
-handleTradeResult(won, profit);
-}
+    if (data.error) return;
+    const contract = data.proposal_open_contract;
+    if (!contract) return;
+    if (contract.is_sold) {
+        const profit = parseFloat(contract.profit) || 0;
+        const won = profit > 0;
+        if (data.subscription) {
+            sendWsRequest({ forget: data.subscription.id });
+        }
+        isTradeInProgress = false;
+        activeContractId = null;
+        handleTradeResult(won, profit);
+    }
 }
 
 function handleError(data) {
-if (data.error) {
-toast('❌ API Error: ' + data.error.message, 'error');
-}
+    if (data.error) {
+        toast('❌ API Error: ' + data.error.message, 'error');
+    }
 }
 
 function sendWsRequest(req) {
-if (!ws || ws.readyState !== WebSocket.OPEN) {
-toast('WebSocket not connected', 'error');
-return;
-}
-req.req_id = wsReqId++;
-ws.send(JSON.stringify(req));
-console.log('📤 WS:', req);
+    if (!ws || ws.readyState !== WebSocket.OPEN) {
+        return;
+    }
+    req.req_id = wsReqId++;
+    ws.send(JSON.stringify(req));
+    console.log('📤 WS:', req);
 }
 
 function subscribeTicks() {
-const symbol = getSymbol(currentMarket);
-if (tickSubscriptionId) {
-sendWsRequest({ forget: tickSubscriptionId });
-tickSubscriptionId = null;
-}
-sendWsRequest({ ticks: symbol, subscribe: 1 });
+    const symbol = getSymbol(currentMarket);
+    if (tickSubscriptionId) {
+        sendWsRequest({ forget: tickSubscriptionId });
+        tickSubscriptionId = null;
+    }
+    sendWsRequest({ ticks: symbol, subscribe: 1 });
 }
 
 function proposeContract() {
-if (isTradeInProgress) return;
-isTradeInProgress = true;
-const symbol = getSymbol(currentMarket);
-const stake = currentStake;
-console.log('📊 Proposing:', symbol, 'DIGITOVER', 'Barrier: 0', 'Stake:', stake);
-sendWsRequest({
-proposal: 1,
-amount: stake,
-basis: 'stake',
-contract_type: 'DIGITOVER',
-currency: 'USD',
-duration: 1,
-duration_unit: 't',
-symbol: symbol,
-barrier: '0'
-});
+    if (isTradeInProgress) return;
+    isTradeInProgress = true;
+    const symbol = getSymbol(currentMarket);
+    const stake = currentStake;
+    console.log('📊 Proposing:', symbol, 'DIGITOVER', 'Barrier: 0', 'Stake:', stake);
+    sendWsRequest({
+        proposal: 1,
+        amount: stake,
+        basis: 'stake',
+        contract_type: 'DIGITOVER',
+        currency: 'USD',
+        duration: 1,
+        duration_unit: 't',
+        symbol: symbol,
+        barrier: '0'
+    });
 }
 
 // =============================================
 // TRADING LOGIC – with user-configurable MIN/MAX runs
 // =============================================
 function handleTradeResult(win, profit) {
-const pl = win ? profit : -currentStake;
-
-// Update balance & UI
-balance += pl;
-windowProfitValue += pl;
-updateBalanceDisplay();
-updateProfitDisplay();
-
-// Increment round counter
-sessionTradeCount++;
-if (currentRound) {
-currentRound.textContent = `${sessionTradeCount} / ${MAX_RUNS_PER_SESSION} (min ${MIN_RUNS_BEFORE_TP_SL})`;
-}
-
-// Record trade
-const now = new Date();
-const timeStr = now.toLocaleTimeString();
-trades.push({
-time: timeStr,
-type: 'OVER 0',
-symbol: currentMarket,
-stake: currentStake,
-pl: pl
-});
-tradeCount++;
-renderTrades();
-
-// -------- MARTINGALE LOGIC --------
-if (win) {
-consecutiveLosses = 0;
-martingaleLevel = 0;
-currentStake = baseStake;
-liveStakeDisplay.textContent = '$' + currentStake.toFixed(2);
-} else {
-consecutiveLosses++;
-martingaleLevel++;
-if (martingaleLevel <= maxMartingaleLevel) {
-currentStake = baseStake * Math.pow(martingaleMultiplier, martingaleLevel);
-liveStakeDisplay.textContent = '$' + currentStake.toFixed(2);
-toast(`📈 Martingale Level ${martingaleLevel}: $${currentStake.toFixed(2)}`, 'info');
-} else {
-toast('⚠️ Max martingale level reached. Stopping.', 'error');
-stopTrading();
-return;
-}
-}
-
-// -------- MAX RUNS CHECK --------
-if (sessionTradeCount >= MAX_RUNS_PER_SESSION) {
-toast(`🛑 Maximum ${MAX_RUNS_PER_SESSION} runs reached. Session complete.`, 'info');
-stopTrading();
-return;
-}
-
-// -------- MIN RUNS CHECK before TP/SL --------
-if (sessionTradeCount >= MIN_RUNS_BEFORE_TP_SL) {
-// Take Profit
-if (windowProfitValue >= profitTargetValue) {
-const profitAmt = windowProfitValue;
-sessions.push({ window: `Window ${++sessionCount}`, profit: profitAmt });
-renderSessions();
-tpAmount.textContent = profitAmt.toFixed(2);
-tpModal.classList.add('active');
-toast(`🎉 Take Profit hit! $${profitAmt.toFixed(2)}`, 'success');
-// Reset session counters
-windowProfitValue = 0;
-updateProfitDisplay();
-consecutiveLosses = 0;
-martingaleLevel = 0;
-currentStake = baseStake;
-liveStakeDisplay.textContent = '$' + currentStake.toFixed(2);
-}
-// Stop Loss
-if (windowProfitValue <= -stopLossValue) {
-toast(`🛑 Stop Loss triggered at $${stopLossValue.toFixed(2)}`, 'error');
-stopTrading();
-return;
-}
-}
-
-// -------- PLACE NEXT TRADE --------
-if (isActive && !isTradeInProgress) {
-setTimeout(() => {
-if (isActive) placeTrade();
-}, 1500);
-}
+    const pl = win ? profit : -currentStake;
+    
+    // Update balance & UI
+    balance += pl;
+    windowProfitValue += pl;
+    updateBalanceDisplay();
+    updateProfitDisplay();
+    
+    // Increment round counter
+    sessionTradeCount++;
+    if (currentRound) {
+        currentRound.textContent = `${sessionTradeCount} / ${MAX_RUNS_PER_SESSION} (min ${MIN_RUNS_BEFORE_TP_SL})`;
+    }
+    
+    // Record trade
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString();
+    trades.push({
+        time: timeStr,
+        type: 'OVER 0',
+        symbol: currentMarket,
+        stake: currentStake,
+        pl: pl
+    });
+    tradeCount++;
+    renderTrades();
+    
+    // -------- MARTINGALE LOGIC --------
+    if (win) {
+        consecutiveLosses = 0;
+        martingaleLevel = 0;
+        currentStake = baseStake;
+        liveStakeDisplay.textContent = '$' + currentStake.toFixed(2);
+    } else {
+        consecutiveLosses++;
+        martingaleLevel++;
+        if (martingaleLevel <= maxMartingaleLevel) {
+            currentStake = baseStake * Math.pow(martingaleMultiplier, martingaleLevel);
+            liveStakeDisplay.textContent = '$' + currentStake.toFixed(2);
+            toast(`📈 Martingale Level ${martingaleLevel}: $${currentStake.toFixed(2)}`, 'info');
+        } else {
+            toast('⚠️ Max martingale level reached. Stopping.', 'error');
+            stopTrading();
+            return;
+        }
+    }
+    
+    // -------- MAX RUNS CHECK --------
+    if (sessionTradeCount >= MAX_RUNS_PER_SESSION) {
+        toast(`🛑 Maximum ${MAX_RUNS_PER_SESSION} runs reached. Session complete.`, 'info');
+        stopTrading();
+        return;
+    }
+    
+    // -------- MIN RUNS CHECK before TP/SL --------
+    if (sessionTradeCount >= MIN_RUNS_BEFORE_TP_SL) {
+        // Take Profit
+        if (windowProfitValue >= profitTargetValue) {
+            const profitAmt = windowProfitValue;
+            sessions.push({ window: `Window ${++sessionCount}`, profit: profitAmt });
+            renderSessions();
+            tpAmount.textContent = profitAmt.toFixed(2);
+            tpModal.classList.add('active');
+            toast(`🎉 Take Profit hit! $${profitAmt.toFixed(2)}`, 'success');
+            
+            // Reset session counters
+            windowProfitValue = 0;
+            updateProfitDisplay();
+            consecutiveLosses = 0;
+            martingaleLevel = 0;
+            currentStake = baseStake;
+            liveStakeDisplay.textContent = '$' + currentStake.toFixed(2);
+        }
+        
+        // Stop Loss
+        if (windowProfitValue <= -stopLossValue) {
+            toast(`🛑 Stop Loss triggered at $${stopLossValue.toFixed(2)}`, 'error');
+            stopTrading();
+            return;
+        }
+    }
+    
+    // -------- PLACE NEXT TRADE --------
+    if (isActive && !isTradeInProgress) {
+        setTimeout(() => {
+            if (isActive) placeTrade();
+        }, 1500);
+    }
 }
 
 function placeTrade() {
-if (!isActive || isTradeInProgress) return;
-if (!accessToken) {
-toast('No access token. Please connect.', 'error');
-return;
-}
-if (wsConnected) {
-proposeContract();
-} else {
-simulateTrade();
-}
+    if (!isActive || isTradeInProgress) return;
+    if (!accessToken) {
+        toast('No access token. Please connect.', 'error');
+        return;
+    }
+    if (wsConnected) {
+        proposeContract();
+    } else {
+        simulateTrade();
+    }
 }
 
 function simulateTrade() {
-const win = Math.random() < 0.90;
-const pl = win ? currentStake * 0.8 : -currentStake;
-handleTradeResult(win, pl);
+    const win = Math.random() < 0.90;
+    const pl = win ? currentStake * 0.8 : -currentStake;
+    handleTradeResult(win, pl);
 }
 
 // =============================================
 // Chart
 // =============================================
 function updateChartWithTick(price) {
-const last = chartData.length > 0 ? chartData[chartData.length - 1].close : price;
-const open = last;
-const close = price;
-const high = Math.max(open, close) + 0.1;
-const low = Math.min(open, close) - 0.1;
-chartData.push({ open, high, low, close, time: chartData.length });
-if (chartData.length > 80) chartData.shift();
-chartPrice.textContent = close.toFixed(2);
-drawChart();
+    const last = chartData.length > 0 ? chartData[chartData.length - 1].close : price;
+    const open = last;
+    const close = price;
+    const high = Math.max(open, close) + 0.1;
+    const low = Math.min(open, close) - 0.1;
+    chartData.push({ open, high, low, close, time: chartData.length });
+    if (chartData.length > 80) chartData.shift();
+    chartPrice.textContent = close.toFixed(2);
+    drawChart();
 }
 
 function initChart() {
-const rect = chartCanvas.getBoundingClientRect();
-const dpr = window.devicePixelRatio || 1;
-const w = rect.width || chartCanvas.parentElement.clientWidth || 300;
-const h = rect.height || chartCanvas.parentElement.clientHeight || 260;
-chartCanvas.width = w * dpr;
-chartCanvas.height = h * dpr;
-chartCanvas.style.height = h + 'px';
-chartCtx = chartCanvas.getContext('2d');
-chartCtx.scale(dpr, dpr);
-generateChartData();
-drawChart();
+    const rect = chartCanvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    const w = rect.width || chartCanvas.parentElement.clientWidth || 300;
+    const h = rect.height || chartCanvas.parentElement.clientHeight || 260;
+    chartCanvas.width = w * dpr;
+    chartCanvas.height = h * dpr;
+    chartCanvas.style.height = h + 'px';
+    chartCtx = chartCanvas.getContext('2d');
+    chartCtx.scale(dpr, dpr);
+    generateChartData();
+    drawChart();
 }
 
 function generateChartData() {
-const n = 60;
-let base = 9732.91;
-chartData = [];
-for (let i = 0; i < n; i++) {
-const change = (Math.random() - 0.5) * 0.8;
-const open = base;
-const close = base + change;
-const high = Math.max(open, close) + Math.random() * 0.4;
-const low = Math.min(open, close) - Math.random() * 0.4;
-chartData.push({ open, high, low, close, time: i });
-base = close;
-}
-const last = chartData[chartData.length - 1];
-chartPrice.textContent = last.close.toFixed(2);
+    const n = 60;
+    let base = 9732.91;
+    chartData = [];
+    for (let i = 0; i < n; i++) {
+        const change = (Math.random() - 0.5) * 0.8;
+        const open = base;
+        const close = base + change;
+        const high = Math.max(open, close) + Math.random() * 0.4;
+        const low = Math.min(open, close) - Math.random() * 0.4;
+        chartData.push({ open, high, low, close, time: i });
+        base = close;
+    }
+    const last = chartData[chartData.length - 1];
+    chartPrice.textContent = last.close.toFixed(2);
 }
 
 function drawChart() {
-if (!chartCtx) return;
-const canvas = chartCanvas;
-const w = canvas.width / (window.devicePixelRatio || 1);
-const h = canvas.height / (window.devicePixelRatio || 1);
-const ctx = chartCtx;
-ctx.clearRect(0, 0, w, h);
-
-const padding = { top: 12, bottom: 12, left: 28, right: 8 };
-const chartW = w - padding.left - padding.right;
-const chartH = h - padding.top - padding.bottom;
-const candleWidth = Math.min(chartW / chartData.length * 0.5, 5);
-const spacing = chartW / chartData.length;
-
-let min = Infinity, max = -Infinity;
-chartData.forEach(d => { if (d.low < min) min = d.low; if (d.high > max) max = d.high; });
-const range = max - min || 1;
-const scaleY = (val) => padding.top + chartH - ((val - min) / range) * chartH;
-
-ctx.strokeStyle = 'rgba(48,54,61,0.3)';
-ctx.lineWidth = 0.5;
-for (let i = 0; i < 3; i++) {
-const y = padding.top + (i / 2) * chartH;
-ctx.beginPath();
-ctx.moveTo(padding.left, y);
-ctx.lineTo(w - padding.right, y);
-ctx.stroke();
-const val = max - (i / 2) * range;
-ctx.fillStyle = '#6e7681';
-ctx.font = '7px monospace';
-ctx.textAlign = 'right';
-ctx.fillText(val.toFixed(1), padding.left - 3, y + 2);
-}
-
-chartData.forEach((d, i) => {
-const x = padding.left + i * spacing + spacing / 2;
-const yHigh = scaleY(d.high);
-const yLow = scaleY(d.low);
-const yOpen = scaleY(d.open);
-const yClose = scaleY(d.close);
-const color = d.close >= d.open ? '#00e676' : '#ff1744';
-
-ctx.beginPath();
-ctx.moveTo(x, yHigh);
-ctx.lineTo(x, yLow);
-ctx.strokeStyle = color;
-ctx.lineWidth = 1;
-ctx.stroke();
-
-const top = Math.min(yOpen, yClose);
-const bodyH = Math.abs(yClose - yOpen) || 1;
-ctx.fillStyle = color;
-ctx.fillRect(x - candleWidth / 2, top, candleWidth, bodyH);
-});
-
-ctx.fillStyle = '#6e7681';
-ctx.font = '7px monospace';
-ctx.textAlign = 'center';
-const step = Math.max(1, Math.floor(chartData.length / 4));
-chartData.forEach((d, i) => {
-if (i % step === 0 || i === chartData.length - 1) {
-ctx.fillText(i, padding.left + i * spacing + spacing / 2, h - 2);
-}
-});
+    if (!chartCtx) return;
+    const canvas = chartCanvas;
+    const w = canvas.width / (window.devicePixelRatio || 1);
+    const h = canvas.height / (window.devicePixelRatio || 1);
+    const ctx = chartCtx;
+    
+    ctx.clearRect(0, 0, w, h);
+    
+    const padding = { top: 12, bottom: 12, left: 28, right: 8 };
+    const chartW = w - padding.left - padding.right;
+    const chartH = h - padding.top - padding.bottom;
+    
+    const candleWidth = Math.min(chartW / chartData.length * 0.5, 5);
+    const spacing = chartW / chartData.length;
+    
+    let min = Infinity, max = -Infinity;
+    chartData.forEach(d => { if (d.low < min) min = d.low; if (d.high > max) max = d.high; });
+    const range = max - min || 1;
+    
+    const scaleY = (val) => padding.top + chartH - ((val - min) / range) * chartH;
+    
+    ctx.strokeStyle = 'rgba(48,54,61,0.3)';
+    ctx.lineWidth = 0.5;
+    for (let i = 0; i < 3; i++) {
+        const y = padding.top + (i / 2) * chartH;
+        ctx.beginPath();
+        ctx.moveTo(padding.left, y);
+        ctx.lineTo(w - padding.right, y);
+        ctx.stroke();
+        
+        const val = max - (i / 2) * range;
+        ctx.fillStyle = '#6e7681';
+        ctx.font = '7px monospace';
+        ctx.textAlign = 'right';
+        ctx.fillText(val.toFixed(1), padding.left - 3, y + 2);
+    }
+    
+    chartData.forEach((d, i) => {
+        const x = padding.left + i * spacing + spacing / 2;
+        const yHigh = scaleY(d.high);
+        const yLow = scaleY(d.low);
+        const yOpen = scaleY(d.open);
+        const yClose = scaleY(d.close);
+        
+        const color = d.close >= d.open ? '#00e676' : '#ff1744';
+        
+        ctx.beginPath();
+        ctx.moveTo(x, yHigh);
+        ctx.lineTo(x, yLow);
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        
+        const top = Math.min(yOpen, yClose);
+        const bodyH = Math.abs(yClose - yOpen) || 1;
+        ctx.fillStyle = color;
+        ctx.fillRect(x - candleWidth / 2, top, candleWidth, bodyH);
+    });
+    
+    ctx.fillStyle = '#6e7681';
+    ctx.font = '7px monospace';
+    ctx.textAlign = 'center';
+    const step = Math.max(1, Math.floor(chartData.length / 4));
+    chartData.forEach((d, i) => {
+        if (i % step === 0 || i === chartData.length - 1) {
+            ctx.fillText(i, padding.left + i * spacing + spacing / 2, h - 2);
+        }
+    });
 }
 
 // =============================================
@@ -3003,631 +2955,669 @@ const AUTH_BASE = 'https://oauth.deriv.com/oauth2/authorize';
 const TOKEN_EXCHANGE_ENDPOINT = '/api/exchange-token';
 
 function generateCodeVerifier() {
-const array = crypto.getRandomValues(new Uint8Array(64));
-const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
-return Array.from(array).map(v => chars[v % chars.length]).join('');
+    const array = crypto.getRandomValues(new Uint8Array(64));
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
+    return Array.from(array).map(v => chars[v % chars.length]).join('');
 }
 
 async function generateCodeChallenge(verifier) {
-const encoder = new TextEncoder();
-const data = encoder.encode(verifier);
-const hash = await crypto.subtle.digest('SHA-256', data);
-const bytes = new Uint8Array(hash);
-const b64 = btoa(String.fromCharCode(...bytes))
-.replace(/\+/g, '-')
-.replace(/\//g, '_')
-.replace(/=+$/, '');
-return b64;
+    const encoder = new TextEncoder();
+    const data = encoder.encode(verifier);
+    const hash = await crypto.subtle.digest('SHA-256', data);
+    const bytes = new Uint8Array(hash);
+    const b64 = btoa(String.fromCharCode(...bytes))
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=+$/, '');
+    return b64;
 }
 
 function generateState() {
-const arr = crypto.getRandomValues(new Uint8Array(16));
-return Array.from(arr).map(b => b.toString(16).padStart(2, '0')).join('');
+    const arr = crypto.getRandomValues(new Uint8Array(16));
+    return Array.from(arr).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
 function storePKCE(verifier, state, clientId) {
-try {
-sessionStorage.setItem('oauth_code_verifier', verifier);
-sessionStorage.setItem('oauth_state', state);
-sessionStorage.setItem('oauth_client_id', clientId);
-} catch (e) {
-console.error('Failed to store PKCE:', e);
-}
+    try {
+        sessionStorage.setItem('oauth_code_verifier', verifier);
+        sessionStorage.setItem('oauth_state', state);
+        sessionStorage.setItem('oauth_client_id', clientId);
+    } catch (e) {
+        console.error('Failed to store PKCE:', e);
+    }
 }
 
 function getPKCE() {
-try {
-return {
-verifier: sessionStorage.getItem('oauth_code_verifier'),
-state: sessionStorage.getItem('oauth_state'),
-clientId: sessionStorage.getItem('oauth_client_id')
-};
-} catch (e) {
-return { verifier: null, state: null, clientId: null };
-}
+    try {
+        return {
+            verifier: sessionStorage.getItem('oauth_code_verifier'),
+            state: sessionStorage.getItem('oauth_state'),
+            clientId: sessionStorage.getItem('oauth_client_id')
+        };
+    } catch (e) {
+        return { verifier: null, state: null, clientId: null };
+    }
 }
 
 function clearPKCE() {
-try {
-sessionStorage.removeItem('oauth_code_verifier');
-sessionStorage.removeItem('oauth_state');
-sessionStorage.removeItem('oauth_client_id');
-} catch (e) {}
+    try {
+        sessionStorage.removeItem('oauth_code_verifier');
+        sessionStorage.removeItem('oauth_state');
+        sessionStorage.removeItem('oauth_client_id');
+    } catch (e) {}
 }
 
 async function initiateAuth(prompt) {
-const clientId = oauthClientId.value.trim() || '34c3rTXvfnC6XKk5nbzJM';
-if (!clientId) {
-toast('Please enter Client ID', 'error');
-return;
-}
-localStorage.setItem('emron_oauth_client', clientId);
-const redirectUri = window.location.origin;
-oauthRedirectUri.value = redirectUri;
-const scope = 'read trade account_manage payments trading_information';
-const verifier = generateCodeVerifier();
-const state = generateState();
-storePKCE(verifier, state, clientId);
-const challenge = await generateCodeChallenge(verifier);
-const params = new URLSearchParams({
-response_type: 'code',
-client_id: clientId,
-redirect_uri: redirectUri,
-scope: scope,
-state: state,
-code_challenge: challenge,
-code_challenge_method: 'S256',
-brand: 'deriv'
-});
-if (prompt) params.append('prompt', prompt);
-const url = `${AUTH_BASE}?${params.toString()}`;
-console.log('Redirecting to:', url);
-window.location.href = url;
+    const clientId = oauthClientId.value.trim() || '34c3rTXvfnC6XKk5nbzJM';
+    if (!clientId) {
+        toast('Please enter Client ID', 'error');
+        return;
+    }
+    localStorage.setItem('emron_oauth_client', clientId);
+    
+    const redirectUri = window.location.origin;
+    oauthRedirectUri.value = redirectUri;
+    
+    const scope = 'read trade account_manage payments trading_information';
+    const verifier = generateCodeVerifier();
+    const state = generateState();
+    storePKCE(verifier, state, clientId);
+    
+    const challenge = await generateCodeChallenge(verifier);
+    
+    const params = new URLSearchParams({
+        response_type: 'code',
+        client_id: clientId,
+        redirect_uri: redirectUri,
+        scope: scope,
+        state: state,
+        code_challenge: challenge,
+        code_challenge_method: 'S256',
+        brand: 'deriv'
+    });
+    if (prompt) params.append('prompt', prompt);
+    
+    const url = `${AUTH_BASE}?${params.toString()}`;
+    console.log('Redirecting to:', url);
+    window.location.href = url;
 }
 
 async function handleOAuthCallback() {
-const params = new URLSearchParams(window.location.search);
-const code = params.get('code');
-const state = params.get('state');
-const error = params.get('error');
-if (error) {
-toast(`OAuth error: ${error}`, 'error');
-window.history.replaceState({}, document.title, window.location.pathname);
-return;
-}
-if (code && state) {
-toast('Exchanging authorization code...', 'info');
-const stored = getPKCE();
-if (state !== stored.state) {
-toast('State mismatch — possible CSRF attack', 'error');
-clearPKCE();
-window.history.replaceState({}, document.title, window.location.pathname);
-return;
-}
-try {
-const response = await fetch(TOKEN_EXCHANGE_ENDPOINT, {
-method: 'POST',
-headers: {
-'Content-Type': 'application/json',
-},
-body: JSON.stringify({
-code: code,
-code_verifier: stored.verifier,
-redirect_uri: window.location.origin,
-client_id: stored.clientId
-})
-});
-if (!response.ok) {
-const errorData = await response.json();
-throw new Error(errorData.error || 'Token exchange failed');
-}
-const tokenData = await response.json();
-setAccessToken(tokenData.access_token);
-toast('✅ Authentication successful!', 'success');
-clearPKCE();
-window.history.replaceState({}, document.title, window.location.pathname);
-connectModal.classList.remove('active');
-} catch (error) {
-console.error('Token exchange error:', error);
-toast(`❌ Error: ${error.message}`, 'error');
-clearPKCE();
-window.history.replaceState({}, document.title, window.location.pathname);
-}
-}
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    const state = params.get('state');
+    const error = params.get('error');
+    
+    if (error) {
+        toast(`OAuth error: ${error}`, 'error');
+        window.history.replaceState({}, document.title, window.location.pathname);
+        return;
+    }
+    
+    if (code && state) {
+        toast('Exchanging authorization code...', 'info');
+        const stored = getPKCE();
+        
+        if (state !== stored.state) {
+            toast('State mismatch — possible CSRF attack', 'error');
+            clearPKCE();
+            window.history.replaceState({}, document.title, window.location.pathname);
+            return;
+        }
+        
+        try {
+            const response = await fetch(TOKEN_EXCHANGE_ENDPOINT, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    code: code,
+                    code_verifier: stored.verifier,
+                    redirect_uri: window.location.origin,
+                    client_id: stored.clientId
+                })
+            });
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Token exchange failed');
+            }
+            
+            const tokenData = await response.json();
+            setAccessToken(tokenData.access_token);
+            toast('✅ Authentication successful!', 'success');
+            clearPKCE();
+            window.history.replaceState({}, document.title, window.location.pathname);
+            connectModal.classList.remove('active');
+        } catch (error) {
+            console.error('Token exchange error:', error);
+            toast(`❌ Error: ${error.message}`, 'error');
+            clearPKCE();
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+    }
 }
 
 // =============================================
 // 🔒 TOKEN STORAGE
 // =============================================
 function setAccessToken(token) {
-accessToken = token;
-if (token) {
-localStorage.setItem('emron_access_token', token);
-localStorage.setItem('deriv_token', token);
-localStorage.setItem('token', token);
-connectBtn.textContent = '✅ Connected';
-connectBtn.className = 'btn btn-connected btn-sm';
-oauthStatus.textContent = '✅ Connected (token stored)';
-toast('Token set successfully', 'success');
-connectWebSocket(token);
-} else {
-localStorage.removeItem('emron_access_token');
-localStorage.removeItem('deriv_token');
-localStorage.removeItem('token');
-connectBtn.textContent = 'Connect';
-connectBtn.className = 'btn btn-primary btn-sm';
-oauthStatus.textContent = 'Not connected';
-if (ws) {
-ws.close();
-ws = null;
-wsConnected = false;
-}
-updateConnectionStatus(false);
-patStatus.textContent = '🔴 Not connected';
-patStatus.className = 'status-text';
-demoStatusDot.className = 'dot gray';
-demoStatusText.textContent = 'Not connected';
-demoBalance.textContent = '—';
-patAccountId.textContent = '—';
-patBalance.textContent = '—';
-}
+    accessToken = token;
+    if (token) {
+        localStorage.setItem('emron_access_token', token);
+        localStorage.setItem('deriv_token', token);
+        localStorage.setItem('token', token);
+        connectBtn.textContent = '✅ Connected';
+        connectBtn.className = 'btn btn-connected btn-sm';
+        oauthStatus.textContent = '✅ Connected (token stored)';
+        toast('Token set successfully', 'success');
+        connectWebSocket(token);
+    } else {
+        localStorage.removeItem('emron_access_token');
+        localStorage.removeItem('deriv_token');
+        localStorage.removeItem('token');
+        connectBtn.textContent = 'Connect';
+        connectBtn.className = 'btn btn-primary btn-sm';
+        oauthStatus.textContent = 'Not connected';
+        if (ws) {
+            ws.close();
+            ws = null;
+            wsConnected = false;
+        }
+        updateConnectionStatus(false);
+        patStatus.textContent = '🔴 Not connected';
+        patStatus.className = 'status-text';
+        demoStatusDot.className = 'dot gray';
+        demoStatusText.textContent = 'Not connected';
+        demoBalance.textContent = '—';
+        patAccountId.textContent = '—';
+        patBalance.textContent = '—';
+    }
 }
 
 function loadStoredToken() {
-try {
-const token = localStorage.getItem('emron_access_token')
-|| localStorage.getItem('deriv_token')
-|| localStorage.getItem('token');
-if (token) {
-accessToken = token;
-localStorage.setItem('emron_access_token', token);
-connectBtn.textContent = '✅ Connected';
-connectBtn.className = 'btn btn-connected btn-sm';
-oauthStatus.textContent = '✅ Connected (stored)';
-connectWebSocket(token);
-return true;
-}
-} catch (e) {}
-return false;
+    try {
+        const token = localStorage.getItem('emron_access_token') 
+                   || localStorage.getItem('deriv_token') 
+                   || localStorage.getItem('token');
+        if (token) {
+            accessToken = token;
+            localStorage.setItem('emron_access_token', token);
+            connectBtn.textContent = '✅ Connected';
+            connectBtn.className = 'btn btn-connected btn-sm';
+            oauthStatus.textContent = '✅ Connected (stored)';
+            connectWebSocket(token);
+            return true;
+        }
+    } catch (e) {}
+    return false;
 }
 
 function disconnect() {
-setAccessToken(null);
-toast('Disconnected', 'info');
+    setAccessToken(null);
+    toast('Disconnected', 'info');
 }
 
 // =============================================
 // Trading Lifecycle
 // =============================================
 function startTrading() {
-if (isActive) return;
-isActive = true;
-statusBadge.className = 'status-badge active';
-statusText.textContent = 'ACTIVE';
-activateBtn.disabled = true;
-deactivateBtn.disabled = false;
-botState.textContent = 'RUNNING';
-windowTime.textContent = new Date().toLocaleTimeString();
-sessionTradeCount = 0;
-if (currentRound) {
-currentRound.textContent = `0 / ${MAX_RUNS_PER_SESSION} (min ${MIN_RUNS_BEFORE_TP_SL})`;
-}
-martingaleLevel = 0;
-consecutiveLosses = 0;
-currentStake = baseStake;
-liveStakeDisplay.textContent = '$' + currentStake.toFixed(2);
-
-const mode = accessToken && wsConnected ? 'REAL' : 'SIMULATION';
-toast(`🚀 DigitEdge bot activated on ${currentMarket} — ${mode} mode`, 'success');
-windowProfitValue = 0;
-updateProfitDisplay();
-
-if (accessToken && wsConnected) {
-isRealTrading = true;
-subscribeTicks();
-setTimeout(placeTrade, 1000);
-} else {
-isRealTrading = false;
-if (updateInterval) clearInterval(updateInterval);
-updateInterval = setInterval(() => {
-if (!isActive) return;
-simulateTrade();
-}, 2800);
-}
+    if (isActive) return;
+    isActive = true;
+    statusBadge.className = 'status-badge active';
+    statusText.textContent = 'ACTIVE';
+    activateBtn.disabled = true;
+    deactivateBtn.disabled = false;
+    botState.textContent = 'RUNNING';
+    windowTime.textContent = new Date().toLocaleTimeString();
+    
+    sessionTradeCount = 0;
+    if (currentRound) {
+        currentRound.textContent = `0 / ${MAX_RUNS_PER_SESSION} (min ${MIN_RUNS_BEFORE_TP_SL})`;
+    }
+    
+    martingaleLevel = 0;
+    consecutiveLosses = 0;
+    currentStake = baseStake;
+    liveStakeDisplay.textContent = '$' + currentStake.toFixed(2);
+    
+    const mode = accessToken && wsConnected ? 'REAL' : 'SIMULATION';
+    toast(`🚀 DigitEdge bot activated on ${currentMarket} — ${mode} mode`, 'success');
+    
+    windowProfitValue = 0;
+    updateProfitDisplay();
+    
+    if (accessToken && wsConnected) {
+        isRealTrading = true;
+        subscribeTicks();
+        setTimeout(placeTrade, 1000);
+    } else {
+        isRealTrading = false;
+        if (updateInterval) clearInterval(updateInterval);
+        updateInterval = setInterval(() => {
+            if (!isActive) return;
+            simulateTrade();
+        }, 2800);
+    }
 }
 
 function stopTrading() {
-if (!isActive) return;
-isActive = false;
-statusBadge.className = 'status-badge inactive';
-statusText.textContent = 'INACTIVE';
-activateBtn.disabled = false;
-deactivateBtn.disabled = true;
-botState.textContent = 'IDLE';
-isTradeInProgress = false;
-if (updateInterval) {
-clearInterval(updateInterval);
-updateInterval = null;
-}
-if (ws && wsConnected) {
-sendWsRequest({ forget_all: 'ticks' });
-if (activeContractId) {
-sendWsRequest({ forget_all: 'proposal_open_contract' });
-}
-}
-toast('⏸ DigitEdge bot deactivated', 'error');
+    if (!isActive) return;
+    isActive = false;
+    statusBadge.className = 'status-badge inactive';
+    statusText.textContent = 'INACTIVE';
+    activateBtn.disabled = false;
+    deactivateBtn.disabled = true;
+    botState.textContent = 'IDLE';
+    isTradeInProgress = false;
+    
+    if (updateInterval) {
+        clearInterval(updateInterval);
+        updateInterval = null;
+    }
+    
+    if (ws && wsConnected) {
+        sendWsRequest({ forget_all: 'ticks' });
+        if (activeContractId) {
+            sendWsRequest({ forget_all: 'proposal_open_contract' });
+        }
+    }
+    
+    toast('⏸ DigitEdge bot deactivated', 'error');
 }
 
 // =============================================
 // Quick Settings – includes MIN/MAX runs
 // =============================================
 function applyQuickSettings() {
-const stake = parseFloat(qsStake.value) || 10;
-const multi = parseFloat(qsMulti.value) || 1.5;
-const maxLvl = parseInt(qsMaxLevel.value) || 7;
-const tp = parseFloat(qsTP.value) || 20;
-const sl = parseFloat(qsSL.value) || 10000;
-const market = qsMarket.value;
-const minRuns = parseInt(qsMinRuns.value) || 5;
-const maxRuns = parseInt(qsMaxRuns.value) || 200;
-
-// Update global constants
-MIN_RUNS_BEFORE_TP_SL = minRuns;
-MAX_RUNS_PER_SESSION = maxRuns;
-baseStake = stake;
-currentStake = stake;
-martingaleMultiplier = multi;
-maxMartingaleLevel = maxLvl;
-profitTargetValue = tp;
-stopLossValue = sl;
-liveStakeDisplay.textContent = '$' + stake.toFixed(2);
-updateProfitDisplay();
-updateMarketDisplay(market);
-
-if (wsConnected) {
-subscribeTicks();
-}
-
-// Update the round display immediately
-if (currentRound) {
-currentRound.textContent = `0 / ${MAX_RUNS_PER_SESSION} (min ${MIN_RUNS_BEFORE_TP_SL})`;
-}
-toast('✅ Quick settings applied (runs: min=' + minRuns + ', max=' + maxRuns + ')', 'success');
+    const stake = parseFloat(qsStake.value) || 10;
+    const multi = parseFloat(qsMulti.value) || 1.5;
+    const maxLvl = parseInt(qsMaxLevel.value) || 7;
+    const tp = parseFloat(qsTP.value) || 20;
+    const sl = parseFloat(qsSL.value) || 10000;
+    const market = qsMarket.value;
+    const minRuns = parseInt(qsMinRuns.value) || 5;
+    const maxRuns = parseInt(qsMaxRuns.value) || 200;
+    
+    // Update global constants
+    MIN_RUNS_BEFORE_TP_SL = minRuns;
+    MAX_RUNS_PER_SESSION = maxRuns;
+    
+    baseStake = stake;
+    currentStake = stake;
+    martingaleMultiplier = multi;
+    maxMartingaleLevel = maxLvl;
+    profitTargetValue = tp;
+    stopLossValue = sl;
+    
+    liveStakeDisplay.textContent = '$' + stake.toFixed(2);
+    updateProfitDisplay();
+    updateMarketDisplay(market);
+    
+    if (wsConnected) {
+        subscribeTicks();
+    }
+    
+    // Update the round display immediately
+    if (currentRound) {
+        currentRound.textContent = `0 / ${MAX_RUNS_PER_SESSION} (min ${MIN_RUNS_BEFORE_TP_SL})`;
+    }
+    
+    toast('✅ Quick settings applied (runs: min=' + minRuns + ', max=' + maxRuns + ')', 'success');
 }
 
 // =============================================
 // Presets (unchanged)
 // =============================================
 function applyPreset(preset) {
-const presets = {
-'reel1': { market: 'Volatility 50 (1s)', stake: 5, multi: 2.25, maxLvl: 7, tp: 20, sl: 10000 },
-'reel3': { market: 'Volatility 50 (1s)', stake: 2, multi: 2.95, maxLvl: 5, tp: 20, sl: 10000 },
-'reel4': { market: 'Volatility 100 (1s)', stake: 10, multi: 1, maxLvl: 0, tp: 20, sl: 40 },
-'reel5': { market: 'Volatility 100 (1s)', stake: 10, multi: 1.6, maxLvl: 5, tp: 40, sl: 1000 }
-};
-const p = presets[preset];
-if (!p) return;
-qsMarket.value = p.market;
-qsStake.value = p.stake;
-qsMulti.value = p.multi;
-qsMaxLevel.value = p.maxLvl;
-qsTP.value = p.tp;
-qsSL.value = p.sl;
-// Presets leave min/max runs unchanged (or you could set defaults)
-applyQuickSettings();
-toast(`Loaded preset: ${preset}`, 'success');
+    const presets = {
+        'reel1': { market: 'Volatility 50 (1s)', stake: 5, multi: 2.25, maxLvl: 7, tp: 20, sl: 10000 },
+        'reel3': { market: 'Volatility 50 (1s)', stake: 2, multi: 2.95, maxLvl: 5, tp: 20, sl: 10000 },
+        'reel4': { market: 'Volatility 100 (1s)', stake: 10, multi: 1, maxLvl: 0, tp: 20, sl: 40 },
+        'reel5': { market: 'Volatility 100 (1s)', stake: 10, multi: 1.6, maxLvl: 5, tp: 40, sl: 1000 }
+    };
+    
+    const p = presets[preset];
+    if (!p) return;
+    
+    qsMarket.value = p.market;
+    qsStake.value = p.stake;
+    qsMulti.value = p.multi;
+    qsMaxLevel.value = p.maxLvl;
+    qsTP.value = p.tp;
+    qsSL.value = p.sl;
+    
+    applyQuickSettings();
+    toast(`Loaded preset: ${preset}`, 'success');
 }
 
 // =============================================
 // Helpers (unchanged)
 // =============================================
 function toast(message, type = 'info') {
-const el = document.createElement('div');
-el.className = `toast ${type}`;
-el.textContent = message;
-toastContainer.appendChild(el);
-setTimeout(() => {
-el.classList.add('out');
-setTimeout(() => el.remove(), 300);
-}, 3000);
+    const el = document.createElement('div');
+    el.className = `toast ${type}`;
+    el.textContent = message;
+    toastContainer.appendChild(el);
+    
+    setTimeout(() => {
+        el.classList.add('out');
+        setTimeout(() => el.remove(), 300);
+    }, 3000);
 }
 
 function updateBalanceDisplay() {
-balanceValue.textContent = balance.toFixed(2);
+    balanceValue.textContent = balance.toFixed(2);
 }
 
 function updateProfitDisplay() {
-windowProfit.textContent = windowProfitValue.toFixed(2);
-const pct = Math.min(Math.max((windowProfitValue / profitTargetValue) * 100, 0), 100);
-profitFill.style.width = pct + '%';
-profitTargetDisplay.textContent = profitTargetValue.toFixed(2);
+    windowProfit.textContent = windowProfitValue.toFixed(2);
+    const pct = Math.min(Math.max((windowProfitValue / profitTargetValue) * 100, 0), 100);
+    profitFill.style.width = pct + '%';
+    profitTargetDisplay.textContent = profitTargetValue.toFixed(2);
 }
 
 function renderSessions() {
-if (sessions.length === 0) {
-sessionsBody.innerHTML = `<tr><td colspan="3" class="empty-state"><span class="emoji">📋</span>No entries yet. Activate the strategy to start.</td></tr>`;
-return;
-}
-let html = '';
-sessions.slice().reverse().forEach(s => {
-const cls = s.profit >= 0 ? 'profit' : 'loss';
-const status = s.profit >= 0 ? 'Won' : 'Lost';
-html += `<tr><td>${s.window}</td><td class="${cls}">$${s.profit.toFixed(2)}</td><td><span class="status-pill ${s.profit>=0?'won':'lost'}">${status}</span></td></tr>`;
-});
-sessionsBody.innerHTML = html;
+    if (sessions.length === 0) {
+        sessionsBody.innerHTML = `<tr><td colspan="3" class="empty-state"><span class="emoji">📋</span>No entries yet. Activate the strategy to start.</td></tr>`;
+        return;
+    }
+    let html = '';
+    sessions.slice().reverse().forEach(s => {
+        const cls = s.profit >= 0 ? 'profit' : 'loss';
+        const status = s.profit >= 0 ? 'Won' : 'Lost';
+        html += `<tr><td>${s.window}</td><td class="${cls}">$${s.profit.toFixed(2)}</td><td><span class="status-pill ${s.profit>=0?'won':'lost'}">${status}</span></td></tr>`;
+    });
+    sessionsBody.innerHTML = html;
 }
 
 function renderTrades() {
-if (trades.length === 0) {
-tradesBody.innerHTML = `<tr><td colspan="5" class="empty-state"><span class="emoji">📊</span>No trades yet.</td></tr>`;
-return;
-}
-let html = '';
-trades.slice().reverse().slice(0, 25).forEach(t => {
-const pl = t.pl;
-const cls = pl >= 0 ? 'profit' : 'loss';
-const sign = pl >= 0 ? '+' : '';
-html += `<tr><td>${t.time}</td><td>${t.type}</td><td>${t.symbol}</td><td>$${t.stake.toFixed(2)}</td><td class="${cls}">${sign}$${pl.toFixed(2)}</td></tr>`;
-});
-tradesBody.innerHTML = html;
+    if (trades.length === 0) {
+        tradesBody.innerHTML = `<tr><td colspan="5" class="empty-state"><span class="emoji">📊</span>No trades yet.</td></tr>`;
+        return;
+    }
+    let html = '';
+    trades.slice().reverse().slice(0, 25).forEach(t => {
+        const pl = t.pl;
+        const cls = pl >= 0 ? 'profit' : 'loss';
+        const sign = pl >= 0 ? '+' : '';
+        html += `<tr><td>${t.time}</td><td>${t.type}</td><td>${t.symbol}</td><td>$${t.stake.toFixed(2)}</td><td class="${cls}">${sign}$${pl.toFixed(2)}</td></tr>`;
+    });
+    tradesBody.innerHTML = html;
 }
 
 function updateMarketDisplay(market) {
-currentMarket = market;
-liveMarketDisplay.textContent = market;
-chartSymbol.textContent = market;
-for (let opt of qsMarket.options) {
-if (opt.value === market) { qsMarket.value = market; break; }
-}
-if (editMarket) {
-for (let opt of editMarket.options) {
-if (opt.value === market) { editMarket.value = market; break; }
-}
-}
-if (aiMarket) {
-for (let opt of aiMarket.options) {
-if (opt.value === market) { aiMarket.value = market; break; }
-}
-}
-if (ssMarket) {
-for (let opt of ssMarket.options) {
-if (opt.value === market) { ssMarket.value = market; break; }
-}
-}
-const shortMap = {
-'Volatility 10': 'VOL10',
-'Volatility 25': 'VOL25',
-'Volatility 50': 'VOL50',
-'Volatility 75': 'VOL75',
-'Volatility 100': 'VOL100',
-'Volatility 10 (1s)': 'VOL10_1s',
-'Volatility 25 (1s)': 'VOL25_1s',
-'Volatility 50 (1s)': 'VOL50_1s',
-'Volatility 75 (1s)': 'VOL75_1s',
-'Volatility 100 (1s)': 'VOL100_1s',
-'Crash 500': 'CRASH',
-'Boom 500': 'BOOM',
-'Range Break': 'RANGE',
-};
-const short = shortMap[market] || 'VOL50';
-symbolOptions.forEach(el => {
-el.classList.toggle('active', el.dataset.symbol === short);
-});
-toast(`📊 Switched to ${market}`, 'info');
+    currentMarket = market;
+    liveMarketDisplay.textContent = market;
+    chartSymbol.textContent = market;
+    
+    for (let opt of qsMarket.options) {
+        if (opt.value === market) { qsMarket.value = market; break; }
+    }
+    if (editMarket) {
+        for (let opt of editMarket.options) {
+            if (opt.value === market) { editMarket.value = market; break; }
+        }
+    }
+    if (aiMarket) {
+        for (let opt of aiMarket.options) {
+            if (opt.value === market) { aiMarket.value = market; break; }
+        }
+    }
+    if (ssMarket) {
+        for (let opt of ssMarket.options) {
+            if (opt.value === market) { ssMarket.value = market; break; }
+        }
+    }
+    
+    const shortMap = {
+        'Volatility 10': 'VOL10',
+        'Volatility 25': 'VOL25',
+        'Volatility 50': 'VOL50',
+        'Volatility 75': 'VOL75',
+        'Volatility 100': 'VOL100',
+        'Volatility 10 (1s)': 'VOL10_1s',
+        'Volatility 25 (1s)': 'VOL25_1s',
+        'Volatility 50 (1s)': 'VOL50_1s',
+        'Volatility 75 (1s)': 'VOL75_1s',
+        'Volatility 100 (1s)': 'VOL100_1s',
+        'Crash 500': 'CRASH',
+        'Boom 500': 'BOOM',
+        'Range Break': 'RANGE',
+    };
+    const short = shortMap[market] || 'VOL50';
+    
+    symbolOptions.forEach(el => {
+        el.classList.toggle('active', el.dataset.symbol === short);
+    });
+    
+    toast(`📊 Switched to ${market}`, 'info');
 }
 
 // =============================================
 // AI Signals (unchanged)
 // =============================================
 function generateAISignal() {
-const market = document.getElementById('aiMarket').value;
-const timeframe = document.getElementById('aiTimeframe').value;
-const signalType = document.getElementById('aiSignalType').value;
-const conf = Math.floor(50 + Math.random() * 45);
-const direction = signalType === 'buy' ? 'BUY' : signalType === 'sell' ? 'SELL' : 'NEUTRAL';
-const badgeClass = direction === 'BUY' ? 'buy' : direction === 'SELL' ? 'sell' : 'neutral';
-const target = (9732.91 + (direction === 'BUY' ? 50 : -50) + (Math.random() - 0.5) * 30).toFixed(2);
-const stop = (9732.91 + (direction === 'BUY' ? -50 : 50) + (Math.random() - 0.5) * 30).toFixed(2);
-const reasons = ['RSI oversold/overbought', 'Moving average crossover', 'Volume surge detected', 'Support/resistance breakout', 'MACD divergence', 'Bollinger band squeeze', 'DigitEdge pattern match', 'Last digit distribution skew'];
-const selectedReasons = reasons.sort(() => Math.random() - 0.5).slice(0, 3);
-
-let html = `
-<div class="analysis-result">
-<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
-<span class="signal-badge ${badgeClass}">${direction}</span>
-<span style="color:var(--text-muted);font-size:clamp(10px,0.5vw,12px);">${market} · ${timeframe}</span>
-<span style="color:var(--accent-cyan);font-size:clamp(8px,0.4vw,10px);font-family:'JetBrains Mono',monospace;">DigitEdge · FREE</span>
-</div>
-<div class="metric-grid">
-<div class="metric-box"><div class="metric-label">Confidence</div><div class="metric-value">${conf}%</div></div>
-<div class="metric-box"><div class="metric-label">Target</div><div class="metric-value">${target}</div></div>
-<div class="metric-box"><div class="metric-label">Stop</div><div class="metric-value">${stop}</div></div>
-</div>
-<div class="confidence-bar"><div class="confidence-fill" style="width:${conf}%;"></div></div>
-<div style="margin-top:6px;font-weight:600;font-size:clamp(10px,0.5vw,12px);">Key Factors</div>
-<ul class="reasoning-list">
-${selectedReasons.map(r => `<li>${r}</li>`).join('')}
-</ul>
-<div style="margin-top:6px;font-size:clamp(8px,0.4vw,10px);color:var(--accent-cyan);font-family:'JetBrains Mono',monospace;padding:4px 8px;background:var(--bg-surface);border-radius:var(--radius-sm);">
-🔓 DigitEdge feed: Over 0 · Barrier 0 · 1 tick · ${market}
-</div>
-</div>`;
-signalOutput.innerHTML = html;
-
-const recent = document.getElementById('recentSignals');
-const card = document.createElement('div');
-card.className = 'analysis-card';
-card.innerHTML = `
-<div class="analysis-card-header">
-<span class="symbol-pill">${market}</span>
-<span class="time-ago">just now</span>
-</div>
-<div><span class="signal-badge ${badgeClass}">${direction}</span> <span style="color:var(--text-muted);font-size:clamp(10px,0.5vw,12px);">Confidence ${conf}%</span></div>
-<div style="margin-top:4px;font-size:clamp(9px,0.4vw,11px);color:var(--text-dim);">Target: ${target} · Stop: ${stop}</div>
-<div style="font-size:clamp(7px,0.4vw,9px);color:var(--accent-cyan);margin-top:3px;">DigitEdge · Over 0</div>`;
-recent.prepend(card);
-if (recent.children.length > 6) recent.removeChild(recent.lastChild);
-signalCount++;
-totalSignalsToday.textContent = signalCount;
-toast(`📡 DigitEdge signal generated on ${market}`, 'info');
+    const market = document.getElementById('aiMarket').value;
+    const timeframe = document.getElementById('aiTimeframe').value;
+    const signalType = document.getElementById('aiSignalType').value;
+    const conf = Math.floor(50 + Math.random() * 45);
+    const direction = signalType === 'buy' ? 'BUY' : signalType === 'sell' ? 'SELL' : 'NEUTRAL';
+    const badgeClass = direction === 'BUY' ? 'buy' : direction === 'SELL' ? 'sell' : 'neutral';
+    
+    const target = (9732.91 + (direction === 'BUY' ? 50 : -50) + (Math.random() - 0.5) * 30).toFixed(2);
+    const stop = (9732.91 + (direction === 'BUY' ? -50 : 50) + (Math.random() - 0.5) * 30).toFixed(2);
+    
+    const reasons = ['RSI oversold/overbought', 'Moving average crossover', 'Volume surge detected', 'Support/resistance breakout', 'MACD divergence', 'Bollinger band squeeze', 'DigitEdge pattern match', 'Last digit distribution skew'];
+    const selectedReasons = reasons.sort(() => Math.random() - 0.5).slice(0, 3);
+    
+    let html = `
+    <div class="analysis-result">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
+            <span class="signal-badge ${badgeClass}">${direction}</span>
+            <span style="color:var(--text-muted);font-size:clamp(10px,0.5vw,12px);">${market} · ${timeframe}</span>
+            <span style="color:var(--accent-cyan);font-size:clamp(8px,0.4vw,10px);font-family:'JetBrains Mono',monospace;">DigitEdge · FREE</span>
+        </div>
+        <div class="metric-grid">
+            <div class="metric-box"><div class="metric-label">Confidence</div><div class="metric-value">${conf}%</div></div>
+            <div class="metric-box"><div class="metric-label">Target</div><div class="metric-value">${target}</div></div>
+            <div class="metric-box"><div class="metric-label">Stop</div><div class="metric-value">${stop}</div></div>
+        </div>
+        <div class="confidence-bar"><div class="confidence-fill" style="width:${conf}%;"></div></div>
+        <div style="margin-top:6px;font-weight:600;font-size:clamp(10px,0.5vw,12px);">Key Factors</div>
+        <ul class="reasoning-list">
+            ${selectedReasons.map(r => `<li>${r}</li>`).join('')}
+        </ul>
+        <div style="margin-top:6px;font-size:clamp(8px,0.4vw,10px);color:var(--accent-cyan);font-family:'JetBrains Mono',monospace;padding:4px 8px;background:var(--bg-surface);border-radius:var(--radius-sm);">
+            🔓 DigitEdge feed: Over 0 · Barrier 0 · 1 tick · ${market}
+        </div>
+    </div>`;
+    signalOutput.innerHTML = html;
+    
+    const recent = document.getElementById('recentSignals');
+    const card = document.createElement('div');
+    card.className = 'analysis-card';
+    card.innerHTML = `
+        <div class="analysis-card-header">
+            <span class="symbol-pill">${market}</span>
+            <span class="time-ago">just now</span>
+        </div>
+        <div><span class="signal-badge ${badgeClass}">${direction}</span> <span style="color:var(--text-muted);font-size:clamp(10px,0.5vw,12px);">Confidence ${conf}%</span></div>
+        <div style="margin-top:4px;font-size:clamp(9px,0.4vw,11px);color:var(--text-dim);">Target: ${target} · Stop: ${stop}</div>
+        <div style="font-size:clamp(7px,0.4vw,9px);color:var(--accent-cyan);margin-top:3px;">DigitEdge · Over 0</div>`;
+    recent.prepend(card);
+    if (recent.children.length > 6) recent.removeChild(recent.lastChild);
+    
+    signalCount++;
+    totalSignalsToday.textContent = signalCount;
+    toast(`📡 DigitEdge signal generated on ${market}`, 'info');
 }
 
 // =============================================
 // Signal Monitor (unchanged)
 // =============================================
 function updateMonitor() {
-const buy = Math.floor(Math.random() * 5);
-const sell = Math.floor(Math.random() * 4);
-const neutral = Math.floor(Math.random() * 3);
-gaugeBuy.textContent = buy;
-gaugeSell.textContent = sell;
-gaugeNeutral.textContent = neutral;
-lastUpdate.textContent = new Date().toLocaleTimeString();
-totalSignalsToday.textContent = signalCount + Math.floor(Math.random() * 8);
-
-const symbols = ['VOL10', 'VOL25', 'VOL50', 'VOL75', 'VOL100', 'VOL10_1s', 'VOL25_1s', 'VOL50_1s', 'VOL75_1s', 'VOL100_1s', 'CRASH', 'BOOM', 'RANGE'];
-const sym = symbols[Math.floor(Math.random() * symbols.length)];
-const dir = ['BUY', 'SELL', 'NEUTRAL'][Math.floor(Math.random() * 3)];
-const conf = Math.floor(50 + Math.random() * 45);
-
-const row = document.createElement('tr');
-const time = new Date().toLocaleTimeString();
-row.innerHTML = `<td>${time}</td><td>${sym}</td><td><span class="signal-badge ${dir.toLowerCase()}">${dir}</span></td><td>${conf}%</td>`;
-monitorSignals.prepend(row);
-if (monitorSignals.children.length > 10) monitorSignals.removeChild(monitorSignals.lastChild);
-
-const histRow = document.createElement('tr');
-const result = Math.random() > 0.5 ? 'Won' : 'Lost';
-histRow.innerHTML = `<td>${sym}</td><td><span class="signal-badge ${dir.toLowerCase()}">${dir}</span></td><td>${time}</td><td>${result}</td>`;
-monitorHistory.prepend(histRow);
-if (monitorHistory.children.length > 10) monitorHistory.removeChild(monitorHistory.lastChild);
+    const buy = Math.floor(Math.random() * 5);
+    const sell = Math.floor(Math.random() * 4);
+    const neutral = Math.floor(Math.random() * 3);
+    gaugeBuy.textContent = buy;
+    gaugeSell.textContent = sell;
+    gaugeNeutral.textContent = neutral;
+    lastUpdate.textContent = new Date().toLocaleTimeString();
+    totalSignalsToday.textContent = signalCount + Math.floor(Math.random() * 8);
+    
+    const symbols = ['VOL10', 'VOL25', 'VOL50', 'VOL75', 'VOL100', 'VOL10_1s', 'VOL25_1s', 'VOL50_1s', 'VOL75_1s', 'VOL100_1s', 'CRASH', 'BOOM', 'RANGE'];
+    const sym = symbols[Math.floor(Math.random() * symbols.length)];
+    const dir = ['BUY', 'SELL', 'NEUTRAL'][Math.floor(Math.random() * 3)];
+    const conf = Math.floor(50 + Math.random() * 45);
+    
+    const row = document.createElement('tr');
+    const time = new Date().toLocaleTimeString();
+    row.innerHTML = `<td>${time}</td><td>${sym}</td><td><span class="signal-badge ${dir.toLowerCase()}">${dir}</span></td><td>${conf}%</td>`;
+    monitorSignals.prepend(row);
+    if (monitorSignals.children.length > 10) monitorSignals.removeChild(monitorSignals.lastChild);
+    
+    const histRow = document.createElement('tr');
+    const result = Math.random() > 0.5 ? 'Won' : 'Lost';
+    histRow.innerHTML = `<td>${sym}</td><td><span class="signal-badge ${dir.toLowerCase()}">${dir}</span></td><td>${time}</td><td>${result}</td>`;
+    monitorHistory.prepend(histRow);
+    if (monitorHistory.children.length > 10) monitorHistory.removeChild(monitorHistory.lastChild);
 }
 
 // =============================================
 // Signal Strategy Modal (unchanged)
 // =============================================
 function openSignalStrategy() {
-document.getElementById('ssMaster').value = 'on';
-document.getElementById('ssStrategy').value = 'Single signal — trade every cycle';
-document.getElementById('ssSource').value = 'DigitEdge feed (FREE — unlocked)';
-document.getElementById('ssSignal').value = 'Over';
-document.getElementById('ssSides').value = 'Over only';
-document.getElementById('ssBarrier').value = '0';
-document.getElementById('ssDuration').value = '1';
-for (let opt of ssMarket.options) {
-if (opt.value === currentMarket) { ssMarket.value = currentMarket; break; }
-}
-document.getElementById('ssEntry').value = 'None — trade every cycle';
-signalStrategyModal.classList.add('active');
+    document.getElementById('ssMaster').value = 'on';
+    document.getElementById('ssStrategy').value = 'Single signal — trade every cycle';
+    document.getElementById('ssSource').value = 'DigitEdge feed (FREE — unlocked)';
+    document.getElementById('ssSignal').value = 'Over';
+    document.getElementById('ssSides').value = 'Over only';
+    document.getElementById('ssBarrier').value = '0';
+    document.getElementById('ssDuration').value = '1';
+    for (let opt of ssMarket.options) {
+        if (opt.value === currentMarket) { ssMarket.value = currentMarket; break; }
+    }
+    document.getElementById('ssEntry').value = 'None — trade every cycle';
+    signalStrategyModal.classList.add('active');
 }
 
 function saveSignalStrategy() {
-const strategy = document.getElementById('ssStrategy').value;
-const signal = document.getElementById('ssSignal').value;
-const barrier = document.getElementById('ssBarrier').value;
-const duration = document.getElementById('ssDuration').value;
-const market = document.getElementById('ssMarket').value;
-document.querySelector('[data-field="strategyMode"]').textContent = strategy;
-document.querySelector('[data-field="signalDir"]').textContent = signal;
-document.querySelector('[data-field="barrier"]').textContent = barrier;
-document.querySelector('[data-field="duration"]').textContent = duration + ' tick' + (duration > 1 ? 's' : '');
-if (market !== 'Signal market (recommended)') {
-updateMarketDisplay(market);
-}
-signalStrategyModal.classList.remove('active');
-toast('📡 DigitEdge signal strategy applied', 'success');
+    const strategy = document.getElementById('ssStrategy').value;
+    const signal = document.getElementById('ssSignal').value;
+    const barrier = document.getElementById('ssBarrier').value;
+    const duration = document.getElementById('ssDuration').value;
+    const market = document.getElementById('ssMarket').value;
+    
+    document.querySelector('[data-field="strategyMode"]').textContent = strategy;
+    document.querySelector('[data-field="signalDir"]').textContent = signal;
+    document.querySelector('[data-field="barrier"]').textContent = barrier;
+    document.querySelector('[data-field="duration"]').textContent = duration + ' tick' + (duration > 1 ? 's' : '');
+    
+    if (market !== 'Signal market (recommended)') {
+        updateMarketDisplay(market);
+    }
+    
+    signalStrategyModal.classList.remove('active');
+    toast('📡 DigitEdge signal strategy applied', 'success');
 }
 
 // =============================================
 // Risk Management Modal (unchanged)
 // =============================================
 function openRiskMgmt() {
-document.getElementById('rmTP').value = profitTargetValue.toFixed(2);
-document.getElementById('rmSL').value = stopLossValue.toFixed(2);
-document.getElementById('rmMulti').value = martingaleMultiplier.toFixed(1);
-document.getElementById('rmMaxLevel').value = maxMartingaleLevel;
-updateStakeLadder();
-riskMgmtModal.classList.add('active');
+    document.getElementById('rmTP').value = profitTargetValue.toFixed(2);
+    document.getElementById('rmSL').value = stopLossValue.toFixed(2);
+    document.getElementById('rmMulti').value = martingaleMultiplier.toFixed(1);
+    document.getElementById('rmMaxLevel').value = maxMartingaleLevel;
+    updateStakeLadder();
+    riskMgmtModal.classList.add('active');
 }
 
 function updateStakeLadder() {
-const base = parseFloat(document.getElementById('rmMulti').value) || 1.5;
-const maxLvl = parseInt(document.getElementById('rmMaxLevel').value) || 7;
-const steps = [];
-let s = baseStake;
-for (let i = 0; i <= maxLvl; i++) {
-steps.push(s.toFixed(1));
-s = s * base;
-}
-document.getElementById('stakeLadderPreview').textContent = steps.join(' → ');
+    const base = parseFloat(document.getElementById('rmMulti').value) || 1.5;
+    const maxLvl = parseInt(document.getElementById('rmMaxLevel').value) || 7;
+    const steps = [];
+    let s = baseStake;
+    for (let i = 0; i <= maxLvl; i++) {
+        steps.push(s.toFixed(1));
+        s = s * base;
+    }
+    document.getElementById('stakeLadderPreview').textContent = steps.join(' → ');
 }
 
 function saveRiskMgmt() {
-const tp = parseFloat(document.getElementById('rmTP').value) || 20;
-const sl = parseFloat(document.getElementById('rmSL').value) || 10000;
-const multi = parseFloat(document.getElementById('rmMulti').value) || 1.5;
-const maxLvl = parseInt(document.getElementById('rmMaxLevel').value) || 7;
-profitTargetValue = tp;
-stopLossValue = sl;
-martingaleMultiplier = multi;
-maxMartingaleLevel = maxLvl;
-qsTP.value = tp.toFixed(2);
-qsSL.value = sl.toFixed(2);
-qsMulti.value = multi.toFixed(1);
-qsMaxLevel.value = maxLvl;
-updateProfitDisplay();
-riskMgmtModal.classList.remove('active');
-toast('🛡 Risk settings applied', 'success');
+    const tp = parseFloat(document.getElementById('rmTP').value) || 20;
+    const sl = parseFloat(document.getElementById('rmSL').value) || 10000;
+    const multi = parseFloat(document.getElementById('rmMulti').value) || 1.5;
+    const maxLvl = parseInt(document.getElementById('rmMaxLevel').value) || 7;
+    
+    profitTargetValue = tp;
+    stopLossValue = sl;
+    martingaleMultiplier = multi;
+    maxMartingaleLevel = maxLvl;
+    
+    qsTP.value = tp.toFixed(2);
+    qsSL.value = sl.toFixed(2);
+    qsMulti.value = multi.toFixed(1);
+    qsMaxLevel.value = maxLvl;
+    
+    updateProfitDisplay();
+    riskMgmtModal.classList.remove('active');
+    toast('🛡 Risk settings applied', 'success');
 }
 
 // =============================================
 // Full Settings Modal (unchanged)
 // =============================================
 function openSettingsModal() {
-document.getElementById('editStake').value = baseStake.toFixed(2);
-document.getElementById('editDuration').value = '1';
-document.getElementById('editContractType').value = 'DIGITOVER';
-document.getElementById('editExecution').value = 'Ultra Fast';
-for (let opt of editMarket.options) {
-if (opt.value === currentMarket) { editMarket.value = currentMarket; break; }
-}
-settingsModal.classList.add('active');
+    document.getElementById('editStake').value = baseStake.toFixed(2);
+    document.getElementById('editDuration').value = '1';
+    document.getElementById('editContractType').value = 'DIGITOVER';
+    document.getElementById('editExecution').value = 'Ultra Fast';
+    for (let opt of editMarket.options) {
+        if (opt.value === currentMarket) { editMarket.value = currentMarket; break; }
+    }
+    settingsModal.classList.add('active');
 }
 
 function saveSettings() {
-const stake = parseFloat(document.getElementById('editStake').value) || 10;
-const market = document.getElementById('editMarket').value;
-baseStake = stake;
-currentStake = stake;
-liveStakeDisplay.textContent = '$' + stake.toFixed(2);
-qsStake.value = stake.toFixed(2);
-updateMarketDisplay(market);
-settingsModal.classList.remove('active');
-toast('⚙️ Settings saved', 'success');
+    const stake = parseFloat(document.getElementById('editStake').value) || 10;
+    const market = document.getElementById('editMarket').value;
+    
+    baseStake = stake;
+    currentStake = stake;
+    liveStakeDisplay.textContent = '$' + stake.toFixed(2);
+    qsStake.value = stake.toFixed(2);
+    
+    updateMarketDisplay(market);
+    settingsModal.classList.remove('active');
+    toast('⚙️ Settings saved', 'success');
 }
 
 // =============================================
 // Event listeners
 // =============================================
 tabs.forEach(tab => {
-tab.addEventListener('click', function() {
-const target = this.dataset.tab;
-tabs.forEach(t => t.classList.remove('active'));
-this.classList.add('active');
-Object.keys(contents).forEach(key => {
-contents[key].classList.toggle('active', key === target);
-});
-});
+    tab.addEventListener('click', function() {
+        const target = this.dataset.tab;
+        tabs.forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+        Object.keys(contents).forEach(key => {
+            contents[key].classList.toggle('active', key === target);
+        });
+    });
 });
 
 hamburger.addEventListener('click', function() {
-sidebar.classList.toggle('open');
-sidebarBackdrop.classList.toggle('show');
+    sidebar.classList.toggle('open');
+    sidebarBackdrop.classList.toggle('show');
 });
 
 sidebarBackdrop.addEventListener('click', function() {
-sidebar.classList.remove('open');
-sidebarBackdrop.classList.remove('show');
+    sidebar.classList.remove('open');
+    sidebarBackdrop.classList.remove('show');
 });
 
 activateBtn.addEventListener('click', startTrading);
@@ -3635,127 +3625,129 @@ deactivateBtn.addEventListener('click', stopTrading);
 qsApplyBtn.addEventListener('click', applyQuickSettings);
 
 document.querySelectorAll('.preset-btn').forEach(btn => {
-btn.addEventListener('click', function() {
-applyPreset(this.dataset.preset);
-});
+    btn.addEventListener('click', function() {
+        applyPreset(this.dataset.preset);
+    });
 });
 
 signalStrategyBtn.addEventListener('click', openSignalStrategy);
 ssSaveBtn.addEventListener('click', saveSignalStrategy);
+
 riskMgmtBtn.addEventListener('click', openRiskMgmt);
 document.getElementById('rmMulti').addEventListener('input', updateStakeLadder);
 document.getElementById('rmMaxLevel').addEventListener('input', updateStakeLadder);
 rmSaveBtn.addEventListener('click', saveRiskMgmt);
+
 editSettingsBtn.addEventListener('click', openSettingsModal);
 saveSettingsBtn.addEventListener('click', saveSettings);
 
 document.querySelectorAll('.modal-close').forEach(el => {
-el.addEventListener('click', function() {
-const modal = this.closest('.modal-overlay');
-if (modal) modal.classList.remove('active');
-});
+    el.addEventListener('click', function() {
+        const modal = this.closest('.modal-overlay');
+        if (modal) modal.classList.remove('active');
+    });
 });
 
 document.querySelectorAll('.modal-overlay').forEach(overlay => {
-overlay.addEventListener('click', function(e) {
-if (e.target === this) this.classList.remove('active');
-});
+    overlay.addEventListener('click', function(e) {
+        if (e.target === this) this.classList.remove('active');
+    });
 });
 
 tpProceedBtn.addEventListener('click', () => {
-tpModal.classList.remove('active');
-toast('✅ Session reset. Ready for next cycle.', 'info');
+    tpModal.classList.remove('active');
+    toast('✅ Session reset. Ready for next cycle.', 'info');
 });
 
 clearSessionsBtn.addEventListener('click', () => {
-sessions = [];
-renderSessions();
-toast('📋 Sessions cleared', 'info');
+    sessions = [];
+    renderSessions();
+    toast('📋 Sessions cleared', 'info');
 });
 
 generateSignalBtn.addEventListener('click', generateAISignal);
 runAnalysisBtn.addEventListener('click', generateAISignal);
 document.getElementById('saveSignalBtn').addEventListener('click', () => {
-toast('💾 Signal saved to history', 'info');
+    toast('💾 Signal saved to history', 'info');
 });
 
 symbolOptions.forEach(el => {
-el.addEventListener('click', function() {
-symbolOptions.forEach(o => o.classList.remove('active'));
-this.classList.add('active');
-const marketMap = {
-'VOL10': 'Volatility 10',
-'VOL25': 'Volatility 25',
-'VOL50': 'Volatility 50',
-'VOL75': 'Volatility 75',
-'VOL100': 'Volatility 100',
-'VOL10_1s': 'Volatility 10 (1s)',
-'VOL25_1s': 'Volatility 25 (1s)',
-'VOL50_1s': 'Volatility 50 (1s)',
-'VOL75_1s': 'Volatility 75 (1s)',
-'VOL100_1s': 'Volatility 100 (1s)',
-'CRASH': 'Crash 500',
-'BOOM': 'Boom 500',
-'RANGE': 'Range Break',
-};
-const market = marketMap[this.dataset.symbol];
-if (market) updateMarketDisplay(market);
-});
+    el.addEventListener('click', function() {
+        symbolOptions.forEach(o => o.classList.remove('active'));
+        this.classList.add('active');
+        const marketMap = {
+            'VOL10': 'Volatility 10',
+            'VOL25': 'Volatility 25',
+            'VOL50': 'Volatility 50',
+            'VOL75': 'Volatility 75',
+            'VOL100': 'Volatility 100',
+            'VOL10_1s': 'Volatility 10 (1s)',
+            'VOL25_1s': 'Volatility 25 (1s)',
+            'VOL50_1s': 'Volatility 50 (1s)',
+            'VOL75_1s': 'Volatility 75 (1s)',
+            'VOL100_1s': 'Volatility 100 (1s)',
+            'CRASH': 'Crash 500',
+            'BOOM': 'Boom 500',
+            'RANGE': 'Range Break',
+        };
+        const market = marketMap[this.dataset.symbol];
+        if (market) updateMarketDisplay(market);
+    });
 });
 
 document.querySelectorAll('.pill-tab').forEach(tab => {
-tab.addEventListener('click', function() {
-document.querySelectorAll('.pill-tab').forEach(t => t.classList.remove('active'));
-this.classList.add('active');
-});
+    tab.addEventListener('click', function() {
+        document.querySelectorAll('.pill-tab').forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+    });
 });
 
 document.querySelectorAll('.accordion-header').forEach(header => {
-header.addEventListener('click', function() {
-const item = this.closest('.accordion-item');
-if (item) item.classList.toggle('open');
-});
+    header.addEventListener('click', function() {
+        const item = this.closest('.accordion-item');
+        if (item) item.classList.toggle('open');
+    });
 });
 
 document.querySelectorAll('.faq-question').forEach(q => {
-q.addEventListener('click', function() {
-const item = this.closest('.faq-item');
-if (item) {
-item.classList.toggle('open');
-this.querySelector('.faq-toggle').textContent = item.classList.contains('open') ? '−' : '+';
-}
-});
+    q.addEventListener('click', function() {
+        const item = this.closest('.faq-item');
+        if (item) {
+            item.classList.toggle('open');
+            this.querySelector('.faq-toggle').textContent = item.classList.contains('open') ? '−' : '+';
+        }
+    });
 });
 
 helpSearch.addEventListener('input', function() {
-const q = this.value.toLowerCase();
-document.querySelectorAll('.faq-item').forEach(item => {
-const text = item.textContent.toLowerCase();
-item.style.display = text.includes(q) ? '' : 'none';
-});
+    const q = this.value.toLowerCase();
+    document.querySelectorAll('.faq-item').forEach(item => {
+        const text = item.textContent.toLowerCase();
+        item.style.display = text.includes(q) ? '' : 'none';
+    });
 });
 
 document.querySelectorAll('[data-collapse]').forEach(btn => {
-btn.addEventListener('click', function() {
-const card = document.getElementById(this.dataset.collapse);
-if (card) {
-const body = card.querySelector('.card-body');
-if (body) {
-const isHidden = body.style.display === 'none';
-body.style.display = isHidden ? '' : 'none';
-this.textContent = isHidden ? '—' : '+';
-}
-}
-});
+    btn.addEventListener('click', function() {
+        const card = document.getElementById(this.dataset.collapse);
+        if (card) {
+            const body = card.querySelector('.card-body');
+            if (body) {
+                const isHidden = body.style.display === 'none';
+                body.style.display = isHidden ? '' : 'none';
+                this.textContent = isHidden ? '—' : '+';
+            }
+        }
+    });
 });
 
 document.querySelectorAll('.tf-pill').forEach(pill => {
-pill.addEventListener('click', function() {
-document.querySelectorAll('.tf-pill').forEach(p => p.classList.remove('active'));
-this.classList.add('active');
-generateChartData();
-drawChart();
-});
+    pill.addEventListener('click', function() {
+        document.querySelectorAll('.tf-pill').forEach(p => p.classList.remove('active'));
+        this.classList.add('active');
+        generateChartData();
+        drawChart();
+    });
 });
 
 // OAuth event listeners
@@ -3764,79 +3756,82 @@ oauthSignupBtn.addEventListener('click', () => initiateAuth('registration'));
 oauthDisconnectBtn.addEventListener('click', disconnect);
 
 manualTokenBtn.addEventListener('click', () => {
-const token = manualToken.value.trim();
-if (token) {
-setAccessToken(token);
-manualToken.value = '';
-connectModal.classList.remove('active');
-} else {
-toast('Please paste a valid token', 'error');
-}
+    const token = manualToken.value.trim();
+    if (token) {
+        setAccessToken(token);
+        manualToken.value = '';
+        connectModal.classList.remove('active');
+    } else {
+        toast('Please paste a valid token', 'error');
+    }
 });
 
 connectBtn.addEventListener('click', () => {
-const savedClient = localStorage.getItem('emron_oauth_client');
-if (savedClient) oauthClientId.value = savedClient;
-oauthRedirectUri.value = window.location.origin;
-connectModal.classList.add('active');
+    const savedClient = localStorage.getItem('emron_oauth_client');
+    if (savedClient) oauthClientId.value = savedClient;
+    oauthRedirectUri.value = window.location.origin;
+    connectModal.classList.add('active');
 });
 
 // --- New Playground event listeners ---
 patConnectBtn.addEventListener('click', () => {
-const token = patTokenInput.value.trim();
-if (token) {
-setAccessToken(token);
-patTokenInput.value = '';
-toast('PAT token set successfully', 'success');
-} else {
-toast('Please enter a PAT token', 'error');
-}
+    const token = patTokenInput.value.trim();
+    if (token) {
+        setAccessToken(token);
+        patTokenInput.value = '';
+        toast('PAT token set successfully', 'success');
+    } else {
+        toast('Please enter a PAT token', 'error');
+    }
 });
 
 patDisconnectBtn.addEventListener('click', disconnect);
 
 document.getElementById('modeToggleBtn').addEventListener('click', function() {
-MODE = (MODE === 'DEMO') ? 'REAL' : 'DEMO';
-document.getElementById('modeLabel').textContent = MODE;
-if (MODE === 'REAL') {
-toast('⚠️ REAL MONEY MODE — trades will use ' + REAL_ACCOUNT_ID, 'error');
-} else {
-toast('🛡️ DEMO MODE — trades will use ' + DEMO_ACCOUNT_ID, 'info');
-}
-if (accessToken && wsConnected) {
-switchAttempted = false;
-sendWsRequest({ switch_account: (MODE === 'REAL') ? REAL_ACCOUNT_ID : DEMO_ACCOUNT_ID });
-}
+    MODE = (MODE === 'DEMO') ? 'REAL' : 'DEMO';
+    document.getElementById('modeLabel').textContent = MODE;
+    if (MODE === 'REAL') {
+        toast('⚠️ REAL MONEY MODE — trades will use ' + REAL_ACCOUNT_ID, 'error');
+    } else {
+        toast('🛡️ DEMO MODE — trades will use ' + DEMO_ACCOUNT_ID, 'info');
+    }
+    if (accessToken) {
+        if (ws) {
+            ws.onclose = null; // Prevent auto-reconnect loop
+            ws.close();
+        }
+        setTimeout(() => connectWebSocket(accessToken), 500);
+    }
 });
 
 document.querySelectorAll('.copy-btn').forEach(btn => {
-btn.addEventListener('click', function() {
-const text = this.dataset.copy;
-navigator.clipboard.writeText(text).then(() => {
-toast(`Copied: ${text}`, 'success');
-}).catch(() => {
-const input = document.createElement('input');
-input.value = text;
-document.body.appendChild(input);
-input.select();
-document.execCommand('copy');
-document.body.removeChild(input);
-toast(`Copied: ${text}`, 'success');
-});
-});
+    btn.addEventListener('click', function() {
+        const text = this.dataset.copy;
+        navigator.clipboard.writeText(text).then(() => {
+            toast(`Copied: ${text}`, 'success');
+        }).catch(() => {
+            const input = document.createElement('input');
+            input.value = text;
+            document.body.appendChild(input);
+            input.select();
+            document.execCommand('copy');
+            document.body.removeChild(input);
+            toast(`Copied: ${text}`, 'success');
+        });
+    });
 });
 
 // =============================================
 // Countdown
 // =============================================
 setInterval(() => {
-if (countdown <= 0) {
-countdown = 5;
-updateMonitor();
-} else {
-countdown--;
-updateCountdown.textContent = countdown;
-}
+    if (countdown <= 0) {
+        countdown = 5;
+        updateMonitor();
+    } else {
+        countdown--;
+        updateCountdown.textContent = countdown;
+    }
 }, 1000);
 
 // =============================================
@@ -3844,34 +3839,38 @@ updateCountdown.textContent = countdown;
 // =============================================
 loadStoredToken();
 handleOAuthCallback();
+
 const savedClient = localStorage.getItem('emron_oauth_client');
 if (savedClient) oauthClientId.value = savedClient;
 oauthRedirectUri.value = window.location.origin;
+
 updateBalanceDisplay();
 updateProfitDisplay();
 renderSessions();
 renderTrades();
 initChart();
 updateMarketDisplay('Volatility 50');
+
 qsStake.value = baseStake.toFixed(2);
 qsMulti.value = martingaleMultiplier.toFixed(1);
 qsMaxLevel.value = maxMartingaleLevel;
 qsTP.value = profitTargetValue.toFixed(2);
 qsSL.value = stopLossValue.toFixed(2);
+
 // Set initial min/max runs in UI
 qsMinRuns.value = MIN_RUNS_BEFORE_TP_SL;
 qsMaxRuns.value = MAX_RUNS_PER_SESSION;
 
 setTimeout(updateMonitor, 500);
 setInterval(() => { if (!isActive) { generateChartData(); drawChart(); } }, 7000);
+
 window.addEventListener('resize', initChart);
 
 console.log('🔷 EMRON AI — DigitEdge FREE & UNLOCKED');
 console.log('🔒 Token-safe auth: token is NEVER deleted on auth error');
-console.log('📊 WebSocket endpoint: ' + getWsEndpoint());
+console.log('📊 WebSocket endpoint: Proxy /api/get-otp (New API)');
 console.log('📊 Markets: Volatility 10–100 (2s & 1s), Crash, Boom, Range Break');
 console.log(`📊 Run limits: min=${MIN_RUNS_BEFORE_TP_SL}, max=${MAX_RUNS_PER_SESSION} (user-configurable)`);
-
 })();
 </script>
 </body>
