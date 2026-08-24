@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-/* ===== RESET & BASE ===== */
+/* ===== RESET & BASE (unchanged) ===== */
 :root {
 --primary: #4455ee;
 --primary-dark: #2233cc;
@@ -1432,7 +1432,7 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 <span>Online</span>
 </div>
 <div class="balance">
-<span class="currency">USD</span> <span id="balanceValue">0.00</span>
+<span class="currency">USD</span> <span id="balanceValue">1000.00</span>
 </div>
 <button class="btn btn-primary btn-sm" id="connectBtn">Connect</button>
 <div class="avatar" id="avatar">JD</div>
@@ -1512,7 +1512,7 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 <div class="card-header">
 <div class="card-title">⚙️ Current Settings</div>
 <div class="card-actions">
-<button class="icon-btn" id="editSettingsBtn" title="Edit All">✏</button>
+<button class="icon-btn" id="editSettingsBtn" title="Edit All">✏️</button>
 <button class="icon-btn" id="signalStrategyBtn" title="Signal Strategy" style="color:var(--accent-cyan);">📡</button>
 <button class="icon-btn" id="riskMgmtBtn" title="Risk Management" style="color:var(--accent-yellow);">🛡</button>
 <button class="icon-btn" data-collapse="settingsCard">—</button>
@@ -1921,6 +1921,7 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 <input class="form-control" id="patTokenInput" placeholder="e.g. eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1Ni..." type="text">
 <button class="btn btn-primary" id="patConnectBtn">Connect PAT</button>
 <button class="btn btn-ghost" id="patDisconnectBtn">Disconnect</button>
+<button class="btn btn-ghost" id="modeToggleBtn" style="border-color:var(--accent-yellow);color:var(--accent-yellow);">MODE: <strong id="modeLabel">DEMO</strong></button>
 </div>
 <div class="playground-status">
 <span class="status-text" id="patStatus">🔴 Not connected</span>
@@ -2299,6 +2300,17 @@ Sign in or create a Deriv account using OAuth 2.0. Your token will be stored loc
 // =============================================
 let MIN_RUNS_BEFORE_TP_SL = 5;   // will be updated from UI
 let MAX_RUNS_PER_SESSION = 200;  // will be updated from UI
+
+// =============================================
+// CONFIGURATION  (your account details)
+// =============================================
+const API_TOKEN       = "";                // Optional: paste token here to auto-connect on load
+const APP_ID          = "1089";            // Deriv numeric WebSocket App ID
+const REAL_ACCOUNT_ID = "ROT90355563";     // ✅ Your REAL account (pasted)
+const DEMO_ACCOUNT_ID = "DOT90737951";     // ✅ Your DEMO account (pasted)
+let   MODE            = "DEMO";            // Change to "REAL" when you want to trade on your real account
+let   switchAttempted = false;
+
 // =============================================
 // DOM refs
 // =============================================
@@ -2393,6 +2405,7 @@ const demoBalance = document.getElementById('demoBalance');
 const realStatusDot = document.getElementById('realStatusDot');
 const realStatusText = document.getElementById('realStatusText');
 const realBalance = document.getElementById('realBalance');
+
 // =============================================
 // CORRECTED MARKET SYMBOLS
 // =============================================
@@ -2411,15 +2424,17 @@ const MARKET_SYMBOLS = {
 'Boom 500': 'BOOM500N',
 'Range Break': 'RDBREAK'
 };
+
 function getSymbol(marketName) {
 return MARKET_SYMBOLS[marketName] || 'R_50';
 }
+
 // =============================================
 // State
 // =============================================
 let isActive = false;
 let isRealTrading = false;
-let balance = 0.00; // FIX: No fake balance, starts at 0
+let balance = 1000.00;
 let windowProfitValue = 0;
 let profitTargetValue = 20.00;
 let stopLossValue = 10000.00;
@@ -2450,25 +2465,30 @@ let tickSubscriptionId = null;
 let isTradeInProgress = false;
 let authRetries = 0;
 let accountInfo = null;
+
 // =============================================
 // CORRECTED WEBSOCKET MANAGER
 // =============================================
 function getAppId() {
-return '34c3rTXvfnC6XKk5nbzJM'; // Correct App ID
+return APP_ID; // '1089' — from CONFIGURATION
 }
+
 function getWsEndpoint() {
 const appId = getAppId();
 return `wss://ws.derivws.com/websockets/v3?app_id=${appId}`;
 }
+
 function connectWebSocket(token) {
 const endpoint = getWsEndpoint();
 console.log('Connecting to:', endpoint);
 authRetries = 0;
+
 if (ws && ws.readyState === WebSocket.OPEN) {
 console.log('✅ WS already OPEN - forcing authorization');
 ws.send(JSON.stringify({ authorize: token }));
 return;
 }
+
 try {
 ws = new WebSocket(endpoint);
 } catch(e) {
@@ -2476,12 +2496,14 @@ console.error('WS fail', e);
 toast('WebSocket connection failed', 'error');
 return;
 }
+
 ws.onopen = function() {
 console.log('✅ WS OPEN - forcing authorization');
 wsConnected = true;
 updateConnectionStatus(true);
 toast('✅ Connected to Deriv WebSocket', 'success');
 ws.send(JSON.stringify({ authorize: token }));
+
 if (window.wsPingInterval) clearInterval(window.wsPingInterval);
 window.wsPingInterval = setInterval(() => {
 if (ws && ws.readyState === WebSocket.OPEN) {
@@ -2489,11 +2511,14 @@ ws.send(JSON.stringify({ ping: 1 }));
 }
 }, 30000);
 };
+
 ws.onmessage = handleWebSocketMessage;
+
 ws.onerror = (err) => {
 console.error('❌ WebSocket error:', err);
 toast('WebSocket error. Check endpoint.', 'error');
 };
+
 ws.onclose = () => {
 if (window.wsPingInterval) clearInterval(window.wsPingInterval);
 wsConnected = false;
@@ -2505,6 +2530,7 @@ setTimeout(() => connectWebSocket(accessToken), 3000);
 }
 };
 }
+
 function updateConnectionStatus(connected) {
 const statusDot = document.querySelector('#internetStatus .status-dot');
 const statusLabel = document.querySelector('#internetStatus span');
@@ -2524,6 +2550,7 @@ demoStatusDot.className = 'dot gray';
 demoStatusText.textContent = 'Not connected';
 }
 }
+
 function handleWebSocketMessage(event) {
 try {
 const data = JSON.parse(event.data);
@@ -2557,6 +2584,7 @@ break;
 console.error('WS message parse error:', e);
 }
 }
+
 // =============================================
 // 🔒 TOKEN-SAFE AUTHORIZE HANDLER
 // =============================================
@@ -2577,6 +2605,7 @@ toast('❌ Auth failed 3×. Token is STILL saved — verify it has Trade permiss
 }
 return;
 }
+
 authRetries = 0;
 const auth = data.authorize;
 accountInfo = {
@@ -2584,20 +2613,50 @@ loginid: auth.loginid,
 balance: parseFloat(auth.balance),
 currency: auth.currency || 'USD'
 };
+
 toast(`✅ Welcome, ${auth.loginid}! Balance: $${auth.balance}`, 'success');
 balance = parseFloat(auth.balance) || balance;
 updateBalanceDisplay();
+
 patAccountId.textContent = auth.loginid;
 patBalance.textContent = `${auth.currency} ${parseFloat(auth.balance).toFixed(2)}`;
+
+// ---- MODE enforcement: DEMO vs REAL ----
+if (MODE === 'REAL' && auth.loginid !== REAL_ACCOUNT_ID && !switchAttempted) {
+switchAttempted = true;
+toast('🔁 Switching to REAL account ' + REAL_ACCOUNT_ID + '…', 'info');
+sendWsRequest({ switch_account: REAL_ACCOUNT_ID });
+return;
+}
+if (MODE === 'DEMO' && auth.loginid !== DEMO_ACCOUNT_ID && !switchAttempted) {
+switchAttempted = true;
+toast('🔁 Switching to DEMO account ' + DEMO_ACCOUNT_ID + '…', 'info');
+sendWsRequest({ switch_account: DEMO_ACCOUNT_ID });
+return;
+}
+switchAttempted = false;
+
+// ---- Light up the matching account card ----
+if (auth.loginid === DEMO_ACCOUNT_ID) {
 demoBalance.textContent = `${auth.currency} ${parseFloat(auth.balance).toFixed(2)}`;
 demoStatusDot.className = 'dot green';
 demoStatusText.textContent = `Connected (${auth.loginid})`;
 realBalance.textContent = '—';
 realStatusDot.className = 'dot gray';
 realStatusText.textContent = 'Not connected';
+} else if (auth.loginid === REAL_ACCOUNT_ID) {
+realBalance.textContent = `${auth.currency} ${parseFloat(auth.balance).toFixed(2)}`;
+realStatusDot.className = 'dot green';
+realStatusText.textContent = `Connected (${auth.loginid})`;
+demoBalance.textContent = '—';
+demoStatusDot.className = 'dot gray';
+demoStatusText.textContent = 'Not connected';
+}
+
 sendWsRequest({ balance: 1, subscribe: 1 });
 subscribeTicks();
 }
+
 function handleBalance(data) {
 if (data.error) return;
 if (data.balance) {
@@ -2610,6 +2669,7 @@ demoBalance.textContent = `${accountInfo.currency || 'USD'} ${balance.toFixed(2)
 }
 }
 }
+
 function handleTick(data) {
 if (data.error) return;
 const tick = data.tick;
@@ -2618,6 +2678,7 @@ const price = parseFloat(tick.quote);
 updateChartWithTick(price);
 }
 }
+
 function handleProposal(data) {
 if (data.error) {
 toast('❌ Proposal error: ' + data.error.message, 'error');
@@ -2632,6 +2693,7 @@ price: proposal.ask_price
 });
 }
 }
+
 function handleBuy(data) {
 if (data.error) {
 toast('❌ Buy error: ' + data.error.message, 'error');
@@ -2650,6 +2712,7 @@ subscribe: 1
 });
 }
 }
+
 function handleContractUpdate(data) {
 if (data.error) return;
 const contract = data.proposal_open_contract;
@@ -2665,11 +2728,13 @@ activeContractId = null;
 handleTradeResult(won, profit);
 }
 }
+
 function handleError(data) {
 if (data.error) {
 toast('❌ API Error: ' + data.error.message, 'error');
 }
 }
+
 function sendWsRequest(req) {
 if (!ws || ws.readyState !== WebSocket.OPEN) {
 toast('WebSocket not connected', 'error');
@@ -2679,6 +2744,7 @@ req.req_id = wsReqId++;
 ws.send(JSON.stringify(req));
 console.log('📤 WS:', req);
 }
+
 function subscribeTicks() {
 const symbol = getSymbol(currentMarket);
 if (tickSubscriptionId) {
@@ -2687,6 +2753,7 @@ tickSubscriptionId = null;
 }
 sendWsRequest({ ticks: symbol, subscribe: 1 });
 }
+
 function proposeContract() {
 if (isTradeInProgress) return;
 isTradeInProgress = true;
@@ -2705,21 +2772,25 @@ symbol: symbol,
 barrier: '0'
 });
 }
+
 // =============================================
 // TRADING LOGIC – with user-configurable MIN/MAX runs
 // =============================================
 function handleTradeResult(win, profit) {
 const pl = win ? profit : -currentStake;
+
 // Update balance & UI
 balance += pl;
 windowProfitValue += pl;
 updateBalanceDisplay();
 updateProfitDisplay();
+
 // Increment round counter
 sessionTradeCount++;
 if (currentRound) {
 currentRound.textContent = `${sessionTradeCount} / ${MAX_RUNS_PER_SESSION} (min ${MIN_RUNS_BEFORE_TP_SL})`;
 }
+
 // Record trade
 const now = new Date();
 const timeStr = now.toLocaleTimeString();
@@ -2732,6 +2803,7 @@ pl: pl
 });
 tradeCount++;
 renderTrades();
+
 // -------- MARTINGALE LOGIC --------
 if (win) {
 consecutiveLosses = 0;
@@ -2751,12 +2823,14 @@ stopTrading();
 return;
 }
 }
+
 // -------- MAX RUNS CHECK --------
 if (sessionTradeCount >= MAX_RUNS_PER_SESSION) {
 toast(`🛑 Maximum ${MAX_RUNS_PER_SESSION} runs reached. Session complete.`, 'info');
 stopTrading();
 return;
 }
+
 // -------- MIN RUNS CHECK before TP/SL --------
 if (sessionTradeCount >= MIN_RUNS_BEFORE_TP_SL) {
 // Take Profit
@@ -2782,6 +2856,7 @@ stopTrading();
 return;
 }
 }
+
 // -------- PLACE NEXT TRADE --------
 if (isActive && !isTradeInProgress) {
 setTimeout(() => {
@@ -2789,6 +2864,7 @@ if (isActive) placeTrade();
 }, 1500);
 }
 }
+
 function placeTrade() {
 if (!isActive || isTradeInProgress) return;
 if (!accessToken) {
@@ -2801,11 +2877,13 @@ proposeContract();
 simulateTrade();
 }
 }
+
 function simulateTrade() {
 const win = Math.random() < 0.90;
 const pl = win ? currentStake * 0.8 : -currentStake;
 handleTradeResult(win, pl);
 }
+
 // =============================================
 // Chart
 // =============================================
@@ -2820,6 +2898,7 @@ if (chartData.length > 80) chartData.shift();
 chartPrice.textContent = close.toFixed(2);
 drawChart();
 }
+
 function initChart() {
 const rect = chartCanvas.getBoundingClientRect();
 const dpr = window.devicePixelRatio || 1;
@@ -2833,6 +2912,7 @@ chartCtx.scale(dpr, dpr);
 generateChartData();
 drawChart();
 }
+
 function generateChartData() {
 const n = 60;
 let base = 9732.91;
@@ -2849,6 +2929,7 @@ base = close;
 const last = chartData[chartData.length - 1];
 chartPrice.textContent = last.close.toFixed(2);
 }
+
 function drawChart() {
 if (!chartCtx) return;
 const canvas = chartCanvas;
@@ -2856,15 +2937,18 @@ const w = canvas.width / (window.devicePixelRatio || 1);
 const h = canvas.height / (window.devicePixelRatio || 1);
 const ctx = chartCtx;
 ctx.clearRect(0, 0, w, h);
+
 const padding = { top: 12, bottom: 12, left: 28, right: 8 };
 const chartW = w - padding.left - padding.right;
 const chartH = h - padding.top - padding.bottom;
 const candleWidth = Math.min(chartW / chartData.length * 0.5, 5);
 const spacing = chartW / chartData.length;
+
 let min = Infinity, max = -Infinity;
 chartData.forEach(d => { if (d.low < min) min = d.low; if (d.high > max) max = d.high; });
 const range = max - min || 1;
 const scaleY = (val) => padding.top + chartH - ((val - min) / range) * chartH;
+
 ctx.strokeStyle = 'rgba(48,54,61,0.3)';
 ctx.lineWidth = 0.5;
 for (let i = 0; i < 3; i++) {
@@ -2879,6 +2963,7 @@ ctx.font = '7px monospace';
 ctx.textAlign = 'right';
 ctx.fillText(val.toFixed(1), padding.left - 3, y + 2);
 }
+
 chartData.forEach((d, i) => {
 const x = padding.left + i * spacing + spacing / 2;
 const yHigh = scaleY(d.high);
@@ -2886,17 +2971,20 @@ const yLow = scaleY(d.low);
 const yOpen = scaleY(d.open);
 const yClose = scaleY(d.close);
 const color = d.close >= d.open ? '#00e676' : '#ff1744';
+
 ctx.beginPath();
 ctx.moveTo(x, yHigh);
 ctx.lineTo(x, yLow);
 ctx.strokeStyle = color;
 ctx.lineWidth = 1;
 ctx.stroke();
+
 const top = Math.min(yOpen, yClose);
 const bodyH = Math.abs(yClose - yOpen) || 1;
 ctx.fillStyle = color;
 ctx.fillRect(x - candleWidth / 2, top, candleWidth, bodyH);
 });
+
 ctx.fillStyle = '#6e7681';
 ctx.font = '7px monospace';
 ctx.textAlign = 'center';
@@ -2907,16 +2995,19 @@ ctx.fillText(i, padding.left + i * spacing + spacing / 2, h - 2);
 }
 });
 }
+
 // =============================================
 // OAuth 2.0 with PKCE - Vercel API Integration
 // =============================================
-const AUTH_BASE = 'https://oauth.deriv.com/oauth2/authorize'; // ✅ CORRECT URL
+const AUTH_BASE = 'https://oauth.deriv.com/oauth2/authorize';
 const TOKEN_EXCHANGE_ENDPOINT = '/api/exchange-token';
+
 function generateCodeVerifier() {
 const array = crypto.getRandomValues(new Uint8Array(64));
 const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
 return Array.from(array).map(v => chars[v % chars.length]).join('');
 }
+
 async function generateCodeChallenge(verifier) {
 const encoder = new TextEncoder();
 const data = encoder.encode(verifier);
@@ -2928,10 +3019,12 @@ const b64 = btoa(String.fromCharCode(...bytes))
 .replace(/=+$/, '');
 return b64;
 }
+
 function generateState() {
 const arr = crypto.getRandomValues(new Uint8Array(16));
 return Array.from(arr).map(b => b.toString(16).padStart(2, '0')).join('');
 }
+
 function storePKCE(verifier, state, clientId) {
 try {
 sessionStorage.setItem('oauth_code_verifier', verifier);
@@ -2941,6 +3034,7 @@ sessionStorage.setItem('oauth_client_id', clientId);
 console.error('Failed to store PKCE:', e);
 }
 }
+
 function getPKCE() {
 try {
 return {
@@ -2952,6 +3046,7 @@ clientId: sessionStorage.getItem('oauth_client_id')
 return { verifier: null, state: null, clientId: null };
 }
 }
+
 function clearPKCE() {
 try {
 sessionStorage.removeItem('oauth_code_verifier');
@@ -2959,6 +3054,7 @@ sessionStorage.removeItem('oauth_state');
 sessionStorage.removeItem('oauth_client_id');
 } catch (e) {}
 }
+
 async function initiateAuth(prompt) {
 const clientId = oauthClientId.value.trim() || '34c3rTXvfnC6XKk5nbzJM';
 if (!clientId) {
@@ -2966,8 +3062,7 @@ toast('Please enter Client ID', 'error');
 return;
 }
 localStorage.setItem('emron_oauth_client', clientId);
-// ✅ FIX: Remove trailing slash for Vercel compatibility
-const redirectUri = window.location.origin.replace(/\/$/, '');
+const redirectUri = window.location.origin;
 oauthRedirectUri.value = redirectUri;
 const scope = 'read trade account_manage payments trading_information';
 const verifier = generateCodeVerifier();
@@ -2989,6 +3084,7 @@ const url = `${AUTH_BASE}?${params.toString()}`;
 console.log('Redirecting to:', url);
 window.location.href = url;
 }
+
 async function handleOAuthCallback() {
 const params = new URLSearchParams(window.location.search);
 const code = params.get('code');
@@ -3017,7 +3113,7 @@ headers: {
 body: JSON.stringify({
 code: code,
 code_verifier: stored.verifier,
-redirect_uri: window.location.origin.replace(/\/$/, ''),
+redirect_uri: window.location.origin,
 client_id: stored.clientId
 })
 });
@@ -3039,6 +3135,7 @@ window.history.replaceState({}, document.title, window.location.pathname);
 }
 }
 }
+
 // =============================================
 // 🔒 TOKEN STORAGE
 // =============================================
@@ -3075,6 +3172,7 @@ patAccountId.textContent = '—';
 patBalance.textContent = '—';
 }
 }
+
 function loadStoredToken() {
 try {
 const token = localStorage.getItem('emron_access_token')
@@ -3092,10 +3190,12 @@ return true;
 } catch (e) {}
 return false;
 }
+
 function disconnect() {
 setAccessToken(null);
 toast('Disconnected', 'info');
 }
+
 // =============================================
 // Trading Lifecycle
 // =============================================
@@ -3116,10 +3216,12 @@ martingaleLevel = 0;
 consecutiveLosses = 0;
 currentStake = baseStake;
 liveStakeDisplay.textContent = '$' + currentStake.toFixed(2);
+
 const mode = accessToken && wsConnected ? 'REAL' : 'SIMULATION';
 toast(`🚀 DigitEdge bot activated on ${currentMarket} — ${mode} mode`, 'success');
 windowProfitValue = 0;
 updateProfitDisplay();
+
 if (accessToken && wsConnected) {
 isRealTrading = true;
 subscribeTicks();
@@ -3133,6 +3235,7 @@ simulateTrade();
 }, 2800);
 }
 }
+
 function stopTrading() {
 if (!isActive) return;
 isActive = false;
@@ -3154,6 +3257,7 @@ sendWsRequest({ forget_all: 'proposal_open_contract' });
 }
 toast('⏸ DigitEdge bot deactivated', 'error');
 }
+
 // =============================================
 // Quick Settings – includes MIN/MAX runs
 // =============================================
@@ -3166,6 +3270,7 @@ const sl = parseFloat(qsSL.value) || 10000;
 const market = qsMarket.value;
 const minRuns = parseInt(qsMinRuns.value) || 5;
 const maxRuns = parseInt(qsMaxRuns.value) || 200;
+
 // Update global constants
 MIN_RUNS_BEFORE_TP_SL = minRuns;
 MAX_RUNS_PER_SESSION = maxRuns;
@@ -3178,15 +3283,18 @@ stopLossValue = sl;
 liveStakeDisplay.textContent = '$' + stake.toFixed(2);
 updateProfitDisplay();
 updateMarketDisplay(market);
+
 if (wsConnected) {
 subscribeTicks();
 }
+
 // Update the round display immediately
 if (currentRound) {
 currentRound.textContent = `0 / ${MAX_RUNS_PER_SESSION} (min ${MIN_RUNS_BEFORE_TP_SL})`;
 }
 toast('✅ Quick settings applied (runs: min=' + minRuns + ', max=' + maxRuns + ')', 'success');
 }
+
 // =============================================
 // Presets (unchanged)
 // =============================================
@@ -3205,9 +3313,11 @@ qsMulti.value = p.multi;
 qsMaxLevel.value = p.maxLvl;
 qsTP.value = p.tp;
 qsSL.value = p.sl;
+// Presets leave min/max runs unchanged (or you could set defaults)
 applyQuickSettings();
 toast(`Loaded preset: ${preset}`, 'success');
 }
+
 // =============================================
 // Helpers (unchanged)
 // =============================================
@@ -3221,17 +3331,18 @@ el.classList.add('out');
 setTimeout(() => el.remove(), 300);
 }, 3000);
 }
+
 function updateBalanceDisplay() {
-if (balance !== null && balance !== undefined) {
 balanceValue.textContent = balance.toFixed(2);
 }
-}
+
 function updateProfitDisplay() {
 windowProfit.textContent = windowProfitValue.toFixed(2);
 const pct = Math.min(Math.max((windowProfitValue / profitTargetValue) * 100, 0), 100);
 profitFill.style.width = pct + '%';
 profitTargetDisplay.textContent = profitTargetValue.toFixed(2);
 }
+
 function renderSessions() {
 if (sessions.length === 0) {
 sessionsBody.innerHTML = `<tr><td colspan="3" class="empty-state"><span class="emoji">📋</span>No entries yet. Activate the strategy to start.</td></tr>`;
@@ -3245,6 +3356,7 @@ html += `<tr><td>${s.window}</td><td class="${cls}">$${s.profit.toFixed(2)}</td>
 });
 sessionsBody.innerHTML = html;
 }
+
 function renderTrades() {
 if (trades.length === 0) {
 tradesBody.innerHTML = `<tr><td colspan="5" class="empty-state"><span class="emoji">📊</span>No trades yet.</td></tr>`;
@@ -3259,6 +3371,7 @@ html += `<tr><td>${t.time}</td><td>${t.type}</td><td>${t.symbol}</td><td>$${t.st
 });
 tradesBody.innerHTML = html;
 }
+
 function updateMarketDisplay(market) {
 currentMarket = market;
 liveMarketDisplay.textContent = market;
@@ -3302,6 +3415,7 @@ el.classList.toggle('active', el.dataset.symbol === short);
 });
 toast(`📊 Switched to ${market}`, 'info');
 }
+
 // =============================================
 // AI Signals (unchanged)
 // =============================================
@@ -3316,6 +3430,7 @@ const target = (9732.91 + (direction === 'BUY' ? 50 : -50) + (Math.random() - 0.
 const stop = (9732.91 + (direction === 'BUY' ? -50 : 50) + (Math.random() - 0.5) * 30).toFixed(2);
 const reasons = ['RSI oversold/overbought', 'Moving average crossover', 'Volume surge detected', 'Support/resistance breakout', 'MACD divergence', 'Bollinger band squeeze', 'DigitEdge pattern match', 'Last digit distribution skew'];
 const selectedReasons = reasons.sort(() => Math.random() - 0.5).slice(0, 3);
+
 let html = `
 <div class="analysis-result">
 <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
@@ -3338,6 +3453,7 @@ ${selectedReasons.map(r => `<li>${r}</li>`).join('')}
 </div>
 </div>`;
 signalOutput.innerHTML = html;
+
 const recent = document.getElementById('recentSignals');
 const card = document.createElement('div');
 card.className = 'analysis-card';
@@ -3355,6 +3471,7 @@ signalCount++;
 totalSignalsToday.textContent = signalCount;
 toast(`📡 DigitEdge signal generated on ${market}`, 'info');
 }
+
 // =============================================
 // Signal Monitor (unchanged)
 // =============================================
@@ -3367,21 +3484,25 @@ gaugeSell.textContent = sell;
 gaugeNeutral.textContent = neutral;
 lastUpdate.textContent = new Date().toLocaleTimeString();
 totalSignalsToday.textContent = signalCount + Math.floor(Math.random() * 8);
+
 const symbols = ['VOL10', 'VOL25', 'VOL50', 'VOL75', 'VOL100', 'VOL10_1s', 'VOL25_1s', 'VOL50_1s', 'VOL75_1s', 'VOL100_1s', 'CRASH', 'BOOM', 'RANGE'];
 const sym = symbols[Math.floor(Math.random() * symbols.length)];
 const dir = ['BUY', 'SELL', 'NEUTRAL'][Math.floor(Math.random() * 3)];
 const conf = Math.floor(50 + Math.random() * 45);
+
 const row = document.createElement('tr');
 const time = new Date().toLocaleTimeString();
 row.innerHTML = `<td>${time}</td><td>${sym}</td><td><span class="signal-badge ${dir.toLowerCase()}">${dir}</span></td><td>${conf}%</td>`;
 monitorSignals.prepend(row);
 if (monitorSignals.children.length > 10) monitorSignals.removeChild(monitorSignals.lastChild);
+
 const histRow = document.createElement('tr');
 const result = Math.random() > 0.5 ? 'Won' : 'Lost';
 histRow.innerHTML = `<td>${sym}</td><td><span class="signal-badge ${dir.toLowerCase()}">${dir}</span></td><td>${time}</td><td>${result}</td>`;
 monitorHistory.prepend(histRow);
 if (monitorHistory.children.length > 10) monitorHistory.removeChild(monitorHistory.lastChild);
 }
+
 // =============================================
 // Signal Strategy Modal (unchanged)
 // =============================================
@@ -3399,6 +3520,7 @@ if (opt.value === currentMarket) { ssMarket.value = currentMarket; break; }
 document.getElementById('ssEntry').value = 'None — trade every cycle';
 signalStrategyModal.classList.add('active');
 }
+
 function saveSignalStrategy() {
 const strategy = document.getElementById('ssStrategy').value;
 const signal = document.getElementById('ssSignal').value;
@@ -3415,6 +3537,7 @@ updateMarketDisplay(market);
 signalStrategyModal.classList.remove('active');
 toast('📡 DigitEdge signal strategy applied', 'success');
 }
+
 // =============================================
 // Risk Management Modal (unchanged)
 // =============================================
@@ -3426,6 +3549,7 @@ document.getElementById('rmMaxLevel').value = maxMartingaleLevel;
 updateStakeLadder();
 riskMgmtModal.classList.add('active');
 }
+
 function updateStakeLadder() {
 const base = parseFloat(document.getElementById('rmMulti').value) || 1.5;
 const maxLvl = parseInt(document.getElementById('rmMaxLevel').value) || 7;
@@ -3437,6 +3561,7 @@ s = s * base;
 }
 document.getElementById('stakeLadderPreview').textContent = steps.join(' → ');
 }
+
 function saveRiskMgmt() {
 const tp = parseFloat(document.getElementById('rmTP').value) || 20;
 const sl = parseFloat(document.getElementById('rmSL').value) || 10000;
@@ -3454,6 +3579,7 @@ updateProfitDisplay();
 riskMgmtModal.classList.remove('active');
 toast('🛡 Risk settings applied', 'success');
 }
+
 // =============================================
 // Full Settings Modal (unchanged)
 // =============================================
@@ -3467,6 +3593,7 @@ if (opt.value === currentMarket) { editMarket.value = currentMarket; break; }
 }
 settingsModal.classList.add('active');
 }
+
 function saveSettings() {
 const stake = parseFloat(document.getElementById('editStake').value) || 10;
 const market = document.getElementById('editMarket').value;
@@ -3478,6 +3605,7 @@ updateMarketDisplay(market);
 settingsModal.classList.remove('active');
 toast('⚙️ Settings saved', 'success');
 }
+
 // =============================================
 // Event listeners
 // =============================================
@@ -3491,22 +3619,27 @@ contents[key].classList.toggle('active', key === target);
 });
 });
 });
+
 hamburger.addEventListener('click', function() {
 sidebar.classList.toggle('open');
 sidebarBackdrop.classList.toggle('show');
 });
+
 sidebarBackdrop.addEventListener('click', function() {
 sidebar.classList.remove('open');
 sidebarBackdrop.classList.remove('show');
 });
+
 activateBtn.addEventListener('click', startTrading);
 deactivateBtn.addEventListener('click', stopTrading);
 qsApplyBtn.addEventListener('click', applyQuickSettings);
+
 document.querySelectorAll('.preset-btn').forEach(btn => {
 btn.addEventListener('click', function() {
 applyPreset(this.dataset.preset);
 });
 });
+
 signalStrategyBtn.addEventListener('click', openSignalStrategy);
 ssSaveBtn.addEventListener('click', saveSignalStrategy);
 riskMgmtBtn.addEventListener('click', openRiskMgmt);
@@ -3515,31 +3648,37 @@ document.getElementById('rmMaxLevel').addEventListener('input', updateStakeLadde
 rmSaveBtn.addEventListener('click', saveRiskMgmt);
 editSettingsBtn.addEventListener('click', openSettingsModal);
 saveSettingsBtn.addEventListener('click', saveSettings);
+
 document.querySelectorAll('.modal-close').forEach(el => {
 el.addEventListener('click', function() {
 const modal = this.closest('.modal-overlay');
 if (modal) modal.classList.remove('active');
 });
 });
+
 document.querySelectorAll('.modal-overlay').forEach(overlay => {
 overlay.addEventListener('click', function(e) {
 if (e.target === this) this.classList.remove('active');
 });
 });
+
 tpProceedBtn.addEventListener('click', () => {
 tpModal.classList.remove('active');
 toast('✅ Session reset. Ready for next cycle.', 'info');
 });
+
 clearSessionsBtn.addEventListener('click', () => {
 sessions = [];
 renderSessions();
 toast('📋 Sessions cleared', 'info');
 });
+
 generateSignalBtn.addEventListener('click', generateAISignal);
 runAnalysisBtn.addEventListener('click', generateAISignal);
 document.getElementById('saveSignalBtn').addEventListener('click', () => {
 toast('💾 Signal saved to history', 'info');
 });
+
 symbolOptions.forEach(el => {
 el.addEventListener('click', function() {
 symbolOptions.forEach(o => o.classList.remove('active'));
@@ -3563,18 +3702,21 @@ const market = marketMap[this.dataset.symbol];
 if (market) updateMarketDisplay(market);
 });
 });
+
 document.querySelectorAll('.pill-tab').forEach(tab => {
 tab.addEventListener('click', function() {
 document.querySelectorAll('.pill-tab').forEach(t => t.classList.remove('active'));
 this.classList.add('active');
 });
 });
+
 document.querySelectorAll('.accordion-header').forEach(header => {
 header.addEventListener('click', function() {
 const item = this.closest('.accordion-item');
 if (item) item.classList.toggle('open');
 });
 });
+
 document.querySelectorAll('.faq-question').forEach(q => {
 q.addEventListener('click', function() {
 const item = this.closest('.faq-item');
@@ -3584,6 +3726,7 @@ this.querySelector('.faq-toggle').textContent = item.classList.contains('open') 
 }
 });
 });
+
 helpSearch.addEventListener('input', function() {
 const q = this.value.toLowerCase();
 document.querySelectorAll('.faq-item').forEach(item => {
@@ -3591,6 +3734,7 @@ const text = item.textContent.toLowerCase();
 item.style.display = text.includes(q) ? '' : 'none';
 });
 });
+
 document.querySelectorAll('[data-collapse]').forEach(btn => {
 btn.addEventListener('click', function() {
 const card = document.getElementById(this.dataset.collapse);
@@ -3604,6 +3748,7 @@ this.textContent = isHidden ? '—' : '+';
 }
 });
 });
+
 document.querySelectorAll('.tf-pill').forEach(pill => {
 pill.addEventListener('click', function() {
 document.querySelectorAll('.tf-pill').forEach(p => p.classList.remove('active'));
@@ -3612,10 +3757,12 @@ generateChartData();
 drawChart();
 });
 });
+
 // OAuth event listeners
 oauthLoginBtn.addEventListener('click', () => initiateAuth(null));
 oauthSignupBtn.addEventListener('click', () => initiateAuth('registration'));
 oauthDisconnectBtn.addEventListener('click', disconnect);
+
 manualTokenBtn.addEventListener('click', () => {
 const token = manualToken.value.trim();
 if (token) {
@@ -3626,12 +3773,14 @@ connectModal.classList.remove('active');
 toast('Please paste a valid token', 'error');
 }
 });
+
 connectBtn.addEventListener('click', () => {
 const savedClient = localStorage.getItem('emron_oauth_client');
 if (savedClient) oauthClientId.value = savedClient;
-oauthRedirectUri.value = window.location.origin.replace(/\/$/, '');
+oauthRedirectUri.value = window.location.origin;
 connectModal.classList.add('active');
 });
+
 // --- New Playground event listeners ---
 patConnectBtn.addEventListener('click', () => {
 const token = patTokenInput.value.trim();
@@ -3643,7 +3792,23 @@ toast('PAT token set successfully', 'success');
 toast('Please enter a PAT token', 'error');
 }
 });
+
 patDisconnectBtn.addEventListener('click', disconnect);
+
+document.getElementById('modeToggleBtn').addEventListener('click', function() {
+MODE = (MODE === 'DEMO') ? 'REAL' : 'DEMO';
+document.getElementById('modeLabel').textContent = MODE;
+if (MODE === 'REAL') {
+toast('⚠️ REAL MONEY MODE — trades will use ' + REAL_ACCOUNT_ID, 'error');
+} else {
+toast('🛡️ DEMO MODE — trades will use ' + DEMO_ACCOUNT_ID, 'info');
+}
+if (accessToken && wsConnected) {
+switchAttempted = false;
+sendWsRequest({ switch_account: (MODE === 'REAL') ? REAL_ACCOUNT_ID : DEMO_ACCOUNT_ID });
+}
+});
+
 document.querySelectorAll('.copy-btn').forEach(btn => {
 btn.addEventListener('click', function() {
 const text = this.dataset.copy;
@@ -3660,6 +3825,7 @@ toast(`Copied: ${text}`, 'success');
 });
 });
 });
+
 // =============================================
 // Countdown
 // =============================================
@@ -3672,6 +3838,7 @@ countdown--;
 updateCountdown.textContent = countdown;
 }
 }, 1000);
+
 // =============================================
 // Init
 // =============================================
@@ -3679,7 +3846,7 @@ loadStoredToken();
 handleOAuthCallback();
 const savedClient = localStorage.getItem('emron_oauth_client');
 if (savedClient) oauthClientId.value = savedClient;
-oauthRedirectUri.value = window.location.origin.replace(/\/$/, '');
+oauthRedirectUri.value = window.location.origin;
 updateBalanceDisplay();
 updateProfitDisplay();
 renderSessions();
@@ -3694,14 +3861,17 @@ qsSL.value = stopLossValue.toFixed(2);
 // Set initial min/max runs in UI
 qsMinRuns.value = MIN_RUNS_BEFORE_TP_SL;
 qsMaxRuns.value = MAX_RUNS_PER_SESSION;
+
 setTimeout(updateMonitor, 500);
 setInterval(() => { if (!isActive) { generateChartData(); drawChart(); } }, 7000);
 window.addEventListener('resize', initChart);
+
 console.log('🔷 EMRON AI — DigitEdge FREE & UNLOCKED');
 console.log('🔒 Token-safe auth: token is NEVER deleted on auth error');
 console.log('📊 WebSocket endpoint: ' + getWsEndpoint());
 console.log('📊 Markets: Volatility 10–100 (2s & 1s), Crash, Boom, Range Break');
 console.log(`📊 Run limits: min=${MIN_RUNS_BEFORE_TP_SL}, max=${MAX_RUNS_PER_SESSION} (user-configurable)`);
+
 })();
 </script>
 </body>
