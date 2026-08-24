@@ -2419,7 +2419,7 @@ return MARKET_SYMBOLS[marketName] || 'R_50';
 // =============================================
 let isActive = false;
 let isRealTrading = false;
-let balance = 0.00; // FIX: No fake balance
+let balance = 0.00; // FIX: No fake balance, starts at 0
 let windowProfitValue = 0;
 let profitTargetValue = 20.00;
 let stopLossValue = 10000.00;
@@ -2454,7 +2454,7 @@ let accountInfo = null;
 // CORRECTED WEBSOCKET MANAGER
 // =============================================
 function getAppId() {
-return '34c3rTXvfnC6XKk5nbzJM'; // FIX: New alphanumeric App ID as requested
+return '34c3rTXvfnC6XKk5nbzJM'; // Correct App ID
 }
 function getWsEndpoint() {
 const appId = getAppId();
@@ -2910,7 +2910,7 @@ ctx.fillText(i, padding.left + i * spacing + spacing / 2, h - 2);
 // =============================================
 // OAuth 2.0 with PKCE - Vercel API Integration
 // =============================================
-const AUTH_BASE = 'https://oauth.deriv.com/oauth2/authorize';
+const AUTH_BASE = 'https://oauth.deriv.com/oauth2/authorize'; // ✅ CORRECT URL
 const TOKEN_EXCHANGE_ENDPOINT = '/api/exchange-token';
 function generateCodeVerifier() {
 const array = crypto.getRandomValues(new Uint8Array(64));
@@ -2966,7 +2966,7 @@ toast('Please enter Client ID', 'error');
 return;
 }
 localStorage.setItem('emron_oauth_client', clientId);
-// FIX: Remove trailing slash for Vercel compatibility
+// ✅ FIX: Remove trailing slash for Vercel compatibility
 const redirectUri = window.location.origin.replace(/\/$/, '');
 oauthRedirectUri.value = redirectUri;
 const scope = 'read trade account_manage payments trading_information';
@@ -3205,7 +3205,6 @@ qsMulti.value = p.multi;
 qsMaxLevel.value = p.maxLvl;
 qsTP.value = p.tp;
 qsSL.value = p.sl;
-// Presets leave min/max runs unchanged (or you could set defaults)
 applyQuickSettings();
 toast(`Loaded preset: ${preset}`, 'success');
 }
