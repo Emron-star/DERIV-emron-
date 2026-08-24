@@ -1165,6 +1165,105 @@ height: var(--footer-height);
 .tp-modal-highlight small { font-size: clamp(12px, 0.8vw, 16px); font-weight: 400; color: var(--text-muted); }
 .spinner { display: inline-block; width: clamp(12px, 0.8vw, 16px); height: clamp(12px, 0.8vw, 16px); border: 2px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
+/* ===== NEW: API Playground styles ===== */
+.playground-grid {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: clamp(10px, 1vw, 16px);
+margin-bottom: clamp(16px, 1.2vw, 24px);
+}
+.account-card {
+background: var(--bg-card);
+border: 1px solid var(--border);
+border-radius: var(--radius-lg);
+padding: clamp(12px, 1vw, 18px);
+display: flex;
+flex-direction: column;
+gap: clamp(4px, 0.3vw, 8px);
+}
+.account-card .label {
+font-size: clamp(11px, 0.7vw, 13px);
+font-weight: 600;
+color: var(--text-muted);
+}
+.account-card .id {
+font-family: 'JetBrains Mono', monospace;
+font-size: clamp(13px, 1vw, 16px);
+font-weight: 600;
+display: flex;
+align-items: center;
+gap: clamp(6px, 0.4vw, 10px);
+}
+.account-card .id .copy-btn {
+background: none;
+border: none;
+color: var(--text-muted);
+cursor: pointer;
+font-size: clamp(14px, 0.8vw, 16px);
+padding: 2px 6px;
+border-radius: var(--radius-sm);
+transition: background 0.15s;
+}
+.account-card .id .copy-btn:hover { background: var(--bg-surface); color: var(--text-primary); }
+.account-card .status-badge-sm {
+font-size: clamp(9px, 0.5vw, 11px);
+color: var(--text-muted);
+display: flex;
+align-items: center;
+gap: clamp(4px, 0.2vw, 6px);
+}
+.account-card .status-badge-sm .dot {
+width: clamp(6px, 0.4vw, 8px);
+height: clamp(6px, 0.4vw, 8px);
+border-radius: 50%;
+display: inline-block;
+}
+.account-card .status-badge-sm .dot.green { background: var(--accent-green); box-shadow: 0 0 6px var(--accent-green); }
+.account-card .status-badge-sm .dot.gray { background: var(--text-dim); }
+.account-card .balance-info {
+font-family: 'JetBrains Mono', monospace;
+font-size: clamp(12px, 0.8vw, 15px);
+color: var(--accent-green);
+}
+.pat-section {
+background: var(--bg-card);
+border: 1px solid var(--border);
+border-radius: var(--radius-lg);
+padding: clamp(12px, 1vw, 18px);
+display: flex;
+flex-direction: column;
+gap: clamp(6px, 0.4vw, 10px);
+}
+.pat-section .input-group {
+display: flex;
+gap: clamp(6px, 0.4vw, 10px);
+flex-wrap: wrap;
+}
+.pat-section .input-group input {
+flex: 1;
+min-width: 160px;
+}
+.pat-section .input-group .btn {
+flex-shrink: 0;
+}
+.playground-status {
+margin-top: clamp(6px, 0.4vw, 10px);
+padding: clamp(8px, 0.5vw, 12px);
+background: var(--bg-surface);
+border-radius: var(--radius-md);
+border: 1px solid var(--border);
+font-size: clamp(10px, 0.6vw, 12px);
+display: flex;
+align-items: center;
+gap: clamp(6px, 0.4vw, 10px);
+flex-wrap: wrap;
+}
+.playground-status .status-text { color: var(--text-muted); }
+.playground-status .status-text.connected { color: var(--accent-green); }
+.playground-status .status-text .highlight { color: var(--text-primary); font-weight: 600; }
+@media (max-width: 600px) {
+.playground-grid { grid-template-columns: 1fr; }
+}
 /* ============================================================ */
 /* RESPONSIVE BREAKPOINTS                                        */
 /* ============================================================ */
@@ -1317,13 +1416,14 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 <header class="topbar">
 <button class="hamburger" id="hamburger" aria-label="Toggle menu">☰</button>
 <div class="logo">
-<div class="logo-icon"></div>
+<div class="logo-icon">🔷</div>
 <div class="logo-text">EMRON AI</div>
 </div>
 <nav class="tabs" role="tablist">
 <button class="tab active" data-tab="trading-hub" role="tab">Trading Hub</button>
 <button class="tab" data-tab="ai-signals" role="tab">AI Signals</button>
 <button class="tab" data-tab="signal-monitor" role="tab">Signal Monitor</button>
+<button class="tab" data-tab="api-playground" role="tab">API Playground</button>
 <button class="tab" data-tab="help" role="tab">Help</button>
 </nav>
 <div class="topbar-right">
@@ -1332,7 +1432,7 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 <span>Online</span>
 </div>
 <div class="balance">
-<span class="currency">USD</span> <span id="balanceValue">1000.00</span>
+<span class="currency">USD</span> <span id="balanceValue">0.00</span>
 </div>
 <button class="btn btn-primary btn-sm" id="connectBtn">Connect</button>
 <div class="avatar" id="avatar">JD</div>
@@ -1351,15 +1451,15 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 <div class="sidebar-title">Menu</div>
 <div class="nav-item"><span class="nav-icon">🏠</span><span>Home</span></div>
 <div class="nav-item"><span class="nav-icon">🤖</span><span>AI Signals</span></div>
-<div class="nav-item"><span class="nav-icon"></span><span>Partners</span></div>
+<div class="nav-item"><span class="nav-icon">🤝</span><span>Partners</span></div>
 <div class="nav-item"><span class="nav-icon">📡</span><span>Signal Monitor</span></div>
-<div class="nav-item"><span class="nav-icon"></span><span>eLearning</span></div>
+<div class="nav-item"><span class="nav-icon">🎓</span><span>eLearning</span></div>
 <div class="nav-item"><span class="nav-icon">❓</span><span>Help Center</span></div>
 </div>
 <div class="sidebar-section">
 <div class="sidebar-title">Preferences</div>
 <div style="padding:6px 10px;font-size:11px;color:var(--text-muted);">
-<span> Dark Mode</span>
+<span>🌙 Dark Mode</span>
 <span style="float:right;opacity:0.5;">✓</span>
 </div>
 </div>
@@ -1393,7 +1493,10 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 <div class="card-body">
 <div class="setting-row"><span class="label">Time window</span><span class="value" id="windowTime">—</span></div>
 <div class="setting-row"><span class="label">Bot state</span><span class="value" id="botState">IDLE</span></div>
-<div class="setting-row"><span class="label">Session Round</span><span class="value live" id="currentRound">0 / 200</span></div>
+<div class="setting-row">
+<span class="label">Session Round</span>
+<span class="value live" id="currentRound">0 / 200 (min 5)</span>
+</div>
 <div class="setting-row"><span class="label">Digit feed</span><span class="value" style="color:var(--accent-cyan);">DigitEdge <span class="free-badge">FREE</span></span></div>
 <div class="progress-container">
 <div class="progress-label">
@@ -1432,9 +1535,9 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 <div style="font-size:clamp(8px,0.5vw,10px);font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">📌 Reel Presets</div>
 <div class="preset-grid">
 <button class="btn btn-ghost preset-btn" data-preset="reel1">📈 Rise/Fall (V50)</button>
-<button class="btn btn-ghost preset-btn" data-preset="reel3"> Over 3 (Jump)</button>
+<button class="btn btn-ghost preset-btn" data-preset="reel3">🎯 Over 3 (Jump)</button>
 <button class="btn btn-ghost preset-btn" data-preset="reel4">⚡ Over 0 (V100)</button>
-<button class="btn btn-ghost preset-btn" data-preset="reel5">️ Over 0 (V100) TP40</button>
+<button class="btn btn-ghost preset-btn" data-preset="reel5">🛡️ Over 0 (V100) TP40</button>
 </div>
 <div style="font-size:clamp(8px,0.5vw,10px);font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;">Quick Adjust</div>
 <div class="form-row">
@@ -1487,6 +1590,17 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 </select>
 </div>
 </div>
+<!-- NEW: Min Runs & Max Runs -->
+<div class="form-row">
+<div class="form-group">
+<label>Min Runs (before TP/SL)</label>
+<input class="form-control" id="qsMinRuns" type="number" value="5" min="1">
+</div>
+<div class="form-group">
+<label>Max Runs (session limit)</label>
+<input class="form-control" id="qsMaxRuns" type="number" value="200" min="1">
+</div>
+</div>
 <button class="btn-apply" id="qsApplyBtn">Apply Quick Settings</button>
 </div>
 </div>
@@ -1496,7 +1610,7 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 <!-- Sessions Ledger -->
 <div class="card" id="sessionsCard">
 <div class="card-header">
-<div class="card-title"> Sessions Ledger</div>
+<div class="card-title">📋 Sessions Ledger</div>
 <div class="card-actions">
 <button class="icon-btn" id="clearSessionsBtn" title="Clear">🗑</button>
 <button class="icon-btn" data-collapse="sessionsCard">—</button>
@@ -1541,7 +1655,7 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 <div class="chart-container">
 <div class="chart-header">
 <div class="chart-symbol">
-<span></span>
+<span>📊</span>
 <span id="chartSymbol">Volatility 50</span>
 <span class="chart-price" id="chartPrice">9,732.91</span>
 </div>
@@ -1562,11 +1676,11 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 <!-- ===================== TAB 2: AI SIGNALS ===================== -->
 <div class="tab-content" id="ai-signals">
 <div class="hero">
-<h1> DigitEdge — AI-Powered Market Analysis</h1>
+<h1>🧠 DigitEdge — AI-Powered Market Analysis</h1>
 <p>Professional-grade trading signals powered by advanced machine learning. Get actionable insights across 20+ markets in real time. <span class="free-badge" style="font-size:clamp(8px,0.5vw,10px);">FREE · NO SUBSCRIPTION</span></p>
 <div class="hero-ctas">
 <button class="btn btn-primary" id="runAnalysisBtn">🚀 Run Analysis</button>
-<button class="btn btn-ghost" id="saveSignalBtn"> Save Signal</button>
+<button class="btn btn-ghost" id="saveSignalBtn">💾 Save Signal</button>
 </div>
 </div>
 <div class="analysis-grid">
@@ -1719,14 +1833,14 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 <div class="gauge-count">last 5m</div>
 </div>
 <div class="gauge-card">
-<h4> Neutral</h4>
+<h4>⚪ Neutral</h4>
 <div class="gauge-label" id="gaugeNeutral" style="color:var(--text-muted);">0</div>
 <div class="gauge-count">last 5m</div>
 </div>
 </div>
 <div class="tables-grid">
 <div class="card">
-<div class="card-header"><div class="card-title"> Recent Signals</div></div>
+<div class="card-header"><div class="card-title">📡 Recent Signals</div></div>
 <div class="table-wrapper">
 <table>
 <thead><tr><th>Time</th><th>Symbol</th><th>Signal</th><th>Confidence</th></tr></thead>
@@ -1737,7 +1851,7 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 </div>
 </div>
 <div class="card">
-<div class="card-header"><div class="card-title"> Signal History</div></div>
+<div class="card-header"><div class="card-title">📜 Signal History</div></div>
 <div class="table-wrapper">
 <table>
 <thead><tr><th>Symbol</th><th>Signal</th><th>Time</th><th>Result</th></tr></thead>
@@ -1767,14 +1881,64 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 <span style="color:var(--accent-cyan);">🔓 FREE</span>
 </div>
 </div>
-<!-- ===================== TAB 4: HELP ===================== -->
+<!-- ===================== TAB 4: API PLAYGROUND ===================== -->
+<div class="tab-content" id="api-playground">
+<div class="playground-grid">
+<!-- Demo Account Card -->
+<div class="account-card">
+<div class="label">Demo account</div>
+<div class="id">
+<span>DOT90737951</span>
+<button class="copy-btn" data-copy="DOT90737951" title="Copy account ID">📋</button>
+</div>
+<div class="status-badge-sm">
+<span class="dot gray" id="demoStatusDot"></span>
+<span id="demoStatusText">Not connected</span>
+</div>
+<div class="balance-info" id="demoBalance">—</div>
+</div>
+<!-- Real Account Card -->
+<div class="account-card">
+<div class="label">Real account</div>
+<div class="id">
+<span>ROT90355563</span>
+<button class="copy-btn" data-copy="ROT90355563" title="Copy account ID">📋</button>
+</div>
+<div class="status-badge-sm">
+<span class="dot gray" id="realStatusDot"></span>
+<span id="realStatusText">Not connected</span>
+</div>
+<div class="balance-info" id="realBalance">—</div>
+</div>
+</div>
+<!-- PAT Token Section -->
+<div class="pat-section">
+<div style="display:flex;align-items:center;gap:clamp(6px,0.4vw,10px);flex-wrap:wrap;">
+<span style="font-weight:600;font-size:clamp(12px,0.8vw,14px);">🔑 Enter PAT Token</span>
+<span class="free-badge" style="font-size:clamp(7px,0.4vw,9px);">Personal Access Token</span>
+</div>
+<div class="input-group">
+<input class="form-control" id="patTokenInput" placeholder="e.g. eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1Ni..." type="text">
+<button class="btn btn-primary" id="patConnectBtn">Connect PAT</button>
+<button class="btn btn-ghost" id="patDisconnectBtn">Disconnect</button>
+</div>
+<div class="playground-status">
+<span class="status-text" id="patStatus">🔴 Not connected</span>
+<span style="color:var(--text-muted);font-size:clamp(9px,0.5vw,11px);">|</span>
+<span style="color:var(--text-muted);font-size:clamp(9px,0.5vw,11px);">Account: <span id="patAccountId" style="font-family:'JetBrains Mono',monospace;color:var(--text-primary);">—</span></span>
+<span style="color:var(--text-muted);font-size:clamp(9px,0.5vw,11px);">|</span>
+<span style="color:var(--text-muted);font-size:clamp(9px,0.5vw,11px);">Balance: <span id="patBalance" style="font-family:'JetBrains Mono',monospace;color:var(--accent-green);">—</span></span>
+</div>
+</div>
+</div>
+<!-- ===================== TAB 5: HELP ===================== -->
 <div class="tab-content" id="help">
 <div class="search-bar">
 <span class="search-icon">🔍</span>
 <input type="text" id="helpSearch" placeholder="Search for help articles…">
 </div>
 <div class="faq-category">
-<h3> Getting Started with DigitEdge</h3>
+<h3>🚀 Getting Started with DigitEdge</h3>
 <div class="faq-item">
 <div class="faq-question">What is DigitEdge? <span class="faq-toggle">+</span></div>
 <div class="faq-answer">DigitEdge is our AI-powered signal engine that analyzes synthetic indices in real time and predicts the last digit of the next tick. It's now <strong>completely free</strong> — no subscription required.</div>
@@ -1804,7 +1968,7 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 </div>
 </div>
 <div class="faq-category">
-<h3> Account & Security</h3>
+<h3>🔒 Account & Security</h3>
 <div class="faq-item">
 <div class="faq-question">Is my data safe? <span class="faq-toggle">+</span></div>
 <div class="faq-answer">We use bank-grade encryption and never store your API keys. All communication is over HTTPS and we comply with GDPR.</div>
@@ -1815,12 +1979,13 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 </div>
 </div>
 <div class="contact-card">
-<h3> Still need help?</h3>
+<h3>💬 Still need help?</h3>
 <p>Our support team is available 24/7 to assist you with any questions about DigitEdge.</p>
 <button class="btn btn-primary">📧 Contact Support</button>
 </div>
 </div>
 </main>
+<!-- ============ FOOTER ============ -->
 <footer class="footer">
 <div>© 2026 EMRON AI — DigitEdge · Free & Unlocked</div>
 <div class="footer-credit">All trading involves risk. Past performance is not indicative of future results. Demo-trade first.</div>
@@ -1940,7 +2105,7 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 </div>
 <div class="modal-body">
 <div class="warning-box">
-<strong>️ Caution:</strong> Stop loss is evaluated after each trade settles. With martingale enabled, one escalated stake can exceed this limit before the check triggers. Set your martingale limits precisely to keep losses within your intended range. <span class="highlight">Test on a demo account first.</span>
+<strong>⚠️ Caution:</strong> Stop loss is evaluated after each trade settles. With martingale enabled, one escalated stake can exceed this limit before the check triggers. Set your martingale limits precisely to keep losses within your intended range. <span class="highlight">Test on a demo account first.</span>
 </div>
 <div class="form-row">
 <div class="form-group">
@@ -2000,7 +2165,7 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 <div class="modal-overlay" id="settingsModal">
 <div class="modal">
 <div class="modal-header">
-<div class="modal-title">️ Edit All Settings</div>
+<div class="modal-title">⚙️ Edit All Settings</div>
 <span class="modal-close" data-modal="settingsModal">✕</span>
 </div>
 <div class="modal-body">
@@ -2080,15 +2245,15 @@ Sign in or create a Deriv account using OAuth 2.0. Your token will be stored loc
 <input class="form-control" id="oauthClientId" placeholder="Your Deriv OAuth2 client_id" value="34c3rTXvfnC6XKk5nbzJM">
 </div>
 <div class="form-group" style="margin-bottom:clamp(6px,0.4vw,10px);">
-<label>Redirect URI</label>
-<input class="form-control" id="oauthRedirectUri" placeholder="Your registered redirect_uri" value="https://emronai-4.netlify.app">
+<label>Redirect URI (Auto-detected for Vercel)</label>
+<input class="form-control" id="oauthRedirectUri" placeholder="Your registered redirect_uri" value="" readonly style="opacity: 0.6;">
 </div>
 <div class="warning-box" style="font-size:clamp(9px,0.5vw,11px);">
 <strong>🔒 OAuth 2.0 with PKCE</strong> — your <code>code_verifier</code> and <code>state</code> are generated per session and never stored.
 </div>
 <div style="display:flex;gap:clamp(6px,0.4vw,10px);margin:clamp(8px,0.6vw,12px) 0;">
 <button class="btn btn-primary" id="oauthLoginBtn" style="flex:1;">🔑 Login with Deriv</button>
-<button class="btn btn-success" id="oauthSignupBtn" style="flex:1;"> Sign Up</button>
+<button class="btn btn-success" id="oauthSignupBtn" style="flex:1;">📝 Sign Up</button>
 </div>
 <div style="display:flex;align-items:center;gap:clamp(6px,0.4vw,10px);margin:clamp(6px,0.4vw,10px) 0;flex-wrap:wrap;">
 <span style="font-size:clamp(8px,0.4vw,10px);color:var(--text-muted);" id="oauthStatus">Not connected</span>
@@ -2130,6 +2295,11 @@ Sign in or create a Deriv account using OAuth 2.0. Your token will be stored loc
 (function() {
 'use strict';
 // =============================================
+// RUN LIMITS – user-configurable via UI
+// =============================================
+let MIN_RUNS_BEFORE_TP_SL = 5;   // will be updated from UI
+let MAX_RUNS_PER_SESSION = 200;  // will be updated from UI
+// =============================================
 // DOM refs
 // =============================================
 const tabs = document.querySelectorAll('.tab');
@@ -2137,6 +2307,7 @@ const contents = {
 'trading-hub': document.getElementById('trading-hub'),
 'ai-signals': document.getElementById('ai-signals'),
 'signal-monitor': document.getElementById('signal-monitor'),
+'api-playground': document.getElementById('api-playground'),
 'help': document.getElementById('help'),
 };
 const sidebar = document.getElementById('sidebar');
@@ -2199,6 +2370,8 @@ const qsTP = document.getElementById('qsTP');
 const qsSL = document.getElementById('qsSL');
 const qsMarket = document.getElementById('qsMarket');
 const qsApplyBtn = document.getElementById('qsApplyBtn');
+const qsMinRuns = document.getElementById('qsMinRuns');
+const qsMaxRuns = document.getElementById('qsMaxRuns');
 const oauthClientId = document.getElementById('oauthClientId');
 const oauthRedirectUri = document.getElementById('oauthRedirectUri');
 const oauthLoginBtn = document.getElementById('oauthLoginBtn');
@@ -2207,6 +2380,19 @@ const oauthStatus = document.getElementById('oauthStatus');
 const oauthDisconnectBtn = document.getElementById('oauthDisconnectBtn');
 const manualToken = document.getElementById('manualToken');
 const manualTokenBtn = document.getElementById('manualTokenBtn');
+// === New Playground refs ===
+const patTokenInput = document.getElementById('patTokenInput');
+const patConnectBtn = document.getElementById('patConnectBtn');
+const patDisconnectBtn = document.getElementById('patDisconnectBtn');
+const patStatus = document.getElementById('patStatus');
+const patAccountId = document.getElementById('patAccountId');
+const patBalance = document.getElementById('patBalance');
+const demoStatusDot = document.getElementById('demoStatusDot');
+const demoStatusText = document.getElementById('demoStatusText');
+const demoBalance = document.getElementById('demoBalance');
+const realStatusDot = document.getElementById('realStatusDot');
+const realStatusText = document.getElementById('realStatusText');
+const realBalance = document.getElementById('realBalance');
 // =============================================
 // CORRECTED MARKET SYMBOLS
 // =============================================
@@ -2233,7 +2419,7 @@ return MARKET_SYMBOLS[marketName] || 'R_50';
 // =============================================
 let isActive = false;
 let isRealTrading = false;
-let balance = 1000.00;
+let balance = 0.00; // FIX: No fake balance
 let windowProfitValue = 0;
 let profitTargetValue = 20.00;
 let stopLossValue = 10000.00;
@@ -2263,11 +2449,12 @@ let activeContractId = null;
 let tickSubscriptionId = null;
 let isTradeInProgress = false;
 let authRetries = 0;
+let accountInfo = null;
 // =============================================
 // CORRECTED WEBSOCKET MANAGER
 // =============================================
 function getAppId() {
-return '34c3rTXvfnC6XKk5nbzJM'; // Use the alphanumeric Client ID
+return '34c3rTXvfnC6XKk5nbzJM'; // FIX: New alphanumeric App ID as requested
 }
 function getWsEndpoint() {
 const appId = getAppId();
@@ -2277,7 +2464,6 @@ function connectWebSocket(token) {
 const endpoint = getWsEndpoint();
 console.log('Connecting to:', endpoint);
 authRetries = 0;
-// If already open, force authorize immediately
 if (ws && ws.readyState === WebSocket.OPEN) {
 console.log('✅ WS already OPEN - forcing authorization');
 ws.send(JSON.stringify({ authorize: token }));
@@ -2295,16 +2481,13 @@ console.log('✅ WS OPEN - forcing authorization');
 wsConnected = true;
 updateConnectionStatus(true);
 toast('✅ Connected to Deriv WebSocket', 'success');
-// FORCE send token directly, bypassing any readyState checks
 ws.send(JSON.stringify({ authorize: token }));
-
-// Add keep-alive ping interval
 if (window.wsPingInterval) clearInterval(window.wsPingInterval);
 window.wsPingInterval = setInterval(() => {
 if (ws && ws.readyState === WebSocket.OPEN) {
 ws.send(JSON.stringify({ ping: 1 }));
 }
-}, 30000); // Send ping every 30 seconds
+}, 30000);
 };
 ws.onmessage = handleWebSocketMessage;
 ws.onerror = (err) => {
@@ -2316,7 +2499,6 @@ if (window.wsPingInterval) clearInterval(window.wsPingInterval);
 wsConnected = false;
 updateConnectionStatus(false);
 console.log('WebSocket disconnected');
-// Auto-reconnect if we have a token (token is NEVER deleted here)
 if (accessToken && isActive) {
 toast('Reconnecting to Deriv...', 'info');
 setTimeout(() => connectWebSocket(accessToken), 3000);
@@ -2329,6 +2511,17 @@ const statusLabel = document.querySelector('#internetStatus span');
 if (statusDot && statusLabel) {
 statusDot.className = 'status-dot' + (connected ? '' : ' offline');
 statusLabel.textContent = connected ? 'Online' : 'Offline';
+}
+if (connected && accessToken) {
+patStatus.textContent = '🟢 Connected';
+patStatus.className = 'status-text connected';
+demoStatusDot.className = 'dot green';
+demoStatusText.textContent = 'Connected';
+} else {
+patStatus.textContent = '🔴 Not connected';
+patStatus.className = 'status-text';
+demoStatusDot.className = 'dot gray';
+demoStatusText.textContent = 'Not connected';
 }
 }
 function handleWebSocketMessage(event) {
@@ -2355,7 +2548,6 @@ case 'proposal_open_contract':
 handleContractUpdate(data);
 break;
 case 'forget':
-// Subscription forgotten
 break;
 case 'error':
 handleError(data);
@@ -2366,9 +2558,7 @@ console.error('WS message parse error:', e);
 }
 }
 // =============================================
-// 🔒 TOKEN-SAFE AUTHORIZE HANDLER (THE FIX)
-// On auth error we KEEP the token in storage and
-// retry up to 3 times. We NEVER call setAccessToken(null).
+// 🔒 TOKEN-SAFE AUTHORIZE HANDLER
 // =============================================
 function handleAuthorize(data) {
 if (data.error) {
@@ -2387,15 +2577,25 @@ toast('❌ Auth failed 3×. Token is STILL saved — verify it has Trade permiss
 }
 return;
 }
-// SUCCESS — reset retry counter
 authRetries = 0;
 const auth = data.authorize;
+accountInfo = {
+loginid: auth.loginid,
+balance: parseFloat(auth.balance),
+currency: auth.currency || 'USD'
+};
 toast(`✅ Welcome, ${auth.loginid}! Balance: $${auth.balance}`, 'success');
 balance = parseFloat(auth.balance) || balance;
 updateBalanceDisplay();
-// Subscribe to balance updates
+patAccountId.textContent = auth.loginid;
+patBalance.textContent = `${auth.currency} ${parseFloat(auth.balance).toFixed(2)}`;
+demoBalance.textContent = `${auth.currency} ${parseFloat(auth.balance).toFixed(2)}`;
+demoStatusDot.className = 'dot green';
+demoStatusText.textContent = `Connected (${auth.loginid})`;
+realBalance.textContent = '—';
+realStatusDot.className = 'dot gray';
+realStatusText.textContent = 'Not connected';
 sendWsRequest({ balance: 1, subscribe: 1 });
-// Subscribe to ticks for chart
 subscribeTicks();
 }
 function handleBalance(data) {
@@ -2403,6 +2603,11 @@ if (data.error) return;
 if (data.balance) {
 balance = parseFloat(data.balance.balance);
 updateBalanceDisplay();
+if (accountInfo) {
+accountInfo.balance = balance;
+patBalance.textContent = `${accountInfo.currency || 'USD'} ${balance.toFixed(2)}`;
+demoBalance.textContent = `${accountInfo.currency || 'USD'} ${balance.toFixed(2)}`;
+}
 }
 }
 function handleTick(data) {
@@ -2421,7 +2626,6 @@ return;
 }
 if (data.proposal) {
 const proposal = data.proposal;
-// Buy the contract
 sendWsRequest({
 buy: proposal.id,
 price: proposal.ask_price
@@ -2439,7 +2643,6 @@ if (data.buy) {
 const contract = data.buy;
 activeContractId = contract.contract_id;
 toast(`📈 Trade placed! ID: ${contract.contract_id} | Payout: $${contract.payout}`, 'success');
-// Subscribe to contract updates
 sendWsRequest({
 proposal_open_contract: 1,
 contract_id: contract.contract_id,
@@ -2454,7 +2657,6 @@ if (!contract) return;
 if (contract.is_sold) {
 const profit = parseFloat(contract.profit) || 0;
 const won = profit > 0;
-// Unsubscribe from this contract
 if (data.subscription) {
 sendWsRequest({ forget: data.subscription.id });
 }
@@ -2479,12 +2681,10 @@ console.log('📤 WS:', req);
 }
 function subscribeTicks() {
 const symbol = getSymbol(currentMarket);
-// Forget old subscription first
 if (tickSubscriptionId) {
 sendWsRequest({ forget: tickSubscriptionId });
 tickSubscriptionId = null;
 }
-// Subscribe to new
 sendWsRequest({ ticks: symbol, subscribe: 1 });
 }
 function proposeContract() {
@@ -2506,18 +2706,20 @@ barrier: '0'
 });
 }
 // =============================================
-// TRADING LOGIC
+// TRADING LOGIC – with user-configurable MIN/MAX runs
 // =============================================
 function handleTradeResult(win, profit) {
 const pl = win ? profit : -currentStake;
-// Update balance
+// Update balance & UI
 balance += pl;
 windowProfitValue += pl;
 updateBalanceDisplay();
 updateProfitDisplay();
-// Increment Round Tracker
+// Increment round counter
 sessionTradeCount++;
-if (currentRound) currentRound.textContent = `${sessionTradeCount} / 200`;
+if (currentRound) {
+currentRound.textContent = `${sessionTradeCount} / ${MAX_RUNS_PER_SESSION} (min ${MIN_RUNS_BEFORE_TP_SL})`;
+}
 // Record trade
 const now = new Date();
 const timeStr = now.toLocaleTimeString();
@@ -2530,7 +2732,7 @@ pl: pl
 });
 tradeCount++;
 renderTrades();
-// Martingale logic
+// -------- MARTINGALE LOGIC --------
 if (win) {
 consecutiveLosses = 0;
 martingaleLevel = 0;
@@ -2542,22 +2744,22 @@ martingaleLevel++;
 if (martingaleLevel <= maxMartingaleLevel) {
 currentStake = baseStake * Math.pow(martingaleMultiplier, martingaleLevel);
 liveStakeDisplay.textContent = '$' + currentStake.toFixed(2);
-toast(`⚡ Martingale Level ${martingaleLevel}: $${currentStake.toFixed(2)}`, 'info');
+toast(`📈 Martingale Level ${martingaleLevel}: $${currentStake.toFixed(2)}`, 'info');
 } else {
 toast('⚠️ Max martingale level reached. Stopping.', 'error');
 stopTrading();
 return;
 }
 }
-// MAX RUNS LIMIT (200)
-if (sessionTradeCount >= 200) {
-toast('🛑 Maximum 200 runs reached. Session complete.', 'info');
+// -------- MAX RUNS CHECK --------
+if (sessionTradeCount >= MAX_RUNS_PER_SESSION) {
+toast(`🛑 Maximum ${MAX_RUNS_PER_SESSION} runs reached. Session complete.`, 'info');
 stopTrading();
 return;
 }
-// MINIMUM 5 ROUNDS before TP / SL can end the session
-if (sessionTradeCount >= 5) {
-// Check Take Profit
+// -------- MIN RUNS CHECK before TP/SL --------
+if (sessionTradeCount >= MIN_RUNS_BEFORE_TP_SL) {
+// Take Profit
 if (windowProfitValue >= profitTargetValue) {
 const profitAmt = windowProfitValue;
 sessions.push({ window: `Window ${++sessionCount}`, profit: profitAmt });
@@ -2565,6 +2767,7 @@ renderSessions();
 tpAmount.textContent = profitAmt.toFixed(2);
 tpModal.classList.add('active');
 toast(`🎉 Take Profit hit! $${profitAmt.toFixed(2)}`, 'success');
+// Reset session counters
 windowProfitValue = 0;
 updateProfitDisplay();
 consecutiveLosses = 0;
@@ -2572,14 +2775,14 @@ martingaleLevel = 0;
 currentStake = baseStake;
 liveStakeDisplay.textContent = '$' + currentStake.toFixed(2);
 }
-// Check Stop Loss
+// Stop Loss
 if (windowProfitValue <= -stopLossValue) {
 toast(`🛑 Stop Loss triggered at $${stopLossValue.toFixed(2)}`, 'error');
 stopTrading();
 return;
 }
 }
-// Place next trade if still active
+// -------- PLACE NEXT TRADE --------
 if (isActive && !isTradeInProgress) {
 setTimeout(() => {
 if (isActive) placeTrade();
@@ -2595,7 +2798,6 @@ return;
 if (wsConnected) {
 proposeContract();
 } else {
-// Fallback to simulation
 simulateTrade();
 }
 }
@@ -2706,173 +2908,139 @@ ctx.fillText(i, padding.left + i * spacing + spacing / 2, h - 2);
 });
 }
 // =============================================
-// OAuth 2.0 with PKCE - Using Netlify Functions
+// OAuth 2.0 with PKCE - Vercel API Integration
 // =============================================
 const AUTH_BASE = 'https://oauth.deriv.com/oauth2/authorize';
-const TOKEN_EXCHANGE_ENDPOINT = '/.netlify/functions/exchange-token';
-
+const TOKEN_EXCHANGE_ENDPOINT = '/api/exchange-token';
 function generateCodeVerifier() {
-  const array = crypto.getRandomValues(new Uint8Array(64));
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
-  return Array.from(array).map(v => chars[v % chars.length]).join('');
+const array = crypto.getRandomValues(new Uint8Array(64));
+const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
+return Array.from(array).map(v => chars[v % chars.length]).join('');
 }
-
 async function generateCodeChallenge(verifier) {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(verifier);
-  const hash = await crypto.subtle.digest('SHA-256', data);
-  const bytes = new Uint8Array(hash);
-  const b64 = btoa(String.fromCharCode(...bytes))
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=+$/, '');
-  return b64;
+const encoder = new TextEncoder();
+const data = encoder.encode(verifier);
+const hash = await crypto.subtle.digest('SHA-256', data);
+const bytes = new Uint8Array(hash);
+const b64 = btoa(String.fromCharCode(...bytes))
+.replace(/\+/g, '-')
+.replace(/\//g, '_')
+.replace(/=+$/, '');
+return b64;
 }
-
 function generateState() {
-  const arr = crypto.getRandomValues(new Uint8Array(16));
-  return Array.from(arr).map(b => b.toString(16).padStart(2, '0')).join('');
+const arr = crypto.getRandomValues(new Uint8Array(16));
+return Array.from(arr).map(b => b.toString(16).padStart(2, '0')).join('');
 }
-
 function storePKCE(verifier, state, clientId) {
-  try {
-    sessionStorage.setItem('oauth_code_verifier', verifier);
-    sessionStorage.setItem('oauth_state', state);
-    sessionStorage.setItem('oauth_client_id', clientId);
-  } catch (e) {
-    console.error('Failed to store PKCE:', e);
-  }
+try {
+sessionStorage.setItem('oauth_code_verifier', verifier);
+sessionStorage.setItem('oauth_state', state);
+sessionStorage.setItem('oauth_client_id', clientId);
+} catch (e) {
+console.error('Failed to store PKCE:', e);
 }
-
+}
 function getPKCE() {
-  try {
-    return {
-      verifier: sessionStorage.getItem('oauth_code_verifier'),
-      state: sessionStorage.getItem('oauth_state'),
-      clientId: sessionStorage.getItem('oauth_client_id')
-    };
-  } catch (e) { 
-    return { verifier: null, state: null, clientId: null }; 
-  }
+try {
+return {
+verifier: sessionStorage.getItem('oauth_code_verifier'),
+state: sessionStorage.getItem('oauth_state'),
+clientId: sessionStorage.getItem('oauth_client_id')
+};
+} catch (e) {
+return { verifier: null, state: null, clientId: null };
 }
-
+}
 function clearPKCE() {
-  try {
-    sessionStorage.removeItem('oauth_code_verifier');
-    sessionStorage.removeItem('oauth_state');
-    sessionStorage.removeItem('oauth_client_id');
-  } catch (e) {}
+try {
+sessionStorage.removeItem('oauth_code_verifier');
+sessionStorage.removeItem('oauth_state');
+sessionStorage.removeItem('oauth_client_id');
+} catch (e) {}
 }
-
 async function initiateAuth(prompt) {
-  const clientId = oauthClientId.value.trim();
-  const redirectUri = window.location.origin; // Use your Netlify URL
-  
-  if (!clientId) {
-    toast('Please enter Client ID', 'error');
-    return;
-  }
-  
-  // Save client ID for later
-  localStorage.setItem('emron_oauth_client', clientId);
-  
-  const scope = 'read trade account_manage payments trading_information';
-  const verifier = generateCodeVerifier();
-  const state = generateState();
-  storePKCE(verifier, state, clientId);
-  
-  const challenge = await generateCodeChallenge(verifier);
-  
-  const params = new URLSearchParams({
-    response_type: 'code',
-    client_id: clientId,
-    redirect_uri: redirectUri,
-    scope: scope,
-    state: state,
-    code_challenge: challenge,
-    code_challenge_method: 'S256',
-    brand: 'deriv'
-  });
-  
-  if (prompt) params.append('prompt', prompt);
-  
-  const url = `${AUTH_BASE}?${params.toString()}`;
-  console.log('Redirecting to:', url);
-  window.location.href = url;
+const clientId = oauthClientId.value.trim() || '34c3rTXvfnC6XKk5nbzJM';
+if (!clientId) {
+toast('Please enter Client ID', 'error');
+return;
 }
-
-// =============================================
-// Handle OAuth Callback with Netlify Function
-// =============================================
+localStorage.setItem('emron_oauth_client', clientId);
+// FIX: Remove trailing slash for Vercel compatibility
+const redirectUri = window.location.origin.replace(/\/$/, '');
+oauthRedirectUri.value = redirectUri;
+const scope = 'read trade account_manage payments trading_information';
+const verifier = generateCodeVerifier();
+const state = generateState();
+storePKCE(verifier, state, clientId);
+const challenge = await generateCodeChallenge(verifier);
+const params = new URLSearchParams({
+response_type: 'code',
+client_id: clientId,
+redirect_uri: redirectUri,
+scope: scope,
+state: state,
+code_challenge: challenge,
+code_challenge_method: 'S256',
+brand: 'deriv'
+});
+if (prompt) params.append('prompt', prompt);
+const url = `${AUTH_BASE}?${params.toString()}`;
+console.log('Redirecting to:', url);
+window.location.href = url;
+}
 async function handleOAuthCallback() {
-  const params = new URLSearchParams(window.location.search);
-  const code = params.get('code');
-  const state = params.get('state');
-  const error = params.get('error');
-  
-  if (error) {
-    toast(`OAuth error: ${error}`, 'error');
-    window.history.replaceState({}, document.title, window.location.pathname);
-    return;
-  }
-  
-  if (code && state) {
-    // Show loading state
-    toast('Exchanging authorization code...', 'info');
-    
-    const stored = getPKCE();
-    
-    if (state !== stored.state) {
-      toast('State mismatch — possible CSRF attack', 'error');
-      clearPKCE();
-      window.history.replaceState({}, document.title, window.location.pathname);
-      return;
-    }
-    
-    try {
-      // Call Netlify Function to exchange code for token
-      const response = await fetch(TOKEN_EXCHANGE_ENDPOINT, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          code: code,
-          code_verifier: stored.verifier,
-          redirect_uri: window.location.origin,
-          client_id: stored.clientId
-        })
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Token exchange failed');
-      }
-      
-      const tokenData = await response.json();
-      
-      // Store the access token
-      setAccessToken(tokenData.access_token);
-      toast('✅ Authentication successful!', 'success');
-      
-      // Clean up
-      clearPKCE();
-      window.history.replaceState({}, document.title, window.location.pathname);
-      connectModal.classList.remove('active');
-      
-    } catch (error) {
-      console.error('Token exchange error:', error);
-      toast(`❌ Error: ${error.message}`, 'error');
-      clearPKCE();
-      window.history.replaceState({}, document.title, window.location.pathname);
-    }
-  }
+const params = new URLSearchParams(window.location.search);
+const code = params.get('code');
+const state = params.get('state');
+const error = params.get('error');
+if (error) {
+toast(`OAuth error: ${error}`, 'error');
+window.history.replaceState({}, document.title, window.location.pathname);
+return;
 }
-
+if (code && state) {
+toast('Exchanging authorization code...', 'info');
+const stored = getPKCE();
+if (state !== stored.state) {
+toast('State mismatch — possible CSRF attack', 'error');
+clearPKCE();
+window.history.replaceState({}, document.title, window.location.pathname);
+return;
+}
+try {
+const response = await fetch(TOKEN_EXCHANGE_ENDPOINT, {
+method: 'POST',
+headers: {
+'Content-Type': 'application/json',
+},
+body: JSON.stringify({
+code: code,
+code_verifier: stored.verifier,
+redirect_uri: window.location.origin.replace(/\/$/, ''),
+client_id: stored.clientId
+})
+});
+if (!response.ok) {
+const errorData = await response.json();
+throw new Error(errorData.error || 'Token exchange failed');
+}
+const tokenData = await response.json();
+setAccessToken(tokenData.access_token);
+toast('✅ Authentication successful!', 'success');
+clearPKCE();
+window.history.replaceState({}, document.title, window.location.pathname);
+connectModal.classList.remove('active');
+} catch (error) {
+console.error('Token exchange error:', error);
+toast(`❌ Error: ${error.message}`, 'error');
+clearPKCE();
+window.history.replaceState({}, document.title, window.location.pathname);
+}
+}
+}
 // =============================================
-// 🔒 TOKEN STORAGE — writes to ALL 3 keys so the
-// Console forced-save test also works.
-// Only manual Disconnect ever removes them.
+// 🔒 TOKEN STORAGE
 // =============================================
 function setAccessToken(token) {
 accessToken = token;
@@ -2897,11 +3065,18 @@ ws.close();
 ws = null;
 wsConnected = false;
 }
+updateConnectionStatus(false);
+patStatus.textContent = '🔴 Not connected';
+patStatus.className = 'status-text';
+demoStatusDot.className = 'dot gray';
+demoStatusText.textContent = 'Not connected';
+demoBalance.textContent = '—';
+patAccountId.textContent = '—';
+patBalance.textContent = '—';
 }
 }
 function loadStoredToken() {
 try {
-// Read from ANY of the 3 keys (supports Console forced-save)
 const token = localStorage.getItem('emron_access_token')
 || localStorage.getItem('deriv_token')
 || localStorage.getItem('token');
@@ -2934,7 +3109,9 @@ deactivateBtn.disabled = false;
 botState.textContent = 'RUNNING';
 windowTime.textContent = new Date().toLocaleTimeString();
 sessionTradeCount = 0;
-if (currentRound) currentRound.textContent = '0 / 200';
+if (currentRound) {
+currentRound.textContent = `0 / ${MAX_RUNS_PER_SESSION} (min ${MIN_RUNS_BEFORE_TP_SL})`;
+}
 martingaleLevel = 0;
 consecutiveLosses = 0;
 currentStake = baseStake;
@@ -2978,7 +3155,7 @@ sendWsRequest({ forget_all: 'proposal_open_contract' });
 toast('⏸ DigitEdge bot deactivated', 'error');
 }
 // =============================================
-// Quick Settings
+// Quick Settings – includes MIN/MAX runs
 // =============================================
 function applyQuickSettings() {
 const stake = parseFloat(qsStake.value) || 10;
@@ -2987,6 +3164,11 @@ const maxLvl = parseInt(qsMaxLevel.value) || 7;
 const tp = parseFloat(qsTP.value) || 20;
 const sl = parseFloat(qsSL.value) || 10000;
 const market = qsMarket.value;
+const minRuns = parseInt(qsMinRuns.value) || 5;
+const maxRuns = parseInt(qsMaxRuns.value) || 200;
+// Update global constants
+MIN_RUNS_BEFORE_TP_SL = minRuns;
+MAX_RUNS_PER_SESSION = maxRuns;
 baseStake = stake;
 currentStake = stake;
 martingaleMultiplier = multi;
@@ -2996,14 +3178,17 @@ stopLossValue = sl;
 liveStakeDisplay.textContent = '$' + stake.toFixed(2);
 updateProfitDisplay();
 updateMarketDisplay(market);
-// Re-subscribe to ticks if connected
 if (wsConnected) {
 subscribeTicks();
 }
-toast('⚡ Quick settings applied', 'success');
+// Update the round display immediately
+if (currentRound) {
+currentRound.textContent = `0 / ${MAX_RUNS_PER_SESSION} (min ${MIN_RUNS_BEFORE_TP_SL})`;
+}
+toast('✅ Quick settings applied (runs: min=' + minRuns + ', max=' + maxRuns + ')', 'success');
 }
 // =============================================
-// Presets
+// Presets (unchanged)
 // =============================================
 function applyPreset(preset) {
 const presets = {
@@ -3020,11 +3205,12 @@ qsMulti.value = p.multi;
 qsMaxLevel.value = p.maxLvl;
 qsTP.value = p.tp;
 qsSL.value = p.sl;
+// Presets leave min/max runs unchanged (or you could set defaults)
 applyQuickSettings();
 toast(`Loaded preset: ${preset}`, 'success');
 }
 // =============================================
-// Helpers
+// Helpers (unchanged)
 // =============================================
 function toast(message, type = 'info') {
 const el = document.createElement('div');
@@ -3037,7 +3223,9 @@ setTimeout(() => el.remove(), 300);
 }, 3000);
 }
 function updateBalanceDisplay() {
+if (balance !== null && balance !== undefined) {
 balanceValue.textContent = balance.toFixed(2);
+}
 }
 function updateProfitDisplay() {
 windowProfit.textContent = windowProfitValue.toFixed(2);
@@ -3047,7 +3235,7 @@ profitTargetDisplay.textContent = profitTargetValue.toFixed(2);
 }
 function renderSessions() {
 if (sessions.length === 0) {
-sessionsBody.innerHTML = `<tr><td colspan="3" class="empty-state"><span class="emoji"></span>No entries yet. Activate the strategy to start.</td></tr>`;
+sessionsBody.innerHTML = `<tr><td colspan="3" class="empty-state"><span class="emoji">📋</span>No entries yet. Activate the strategy to start.</td></tr>`;
 return;
 }
 let html = '';
@@ -3116,7 +3304,7 @@ el.classList.toggle('active', el.dataset.symbol === short);
 toast(`📊 Switched to ${market}`, 'info');
 }
 // =============================================
-// AI Signals
+// AI Signals (unchanged)
 // =============================================
 function generateAISignal() {
 const market = document.getElementById('aiMarket').value;
@@ -3169,7 +3357,7 @@ totalSignalsToday.textContent = signalCount;
 toast(`📡 DigitEdge signal generated on ${market}`, 'info');
 }
 // =============================================
-// Signal Monitor
+// Signal Monitor (unchanged)
 // =============================================
 function updateMonitor() {
 const buy = Math.floor(Math.random() * 5);
@@ -3196,7 +3384,7 @@ monitorHistory.prepend(histRow);
 if (monitorHistory.children.length > 10) monitorHistory.removeChild(monitorHistory.lastChild);
 }
 // =============================================
-// Signal Strategy Modal
+// Signal Strategy Modal (unchanged)
 // =============================================
 function openSignalStrategy() {
 document.getElementById('ssMaster').value = 'on';
@@ -3229,7 +3417,7 @@ signalStrategyModal.classList.remove('active');
 toast('📡 DigitEdge signal strategy applied', 'success');
 }
 // =============================================
-// Risk Management Modal
+// Risk Management Modal (unchanged)
 // =============================================
 function openRiskMgmt() {
 document.getElementById('rmTP').value = profitTargetValue.toFixed(2);
@@ -3265,10 +3453,10 @@ qsMulti.value = multi.toFixed(1);
 qsMaxLevel.value = maxLvl;
 updateProfitDisplay();
 riskMgmtModal.classList.remove('active');
-toast(' Risk settings applied', 'success');
+toast('🛡 Risk settings applied', 'success');
 }
 // =============================================
-// Full Settings Modal
+// Full Settings Modal (unchanged)
 // =============================================
 function openSettingsModal() {
 document.getElementById('editStake').value = baseStake.toFixed(2);
@@ -3351,7 +3539,7 @@ toast('📋 Sessions cleared', 'info');
 generateSignalBtn.addEventListener('click', generateAISignal);
 runAnalysisBtn.addEventListener('click', generateAISignal);
 document.getElementById('saveSignalBtn').addEventListener('click', () => {
-toast(' Signal saved to history', 'info');
+toast('💾 Signal saved to history', 'info');
 });
 symbolOptions.forEach(el => {
 el.addEventListener('click', function() {
@@ -3442,7 +3630,36 @@ toast('Please paste a valid token', 'error');
 connectBtn.addEventListener('click', () => {
 const savedClient = localStorage.getItem('emron_oauth_client');
 if (savedClient) oauthClientId.value = savedClient;
+oauthRedirectUri.value = window.location.origin.replace(/\/$/, '');
 connectModal.classList.add('active');
+});
+// --- New Playground event listeners ---
+patConnectBtn.addEventListener('click', () => {
+const token = patTokenInput.value.trim();
+if (token) {
+setAccessToken(token);
+patTokenInput.value = '';
+toast('PAT token set successfully', 'success');
+} else {
+toast('Please enter a PAT token', 'error');
+}
+});
+patDisconnectBtn.addEventListener('click', disconnect);
+document.querySelectorAll('.copy-btn').forEach(btn => {
+btn.addEventListener('click', function() {
+const text = this.dataset.copy;
+navigator.clipboard.writeText(text).then(() => {
+toast(`Copied: ${text}`, 'success');
+}).catch(() => {
+const input = document.createElement('input');
+input.value = text;
+document.body.appendChild(input);
+input.select();
+document.execCommand('copy');
+document.body.removeChild(input);
+toast(`Copied: ${text}`, 'success');
+});
+});
 });
 // =============================================
 // Countdown
@@ -3463,6 +3680,7 @@ loadStoredToken();
 handleOAuthCallback();
 const savedClient = localStorage.getItem('emron_oauth_client');
 if (savedClient) oauthClientId.value = savedClient;
+oauthRedirectUri.value = window.location.origin.replace(/\/$/, '');
 updateBalanceDisplay();
 updateProfitDisplay();
 renderSessions();
@@ -3474,13 +3692,17 @@ qsMulti.value = martingaleMultiplier.toFixed(1);
 qsMaxLevel.value = maxMartingaleLevel;
 qsTP.value = profitTargetValue.toFixed(2);
 qsSL.value = stopLossValue.toFixed(2);
+// Set initial min/max runs in UI
+qsMinRuns.value = MIN_RUNS_BEFORE_TP_SL;
+qsMaxRuns.value = MAX_RUNS_PER_SESSION;
 setTimeout(updateMonitor, 500);
 setInterval(() => { if (!isActive) { generateChartData(); drawChart(); } }, 7000);
 window.addEventListener('resize', initChart);
-console.log(' EMRON AI — DigitEdge FREE & UNLOCKED');
+console.log('🔷 EMRON AI — DigitEdge FREE & UNLOCKED');
 console.log('🔒 Token-safe auth: token is NEVER deleted on auth error');
 console.log('📊 WebSocket endpoint: ' + getWsEndpoint());
 console.log('📊 Markets: Volatility 10–100 (2s & 1s), Crash, Boom, Range Break');
+console.log(`📊 Run limits: min=${MIN_RUNS_BEFORE_TP_SL}, max=${MAX_RUNS_PER_SESSION} (user-configurable)`);
 })();
 </script>
 </body>
