@@ -1165,7 +1165,7 @@ height: var(--footer-height);
 .tp-modal-highlight small { font-size: clamp(12px, 0.8vw, 16px); font-weight: 400; color: var(--text-muted); }
 .spinner { display: inline-block; width: clamp(12px, 0.8vw, 16px); height: clamp(12px, 0.8vw, 16px); border: 2px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
-/* ===== NEW: API Playground styles ===== */
+/* ===== PLAYGROUND ===== */
 .playground-grid {
 display: grid;
 grid-template-columns: 1fr 1fr;
@@ -1261,12 +1261,33 @@ flex-wrap: wrap;
 .playground-status .status-text { color: var(--text-muted); }
 .playground-status .status-text.connected { color: var(--accent-green); }
 .playground-status .status-text .highlight { color: var(--text-primary); font-weight: 600; }
+
+/* ===== BACKTEST / SIMULATION RESULTS ===== */
+.backtest-result {
+background: var(--bg-surface);
+border-radius: var(--radius-md);
+border: 1px solid var(--border);
+padding: clamp(10px, 0.8vw, 16px);
+margin-top: clamp(8px, 0.6vw, 12px);
+font-size: clamp(10px, 0.6vw, 12px);
+}
+.backtest-result .stat-row {
+display: flex;
+justify-content: space-between;
+padding: 2px 0;
+border-bottom: 1px solid var(--border);
+font-family: 'JetBrains Mono', monospace;
+}
+.backtest-result .stat-row:last-child { border-bottom: none; }
+.backtest-result .stat-label { color: var(--text-muted); }
+.backtest-result .stat-value { font-weight: 600; }
+.backtest-result .stat-value.green { color: var(--accent-green); }
+.backtest-result .stat-value.red { color: var(--accent-red); }
+.backtest-result .stat-value.gold { color: var(--accent-yellow); }
+
 @media (max-width: 600px) {
 .playground-grid { grid-template-columns: 1fr; }
 }
-/* ============================================================ */
-/* RESPONSIVE BREAKPOINTS                                        */
-/* ============================================================ */
 @media (max-width: 380px) {
 .topbar-right .balance { display: none; }
 .topbar-right .btn-sm { font-size: 9px; padding: 2px 6px; min-height: 24px; }
@@ -1521,7 +1542,7 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 <div class="card-body">
 <div class="settings-list">
 <div class="setting-row"><span class="label">Market (live)</span><span class="value live" id="liveMarketDisplay">Volatility 50</span></div>
-<div class="setting-row"><span class="label">Trade type</span><span class="value live">DIGITOVER</span></div>
+<div class="setting-row"><span class="label">Trade type</span><span class="value live" id="liveTradeType">DIGITOVER</span></div>
 <div class="setting-row"><span class="label">Stake (live)</span><span class="value live" id="liveStakeDisplay">$10.00</span></div>
 <div class="settings-divider"><span class="settings-divider-label">DigitEdge Config</span></div>
 <div class="setting-row"><span class="label">Signal Strategy</span><span class="value" style="color:var(--accent-green);">ON <span class="free-badge">FREE</span></span></div>
@@ -1590,7 +1611,7 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 </select>
 </div>
 </div>
-<!-- NEW: Min Runs & Max Runs -->
+<!-- Min Runs & Max Runs -->
 <div class="form-row">
 <div class="form-group">
 <label>Min Runs (before TP/SL)</label>
@@ -1931,6 +1952,18 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 <span style="color:var(--text-muted);font-size:clamp(9px,0.5vw,11px);">Balance: <span id="patBalance" style="font-family:'JetBrains Mono',monospace;color:var(--accent-green);">—</span></span>
 </div>
 </div>
+<!-- NEW: Backtest / Simulation Section -->
+<div class="pat-section" style="margin-top:clamp(8px,0.6vw,12px);border-color:var(--accent-cyan);">
+<div style="display:flex;align-items:center;gap:clamp(6px,0.4vw,10px);flex-wrap:wrap;">
+<span style="font-weight:600;font-size:clamp(12px,0.8vw,14px);">📊 Ultra-Bot Simulation</span>
+<span class="free-badge" style="font-size:clamp(7px,0.4vw,9px);">1000 SESSIONS</span>
+</div>
+<div style="display:flex;gap:clamp(6px,0.4vw,10px);flex-wrap:wrap;">
+<button class="btn btn-primary" id="runBacktestBtn">🚀 Run 1000-Session Backtest</button>
+<button class="btn btn-ghost" id="clearBacktestBtn">🗑 Clear Results</button>
+</div>
+<div id="backtestResults" style="margin-top:clamp(6px,0.4vw,10px);"></div>
+</div>
 </div>
 <!-- ===================== TAB 5: HELP ===================== -->
 <div class="tab-content" id="help">
@@ -2035,6 +2068,8 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 <option>Under</option>
 <option>Rise</option>
 <option>Fall</option>
+<option>Even</option>
+<option>Odd</option>
 </select>
 </div>
 <div class="form-group">
@@ -2088,7 +2123,7 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 </div>
 </div>
 <div style="margin-top:clamp(8px,0.6vw,12px);padding:clamp(4px,0.3vw,8px) clamp(8px,0.5vw,12px);background:rgba(0,230,118,0.06);border-radius:var(--radius-md);border:1px solid var(--accent-green);font-size:clamp(9px,0.5vw,11px);color:var(--text-muted);">
-<span style="color:var(--accent-green);">✅</span> Next Trade Preview: <strong style="color:var(--text-primary);">CALL on V50 · 1s</strong> — <span style="color:var(--accent-cyan);">DigitEdge active</span>
+<span style="color:var(--accent-green);">✅</span> Next Trade Preview: <strong id="ssPreviewText" style="color:var(--text-primary);">CALL on V50 · 1s</strong> — <span style="color:var(--accent-cyan);">DigitEdge active</span>
 </div>
 <div class="modal-actions">
 <button class="btn btn-ghost" data-modal="signalStrategyModal">Close</button>
@@ -2240,7 +2275,6 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 <p style="color:var(--text-muted);margin-bottom:clamp(6px,0.4vw,10px);font-size:clamp(11px,0.6vw,13px);">
 Sign in or create a Deriv account using OAuth 2.0. Your token will be stored locally.
 </p>
-<!-- OAuth Config -->
 <div class="form-group" style="margin-bottom:clamp(6px,0.4vw,10px);">
 <label>Client ID (OAuth2)</label>
 <input class="form-control" id="oauthClientId" placeholder="Your Deriv OAuth2 client_id" value="34c3rTXvfnC6XKk5nbzJM">
@@ -2297,7 +2331,7 @@ Sign in or create a Deriv account using OAuth 2.0. Your token will be stored loc
 'use strict';
 
 // =============================================
-// CONFIGURATION (NEW API)
+// CONFIGURATION
 // =============================================
 const DERIV_APP_ID    = "34c3rTXvfnC6XKk5nbzJM";
 const REAL_ACCOUNT_ID = "ROT90355563";
@@ -2370,6 +2404,7 @@ const tpAmount = document.getElementById('tpAmount');
 const tpProceedBtn = document.getElementById('tpProceedBtn');
 const liveMarketDisplay = document.getElementById('liveMarketDisplay');
 const liveStakeDisplay = document.getElementById('liveStakeDisplay');
+const liveTradeType = document.getElementById('liveTradeType');
 const ssMarket = document.getElementById('ssMarket');
 const aiMarket = document.getElementById('aiMarket');
 const qsStake = document.getElementById('qsStake');
@@ -2402,6 +2437,11 @@ const realStatusDot = document.getElementById('realStatusDot');
 const realStatusText = document.getElementById('realStatusText');
 const realBalance = document.getElementById('realBalance');
 
+// Backtest DOM
+const runBacktestBtn = document.getElementById('runBacktestBtn');
+const clearBacktestBtn = document.getElementById('clearBacktestBtn');
+const backtestResults = document.getElementById('backtestResults');
+
 // =============================================
 // MARKET SYMBOLS
 // =============================================
@@ -2425,7 +2465,7 @@ return MARKET_SYMBOLS[marketName] || 'R_50';
 }
 
 // =============================================
-// State
+// STATE
 // =============================================
 let isActive = false;
 let isRealTrading = false;
@@ -2458,15 +2498,29 @@ let activeContractId = null;
 let tickSubscriptionId = null;
 let isTradeInProgress = false;
 let accountInfo = null;
-// === NEW: self-healing trade engine state ===
 let manualDisconnect = false;
 let proposalWatchdog = null;
 let lastTradeTime = 0;
-const TRADE_TIMEOUT_MS = 10000;   // 10s to get proposal→buy→settle, else retry
-const TRADE_COOLDOWN_MS = 1200;   // min gap between trade placements
+const TRADE_TIMEOUT_MS = 10000;
+const TRADE_COOLDOWN_MS = 1200;
+
+// ---- Signal strategy state (from ultra-bot.js) ----
+let signalStrategy = {
+    enabled: true,
+    signal: 'Over',        // 'Over', 'Under', 'Rise', 'Fall', 'Even', 'Odd'
+    barrier: 0,
+    duration: 1,
+    market: 'Signal market (recommended)',
+    strategy: 'Single signal — trade every cycle',
+    sides: 'Over only',
+    entry: 'None — trade every cycle'
+};
+
+// ---- Last quote for rise/fall strategy ----
+let lastQuote = null;
 
 // =============================================
-// 🚀 NEW API WEBSOCKET MANAGER (FIXED)
+// 🚀 NEW API WEBSOCKET MANAGER
 // =============================================
 async function connectWebSocket(token) {
     const accountId = (MODE === 'REAL') ? REAL_ACCOUNT_ID : DEMO_ACCOUNT_ID;
@@ -2506,12 +2560,12 @@ async function connectWebSocket(token) {
             patBalance.textContent = 'Fetching...';
             if (MODE === 'DEMO') {
                 demoStatusDot.className = 'dot green';
-                demoStatusText.textContent = `Connected (${accountId})`;
+                demoStatusText.textContent = 'Connected (' + accountId + ')';
                 realStatusDot.className = 'dot gray';
                 realStatusText.textContent = 'Not connected';
             } else {
                 realStatusDot.className = 'dot green';
-                realStatusText.textContent = `Connected (${accountId})`;
+                realStatusText.textContent = 'Connected (' + accountId + ')';
                 demoStatusDot.className = 'dot gray';
                 demoStatusText.textContent = 'Not connected';
             }
@@ -2519,7 +2573,6 @@ async function connectWebSocket(token) {
             sendWsRequest({ balance: 1, subscribe: 1 });
             subscribeTicks();
 
-            // FIX: if the bot was already active, resume trading immediately
             if (isActive) {
                 setTimeout(placeTrade, 1000);
             }
@@ -2543,7 +2596,6 @@ async function connectWebSocket(token) {
             wsConnected = false;
             updateConnectionStatus(false);
             console.log('WebSocket disconnected');
-            // FIX: ALWAYS reconnect when a token exists (not only when bot active)
             if (accessToken && !manualDisconnect) {
                 toast('🔄 Reconnecting...', 'info');
                 setTimeout(() => connectWebSocket(accessToken), 3000);
@@ -2602,16 +2654,103 @@ function handleBalance(data) {
             if (data.balance.currency) accountInfo.currency = data.balance.currency;
         }
         const curr = accountInfo.currency || 'USD';
-        patBalance.textContent = `${curr} ${balance.toFixed(2)}`;
+        patBalance.textContent = curr + ' ' + balance.toFixed(2);
         if (accountInfo.loginid === DEMO_ACCOUNT_ID) {
-            demoBalance.textContent = `${curr} ${balance.toFixed(2)}`;
+            demoBalance.textContent = curr + ' ' + balance.toFixed(2);
         } else if (accountInfo.loginid === REAL_ACCOUNT_ID) {
-            realBalance.textContent = `${curr} ${balance.toFixed(2)}`;
+            realBalance.textContent = curr + ' ' + balance.toFixed(2);
         }
     }
 }
 
-// FIX: ticks now also DRIVE the trading engine (self-healing loop)
+// =============================================
+// 🎯 SIGNAL GENERATION (from ultra-bot.js)
+// =============================================
+function getSignalFromStrategy(quote) {
+    if (!signalStrategy.enabled) {
+        // Fallback: DIGITOVER with barrier 0
+        return { contract_type: 'DIGITOVER', barrier: '0' };
+    }
+
+    const digit = parseInt(String(quote).slice(-1));
+    const signal = signalStrategy.signal;
+    const barrier = signalStrategy.barrier;
+    const duration = signalStrategy.duration || 1;
+
+    switch (signal) {
+        case 'Over':
+            return {
+                contract_type: 'DIGITOVER',
+                barrier: String(barrier),
+                duration: duration
+            };
+        case 'Under':
+            return {
+                contract_type: 'DIGITUNDER',
+                barrier: String(barrier),
+                duration: duration
+            };
+        case 'Even':
+            return {
+                contract_type: 'DIGITEVEN',
+                duration: duration
+            };
+        case 'Odd':
+            return {
+                contract_type: 'DIGITODD',
+                duration: duration
+            };
+        case 'Rise':
+            if (lastQuote === null) return null;
+            if (quote > lastQuote) {
+                return { contract_type: 'CALL', duration: duration };
+            } else {
+                return null; // no trade on fall for "Rise" strategy
+            }
+        case 'Fall':
+            if (lastQuote === null) return null;
+            if (quote < lastQuote) {
+                return { contract_type: 'PUT', duration: duration };
+            } else {
+                return null;
+            }
+        default:
+            return {
+                contract_type: 'DIGITOVER',
+                barrier: '0',
+                duration: duration
+            };
+    }
+}
+
+function getSignalForSimulation(quote, strategy) {
+    // Same as above but uses the strategy object directly (for backtest)
+    const digit = parseInt(String(quote).slice(-1));
+    const signal = strategy.signal || 'Over';
+    const barrier = strategy.barrier || 0;
+    const duration = strategy.duration || 1;
+
+    switch (signal) {
+        case 'Over':
+            return { contract_type: 'DIGITOVER', barrier: String(barrier), duration: duration };
+        case 'Under':
+            return { contract_type: 'DIGITUNDER', barrier: String(barrier), duration: duration };
+        case 'Even':
+            return { contract_type: 'DIGITEVEN', duration: duration };
+        case 'Odd':
+            return { contract_type: 'DIGITODD', duration: duration };
+        case 'Rise':
+            return { contract_type: 'CALL', duration: duration };
+        case 'Fall':
+            return { contract_type: 'PUT', duration: duration };
+        default:
+            return { contract_type: 'DIGITOVER', barrier: '0', duration: duration };
+    }
+}
+
+// =============================================
+// 📊 TICK HANDLER (now uses signal strategy)
+// =============================================
 function handleTick(data) {
     if (data.error) return;
     const tick = data.tick;
@@ -2619,6 +2758,9 @@ function handleTick(data) {
         if (data.subscription && data.subscription.id) tickSubscriptionId = data.subscription.id;
         const price = parseFloat(tick.quote);
         updateChartWithTick(price);
+
+        // Store last quote for rise/fall
+        lastQuote = price;
 
         const now = Date.now();
         if (isActive && wsConnected && !isTradeInProgress && (now - lastTradeTime) > TRADE_COOLDOWN_MS) {
@@ -2628,6 +2770,9 @@ function handleTick(data) {
     }
 }
 
+// =============================================
+// 🔄 PROPOSAL / BUY / CONTRACT HANDLERS
+// =============================================
 function handleProposal(data) {
     if (data.error) {
         toast('❌ Proposal error: ' + data.error.message, 'error');
@@ -2652,8 +2797,8 @@ function handleBuy(data) {
     if (data.buy) {
         const contract = data.buy;
         activeContractId = contract.contract_id;
-        toast(`📈 Trade placed! ID: ${contract.contract_id} | Payout: $${contract.payout}`, 'success');
-        armWatchdog(); // keep watching until contract settles
+        toast('📈 Trade placed! ID: ' + contract.contract_id + ' | Payout: $' + contract.payout, 'success');
+        armWatchdog();
         sendWsRequest({
             proposal_open_contract: 1,
             contract_id: contract.contract_id,
@@ -2679,7 +2824,6 @@ function handleContractUpdate(data) {
     }
 }
 
-// FIX: errors now UN-JAM the engine and schedule a retry
 function handleError(data) {
     if (data.error) {
         console.error('❌ API error object:', data.error);
@@ -2737,29 +2881,105 @@ function subscribeTicks() {
     sendWsRequest({ ticks: symbol, subscribe: 1 });
 }
 
+// =============================================
+// 📈 TRADE EXECUTION (NOW WITH SIGNAL STRATEGY)
+// =============================================
 function proposeContract() {
     if (isTradeInProgress) return;
     isTradeInProgress = true;
     lastTradeTime = Date.now();
+
     const symbol = getSymbol(currentMarket);
     const stake = currentStake;
-    console.log('📊 Proposing:', symbol, 'DIGITOVER', 'Barrier: 0', 'Stake:', stake);
-    sendWsRequest({
+    const quote = lastQuote || 9732.91;
+
+    // Get signal from strategy
+    let signal = getSignalFromStrategy(quote);
+
+    // If signal is null (e.g., no trade on Rise strategy when price falls), skip
+    if (!signal) {
+        isTradeInProgress = false;
+        console.log('⏭ Skipping trade: no signal generated');
+        // Retry on next tick
+        setTimeout(() => {
+            if (isActive && !isTradeInProgress) placeTrade();
+        }, 500);
+        return;
+    }
+
+    const contractType = signal.contract_type;
+    const barrier = signal.barrier || '0';
+    const duration = signal.duration || 1;
+
+    // Update live display
+    liveTradeType.textContent = contractType + (barrier ? ' (barrier ' + barrier + ')' : '');
+
+    console.log('📊 Proposing:', symbol, contractType, 'Barrier:', barrier, 'Stake:', stake, 'Duration:', duration);
+
+    const params = {
         proposal: 1,
         amount: stake,
         basis: 'stake',
-        contract_type: 'DIGITOVER',
+        contract_type: contractType,
         currency: 'USD',
-        duration: 1,
+        duration: duration,
         duration_unit: 't',
-        underlying_symbol: symbol,   // FIXED: use underlying_symbol instead of symbol
-        barrier: '0'
-    });
-    armWatchdog(); // FIX: if server never answers, watchdog retries
+        underlying_symbol: symbol
+    };
+
+    // Add barrier for DIGITOVER, DIGITUNDER
+    if (contractType === 'DIGITOVER' || contractType === 'DIGITUNDER') {
+        params.barrier = barrier;
+    }
+
+    sendWsRequest(params);
+    armWatchdog();
+}
+
+function placeTrade() {
+    if (!isActive || isTradeInProgress) return;
+    if (!accessToken) {
+        toast('No access token. Please connect.', 'error');
+        return;
+    }
+    if (wsConnected) {
+        proposeContract();
+    } else {
+        simulateTrade();
+    }
+}
+
+function simulateTrade() {
+    // Use signal strategy to determine win probability
+    const quote = lastQuote || 9732.91;
+    const signal = getSignalFromStrategy(quote);
+    let winChance = 0.5;
+
+    if (signal) {
+        const ct = signal.contract_type;
+        const barrier = parseInt(signal.barrier) || 0;
+        if (ct === 'DIGITOVER') {
+            winChance = (10 - barrier) / 10;
+        } else if (ct === 'DIGITUNDER') {
+            winChance = barrier / 10;
+        } else if (ct === 'DIGITEVEN' || ct === 'DIGITODD') {
+            winChance = 0.5;
+        } else if (ct === 'CALL' || ct === 'PUT') {
+            winChance = 0.5;
+        } else {
+            winChance = 0.5;
+        }
+    } else {
+        winChance = 0.5;
+    }
+
+    const win = Math.random() < winChance;
+    const pl = win ? currentStake * (1/winChance - 1) : -currentStake;
+    handleTradeResult(win, pl);
 }
 
 // =============================================
-// TRADING LOGIC
+// 📊 TRADE RESULT HANDLER
 // =============================================
 function handleTradeResult(win, profit) {
     const pl = win ? profit : -currentStake;
@@ -2771,13 +2991,16 @@ function handleTradeResult(win, profit) {
 
     sessionTradeCount++;
     if (currentRound) {
-        currentRound.textContent = `${sessionTradeCount} / ${MAX_RUNS_PER_SESSION} (min ${MIN_RUNS_BEFORE_TP_SL})`;
+        currentRound.textContent = sessionTradeCount + ' / ' + MAX_RUNS_PER_SESSION + ' (min ' + MIN_RUNS_BEFORE_TP_SL + ')';
     }
 
     const now = new Date();
+    const signalName = signalStrategy.signal || 'Over';
+    const barrier = signalStrategy.barrier || 0;
+    const tradeType = signalStrategy.enabled ? (signalName + (barrier !== undefined ? ' ' + barrier : '')) : 'DIGITOVER 0';
     trades.push({
         time: now.toLocaleTimeString(),
-        type: 'OVER 0',
+        type: tradeType,
         symbol: currentMarket,
         stake: currentStake,
         pl: pl
@@ -2797,7 +3020,7 @@ function handleTradeResult(win, profit) {
         if (martingaleLevel <= maxMartingaleLevel) {
             currentStake = baseStake * Math.pow(martingaleMultiplier, martingaleLevel);
             liveStakeDisplay.textContent = '$' + currentStake.toFixed(2);
-            toast(`📈 Martingale Level ${martingaleLevel}: $${currentStake.toFixed(2)}`, 'info');
+            toast('📈 Martingale Level ' + martingaleLevel + ': $' + currentStake.toFixed(2), 'info');
         } else {
             toast('⚠️ Max martingale level reached. Stopping.', 'error');
             stopTrading();
@@ -2807,7 +3030,7 @@ function handleTradeResult(win, profit) {
 
     // -------- MAX RUNS --------
     if (sessionTradeCount >= MAX_RUNS_PER_SESSION) {
-        toast(`🛑 Maximum ${MAX_RUNS_PER_SESSION} runs reached. Session complete.`, 'info');
+        toast('🛑 Maximum ' + MAX_RUNS_PER_SESSION + ' runs reached. Session complete.', 'info');
         stopTrading();
         return;
     }
@@ -2816,11 +3039,11 @@ function handleTradeResult(win, profit) {
     if (sessionTradeCount >= MIN_RUNS_BEFORE_TP_SL) {
         if (windowProfitValue >= profitTargetValue) {
             const profitAmt = windowProfitValue;
-            sessions.push({ window: `Window ${++sessionCount}`, profit: profitAmt });
+            sessions.push({ window: 'Window ' + (++sessionCount), profit: profitAmt });
             renderSessions();
             tpAmount.textContent = profitAmt.toFixed(2);
             tpModal.classList.add('active');
-            toast(`🎉 Take Profit hit! $${profitAmt.toFixed(2)}`, 'success');
+            toast('🎉 Take Profit hit! $' + profitAmt.toFixed(2), 'success');
             windowProfitValue = 0;
             updateProfitDisplay();
             consecutiveLosses = 0;
@@ -2829,7 +3052,7 @@ function handleTradeResult(win, profit) {
             liveStakeDisplay.textContent = '$' + currentStake.toFixed(2);
         }
         if (windowProfitValue <= -stopLossValue) {
-            toast(`🛑 Stop Loss triggered at $${stopLossValue.toFixed(2)}`, 'error');
+            toast('🛑 Stop Loss triggered at $' + stopLossValue.toFixed(2), 'error');
             stopTrading();
             return;
         }
@@ -2841,27 +3064,150 @@ function handleTradeResult(win, profit) {
     }
 }
 
-function placeTrade() {
-    if (!isActive || isTradeInProgress) return;
-    if (!accessToken) {
-        toast('No access token. Please connect.', 'error');
-        return;
-    }
-    if (wsConnected) {
-        proposeContract();
-    } else {
-        simulateTrade();
-    }
-}
+// =============================================
+// 🧪 BACKTEST / SIMULATION (1000 SESSIONS)
+// =============================================
+function runBacktest() {
+    const sessionsToRun = 1000;
+    toast('🧪 Starting ' + sessionsToRun + '-session backtest...', 'info');
+    backtestResults.innerHTML = '<div style="text-align:center;padding:12px;color:var(--text-muted);"><span class="spinner"></span> Running simulation…</div>';
 
-function simulateTrade() {
-    const win = Math.random() < 0.90;
-    const pl = win ? currentStake * 0.8 : -currentStake;
-    handleTradeResult(win, pl);
+    // Use current strategy settings from UI
+    const strategy = {
+        signal: document.getElementById('ssSignal').value || 'Over',
+        barrier: parseInt(document.getElementById('ssBarrier').value) || 0,
+        duration: parseInt(document.getElementById('ssDuration').value) || 1,
+        enabled: true
+    };
+
+    const results = [];
+    const simBaseStake = baseStake;
+    const simMultiplier = martingaleMultiplier;
+    const simMaxLevel = maxMartingaleLevel;
+    const simTP = profitTargetValue;
+    const simSL = stopLossValue;
+    const simMaxRuns = MAX_RUNS_PER_SESSION;
+    const simMinRuns = MIN_RUNS_BEFORE_TP_SL;
+
+    // Use a random walk for price simulation
+    let basePrice = 9732.91;
+
+    for (let s = 0; s < sessionsToRun; s++) {
+        let simPnl = 0;
+        let simRuns = 0;
+        let simStake = simBaseStake;
+        let simLive = true;
+        let simPrice = basePrice + (Math.random() - 0.5) * 100;
+        let simLastQuote = simPrice;
+        let simConsecutiveLosses = 0;
+        let simMartingaleLevel = 0;
+
+        while (simLive && simRuns < simMaxRuns) {
+            // Random walk tick
+            const change = (Math.random() - 0.5) * 0.8;
+            const quote = simLastQuote + change;
+            const digit = parseInt(String(quote).slice(-1));
+
+            // Get signal
+            let signal = getSignalForSimulation(quote, strategy);
+            if (!signal) {
+                // No trade (e.g., Rise strategy on fall)
+                simLastQuote = quote;
+                continue;
+            }
+
+            // Determine win chance
+            let winChance = 0.5;
+            const ct = signal.contract_type;
+            const barrier = parseInt(signal.barrier) || 0;
+            if (ct === 'DIGITOVER') {
+                winChance = (10 - barrier) / 10;
+            } else if (ct === 'DIGITUNDER') {
+                winChance = barrier / 10;
+            } else if (ct === 'DIGITEVEN' || ct === 'DIGITODD') {
+                winChance = 0.5;
+            } else if (ct === 'CALL' || ct === 'PUT') {
+                winChance = 0.5;
+            }
+
+            // Simulate trade result
+            const win = Math.random() < winChance;
+            const profit = win ? simStake * (1/winChance - 1) : -simStake;
+            simPnl += profit;
+            simRuns++;
+
+            // Martingale
+            if (win) {
+                simConsecutiveLosses = 0;
+                simMartingaleLevel = 0;
+                simStake = simBaseStake;
+            } else {
+                simConsecutiveLosses++;
+                simMartingaleLevel++;
+                if (simMartingaleLevel <= simMaxLevel) {
+                    simStake = simBaseStake * Math.pow(simMultiplier, simMartingaleLevel);
+                } else {
+                    // Stop after max level
+                    simLive = false;
+                    break;
+                }
+            }
+
+            // TP/SL (only after min runs)
+            if (simRuns >= simMinRuns) {
+                if (simPnl >= simTP) {
+                    simLive = false;
+                }
+                if (simPnl <= -simSL) {
+                    simLive = false;
+                }
+            }
+
+            simLastQuote = quote;
+        }
+
+        results.push(simPnl);
+        basePrice = simLastQuote;
+    }
+
+    // Stats
+    const sorted = results.slice().sort((a, b) => a - b);
+    const avg = results.reduce((a, b) => a + b, 0) / results.length;
+    const median = sorted[Math.floor(sorted.length / 2)];
+    const winRate = results.filter(r => r > 0).length / results.length;
+    const best = Math.max(...results);
+    const worst = Math.min(...results);
+    const totalProfit = results.reduce((a, b) => a + b, 0);
+    const percentiles = {
+        '10%': sorted[Math.floor(0.1 * sorted.length)],
+        '25%': sorted[Math.floor(0.25 * sorted.length)],
+        '50%': sorted[Math.floor(0.5 * sorted.length)],
+        '75%': sorted[Math.floor(0.75 * sorted.length)],
+        '90%': sorted[Math.floor(0.9 * sorted.length)]
+    };
+
+    // Render results
+    let html = '<div class="backtest-result">';
+    html += '<div style="font-weight:700;color:var(--accent-cyan);margin-bottom:8px;">📊 Backtest Results — ' + sessionsToRun + ' Sessions</div>';
+    html += '<div class="stat-row"><span class="stat-label">Average PnL</span><span class="stat-value ' + (avg >= 0 ? 'green' : 'red') + '">' + avg.toFixed(2) + '</span></div>';
+    html += '<div class="stat-row"><span class="stat-label">Median PnL</span><span class="stat-value ' + (median >= 0 ? 'green' : 'red') + '">' + median.toFixed(2) + '</span></div>';
+    html += '<div class="stat-row"><span class="stat-label">Win Rate</span><span class="stat-value green">' + (winRate * 100).toFixed(1) + '%</span></div>';
+    html += '<div class="stat-row"><span class="stat-label">Best Session</span><span class="stat-value green">+' + best.toFixed(2) + '</span></div>';
+    html += '<div class="stat-row"><span class="stat-label">Worst Session</span><span class="stat-value red">' + worst.toFixed(2) + '</span></div>';
+    html += '<div class="stat-row"><span class="stat-label">Total PnL (all)</span><span class="stat-value ' + (totalProfit >= 0 ? 'green' : 'red') + '">' + totalProfit.toFixed(2) + '</span></div>';
+    html += '<div style="margin-top:6px;padding-top:6px;border-top:1px solid var(--border);font-size:clamp(8px,0.4vw,10px);color:var(--text-muted);">Percentiles:</div>';
+    Object.entries(percentiles).forEach(([label, val]) => {
+        html += '<div class="stat-row" style="font-size:clamp(8px,0.4vw,10px);"><span class="stat-label">' + label + '</span><span class="stat-value ' + (val >= 0 ? 'green' : 'red') + '">' + val.toFixed(2) + '</span></div>';
+    });
+    html += '<div style="margin-top:6px;padding-top:6px;border-top:1px solid var(--border);font-size:clamp(8px,0.4vw,10px);color:var(--text-dim);">Strategy: ' + strategy.signal + (strategy.barrier !== undefined ? ' (barrier ' + strategy.barrier + ')' : '') + ' | Martingale: ' + simMultiplier + 'x | Max level: ' + simMaxLevel + '</div>';
+    html += '</div>';
+
+    backtestResults.innerHTML = html;
+    toast('✅ Backtest complete! ' + sessionsToRun + ' sessions simulated.', 'success');
 }
 
 // =============================================
-// Chart
+// CHART
 // =============================================
 function updateChartWithTick(price) {
     const last = chartData.length > 0 ? chartData[chartData.length - 1].close : price;
@@ -2966,7 +3312,7 @@ function drawChart() {
 }
 
 // =============================================
-// OAuth 2.0 with PKCE
+// OAUTH 2.0 with PKCE
 // =============================================
 const AUTH_BASE = 'https://oauth.deriv.com/oauth2/authorize';
 const TOKEN_EXCHANGE_ENDPOINT = '/api/exchange-token';
@@ -3036,7 +3382,7 @@ async function initiateAuth(prompt) {
         brand: 'deriv'
     });
     if (prompt) params.append('prompt', prompt);
-    window.location.href = `${AUTH_BASE}?${params.toString()}`;
+    window.location.href = AUTH_BASE + '?' + params.toString();
 }
 async function handleOAuthCallback() {
     const params = new URLSearchParams(window.location.search);
@@ -3044,7 +3390,7 @@ async function handleOAuthCallback() {
     const state = params.get('state');
     const error = params.get('error');
     if (error) {
-        toast(`OAuth error: ${error}`, 'error');
+        toast('OAuth error: ' + error, 'error');
         window.history.replaceState({}, document.title, window.location.pathname);
         return;
     }
@@ -3080,7 +3426,7 @@ async function handleOAuthCallback() {
             connectModal.classList.remove('active');
         } catch (error) {
             console.error('Token exchange error:', error);
-            toast(`❌ Error: ${error.message}`, 'error');
+            toast('❌ Error: ' + error.message, 'error');
             clearPKCE();
             window.history.replaceState({}, document.title, window.location.pathname);
         }
@@ -3102,7 +3448,7 @@ function setAccessToken(token) {
         toast('Token set successfully', 'success');
         connectWebSocket(token);
     } else {
-        manualDisconnect = true; // FIX: stop auto-reconnect on purpose
+        manualDisconnect = true;
         localStorage.removeItem('emron_access_token');
         localStorage.removeItem('deriv_token');
         localStorage.removeItem('token');
@@ -3145,7 +3491,7 @@ function disconnect() {
 }
 
 // =============================================
-// Trading Lifecycle
+// TRADING LIFECYCLE
 // =============================================
 function startTrading() {
     if (isActive) return;
@@ -3159,7 +3505,7 @@ function startTrading() {
 
     sessionTradeCount = 0;
     if (currentRound) {
-        currentRound.textContent = `0 / ${MAX_RUNS_PER_SESSION} (min ${MIN_RUNS_BEFORE_TP_SL})`;
+        currentRound.textContent = '0 / ' + MAX_RUNS_PER_SESSION + ' (min ' + MIN_RUNS_BEFORE_TP_SL + ')';
     }
 
     martingaleLevel = 0;
@@ -3168,7 +3514,7 @@ function startTrading() {
     liveStakeDisplay.textContent = '$' + currentStake.toFixed(2);
 
     const mode = accessToken && wsConnected ? 'REAL' : 'SIMULATION';
-    toast(`🚀 DigitEdge bot activated on ${currentMarket} — ${mode} mode`, 'success');
+    toast('🚀 DigitEdge bot activated on ' + currentMarket + ' — ' + mode + ' mode', 'success');
 
     windowProfitValue = 0;
     updateProfitDisplay();
@@ -3182,7 +3528,7 @@ function startTrading() {
         if (updateInterval) clearInterval(updateInterval);
         updateInterval = setInterval(() => {
             if (!isActive) return;
-            if (!wsConnected) simulateTrade(); // only simulate when truly offline
+            if (!wsConnected) simulateTrade();
         }, 2800);
     }
 }
@@ -3211,7 +3557,7 @@ function stopTrading() {
 }
 
 // =============================================
-// Quick Settings
+// QUICK SETTINGS
 // =============================================
 function applyQuickSettings() {
     const stake = parseFloat(qsStake.value) || 10;
@@ -3239,7 +3585,7 @@ function applyQuickSettings() {
     if (wsConnected) subscribeTicks();
 
     if (currentRound) {
-        currentRound.textContent = `0 / ${MAX_RUNS_PER_SESSION} (min ${MIN_RUNS_BEFORE_TP_SL})`;
+        currentRound.textContent = '0 / ' + MAX_RUNS_PER_SESSION + ' (min ' + MIN_RUNS_BEFORE_TP_SL + ')';
     }
     toast('✅ Quick settings applied (runs: min=' + minRuns + ', max=' + maxRuns + ')', 'success');
 }
@@ -3260,15 +3606,16 @@ function applyPreset(preset) {
     qsTP.value = p.tp;
     qsSL.value = p.sl;
     applyQuickSettings();
-    toast(`Loaded preset: ${preset}`, 'success');
+    toast('Loaded preset: ' + preset, 'success');
 }
 
 // =============================================
-// Helpers
+// HELPERS
 // =============================================
-function toast(message, type = 'info') {
+function toast(message, type) {
+    if (type === undefined) type = 'info';
     const el = document.createElement('div');
-    el.className = `toast ${type}`;
+    el.className = 'toast ' + type;
     el.textContent = message;
     toastContainer.appendChild(el);
     setTimeout(() => {
@@ -3287,20 +3634,20 @@ function updateProfitDisplay() {
 }
 function renderSessions() {
     if (sessions.length === 0) {
-        sessionsBody.innerHTML = `<tr><td colspan="3" class="empty-state"><span class="emoji">📋</span>No entries yet. Activate the strategy to start.</td></tr>`;
+        sessionsBody.innerHTML = '<tr><td colspan="3" class="empty-state"><span class="emoji">📋</span>No entries yet. Activate the strategy to start.</td></tr>';
         return;
     }
     let html = '';
     sessions.slice().reverse().forEach(s => {
         const cls = s.profit >= 0 ? 'profit' : 'loss';
         const status = s.profit >= 0 ? 'Won' : 'Lost';
-        html += `<tr><td>${s.window}</td><td class="${cls}">$${s.profit.toFixed(2)}</td><td><span class="status-pill ${s.profit>=0?'won':'lost'}">${status}</span></td></tr>`;
+        html += '<tr><td>' + s.window + '</td><td class="' + cls + '">$' + s.profit.toFixed(2) + '</td><td><span class="status-pill ' + (s.profit>=0?'won':'lost') + '">' + status + '</span></td></tr>';
     });
     sessionsBody.innerHTML = html;
 }
 function renderTrades() {
     if (trades.length === 0) {
-        tradesBody.innerHTML = `<tr><td colspan="5" class="empty-state"><span class="emoji">📊</span>No trades yet.</td></tr>`;
+        tradesBody.innerHTML = '<tr><td colspan="5" class="empty-state"><span class="emoji">📊</span>No trades yet.</td></tr>';
         return;
     }
     let html = '';
@@ -3308,7 +3655,7 @@ function renderTrades() {
         const pl = t.pl;
         const cls = pl >= 0 ? 'profit' : 'loss';
         const sign = pl >= 0 ? '+' : '';
-        html += `<tr><td>${t.time}</td><td>${t.type}</td><td>${t.symbol}</td><td>$${t.stake.toFixed(2)}</td><td class="${cls}">${sign}$${pl.toFixed(2)}</td></tr>`;
+        html += '<tr><td>' + t.time + '</td><td>' + t.type + '</td><td>' + t.symbol + '</td><td>$' + t.stake.toFixed(2) + '</td><td class="' + cls + '">' + sign + '$' + pl.toFixed(2) + '</td></tr>';
     });
     tradesBody.innerHTML = html;
 }
@@ -3330,11 +3677,11 @@ function updateMarketDisplay(market) {
     };
     const short = shortMap[market] || 'VOL50';
     symbolOptions.forEach(el => el.classList.toggle('active', el.dataset.symbol === short));
-    toast(`📊 Switched to ${market}`, 'info');
+    toast('📊 Switched to ' + market, 'info');
 }
 
 // =============================================
-// AI Signals
+// AI SIGNALS
 // =============================================
 function generateAISignal() {
     const market = document.getElementById('aiMarket').value;
@@ -3361,9 +3708,9 @@ function generateAISignal() {
         </div>
         <div class="confidence-bar"><div class="confidence-fill" style="width:${conf}%;"></div></div>
         <div style="margin-top:6px;font-weight:600;font-size:clamp(10px,0.5vw,12px);">Key Factors</div>
-        <ul class="reasoning-list">${selectedReasons.map(r => `<li>${r}</li>`).join('')}</ul>
+        <ul class="reasoning-list">${selectedReasons.map(r => '<li>' + r + '</li>').join('')}</ul>
         <div style="margin-top:6px;font-size:clamp(8px,0.4vw,10px);color:var(--accent-cyan);font-family:'JetBrains Mono',monospace;padding:4px 8px;background:var(--bg-surface);border-radius:var(--radius-sm);">
-            🔓 DigitEdge feed: Over 0 · Barrier 0 · 1 tick · ${market}
+            🔓 DigitEdge feed: ${signalStrategy.signal || 'Over'} ${signalStrategy.barrier !== undefined ? '· Barrier ' + signalStrategy.barrier : ''} · ${signalStrategy.duration || 1} tick · ${market}
         </div>
     </div>`;
     signalOutput.innerHTML = html;
@@ -3377,16 +3724,16 @@ function generateAISignal() {
         </div>
         <div><span class="signal-badge ${badgeClass}">${direction}</span> <span style="color:var(--text-muted);font-size:clamp(10px,0.5vw,12px);">Confidence ${conf}%</span></div>
         <div style="margin-top:4px;font-size:clamp(9px,0.4vw,11px);color:var(--text-dim);">Target: ${target} · Stop: ${stop}</div>
-        <div style="font-size:clamp(7px,0.4vw,9px);color:var(--accent-cyan);margin-top:3px;">DigitEdge · Over 0</div>`;
+        <div style="font-size:clamp(7px,0.4vw,9px);color:var(--accent-cyan);margin-top:3px;">DigitEdge · ${signalStrategy.signal || 'Over'} ${signalStrategy.barrier !== undefined ? signalStrategy.barrier : ''}</div>`;
     recent.prepend(card);
     if (recent.children.length > 6) recent.removeChild(recent.lastChild);
     signalCount++;
     totalSignalsToday.textContent = signalCount;
-    toast(`📡 DigitEdge signal generated on ${market}`, 'info');
+    toast('📡 DigitEdge signal generated on ' + market, 'info');
 }
 
 // =============================================
-// Signal Monitor
+// SIGNAL MONITOR
 // =============================================
 function updateMonitor() {
     const buy = Math.floor(Math.random() * 5);
@@ -3403,45 +3750,76 @@ function updateMonitor() {
     const conf = Math.floor(50 + Math.random() * 45);
     const row = document.createElement('tr');
     const time = new Date().toLocaleTimeString();
-    row.innerHTML = `<td>${time}</td><td>${sym}</td><td><span class="signal-badge ${dir.toLowerCase()}">${dir}</span></td><td>${conf}%</td>`;
+    row.innerHTML = '<td>' + time + '</td><td>' + sym + '</td><td><span class="signal-badge ' + dir.toLowerCase() + '">' + dir + '</span></td><td>' + conf + '%</td>';
     monitorSignals.prepend(row);
     if (monitorSignals.children.length > 10) monitorSignals.removeChild(monitorSignals.lastChild);
     const histRow = document.createElement('tr');
     const result = Math.random() > 0.5 ? 'Won' : 'Lost';
-    histRow.innerHTML = `<td>${sym}</td><td><span class="signal-badge ${dir.toLowerCase()}">${dir}</span></td><td>${time}</td><td>${result}</td>`;
+    histRow.innerHTML = '<td>' + sym + '</td><td><span class="signal-badge ' + dir.toLowerCase() + '">' + dir + '</span></td><td>' + time + '</td><td>' + result + '</td>';
     monitorHistory.prepend(histRow);
     if (monitorHistory.children.length > 10) monitorHistory.removeChild(monitorHistory.lastChild);
 }
 
 // =============================================
-// Modals logic
+// MODALS LOGIC
 // =============================================
 function openSignalStrategy() {
-    document.getElementById('ssMaster').value = 'on';
-    document.getElementById('ssStrategy').value = 'Single signal — trade every cycle';
+    document.getElementById('ssMaster').value = signalStrategy.enabled ? 'on' : 'off';
+    document.getElementById('ssStrategy').value = signalStrategy.strategy || 'Single signal — trade every cycle';
     document.getElementById('ssSource').value = 'DigitEdge feed (FREE — unlocked)';
-    document.getElementById('ssSignal').value = 'Over';
-    document.getElementById('ssSides').value = 'Over only';
-    document.getElementById('ssBarrier').value = '0';
-    document.getElementById('ssDuration').value = '1';
-    for (let opt of ssMarket.options) { if (opt.value === currentMarket) { ssMarket.value = currentMarket; break; } }
-    document.getElementById('ssEntry').value = 'None — trade every cycle';
+    document.getElementById('ssSignal').value = signalStrategy.signal || 'Over';
+    document.getElementById('ssSides').value = signalStrategy.sides || 'Over only';
+    document.getElementById('ssBarrier').value = signalStrategy.barrier || 0;
+    document.getElementById('ssDuration').value = signalStrategy.duration || 1;
+    for (let opt of ssMarket.options) { if (opt.value === signalStrategy.market || opt.value === currentMarket) { ssMarket.value = opt.value; break; } }
+    document.getElementById('ssEntry').value = signalStrategy.entry || 'None — trade every cycle';
+    updateSSPreview();
     signalStrategyModal.classList.add('active');
 }
-function saveSignalStrategy() {
-    const strategy = document.getElementById('ssStrategy').value;
+
+function updateSSPreview() {
     const signal = document.getElementById('ssSignal').value;
     const barrier = document.getElementById('ssBarrier').value;
     const duration = document.getElementById('ssDuration').value;
     const market = document.getElementById('ssMarket').value;
-    document.querySelector('[data-field="strategyMode"]').textContent = strategy;
-    document.querySelector('[data-field="signalDir"]').textContent = signal;
-    document.querySelector('[data-field="barrier"]').textContent = barrier;
-    document.querySelector('[data-field="duration"]').textContent = duration + ' tick' + (duration > 1 ? 's' : '');
-    if (market !== 'Signal market (recommended)') updateMarketDisplay(market);
-    signalStrategyModal.classList.remove('active');
-    toast('📡 DigitEdge signal strategy applied', 'success');
+    const preview = document.getElementById('ssPreviewText');
+    if (preview) {
+        const displayMarket = market === 'Signal market (recommended)' ? currentMarket : market;
+        preview.textContent = signal + (barrier !== undefined ? ' ' + barrier : '') + ' on ' + displayMarket + ' · ' + duration + 't';
+    }
 }
+
+function saveSignalStrategy() {
+    signalStrategy.enabled = document.getElementById('ssMaster').value === 'on';
+    signalStrategy.strategy = document.getElementById('ssStrategy').value;
+    signalStrategy.signal = document.getElementById('ssSignal').value;
+    signalStrategy.sides = document.getElementById('ssSides').value;
+    signalStrategy.barrier = parseInt(document.getElementById('ssBarrier').value) || 0;
+    signalStrategy.duration = parseInt(document.getElementById('ssDuration').value) || 1;
+    signalStrategy.entry = document.getElementById('ssEntry').value;
+    const market = document.getElementById('ssMarket').value;
+    if (market !== 'Signal market (recommended)') {
+        signalStrategy.market = market;
+        updateMarketDisplay(market);
+    } else {
+        signalStrategy.market = 'Signal market (recommended)';
+    }
+
+    // Update UI fields
+    document.querySelector('[data-field="strategyMode"]').textContent = signalStrategy.strategy;
+    document.querySelector('[data-field="signalDir"]').textContent = signalStrategy.signal;
+    document.querySelector('[data-field="barrier"]').textContent = signalStrategy.barrier;
+    document.querySelector('[data-field="duration"]').textContent = signalStrategy.duration + ' tick' + (signalStrategy.duration > 1 ? 's' : '');
+
+    // Update live trade type display
+    const sig = signalStrategy.signal;
+    const bar = signalStrategy.barrier;
+    liveTradeType.textContent = sig + (bar !== undefined ? ' (barrier ' + bar + ')' : '');
+
+    signalStrategyModal.classList.remove('active');
+    toast('📡 DigitEdge signal strategy applied: ' + sig + (bar !== undefined ? ' (barrier ' + bar + ')' : ''), 'success');
+}
+
 function openRiskMgmt() {
     document.getElementById('rmTP').value = profitTargetValue.toFixed(2);
     document.getElementById('rmSL').value = stopLossValue.toFixed(2);
@@ -3450,6 +3828,7 @@ function openRiskMgmt() {
     updateStakeLadder();
     riskMgmtModal.classList.add('active');
 }
+
 function updateStakeLadder() {
     const base = parseFloat(document.getElementById('rmMulti').value) || 1.5;
     const maxLvl = parseInt(document.getElementById('rmMaxLevel').value) || 7;
@@ -3458,6 +3837,7 @@ function updateStakeLadder() {
     for (let i = 0; i <= maxLvl; i++) { steps.push(s.toFixed(1)); s = s * base; }
     document.getElementById('stakeLadderPreview').textContent = steps.join(' → ');
 }
+
 function saveRiskMgmt() {
     const tp = parseFloat(document.getElementById('rmTP').value) || 20;
     const sl = parseFloat(document.getElementById('rmSL').value) || 10000;
@@ -3475,14 +3855,16 @@ function saveRiskMgmt() {
     riskMgmtModal.classList.remove('active');
     toast('🛡 Risk settings applied', 'success');
 }
+
 function openSettingsModal() {
     document.getElementById('editStake').value = baseStake.toFixed(2);
-    document.getElementById('editDuration').value = '1';
+    document.getElementById('editDuration').value = signalStrategy.duration || 1;
     document.getElementById('editContractType').value = 'DIGITOVER';
     document.getElementById('editExecution').value = 'Ultra Fast';
     for (let opt of editMarket.options) { if (opt.value === currentMarket) { editMarket.value = currentMarket; break; } }
     settingsModal.classList.add('active');
 }
+
 function saveSettings() {
     const stake = parseFloat(document.getElementById('editStake').value) || 10;
     const market = document.getElementById('editMarket').value;
@@ -3496,7 +3878,7 @@ function saveSettings() {
 }
 
 // =============================================
-// Event listeners
+// EVENT LISTENERS
 // =============================================
 tabs.forEach(tab => {
     tab.addEventListener('click', function() {
@@ -3522,6 +3904,10 @@ document.querySelectorAll('.preset-btn').forEach(btn => {
 });
 signalStrategyBtn.addEventListener('click', openSignalStrategy);
 ssSaveBtn.addEventListener('click', saveSignalStrategy);
+document.getElementById('ssSignal').addEventListener('change', updateSSPreview);
+document.getElementById('ssBarrier').addEventListener('input', updateSSPreview);
+document.getElementById('ssDuration').addEventListener('input', updateSSPreview);
+document.getElementById('ssMarket').addEventListener('change', updateSSPreview);
 riskMgmtBtn.addEventListener('click', openRiskMgmt);
 document.getElementById('rmMulti').addEventListener('input', updateStakeLadder);
 document.getElementById('rmMaxLevel').addEventListener('input', updateStakeLadder);
@@ -3660,20 +4046,29 @@ document.getElementById('modeToggleBtn').addEventListener('click', function() {
 document.querySelectorAll('.copy-btn').forEach(btn => {
     btn.addEventListener('click', function() {
         const text = this.dataset.copy;
-        navigator.clipboard.writeText(text).then(() => toast(`Copied: ${text}`, 'success')).catch(() => {
+        navigator.clipboard.writeText(text).then(() => toast('Copied: ' + text, 'success')).catch(() => {
             const input = document.createElement('input');
             input.value = text;
             document.body.appendChild(input);
             input.select();
             document.execCommand('copy');
             document.body.removeChild(input);
-            toast(`Copied: ${text}`, 'success');
+            toast('Copied: ' + text, 'success');
         });
     });
 });
 
 // =============================================
-// Countdown
+// BACKTEST EVENTS
+// =============================================
+runBacktestBtn.addEventListener('click', runBacktest);
+clearBacktestBtn.addEventListener('click', function() {
+    backtestResults.innerHTML = '';
+    toast('Backtest results cleared', 'info');
+});
+
+// =============================================
+// COUNTDOWN
 // =============================================
 setInterval(() => {
     if (countdown <= 0) { countdown = 5; updateMonitor(); }
@@ -3681,7 +4076,7 @@ setInterval(() => {
 }, 1000);
 
 // =============================================
-// Init
+// INIT
 // =============================================
 loadStoredToken();
 handleOAuthCallback();
@@ -3704,9 +4099,14 @@ qsMaxRuns.value = MAX_RUNS_PER_SESSION;
 setTimeout(updateMonitor, 500);
 setInterval(() => { if (!isActive) { generateChartData(); drawChart(); } }, 7000);
 window.addEventListener('resize', initChart);
-console.log('🔷 EMRON AI — DigitEdge FREE & UNLOCKED (self-healing trade engine)');
+
+// Set initial live trade type
+liveTradeType.textContent = signalStrategy.signal + (signalStrategy.barrier !== undefined ? ' (barrier ' + signalStrategy.barrier + ')' : '');
+
+console.log('🔷 EMRON AI — DigitEdge FREE & UNLOCKED (ultra-bot signal integration)');
 console.log('📊 WebSocket endpoint: Proxy /api/get-otp (New API)');
-console.log(`📊 Run limits: min=${MIN_RUNS_BEFORE_TP_SL}, max=${MAX_RUNS_PER_SESSION}`);
+console.log('📊 Run limits: min=' + MIN_RUNS_BEFORE_TP_SL + ', max=' + MAX_RUNS_PER_SESSION);
+console.log('📊 Signal strategy: ' + signalStrategy.signal + ' (barrier ' + signalStrategy.barrier + ')');
 })();
 </script>
 </body>
