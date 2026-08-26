@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-/* ===== RESET & BASE ===== */
+/* ===== RESET & BASE (unchanged) ===== */
 :root {
 --primary: #4455ee;
 --primary-dark: #2233cc;
@@ -1523,12 +1523,12 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 <div class="card-body">
 <div class="settings-list">
 <div class="setting-row"><span class="label">Market (live)</span><span class="value live" id="liveMarketDisplay">Volatility 50</span></div>
-<div class="setting-row"><span class="label">Trade type</span><span class="value live" id="liveTradeType">MATCH</span></div>
+<div class="setting-row"><span class="label">Contract (signal‑derived)</span><span class="value live" id="liveTradeType">MATCH</span></div>
 <div class="setting-row"><span class="label">Stake (live)</span><span class="value live" id="liveStakeDisplay">$10.00</span></div>
 <div class="settings-divider"><span class="settings-divider-label">DigitEdge Config</span></div>
 <div class="setting-row"><span class="label">Signal Strategy</span><span class="value" style="color:var(--accent-green);">ON <span class="free-badge">FREE</span></span></div>
 <div class="setting-row"><span class="label">Strategy mode</span><span class="value" data-field="strategyMode">FlowState Matches</span></div>
-<div class="setting-row"><span class="label">Trade Type (FlowState)</span><span class="value" data-field="signalDir">MATCH</span></div>
+<div class="setting-row"><span class="label">Signal Confidence</span><span class="value" data-field="signalDir">60% threshold</span></div>
 <div class="setting-row"><span class="label">Barrier</span><span class="value" data-field="barrier">0</span></div>
 <div class="setting-row"><span class="label">Duration</span><span class="value" data-field="duration">1 tick</span></div>
 </div>
@@ -1604,19 +1604,9 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 </div>
 </div>
 
-<!-- NEW: Trade Type dropdown -->
+<!-- Confidence Threshold (only) -->
 <div class="form-row">
   <div class="form-group" style="grid-column:1/2;">
-    <label>Trade Type (FlowState)</label>
-    <select class="form-control" id="qsTradeType">
-      <option value="MATCH" selected>Match</option>
-      <option value="EVEN">Even</option>
-      <option value="ODD">Odd</option>
-      <option value="OVER">Over (barrier -1)</option>
-      <option value="UNDER">Under (barrier +1)</option>
-    </select>
-  </div>
-  <div class="form-group" style="grid-column:2/3;">
     <label>Confidence Threshold</label>
     <select class="form-control" id="qsConfidence">
       <option value="60" selected>Medium (60%)</option>
@@ -1624,6 +1614,10 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
       <option value="80">Very High (80%)</option>
       <option value="50">Low (50%)</option>
     </select>
+  </div>
+  <div class="form-group" style="grid-column:2/3;">
+    <label> </label>
+    <div style="padding:6px 0;font-size:clamp(9px,0.5vw,11px);color:var(--text-muted);">📡 Contract auto‑derived from signal</div>
   </div>
 </div>
 
@@ -2498,7 +2492,6 @@ let MAX_RUNS_PER_SESSION = 200;
 // FlowState integration settings
 const flowEngine = new FlowStateEngine();
 let signalMode = 'matches';       // 'matches' or 'evenodd'
-let flowStateTradeType = 'MATCH'; // 'MATCH', 'EVEN', 'ODD', 'OVER', 'UNDER'
 let flowStateConfidenceThreshold = 60; // 0-100
 
 // =============================================
@@ -2575,7 +2568,6 @@ const qsMarket = document.getElementById('qsMarket');
 const qsApplyBtn = document.getElementById('qsApplyBtn');
 const qsMinRuns = document.getElementById('qsMinRuns');
 const qsMaxRuns = document.getElementById('qsMaxRuns');
-const qsTradeType = document.getElementById('qsTradeType');
 const qsConfidence = document.getElementById('qsConfidence');
 const oauthClientId = document.getElementById('oauthClientId');
 const oauthRedirectUri = document.getElementById('oauthRedirectUri');
@@ -2943,7 +2935,7 @@ function subscribeTicks() {
 }
 
 // =============================================
-// 💡 FLOWSTATE-BASED TRADING LOGIC (with Trade Type selection)
+// 💡 FLOWSTATE-BASED TRADING LOGIC (auto‑derived contract type)
 // =============================================
 function placeTrade() {
     if (!isActive || isTradeInProgress) return;
@@ -2968,49 +2960,28 @@ function placeTrade() {
 
     console.log(`📡 FlowState signal: ${signalMode} | entry: ${signal.entryDigit} | confidence: ${signal.confidence}%`);
 
-    // Determine contract type and barrier based on flowStateTradeType
+    // Determine contract type and barrier automatically from the signal
     let contractType = 'DIGITMATCH';
     let barrier = null;
-    const predicted = signal.entryDigit; // or signal.predictedDigit
 
-    switch (flowStateTradeType) {
-        case 'MATCH':
-            contractType = 'DIGITMATCH';
-            barrier = predicted;
-            break;
-        case 'EVEN':
-            // If signal is even, place DIGITEVEN; if odd, place DIGITODD (or just use DIGITEVEN if we only want even)
-            // To keep it simple, we just use the signal's parity.
-            if (signalMode === 'evenodd') {
-                contractType = (signal.prediction === 'EVEN') ? 'DIGITEVEN' : 'DIGITODD';
-            } else {
-                // In matches mode, we treat the predicted digit's parity
-                const isEven = predicted % 2 === 0;
-                contractType = isEven ? 'DIGITEVEN' : 'DIGITODD';
-            }
-            barrier = null;
-            break;
-        case 'ODD':
-            // Similarly, force odd.
-            if (signalMode === 'evenodd') {
-                contractType = (signal.prediction === 'ODD') ? 'DIGITODD' : 'DIGITEVEN';
-            } else {
-                const isOdd = predicted % 2 !== 0;
-                contractType = isOdd ? 'DIGITODD' : 'DIGITEVEN';
-            }
-            barrier = null;
-            break;
-        case 'OVER':
-            contractType = 'DIGITOVER';
-            barrier = (predicted - 1 < 0) ? 0 : predicted - 1; // ensure barrier >=0
-            break;
-        case 'UNDER':
-            contractType = 'DIGITUNDER';
-            barrier = (predicted + 1 > 9) ? 9 : predicted + 1; // ensure barrier <=9
-            break;
-        default:
-            contractType = 'DIGITMATCH';
-            barrier = predicted;
+    if (signalMode === 'matches') {
+        // For matches mode, we always match the predicted digit
+        contractType = 'DIGITMATCH';
+        barrier = signal.entryDigit;
+        // Update live display
+        if (liveTradeType) liveTradeType.textContent = `MATCH ${barrier}`;
+        document.querySelector('[data-field="signalDir"]').textContent = `MATCH ${barrier}`;
+    } else { // even/odd mode
+        if (signal.prediction === 'EVEN') {
+            contractType = 'DIGITEVEN';
+            if (liveTradeType) liveTradeType.textContent = 'EVEN';
+            document.querySelector('[data-field="signalDir"]').textContent = 'EVEN';
+        } else {
+            contractType = 'DIGITODD';
+            if (liveTradeType) liveTradeType.textContent = 'ODD';
+            document.querySelector('[data-field="signalDir"]').textContent = 'ODD';
+        }
+        barrier = null;
     }
 
     const params = {
@@ -3130,7 +3101,7 @@ function handleTradeResult(win, profit) {
     const typeLabel = signalMode === 'matches' ? `MATCH ${flowEngine.digits.length > 0 ? flowEngine.digits[flowEngine.digits.length-1] : '?'}` : `EVEN/ODD`;
     trades.push({
         time: now.toLocaleTimeString(),
-        type: typeLabel + ' (' + flowStateTradeType + ')',
+        type: typeLabel,
         symbol: currentMarket,
         stake: currentStake,
         pl: pl
@@ -3479,7 +3450,7 @@ function disconnect() {
 }
 
 // =============================================
-// Quick Settings (updated to include Trade Type and Confidence)
+// Quick Settings (removed trade type, only confidence)
 // =============================================
 function applyQuickSettings() {
     const stake = parseFloat(qsStake.value) || 10;
@@ -3500,8 +3471,7 @@ function applyQuickSettings() {
     profitTargetValue = tp;
     stopLossValue = sl;
 
-    // Read trade type and confidence threshold
-    flowStateTradeType = qsTradeType.value;
+    // Read confidence threshold
     flowStateConfidenceThreshold = parseInt(qsConfidence.value) || 60;
 
     liveStakeDisplay.textContent = '$' + stake.toFixed(2);
@@ -3514,9 +3484,8 @@ function applyQuickSettings() {
         currentRound.textContent = `0 / ${MAX_RUNS_PER_SESSION} (min ${MIN_RUNS_BEFORE_TP_SL})`;
     }
 
-    // Update UI display of trade type
-    document.querySelector('[data-field="signalDir"]').textContent = flowStateTradeType;
-    if (liveTradeType) liveTradeType.textContent = flowStateTradeType;
+    // Update UI display for confidence
+    document.querySelector('[data-field="signalDir"]').textContent = flowStateConfidenceThreshold + '% threshold';
 
     // Update strategy info from dropdown (FlowState options)
     const stratSel = document.getElementById('qsStrategy');
@@ -3531,7 +3500,7 @@ function applyQuickSettings() {
         }
     }
 
-    toast('✅ Quick settings applied (FlowState ' + signalMode + ', Trade Type: ' + flowStateTradeType + ')', 'success');
+    toast('✅ Quick settings applied (FlowState ' + signalMode + ', confidence ≥ ' + flowStateConfidenceThreshold + '%)', 'success');
 }
 
 function applyPreset(preset) {
@@ -3727,7 +3696,6 @@ function saveSignalStrategy() {
     const duration = document.getElementById('ssDuration').value;
     const market = document.getElementById('ssMarket').value;
     document.querySelector('[data-field="strategyMode"]').textContent = strategy;
-    document.querySelector('[data-field="signalDir"]').textContent = flowStateTradeType;
     document.querySelector('[data-field="barrier"]').textContent = barrier;
     document.querySelector('[data-field="duration"]').textContent = duration + ' tick' + (duration > 1 ? 's' : '');
     if (market !== 'Signal market (recommended)') updateMarketDisplay(market);
@@ -4093,19 +4061,17 @@ qsTP.value = profitTargetValue.toFixed(2);
 qsSL.value = stopLossValue.toFixed(2);
 qsMinRuns.value = MIN_RUNS_BEFORE_TP_SL;
 qsMaxRuns.value = MAX_RUNS_PER_SESSION;
-// Set initial trade type and confidence
-qsTradeType.value = flowStateTradeType;
+// Set initial confidence
 qsConfidence.value = String(flowStateConfidenceThreshold);
-document.querySelector('[data-field="signalDir"]').textContent = flowStateTradeType;
-if (liveTradeType) liveTradeType.textContent = flowStateTradeType;
+document.querySelector('[data-field="signalDir"]').textContent = flowStateConfidenceThreshold + '% threshold';
 setTimeout(updateMonitor, 500);
 setInterval(() => { if (!isActive) { generateChartData(); drawChart(); } }, 7000);
 window.addEventListener('resize', initChart);
-console.log('🔷 EMRON AI — DigitEdge FREE & UNLOCKED (FlowState integrated with Trade Type)');
+console.log('🔷 EMRON AI — DigitEdge FREE & UNLOCKED (FlowState integrated, no manual trade type)');
 console.log('📊 WebSocket endpoint: Proxy /api/get-otp (New API)');
 console.log(`📊 Run limits: min=${MIN_RUNS_BEFORE_TP_SL}, max=${MAX_RUNS_PER_SESSION}`);
 console.log('📈 FlowState signal mode:', signalMode);
-console.log('📈 FlowState trade type:', flowStateTradeType);
+console.log('📈 FlowState confidence threshold:', flowStateConfidenceThreshold);
 })();
 </script>
 </body>
