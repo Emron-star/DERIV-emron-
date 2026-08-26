@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-/* ===== RESET & BASE (unchanged) ===== */
+/* ===== RESET & BASE ===== */
 :root {
 --primary: #4455ee;
 --primary-dark: #2233cc;
@@ -1393,7 +1393,6 @@ position: fixed;
 top: var(--topbar-height);
 left: 0;
 right: 0;
-bottom: 0;
 background: rgba(0, 0, 0, 0.5);
 z-index: 98;
 display: none;
@@ -1525,12 +1524,12 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 <div class="card-body">
 <div class="settings-list">
 <div class="setting-row"><span class="label">Market (live)</span><span class="value live" id="liveMarketDisplay">Volatility 50</span></div>
-<div class="setting-row"><span class="label">Trade type</span><span class="value live">DIGITOVER</span></div>
+<div class="setting-row"><span class="label">Trade type</span><span class="value live" id="liveTradeType">OVER 4</span></div>
 <div class="setting-row"><span class="label">Stake (live)</span><span class="value live" id="liveStakeDisplay">$10.00</span></div>
 <div class="settings-divider"><span class="settings-divider-label">DigitEdge Config</span></div>
 <div class="setting-row"><span class="label">Signal Strategy</span><span class="value" style="color:var(--accent-green);">ON <span class="free-badge">FREE</span></span></div>
-<div class="setting-row"><span class="label">Strategy mode</span><span class="value" data-field="strategyMode">Single signal — trade every cycle</span></div>
-<div class="setting-row"><span class="label">Signal</span><span class="value" data-field="signalDir">Over</span></div>
+<div class="setting-row"><span class="label">Strategy mode</span><span class="value" data-field="strategyMode">FlowState Matches</span></div>
+<div class="setting-row"><span class="label">Signal</span><span class="value" data-field="signalDir">Match</span></div>
 <div class="setting-row"><span class="label">Barrier</span><span class="value" data-field="barrier">0</span></div>
 <div class="setting-row"><span class="label">Duration</span><span class="value" data-field="duration">1 tick</span></div>
 </div>
@@ -2327,6 +2326,141 @@ Sign in or create a Deriv account using OAuth 2.0. Your token will be stored loc
 'use strict';
 
 // =============================================
+// 🧠 FLOWSTATE SIGNAL ENGINE (embedded)
+// =============================================
+class FlowStateEngine {
+  constructor() { this.reset(); }
+  reset() {
+    this.ticks = [];
+    this.digits = [];
+    this.transitionMatrix = Array.from({length:10}, () => Array(10).fill(0));
+  }
+  addTick(price, decimals) {
+    const priceStr = price.toFixed(decimals);
+    const lastDigit = parseInt(priceStr.slice(-1));
+    if (this.digits.length > 0) {
+      this.transitionMatrix[this.digits[this.digits.length-1]][lastDigit]++;
+    }
+    this.ticks.push({price, digit:lastDigit, time:Date.now()});
+    this.digits.push(lastDigit);
+    if (this.ticks.length > 2000) {
+      this.ticks.shift();
+      this.digits.shift();
+    }
+    return lastDigit;
+  }
+  getWeightedFrequency(windowSize=35) {
+    const d = this.digits.slice(-windowSize);
+    const counts = Array(10).fill(0);
+    d.forEach((digit, i) => {
+      const weight = 1 + (i / d.length);
+      counts[digit] += weight;
+    });
+    const total = counts.reduce((a,b)=>a+b,0) || 1;
+    return counts.map(c => c/total);
+  }
+  getStreaks() {
+    const streaks = Array(10).fill(this.digits.length);
+    for (let i = this.digits.length - 1; i >= 0; i--) {
+      const d = this.digits[i];
+      if (streaks[d] === this.digits.length) streaks[d] = this.digits.length - 1 - i;
+    }
+    return streaks;
+  }
+  getTransitions(from) {
+    const row = this.transitionMatrix[from] || Array(10).fill(0);
+    const total = row.reduce((a,b)=>a+b,0) || 1;
+    return row.map(x => x/total);
+  }
+  generateMatchesSignal() {
+    const n = this.digits.length;
+    if (n < 40) return null;
+    const currentDigit = this.digits[n-1];
+    const recent35 = this.digits.slice(-35);
+    const scores = Array(10).fill(0);
+    const weightedFreq = this.getWeightedFrequency(35);
+    const streaks = this.getStreaks();
+    const maxStreak = Math.max(...streaks, 1);
+    const transProbs = this.getTransitions(currentDigit);
+    const last5 = recent35.slice(-5);
+    const last5Counts = Array(10).fill(0);
+    last5.forEach(d => last5Counts[d]++);
+    for (let i = 0; i < 10; i++) {
+      const freqScore = weightedFreq[i] * 40;
+      const streakScore = (streaks[i] / maxStreak) * 30;
+      const transScore = transProbs[i] * 20;
+      const recentScore = (last5Counts[i] / 5) * 10;
+      scores[i] = freqScore + streakScore + transScore + recentScore;
+    }
+    const sorted = scores.map((s,i)=>({digit:i,score:s})).sort((a,b)=>b.score-a.score);
+    const primary = sorted[0];
+    const secondary = sorted[1];
+    const avgScore = scores.reduce((a,b)=>a+b,0)/10;
+    const range = Math.max(...scores)-Math.min(...scores) || 1;
+    const dominance = (primary.score - avgScore) / range;
+    const dataFactor = Math.min(1, n/500);
+    const dominanceFactor = Math.min(1, dominance * 3);
+    const recentSupport = last5Counts[primary.digit] >= 2 ? 1 : 0.5;
+    let confidence = Math.round((dominanceFactor*50 + recentSupport*30 + dataFactor*20));
+    confidence = Math.max(55, Math.min(98, confidence));
+    let recoveryConf = Math.round(secondary.score / (primary.score+0.01) * 80);
+    recoveryConf = Math.min(85, Math.max(40, recoveryConf));
+    if (confidence < 60) return null;
+    return {
+      predictedDigit: primary.digit,
+      entryDigit: primary.digit,
+      recoveryDigit: secondary.digit,
+      confidence: confidence,
+      recoveryConfidence: recoveryConf,
+      reason: `${primary.digit} dominates (${(weightedFreq[primary.digit]*100).toFixed(0)}% freq)`,
+      strategy: 'matches'
+    };
+  }
+  generateEvenOddSignal() {
+    const n = this.digits.length;
+    if (n < 40) return null;
+    const recent35 = this.digits.slice(-35);
+    let evens = 0, odds = 0;
+    recent35.forEach((d, i) => {
+      const weight = 1 + (i / recent35.length);
+      if (d % 2 === 0) evens += weight;
+      else odds += weight;
+    });
+    const total = evens + odds;
+    const evenRatio = evens / total;
+    const oddRatio = odds / total;
+    const dominant = evenRatio >= oddRatio ? 'EVEN' : 'ODD';
+    const domRatio = Math.max(evenRatio, oddRatio);
+    const subRatio = Math.min(evenRatio, oddRatio);
+    const ratioDominance = domRatio - subRatio;
+    const last5 = recent35.slice(-5);
+    const lastEvens = last5.filter(d => d % 2 === 0).length;
+    const lastOdds = last5.filter(d => d % 2 !== 0).length;
+    const recentDominant = lastEvens > lastOdds ? 'EVEN' : 'ODD';
+    const recentSupport = dominant === 'EVEN' ? lastEvens : lastOdds;
+    if (domRatio > 0.58 && dominant === recentDominant && recentSupport >= 3) {
+      let confidence = 70 + (ratioDominance * 55) + (recentSupport * 4);
+      confidence = Math.min(98, Math.round(confidence));
+      if (confidence < 60) return null;
+      const recovery = dominant === 'EVEN' ? 'ODD' : 'EVEN';
+      const recoveryConf = Math.round(subRatio * 80);
+      return {
+        predictedDigit: dominant === 'EVEN' ? 0 : 1,
+        entryDigit: dominant === 'EVEN' ? 0 : 1,
+        recoveryDigit: recovery === 'EVEN' ? 0 : 1,
+        prediction: dominant,
+        recoveryPrediction: recovery,
+        confidence: confidence,
+        recoveryConfidence: Math.min(85, recoveryConf),
+        reason: `${Math.round(domRatio*100)}% ${dominant} dominance`,
+        strategy: 'evenodd'
+      };
+    }
+    return null;
+  }
+}
+
+// =============================================
 // CONFIGURATION (NEW API)
 // =============================================
 const DERIV_APP_ID    = "34c3rTXvfnC6XKk5nbzJM";
@@ -2337,6 +2471,11 @@ let switchAttempted   = false;
 
 let MIN_RUNS_BEFORE_TP_SL = 5;
 let MAX_RUNS_PER_SESSION = 200;
+
+// FlowState integration settings
+const flowEngine = new FlowStateEngine();
+let signalMode = 'matches';       // 'matches' or 'evenodd'
+const SIGNAL_CONFIDENCE_THRESHOLD = 60; // 0-100
 
 // =============================================
 // DOM refs
@@ -2400,6 +2539,7 @@ const tpAmount = document.getElementById('tpAmount');
 const tpProceedBtn = document.getElementById('tpProceedBtn');
 const liveMarketDisplay = document.getElementById('liveMarketDisplay');
 const liveStakeDisplay = document.getElementById('liveStakeDisplay');
+const liveTradeType = document.getElementById('liveTradeType');
 const ssMarket = document.getElementById('ssMarket');
 const aiMarket = document.getElementById('aiMarket');
 const qsStake = document.getElementById('qsStake');
@@ -2559,7 +2699,6 @@ async function connectWebSocket(token) {
             sendWsRequest({ balance: 1, subscribe: 1 });
             subscribeTicks();
 
-            // FIX: if the bot was already active, resume trading immediately
             if (isActive) {
                 setTimeout(placeTrade, 1000);
             }
@@ -2583,7 +2722,6 @@ async function connectWebSocket(token) {
             wsConnected = false;
             updateConnectionStatus(false);
             console.log('WebSocket disconnected');
-            // FIX: ALWAYS reconnect when a token exists (not only when bot active)
             if (accessToken && !manualDisconnect) {
                 toast('🔄 Reconnecting...', 'info');
                 setTimeout(() => connectWebSocket(accessToken), 3000);
@@ -2651,13 +2789,15 @@ function handleBalance(data) {
     }
 }
 
-// FIX: ticks now also DRIVE the trading engine (self-healing loop)
+// UPDATED: tick handler – feeds tick into FlowState engine
 function handleTick(data) {
     if (data.error) return;
     const tick = data.tick;
     if (tick && tick.quote) {
         if (data.subscription && data.subscription.id) tickSubscriptionId = data.subscription.id;
         const price = parseFloat(tick.quote);
+        // Feed to FlowState engine (hardcode decimals 3 for synthetic indices)
+        flowEngine.addTick(price, 3);
         updateChartWithTick(price);
 
         const now = Date.now();
@@ -2693,7 +2833,7 @@ function handleBuy(data) {
         const contract = data.buy;
         activeContractId = contract.contract_id;
         toast(`📈 Trade placed! ID: ${contract.contract_id} | Payout: $${contract.payout}`, 'success');
-        armWatchdog(); // keep watching until contract settles
+        armWatchdog();
         sendWsRequest({
             proposal_open_contract: 1,
             contract_id: contract.contract_id,
@@ -2719,7 +2859,6 @@ function handleContractUpdate(data) {
     }
 }
 
-// FIX: errors now UN-JAM the engine and schedule a retry
 function handleError(data) {
     if (data.error) {
         console.error('❌ API error object:', data.error);
@@ -2777,29 +2916,143 @@ function subscribeTicks() {
     sendWsRequest({ ticks: symbol, subscribe: 1 });
 }
 
-function proposeContract() {
-    if (isTradeInProgress) return;
-    isTradeInProgress = true;
-    lastTradeTime = Date.now();
-    const symbol = getSymbol(currentMarket);
-    const stake = currentStake;
-    console.log('📊 Proposing:', symbol, 'DIGITOVER', 'Barrier: 0', 'Stake:', stake);
-    sendWsRequest({
-        proposal: 1,
-        amount: stake,
+// =============================================
+// 💡 FLOWSTATE-BASED TRADING LOGIC
+// =============================================
+function placeTrade() {
+    if (!isActive || isTradeInProgress) return;
+    if (!accessToken) {
+        toast('No access token. Please connect.', 'error');
+        return;
+    }
+
+    // Generate signal from FlowState
+    let signal = null;
+    if (signalMode === 'matches') {
+        signal = flowEngine.generateMatchesSignal();
+    } else {
+        signal = flowEngine.generateEvenOddSignal();
+    }
+
+    // If no signal or confidence below threshold, skip this tick
+    if (!signal || signal.confidence < SIGNAL_CONFIDENCE_THRESHOLD) {
+        console.log(`⏳ No reliable signal (confidence ${signal?.confidence || 0}%), waiting...`);
+        return;
+    }
+
+    console.log(`📡 FlowState signal: ${signalMode} | entry: ${signal.entryDigit} | confidence: ${signal.confidence}%`);
+
+    // Determine contract type and barrier
+    let contractType = 'DIGITMATCH';
+    let barrier = null;
+    if (signalMode === 'matches') {
+        contractType = 'DIGITMATCH';
+        barrier = signal.entryDigit;
+    } else { // even/odd
+        if (signal.prediction === 'EVEN') contractType = 'DIGITEVEN';
+        else contractType = 'DIGITODD';
+        barrier = null;
+    }
+
+    const params = {
+        amount: currentStake,
         basis: 'stake',
-        contract_type: 'DIGITOVER',
+        contract_type: contractType,
         currency: 'USD',
         duration: 1,
         duration_unit: 't',
-        underlying_symbol: symbol,   // FIXED: use underlying_symbol instead of symbol
-        barrier: '0'
-    });
-    armWatchdog(); // FIX: if server never answers, watchdog retries
+        symbol: getSymbol(currentMarket)
+    };
+    if (barrier !== null) params.barrier = String(barrier);
+
+    // Direct buy (skip proposal)
+    isTradeInProgress = true;
+    lastTradeTime = Date.now();
+    sendWsRequest({ buy: 1, price: currentStake, parameters: params });
+    armWatchdog();
 }
 
 // =============================================
-// TRADING LOGIC
+// 🧪 Simulate trade (fallback)
+// =============================================
+function simulateTrade() {
+    // Simple simulation based on signal if possible
+    let signal = null;
+    if (signalMode === 'matches') signal = flowEngine.generateMatchesSignal();
+    else signal = flowEngine.generateEvenOddSignal();
+    const win = signal && signal.confidence >= SIGNAL_CONFIDENCE_THRESHOLD ? (Math.random() < 0.75) : (Math.random() < 0.5);
+    const pl = win ? currentStake * 0.85 : -currentStake;
+    handleTradeResult(win, pl);
+}
+
+// =============================================
+// 🚀 Trading Lifecycle (modified to use FlowState)
+// =============================================
+function startTrading() {
+    if (isActive) return;
+    isActive = true;
+    statusBadge.className = 'status-badge active';
+    statusText.textContent = 'ACTIVE';
+    activateBtn.disabled = true;
+    deactivateBtn.disabled = false;
+    botState.textContent = 'RUNNING';
+    windowTime.textContent = new Date().toLocaleTimeString();
+
+    sessionTradeCount = 0;
+    if (currentRound) {
+        currentRound.textContent = `0 / ${MAX_RUNS_PER_SESSION} (min ${MIN_RUNS_BEFORE_TP_SL})`;
+    }
+
+    martingaleLevel = 0;
+    consecutiveLosses = 0;
+    currentStake = baseStake;
+    liveStakeDisplay.textContent = '$' + currentStake.toFixed(2);
+
+    const mode = accessToken && wsConnected ? 'REAL' : 'SIMULATION';
+    toast(`🚀 DigitEdge bot activated — FlowState ${signalMode} (${mode})`, 'success');
+
+    windowProfitValue = 0;
+    updateProfitDisplay();
+
+    if (accessToken && wsConnected) {
+        isRealTrading = true;
+        subscribeTicks();
+        setTimeout(placeTrade, 1000);
+    } else {
+        isRealTrading = false;
+        if (updateInterval) clearInterval(updateInterval);
+        updateInterval = setInterval(() => {
+            if (!isActive) return;
+            if (!wsConnected) simulateTrade();
+        }, 2800);
+    }
+}
+
+function stopTrading() {
+    if (!isActive) return;
+    isActive = false;
+    clearWatchdog();
+    isTradeInProgress = false;
+    statusBadge.className = 'status-badge inactive';
+    statusText.textContent = 'INACTIVE';
+    activateBtn.disabled = false;
+    deactivateBtn.disabled = true;
+    botState.textContent = 'IDLE';
+
+    if (updateInterval) { clearInterval(updateInterval); updateInterval = null; }
+
+    if (ws && wsConnected) {
+        sendWsRequest({ forget_all: 'ticks' });
+        if (activeContractId) {
+            sendWsRequest({ forget_all: 'proposal_open_contract' });
+        }
+    }
+    activeContractId = null;
+    toast('⏸ DigitEdge bot deactivated', 'error');
+}
+
+// =============================================
+// 🧮 Trade result handler (updated)
 // =============================================
 function handleTradeResult(win, profit) {
     const pl = win ? profit : -currentStake;
@@ -2815,9 +3068,10 @@ function handleTradeResult(win, profit) {
     }
 
     const now = new Date();
+    const typeLabel = signalMode === 'matches' ? `MATCH ${flowEngine.digits.length > 0 ? flowEngine.digits[flowEngine.digits.length-1] : '?'}` : `EVEN/ODD`;
     trades.push({
         time: now.toLocaleTimeString(),
-        type: 'OVER 0',
+        type: typeLabel,
         symbol: currentMarket,
         stake: currentStake,
         pl: pl
@@ -2881,27 +3135,8 @@ function handleTradeResult(win, profit) {
     }
 }
 
-function placeTrade() {
-    if (!isActive || isTradeInProgress) return;
-    if (!accessToken) {
-        toast('No access token. Please connect.', 'error');
-        return;
-    }
-    if (wsConnected) {
-        proposeContract();
-    } else {
-        simulateTrade();
-    }
-}
-
-function simulateTrade() {
-    const win = Math.random() < 0.90;
-    const pl = win ? currentStake * 0.8 : -currentStake;
-    handleTradeResult(win, pl);
-}
-
 // =============================================
-// Chart
+// Chart (unchanged)
 // =============================================
 function updateChartWithTick(price) {
     const last = chartData.length > 0 ? chartData[chartData.length - 1].close : price;
@@ -3006,7 +3241,7 @@ function drawChart() {
 }
 
 // =============================================
-// OAuth 2.0 with PKCE
+// OAuth 2.0 with PKCE (unchanged)
 // =============================================
 const AUTH_BASE = 'https://oauth.deriv.com/oauth2/authorize';
 const TOKEN_EXCHANGE_ENDPOINT = '/api/exchange-token';
@@ -3142,7 +3377,7 @@ function setAccessToken(token) {
         toast('Token set successfully', 'success');
         connectWebSocket(token);
     } else {
-        manualDisconnect = true; // FIX: stop auto-reconnect on purpose
+        manualDisconnect = true;
         localStorage.removeItem('emron_access_token');
         localStorage.removeItem('deriv_token');
         localStorage.removeItem('token');
@@ -3185,73 +3420,7 @@ function disconnect() {
 }
 
 // =============================================
-// Trading Lifecycle
-// =============================================
-function startTrading() {
-    if (isActive) return;
-    isActive = true;
-    statusBadge.className = 'status-badge active';
-    statusText.textContent = 'ACTIVE';
-    activateBtn.disabled = true;
-    deactivateBtn.disabled = false;
-    botState.textContent = 'RUNNING';
-    windowTime.textContent = new Date().toLocaleTimeString();
-
-    sessionTradeCount = 0;
-    if (currentRound) {
-        currentRound.textContent = `0 / ${MAX_RUNS_PER_SESSION} (min ${MIN_RUNS_BEFORE_TP_SL})`;
-    }
-
-    martingaleLevel = 0;
-    consecutiveLosses = 0;
-    currentStake = baseStake;
-    liveStakeDisplay.textContent = '$' + currentStake.toFixed(2);
-
-    const mode = accessToken && wsConnected ? 'REAL' : 'SIMULATION';
-    toast(`🚀 DigitEdge bot activated on ${currentMarket} — ${mode} mode`, 'success');
-
-    windowProfitValue = 0;
-    updateProfitDisplay();
-
-    if (accessToken && wsConnected) {
-        isRealTrading = true;
-        subscribeTicks();
-        setTimeout(placeTrade, 1000);
-    } else {
-        isRealTrading = false;
-        if (updateInterval) clearInterval(updateInterval);
-        updateInterval = setInterval(() => {
-            if (!isActive) return;
-            if (!wsConnected) simulateTrade(); // only simulate when truly offline
-        }, 2800);
-    }
-}
-
-function stopTrading() {
-    if (!isActive) return;
-    isActive = false;
-    clearWatchdog();
-    isTradeInProgress = false;
-    statusBadge.className = 'status-badge inactive';
-    statusText.textContent = 'INACTIVE';
-    activateBtn.disabled = false;
-    deactivateBtn.disabled = true;
-    botState.textContent = 'IDLE';
-
-    if (updateInterval) { clearInterval(updateInterval); updateInterval = null; }
-
-    if (ws && wsConnected) {
-        sendWsRequest({ forget_all: 'ticks' });
-        if (activeContractId) {
-            sendWsRequest({ forget_all: 'proposal_open_contract' });
-        }
-    }
-    activeContractId = null;
-    toast('⏸ DigitEdge bot deactivated', 'error');
-}
-
-// =============================================
-// Quick Settings
+// Quick Settings (updated to include FlowState strategy options)
 // =============================================
 function applyQuickSettings() {
     const stake = parseFloat(qsStake.value) || 10;
@@ -3281,7 +3450,23 @@ function applyQuickSettings() {
     if (currentRound) {
         currentRound.textContent = `0 / ${MAX_RUNS_PER_SESSION} (min ${MIN_RUNS_BEFORE_TP_SL})`;
     }
-    toast('✅ Quick settings applied (runs: min=' + minRuns + ', max=' + maxRuns + ')', 'success');
+
+    // Update strategy info from dropdown (FlowState options)
+    const stratSel = document.getElementById('qsStrategy');
+    if (stratSel) {
+        const val = stratSel.value;
+        if (val === 'FLOW_MATCHES') {
+            signalMode = 'matches';
+            document.querySelector('[data-field="strategyMode"]').textContent = 'FlowState Matches';
+            document.querySelector('[data-field="signalDir"]').textContent = 'Match';
+        } else if (val === 'FLOW_EVENODD') {
+            signalMode = 'evenodd';
+            document.querySelector('[data-field="strategyMode"]').textContent = 'FlowState Even/Odd';
+            document.querySelector('[data-field="signalDir"]').textContent = 'Even/Odd';
+        }
+    }
+
+    toast('✅ Quick settings applied (FlowState ' + signalMode + ')', 'success');
 }
 
 function applyPreset(preset) {
@@ -3304,7 +3489,7 @@ function applyPreset(preset) {
 }
 
 // =============================================
-// Helpers
+// Helpers (unchanged)
 // =============================================
 function toast(message, type = 'info') {
     const el = document.createElement('div');
@@ -3370,11 +3555,13 @@ function updateMarketDisplay(market) {
     };
     const short = shortMap[market] || 'VOL50';
     symbolOptions.forEach(el => el.classList.toggle('active', el.dataset.symbol === short));
-    toast(`📊 Switched to ${market}`, 'info');
+    // Reset FlowState engine when market changes
+    flowEngine.reset();
+    toast(`📊 Switched to ${market} — FlowState engine reset`, 'info');
 }
 
 // =============================================
-// AI Signals
+// AI Signals (unchanged)
 // =============================================
 function generateAISignal() {
     const market = document.getElementById('aiMarket').value;
@@ -3426,7 +3613,7 @@ function generateAISignal() {
 }
 
 // =============================================
-// Signal Monitor
+// Signal Monitor (unchanged)
 // =============================================
 function updateMonitor() {
     const buy = Math.floor(Math.random() * 5);
@@ -3454,7 +3641,7 @@ function updateMonitor() {
 }
 
 // =============================================
-// Modals logic
+// Modals logic (unchanged)
 // =============================================
 function openSignalStrategy() {
     document.getElementById('ssMaster').value = 'on';
@@ -3536,7 +3723,7 @@ function saveSettings() {
 }
 
 // =============================================
-// Event listeners
+// Event listeners (unchanged + FlowState strategy dropdown injection)
 // =============================================
 tabs.forEach(tab => {
     tab.addEventListener('click', function() {
@@ -3684,7 +3871,6 @@ patConnectBtn.addEventListener('click', () => {
 });
 patDisconnectBtn.addEventListener('click', disconnect);
 document.getElementById('modeToggleBtn').addEventListener('click', function() {
-    // Use the top bar switch for consistency (opens confirmation modal)
     topModeToggleBtn.click();
 });
 document.querySelectorAll('.copy-btn').forEach(btn => {
@@ -3703,7 +3889,7 @@ document.querySelectorAll('.copy-btn').forEach(btn => {
 });
 
 // =============================================
-// Countdown
+// Countdown (unchanged)
 // =============================================
 setInterval(() => {
     if (countdown <= 0) { countdown = 5; updateMonitor(); }
@@ -3711,237 +3897,17 @@ setInterval(() => {
 }, 1000);
 
 // =============================================
-// 🚀 UPGRADE MODULE v2 — 3-strategy engine · ultra-fast direct buy · HONEST math
-// Paste inside the IIFE, directly above the "// Init" section.
-// =============================================
-const STRATS = {
-  OVER0:  { label:'OVER 0',  contract:'DIGITOVER',  barrier:'0', winProb:0.90,  payout:0.095 },
-  OVER3:  { label:'OVER 3',  contract:'DIGITOVER',  barrier:'3', winProb:0.60,  payout:0.62  },
-  OVER4:  { label:'OVER 4',  contract:'DIGITOVER',  barrier:'4', winProb:0.50,  payout:0.95  },
-  UNDER5: { label:'UNDER 5', contract:'DIGITUNDER', barrier:'5', winProb:0.50,  payout:0.95  },
-  EVEN:   { label:'EVEN',    contract:'DIGITEVEN',  barrier:null,winProb:0.50,  payout:0.95  },
-  ODD:    { label:'ODD',     contract:'DIGITODD',   barrier:null,winProb:0.50,  payout:0.95  },
-  RISE:   { label:'RISE',    contract:'CALL',       barrier:null,winProb:0.495, payout:0.95  },
-  FALL:   { label:'FALL',    contract:'PUT',        barrier:null,winProb:0.495, payout:0.95  }
-};
-let strategyKey = 'OVER4';
-let rotateIndex = 0;
-let tradeCooldownMs = 0; // 0 = ultra fast (trade every tick)
-
-function activeStrat(){
-  if (strategyKey === 'ROT3'){ const l=['OVER4','EVEN','RISE']; return STRATS[l[rotateIndex % l.length]]; }
-  if (strategyKey === 'ROT6'){ const l=['OVER4','UNDER5','EVEN','ODD','RISE','FALL']; return STRATS[l[rotateIndex % l.length]]; }
-  return STRATS[strategyKey] || STRATS.OVER4;
-}
-function updateStratInfo(){
-  const el = document.getElementById('stratEdgeInfo');
-  if (!el) return;
-  if (strategyKey === 'ROT3' || strategyKey === 'ROT6'){
-    el.textContent = '⚠️ ROTATION · all strategies negative EV (≈ −2% to −3.5%/trade). Ultra-fast multiplies trades/min, i.e. how often you pay the house edge.';
-    return;
-  }
-  const s = activeStrat();
-  const ev = (s.winProb * s.payout - (1 - s.winProb)) * 100;
-  el.textContent = `⚠️ ${s.label} · win ≈${(s.winProb*100).toFixed(1)}% · profit/win ≈${(s.payout*100).toFixed(0)}% · EV ≈ ${ev.toFixed(2)}%/trade (house edge)`;
-}
-
-// ---- Runtime UI injection (no HTML edits needed) ----
-(function injectStrategyUI(){
-  const anchor = document.getElementById('qsApplyBtn');
-  if (!anchor || document.getElementById('qsStrategy')) return;
-  const box = document.createElement('div');
-  box.innerHTML = `
-    <div class="form-row">
-      <div class="form-group"><label>Strategy</label>
-        <select class="form-control" id="qsStrategy">
-          <option value="OVER0">Over 0 (legacy)</option>
-          <option value="OVER3">Over 3</option>
-          <option value="OVER4" selected>Over 4</option>
-          <option value="UNDER5">Under 5</option>
-          <option value="EVEN">Even</option>
-          <option value="ODD">Odd</option>
-          <option value="RISE">Rise</option>
-          <option value="FALL">Fall</option>
-          <option value="ROT3">Rotate 3 (Over4→Even→Rise)</option>
-          <option value="ROT6">Rotate 6 (all)</option>
-        </select></div>
-      <div class="form-group"><label>Execution Speed</label>
-        <select class="form-control" id="qsSpeed">
-          <option value="0" selected>Ultra Fast (every tick)</option>
-          <option value="400">Fast (400ms)</option>
-          <option value="1200">Normal (1200ms)</option>
-        </select></div>
-    </div>
-    <div id="stratEdgeInfo" style="margin:0 0 6px;padding:6px 10px;background:var(--bg-surface);border:1px solid var(--accent-yellow);border-radius:var(--radius-sm);font-size:clamp(8px,0.5vw,10px);font-family:'JetBrains Mono',monospace;color:var(--accent-yellow);"></div>`;
-  anchor.parentNode.insertBefore(box, anchor);
-  document.querySelectorAll('#settingsCard .setting-row').forEach(r => {
-    const l = r.querySelector('.label');
-    if (l && l.textContent.trim() === 'Trade type'){ const v = r.querySelector('.value'); if (v) v.id = 'liveTradeType'; }
-  });
-  document.getElementById('qsStrategy').addEventListener('change', e => { strategyKey = e.target.value; updateStratInfo(); });
-  document.getElementById('qsSpeed').addEventListener('change', e => { tradeCooldownMs = parseInt(e.target.value) || 0; });
-  updateStratInfo();
-})();
-
-// ---- Ultra-fast tick engine (overrides original handleTick) ----
-function handleTick(data) {
-  if (data.error) return;
-  const tick = data.tick;
-  if (tick && tick.quote) {
-    if (data.subscription && data.subscription.id) tickSubscriptionId = data.subscription.id;
-    updateChartWithTick(parseFloat(tick.quote));
-    const now = Date.now();
-    if (isActive && wsConnected && !isTradeInProgress && (now - lastTradeTime) > tradeCooldownMs) {
-      placeTrade();
-    }
-  }
-}
-
-// ---- Direct buy (1 RTT, no proposal round-trip) ----
-function buyContract(){
-  if (isTradeInProgress) return;
-  isTradeInProgress = true;
-  lastTradeTime = Date.now();
-  const s = activeStrat();
-  const params = {
-    amount: currentStake, basis: 'stake', contract_type: s.contract,
-    currency: 'USD', duration: 1, duration_unit: 't', symbol: getSymbol(currentMarket)
-  };
-  if (s.barrier) params.barrier = s.barrier;
-  console.log('📊 Buying:', params.symbol, s.label, 'Stake:', currentStake);
-  sendWsRequest({ buy: 1, price: currentStake, parameters: params });
-  armWatchdog();
-}
-function placeTrade() {
-  if (!isActive || isTradeInProgress) return;
-  if (!accessToken) { toast('No access token. Please connect.', 'error'); return; }
-  if (wsConnected) buyContract(); else simulateTrade();
-}
-
-// ---- HONEST simulator (real payouts — replaces the fake 90%@80% one) ----
-function simulateTrade(){
-  const s = activeStrat();
-  const win = Math.random() < s.winProb;
-  const pl = win ? +(currentStake * s.payout).toFixed(2) : -currentStake;
-  handleTradeResult(win, pl);
-}
-
-// ---- Result handler with live strategy label + rotation ----
-function handleTradeResult(win, profit) {
-  const stratNow = activeStrat();
-  rotateIndex++;
-  const pl = win ? profit : -currentStake;
-  balance += pl;
-  windowProfitValue += pl;
-  updateBalanceDisplay();
-  updateProfitDisplay();
-  sessionTradeCount++;
-  if (currentRound) currentRound.textContent = `${sessionTradeCount} / ${MAX_RUNS_PER_SESSION} (min ${MIN_RUNS_BEFORE_TP_SL})`;
-  trades.push({ time: new Date().toLocaleTimeString(), type: stratNow.label, symbol: currentMarket, stake: currentStake, pl: pl });
-  tradeCount++;
-  renderTrades();
-  const ltEl = document.getElementById('liveTradeType');
-  if (ltEl) ltEl.textContent = stratNow.contract + (stratNow.barrier ? ' ' + stratNow.barrier : '');
-  if (win) {
-    consecutiveLosses = 0; martingaleLevel = 0; currentStake = baseStake;
-    liveStakeDisplay.textContent = '$' + currentStake.toFixed(2);
-  } else {
-    consecutiveLosses++; martingaleLevel++;
-    if (martingaleLevel <= maxMartingaleLevel) {
-      currentStake = baseStake * Math.pow(martingaleMultiplier, martingaleLevel);
-      liveStakeDisplay.textContent = '$' + currentStake.toFixed(2);
-      toast(`📈 Martingale Level ${martingaleLevel}: $${currentStake.toFixed(2)}`, 'info');
-    } else { toast('⚠️ Max martingale level reached. Stopping.', 'error'); stopTrading(); return; }
-  }
-  if (sessionTradeCount >= MAX_RUNS_PER_SESSION) { toast(`🛑 Maximum ${MAX_RUNS_PER_SESSION} runs reached. Session complete.`, 'info'); stopTrading(); return; }
-  if (sessionTradeCount >= MIN_RUNS_BEFORE_TP_SL) {
-    if (windowProfitValue >= profitTargetValue) {
-      const profitAmt = windowProfitValue;
-      sessions.push({ window: `Window ${++sessionCount}`, profit: profitAmt });
-      renderSessions();
-      tpAmount.textContent = profitAmt.toFixed(2);
-      tpModal.classList.add('active');
-      toast(`🎉 Take Profit hit! $${profitAmt.toFixed(2)}`, 'success');
-      windowProfitValue = 0; updateProfitDisplay();
-      consecutiveLosses = 0; martingaleLevel = 0; currentStake = baseStake;
-      liveStakeDisplay.textContent = '$' + currentStake.toFixed(2);
-    }
-    if (windowProfitValue <= -stopLossValue) { toast(`🛑 Stop Loss triggered at $${stopLossValue.toFixed(2)}`, 'error'); stopTrading(); return; }
-  }
-  if (isActive && !isTradeInProgress) { setTimeout(() => { if (isActive && !isTradeInProgress) placeTrade(); }, 1500); }
-}
-
-// ---- Quick settings / presets / settings now strategy-aware ----
-function applyQuickSettings() {
-  const stake = parseFloat(qsStake.value) || 10;
-  const multi = parseFloat(qsMulti.value) || 1.5;
-  const maxLvl = parseInt(qsMaxLevel.value) || 7;
-  const tp = parseFloat(qsTP.value) || 20;
-  const sl = parseFloat(qsSL.value) || 10000;
-  const market = qsMarket.value;
-  const minRuns = parseInt(qsMinRuns.value) || 5;
-  const maxRuns = parseInt(qsMaxRuns.value) || 200;
-  MIN_RUNS_BEFORE_TP_SL = minRuns; MAX_RUNS_PER_SESSION = maxRuns;
-  baseStake = stake; currentStake = stake;
-  martingaleMultiplier = multi; maxMartingaleLevel = maxLvl;
-  profitTargetValue = tp; stopLossValue = sl;
-  const stratSel = document.getElementById('qsStrategy'); if (stratSel) strategyKey = stratSel.value;
-  const speedSel = document.getElementById('qsSpeed'); if (speedSel) tradeCooldownMs = parseInt(speedSel.value) || 0;
-  updateStratInfo();
-  liveStakeDisplay.textContent = '$' + stake.toFixed(2);
-  updateProfitDisplay();
-  updateMarketDisplay(market);
-  if (wsConnected) subscribeTicks();
-  if (currentRound) currentRound.textContent = `0 / ${MAX_RUNS_PER_SESSION} (min ${MIN_RUNS_BEFORE_TP_SL})`;
-  toast('✅ Quick settings applied — ' + activeStrat().label + ' · cooldown ' + tradeCooldownMs + 'ms', 'success');
-}
-function applyPreset(preset) {
-  const presets = {
-    'reel1': { market:'Volatility 50 (1s)',  stake:5,  multi:2.25, maxLvl:7, tp:20, sl:10000, strat:'RISE'  },
-    'reel3': { market:'Volatility 50 (1s)',  stake:2,  multi:2.95, maxLvl:5, tp:20, sl:10000, strat:'OVER3' },
-    'reel4': { market:'Volatility 100 (1s)', stake:10, multi:1,    maxLvl:0, tp:20, sl:40,    strat:'OVER0' },
-    'reel5': { market:'Volatility 100 (1s)', stake:10, multi:1.6,  maxLvl:5, tp:40, sl:1000,  strat:'OVER0' }
-  };
-  const p = presets[preset]; if (!p) return;
-  qsMarket.value = p.market; qsStake.value = p.stake; qsMulti.value = p.multi;
-  qsMaxLevel.value = p.maxLvl; qsTP.value = p.tp; qsSL.value = p.sl;
-  strategyKey = p.strat;
-  const ss = document.getElementById('qsStrategy'); if (ss) ss.value = p.strat;
-  updateStratInfo();
-  applyQuickSettings();
-  toast(`Loaded preset: ${preset} (${p.strat})`, 'success');
-}
-function saveSettings() {
-  const stake = parseFloat(document.getElementById('editStake').value) || 10;
-  const market = document.getElementById('editMarket').value;
-  baseStake = stake; currentStake = stake;
-  liveStakeDisplay.textContent = '$' + stake.toFixed(2);
-  qsStake.value = stake.toFixed(2);
-  const speedMap = { 'Ultra Fast':0, 'Fast':400, 'Normal':1200 };
-  const sp = document.getElementById('editExecution').value;
-  if (sp in speedMap) { tradeCooldownMs = speedMap[sp]; const qs = document.getElementById('qsSpeed'); if (qs) qs.value = String(speedMap[sp]); }
-  updateMarketDisplay(market);
-  settingsModal.classList.remove('active');
-  toast('⚙️ Settings saved', 'success');
-}
-// =============================================
-// END UPGRADE MODULE
-// =============================================
-
-// =============================================
-// 🔁 DEMO / REAL SWITCH (top bar)
+// 🔁 DEMO / REAL SWITCH (top bar) – unchanged
 // =============================================
 function updateTopMode() {
   topModeLabel.textContent = MODE;
   topModeToggleBtn.style.borderColor = (MODE === 'REAL') ? 'var(--accent-red)' : 'var(--accent-yellow)';
   topModeToggleBtn.style.color = (MODE === 'REAL') ? 'var(--accent-red)' : 'var(--accent-yellow)';
-  // Also update the playground label
   const playgroundLabel = document.getElementById('modeLabel');
   if (playgroundLabel) playgroundLabel.textContent = MODE;
 }
 
 topModeToggleBtn.addEventListener('click', () => {
-  // Show confirmation when switching to REAL
   if (MODE === 'DEMO') {
     modeConfirmTitle.textContent = 'Switch to REAL';
     modeConfirmWarning.innerHTML = '<strong>⚠️ You are about to trade with REAL money.</strong>';
@@ -3961,33 +3927,89 @@ topModeToggleBtn.addEventListener('click', () => {
 });
 
 modeConfirmBtn.addEventListener('click', () => {
-  // Perform the switch
   MODE = (MODE === 'DEMO') ? 'REAL' : 'DEMO';
   updateTopMode();
   modeConfirmModal.classList.remove('active');
   toast(`🔄 Switched to ${MODE} mode`, 'info');
-  
-  // Reconnect if a token exists
   if (accessToken) {
     if (ws) { ws.onclose = null; ws.close(); }
     wsConnected = false;
     setTimeout(() => connectWebSocket(accessToken), 500);
   }
-  
-  // Also update the playground toggle button text if present
   const modeToggleBtn = document.getElementById('modeToggleBtn');
   if (modeToggleBtn) {
     modeToggleBtn.innerHTML = `MODE: <strong id="modeLabel">${MODE}</strong>`;
   }
 });
 
-// Close modal when clicking outside (already covered by global overlay handler, but ensure here)
 document.querySelectorAll('.modal-overlay').forEach(overlay => {
   overlay.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('active'); });
 });
-
-// Initialize the top bar indicator
 updateTopMode();
+
+// =============================================
+// 🧩 Inject FlowState strategy options into the Quick Settings dropdown
+// =============================================
+(function injectFlowStateStrategies() {
+    // Find the existing strategy dropdown – if not present, we create one inside quick settings.
+    let stratSelect = document.getElementById('qsStrategy');
+    if (!stratSelect) {
+        const anchor = document.getElementById('qsApplyBtn');
+        if (!anchor) return;
+        const wrapper = document.createElement('div');
+        wrapper.style.marginBottom = '6px';
+        wrapper.innerHTML = `
+            <div class="form-group">
+                <label>Strategy</label>
+                <select class="form-control" id="qsStrategy">
+                    <option value="FLOW_MATCHES" selected>FlowState Matches</option>
+                    <option value="FLOW_EVENODD">FlowState Even/Odd</option>
+                </select>
+            </div>
+        `;
+        anchor.parentNode.insertBefore(wrapper, anchor);
+        stratSelect = document.getElementById('qsStrategy');
+    }
+    if (stratSelect) {
+        // Add FlowState options if not present
+        const hasFlow = Array.from(stratSelect.options).some(o => o.value === 'FLOW_MATCHES');
+        if (!hasFlow) {
+            const opt1 = document.createElement('option');
+            opt1.value = 'FLOW_MATCHES';
+            opt1.textContent = 'FlowState Matches';
+            const opt2 = document.createElement('option');
+            opt2.value = 'FLOW_EVENODD';
+            opt2.textContent = 'FlowState Even/Odd';
+            stratSelect.add(opt1);
+            stratSelect.add(opt2);
+            // Set default
+            stratSelect.value = 'FLOW_MATCHES';
+        }
+        // Listen for changes
+        stratSelect.addEventListener('change', function() {
+            const val = this.value;
+            if (val === 'FLOW_MATCHES') {
+                signalMode = 'matches';
+                document.querySelector('[data-field="strategyMode"]').textContent = 'FlowState Matches';
+                document.querySelector('[data-field="signalDir"]').textContent = 'Match';
+                toast('📡 Switched to FlowState Matches', 'info');
+            } else if (val === 'FLOW_EVENODD') {
+                signalMode = 'evenodd';
+                document.querySelector('[data-field="strategyMode"]').textContent = 'FlowState Even/Odd';
+                document.querySelector('[data-field="signalDir"]').textContent = 'Even/Odd';
+                toast('📡 Switched to FlowState Even/Odd', 'info');
+            }
+        });
+        // Also set the UI text on load
+        if (signalMode === 'matches') {
+            document.querySelector('[data-field="strategyMode"]').textContent = 'FlowState Matches';
+            document.querySelector('[data-field="signalDir"]').textContent = 'Match';
+        } else {
+            document.querySelector('[data-field="strategyMode"]').textContent = 'FlowState Even/Odd';
+            document.querySelector('[data-field="signalDir"]').textContent = 'Even/Odd';
+        }
+    }
+})();
 
 // =============================================
 // Init
@@ -4013,9 +4035,10 @@ qsMaxRuns.value = MAX_RUNS_PER_SESSION;
 setTimeout(updateMonitor, 500);
 setInterval(() => { if (!isActive) { generateChartData(); drawChart(); } }, 7000);
 window.addEventListener('resize', initChart);
-console.log('🔷 EMRON AI — DigitEdge FREE & UNLOCKED (self-healing trade engine)');
+console.log('🔷 EMRON AI — DigitEdge FREE & UNLOCKED (FlowState integrated)');
 console.log('📊 WebSocket endpoint: Proxy /api/get-otp (New API)');
 console.log(`📊 Run limits: min=${MIN_RUNS_BEFORE_TP_SL}, max=${MAX_RUNS_PER_SESSION}`);
+console.log('📈 FlowState signal mode:', signalMode);
 })();
 </script>
 </body>
