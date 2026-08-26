@@ -3352,10 +3352,12 @@
             'use strict';
 
             // =============================================
-            // 🧠 FLOWSTATE SIGNAL ENGINE
+            // 🧠 FLOWSTATE ENGINE — Full implementation
             // =============================================
             class FlowStateEngine {
-                constructor() { this.reset(); }
+                constructor() {
+                    this.reset();
+                }
                 reset() {
                     this.ticks = [];
                     this.digits = [];
@@ -3428,7 +3430,7 @@
                     const recentSupport = last5Counts[primary.digit] >= 2 ? 1 : 0.5;
                     let confidence = Math.round((dominanceFactor * 50 + recentSupport * 30 + dataFactor * 20));
                     confidence = Math.max(55, Math.min(98, confidence));
-                    if (confidence < 55) return null;
+                    if (confidence < 60) return null;
                     return {
                         predictedDigit: primary.digit,
                         entryDigit: primary.digit,
@@ -3496,11 +3498,11 @@
             const REAL_ACCOUNT_ID = "ROT90355563";
             const DEMO_ACCOUNT_ID = "DOT90737951";
             let MODE = "DEMO";
-            let switchAttempted = false;
 
             let MIN_RUNS_BEFORE_TP_SL = 5;
             let MAX_RUNS_PER_SESSION = 200;
 
+            // Instantiate the FlowState engine
             const flowEngine = new FlowStateEngine();
             let signalMode = 'matches';
             let flowStateConfidenceThreshold = 60;
@@ -3620,7 +3622,6 @@
             // FlowState DOM
             const fsPredictedDigit = document.getElementById('fsPredictedDigit');
             const fsLastDigit = document.getElementById('fsLastDigit');
-            const fsConfidenceDisplay = document.getElementById('fsConfidenceDisplay');
             const fsConfidenceValue = document.getElementById('fsConfidenceValue');
             const fsReason = document.getElementById('fsReason');
             const fsStatusBadge = document.getElementById('fsStatusBadge');
@@ -3808,6 +3809,9 @@
                 }
             }
 
+            // =============================================
+            // WEBSOCKET MESSAGE HANDLER
+            // =============================================
             function handleWebSocketMessage(event) {
                 try {
                     const data = JSON.parse(event.data);
@@ -3883,17 +3887,13 @@
                     if (tradeTickMonitor !== null && pendingTradeSignal !== null) {
                         tradeTickMonitor++;
                         fsTickCounter.textContent = `Ticks: ${tradeTickMonitor}/5`;
-                        // Check if predicted digit appears in the tick stream
                         const pred = pendingTradeSignal.predictedDigit;
                         if (lastDigit === pred) {
-                            // WIN!
                             const profit = pendingTradeStake * 0.85;
                             finishTradeMonitor(true, profit);
                         } else if (tradeTickMonitor >= 5) {
-                            // LOSS after 5 ticks
                             finishTradeMonitor(false, -pendingTradeStake);
                         }
-                        // Update FS tick counter in the main tab too
                         const fsTickMain = document.querySelector('#flowstate .fs-tick-counter');
                         if (fsTickMain) fsTickMain.textContent = `Ticks: ${tradeTickMonitor}/5`;
                     }
@@ -3901,7 +3901,6 @@
                     // Auto-bot: place trade if active and signal ready
                     const now = Date.now();
                     if (isActive && wsConnected && !isTradeInProgress && (now - lastTradeTime) > TRADE_COOLDOWN_MS) {
-                        // Generate signal
                         let signal = null;
                         if (signalMode === 'matches') {
                             signal = flowEngine.generateMatchesSignal();
@@ -3909,7 +3908,6 @@
                             signal = flowEngine.generateEvenOddSignal();
                         }
                         if (signal && signal.confidence >= flowStateConfidenceThreshold) {
-                            // Store signal for confidence display
                             lastFlowStateSignal = signal;
                             updateDashboardConfidence(signal.confidence);
                             console.log('📡 Auto-bot signal:', signal);
@@ -3961,11 +3959,9 @@
                 document.getElementById('fsTradeBtn').disabled = false;
                 fsTickCounter.textContent = 'Ticks: 0';
 
-                // Update balance
                 balance += profit;
                 updateBalanceDisplay();
 
-                // Record manual trade
                 const now = new Date();
                 const contractType = document.getElementById('fsContractType').value;
                 fsManualHistory.push({
@@ -3977,9 +3973,9 @@
                 });
                 renderFsTradeHistory();
 
-                toast((won ? '✅' : '❌') + ` Trade ${won ? 'won' : 'lost'}! P/L: $${profit.toFixed(2)}`, won ? 'success' : 'error');
+                toast((won ? '✅' : '❌') + ` Trade ${won ? 'won' : 'lost'}! P/L: $${profit.toFixed(2)}`, won ? 'success' :
+                    'error');
 
-                // Reset engine after trade (optional)
                 setTimeout(() => {
                     const badgeReset = document.getElementById('fsStatusBadge');
                     if (badgeReset) {
@@ -3995,7 +3991,7 @@
             }
 
             // =============================================
-            // PROPOSAL / BUY / CONTRACT (unchanged)
+            // PROPOSAL / BUY / CONTRACT
             // =============================================
             function handleProposal(data) {
                 if (data.error) {
@@ -4125,7 +4121,6 @@
                     return;
                 }
 
-                // Store for confidence display
                 lastFlowStateSignal = signal;
                 updateDashboardConfidence(signal.confidence);
 
@@ -4339,7 +4334,7 @@
             }
 
             // =============================================
-            // CHART (unchanged)
+            // CHART
             // =============================================
             function updateChartWithTick(price) {
                 const last = chartData.length > 0 ? chartData[chartData.length - 1].close : price;
@@ -4445,7 +4440,7 @@
             }
 
             // =============================================
-            // OAuth 2.0 with PKCE (unchanged)
+            // OAuth 2.0 with PKCE
             // =============================================
             const AUTH_BASE = 'https://oauth.deriv.com/oauth2/authorize';
             const TOKEN_EXCHANGE_ENDPOINT = '/api/exchange-token';
@@ -4719,7 +4714,6 @@
 
                 document.querySelector('[data-field="signalDir"]').textContent = flowStateConfidenceThreshold + '% threshold';
 
-                // Sync FS controls
                 if (fsConfThreshold) fsConfThreshold.value = String(conf);
                 if (fsStrategyMode) fsStrategyMode.value = signalMode;
                 if (fsStake) fsStake.value = stake;
@@ -4859,7 +4853,7 @@
             }
 
             // =============================================
-            // AI SIGNALS (unchanged)
+            // AI SIGNALS
             // =============================================
             function generateAISignal() {
                 const market = document.getElementById('aiMarket').value;
@@ -4914,7 +4908,7 @@
             }
 
             // =============================================
-            // SIGNAL MONITOR (unchanged)
+            // SIGNAL MONITOR
             // =============================================
             function updateMonitor() {
                 const buy = Math.floor(Math.random() * 5);
@@ -5071,7 +5065,6 @@
                 if (fsLastDigit) fsLastDigit.textContent = flowEngine.getLastDigit() !== null ? flowEngine.getLastDigit() :
                     '—';
 
-                // Update main dashboard confidence
                 updateDashboardConfidence(signal.confidence);
 
                 const badge = document.getElementById('fsStatusBadge');
@@ -5112,26 +5105,21 @@
                 const market = fsMarket.value;
                 const barrier = parseInt(fsBarrier.value) || 0;
 
-                // Start the 5-tick monitor
                 startTradeMonitor(signal, stake);
 
-                // Log the trade
                 const now = new Date();
                 fsManualHistory.push({
                     time: now.toLocaleTimeString(),
                     type: contractType,
                     digit: signal.predictedDigit,
                     stake: stake,
-                    pl: 0 // will be updated when trade completes
+                    pl: 0
                 });
                 renderFsTradeHistory();
 
-                // Update the FS display
                 toast(`📈 Manual trade placed: ${contractType} on ${market} for $${stake}`, 'success');
 
-                // If connected to real API, actually place the trade
                 if (accessToken && wsConnected) {
-                    // Build params for real trade
                     const params = {
                         amount: stake,
                         basis: 'stake',
@@ -5147,8 +5135,6 @@
                     if (contractType === 'DIFFER') {
                         params.barrier = String(barrier);
                     }
-                    // For EVEN/ODD, no barrier needed
-
                     sendWsRequest({ buy: 1, price: stake, parameters: params });
                     toast(`🔄 Real trade placed via Deriv API`, 'info');
                 } else {
@@ -5431,7 +5417,6 @@
                     barrierGroup.style.display = '';
                 }
             });
-            // Trigger on load
             setTimeout(() => {
                 if (fsContractType) {
                     const evt = new Event('change');
@@ -5499,10 +5484,8 @@
             if (savedClient) oauthClientId.value = savedClient;
             oauthRedirectUri.value = window.location.origin;
 
-            // Load settings from storage
             loadSettingsFromStorage();
 
-            // Apply loaded settings to UI
             qsStake.value = baseStake.toFixed(2);
             qsMulti.value = martingaleMultiplier.toFixed(1);
             qsMaxLevel.value = maxMartingaleLevel;
@@ -5512,10 +5495,8 @@
             qsMaxRuns.value = MAX_RUNS_PER_SESSION;
             qsConfidence.value = String(flowStateConfidenceThreshold);
             qsStrategy.value = signalMode === 'matches' ? 'FLOW_MATCHES' : 'FLOW_EVENODD';
-            // Set market in dropdown
             for (let opt of qsMarket.options) { if (opt.value === currentMarket) { qsMarket.value = currentMarket; break; } }
 
-            // Sync FS controls
             if (fsStake) fsStake.value = baseStake.toFixed(2);
             if (fsConfThreshold) fsConfThreshold.value = String(flowStateConfidenceThreshold);
             if (fsStrategyMode) fsStrategyMode.value = signalMode;
@@ -5539,13 +5520,9 @@
             setInterval(() => { if (!isActive) { generateChartData();
                     drawChart(); } }, 7000);
             window.addEventListener('resize', initChart);
-
-            // Initial FS signal
             setTimeout(generateFlowStateSignal, 1000);
 
-            console.log('🔷 EMRON AI — DigitEdge FREE & UNLOCKED (FlowState integrated, even/odd contract types)');
-            console.log('📊 WebSocket endpoint: Proxy /api/get-otp (New API)');
-            console.log(`📊 Run limits: min=${MIN_RUNS_BEFORE_TP_SL}, max=${MAX_RUNS_PER_SESSION}`);
+            console.log('🔷 EMRON AI — FlowState Engine fully integrated');
             console.log('📈 FlowState signal mode:', signalMode);
             console.log('📈 FlowState confidence threshold:', flowStateConfidenceThreshold);
             console.log('📈 Settings saved to localStorage');
