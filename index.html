@@ -2909,6 +2909,12 @@
             const TRADE_TIMEOUT_MS = 10000;
             const TRADE_COOLDOWN_MS = 1200;
 
+            // Flags for proposal/buy handling
+            let isEmronProposal = false;
+            let isFsProposal = false;
+            let isEmronBuy = false;
+            let isFsBuy = false;
+
             // Signal Strategy State
             let emronSignalConfig = {
                 signal: 'Over',
@@ -3097,33 +3103,53 @@
             }
 
             function handleProposal(data) {
-                if (data.error) { toast('❌ Proposal error: ' + data.error.message, 'error');
-                    unjamTradeEngine(); return; }
+                if (data.error) {
+                    toast('❌ Proposal error: ' + data.error.message, 'error');
+                    if (isEmronProposal) { isEmronProposal = false; }
+                    if (isFsProposal) { isFsProposal = false; }
+                    return;
+                }
                 if (data.proposal) {
-                    sendWsRequest({ buy: data.proposal.id, price: data.proposal.ask_price });
+                    const proposalId = data.proposal.id;
+                    const askPrice = data.proposal.ask_price;
+                    // Determine which bot sent the proposal
+                    if (isEmronProposal) {
+                        isEmronProposal = false;
+                        isEmronBuy = true;
+                        sendWsRequest({ buy: proposalId, price: askPrice });
+                    } else if (isFsProposal) {
+                        isFsProposal = false;
+                        isFsBuy = true;
+                        sendWsRequest({ buy: proposalId, price: askPrice });
+                    }
                 }
             }
 
             function handleBuy(data) {
                 if (data.error) {
                     toast('❌ Buy error: ' + data.error.message, 'error');
-                    unjamTradeEngine();
-                    if (fsEngineRunning) {
-                        handleFsTradeResult(false, -fsStakeAmount);
-                    } else {
+                    if (isEmronBuy) {
+                        isEmronBuy = false;
+                        isTradeInProgress = false;
                         handleTradeResult(false, -currentStake);
+                    } else if (isFsBuy) {
+                        isFsBuy = false;
+                        handleFsTradeResult(false, -fsStakeAmount);
                     }
                     return;
                 }
                 if (data.buy) {
                     const contract = data.buy;
-                    if (fsEngineRunning) {
-                        toast(`📈 Flowstate Trade placed! ID: ${contract.contract_id}`, 'success');
-                        sendWsRequest({ proposal_open_contract: 1, contract_id: contract.contract_id, subscribe: 1 });
-                    } else {
+                    if (isEmronBuy) {
+                        isEmronBuy = false;
                         activeContractId = contract.contract_id;
                         toast(`📈 EMRON AI Trade placed! ID: ${contract.contract_id}`, 'success');
                         armWatchdog();
+                        sendWsRequest({ proposal_open_contract: 1, contract_id: contract.contract_id, subscribe: 1 });
+                    } else if (isFsBuy) {
+                        isFsBuy = false;
+                        toast(`📈 FlowState Trade placed! ID: ${contract.contract_id}`, 'success');
+                        // For FlowState, we don't need a watchdog, we'll handle via contract update
                         sendWsRequest({ proposal_open_contract: 1, contract_id: contract.contract_id, subscribe: 1 });
                     }
                 }
@@ -3138,14 +3164,15 @@
                     const won = profit > 0;
                     if (data.subscription) { sendWsRequest({ forget: data.subscription.id }); }
 
-                    if (fsEngineRunning) {
-                        // FlowState trade
-                        handleFsTradeResult(won, profit);
-                    } else if (activeContractId === contract.contract_id) {
+                    // Check which bot owns this contract
+                    if (activeContractId === contract.contract_id) {
                         activeContractId = null;
                         isTradeInProgress = false;
                         clearWatchdog();
                         handleTradeResult(won, profit);
+                    } else {
+                        // Assume it's a FlowState trade (we don't store FS contract IDs separately)
+                        handleFsTradeResult(won, profit);
                     }
                 }
             }
@@ -3155,6 +3182,8 @@
                     console.error('❌ API error object:', data.error);
                     toast('❌ API Error: ' + data.error.message, 'error');
                     if (isTradeInProgress) { unjamTradeEngine(); }
+                    if (isEmronBuy) { isEmronBuy = false; }
+                    if (isFsBuy) { isFsBuy = false; }
                 }
             }
 
@@ -3215,7 +3244,7 @@
             }
 
             // =============================================
-            // 📈 FLOWSTATE BOT TRADING
+            // 📈 FLOWSTATE BOT TRADING (via Proposal)
             // =============================================
             function fsPlaceTrade(signal) {
                 if (!wsConnected) {
@@ -3242,7 +3271,8 @@
                 };
                 if (barrier !== null) params.barrier = String(barrier);
 
-                sendWsRequest({ buy: 1, price: fsStakeAmount, parameters: params });
+                isFsProposal = true;
+                sendWsRequest({ proposal: 1, parameters: params });
             }
 
             function simulateFsTrade(signal) {
@@ -3282,7 +3312,7 @@
             }
 
             // =============================================
-            // 📊 EMRON AI BOT TRADING (Fixed Signal Strategy)
+            // 📊 EMRON AI BOT TRADING (via Proposal)
             // =============================================
             function placeTrade() {
                 if (!isActive || isTradeInProgress) return;
@@ -3318,10 +3348,19 @@
                     params.barrier = String(barrier);
                 }
 
+                isEmronProposal = true;
                 isTradeInProgress = true;
                 lastTradeTime = Date.now();
-                sendWsRequest({ buy: 1, price: currentStake, parameters: params });
-                armWatchdog();
+                sendWsRequest({ proposal: 1, parameters: params });
+                // Watchdog for proposal timeout
+                setTimeout(() => {
+                    if (isEmronProposal) {
+                        isEmronProposal = false;
+                        isTradeInProgress = false;
+                        toast('⚠️ Proposal timeout, retrying...', 'error');
+                        if (isActive) setTimeout(placeTrade, 2000);
+                    }
+                }, 5000);
             }
 
             // =============================================
@@ -3535,7 +3574,6 @@
                 fsStatusBadge.className = 'status-badge active';
                 fsStatusText.textContent = 'ENGINE RUNNING';
                 toast('🧠 FlowState engine started', 'success');
-                // Reset tick feed
                 fsTickFeed.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:12px 0;">Waiting for ticks...</div>';
                 fsTickHistory = [];
             }
