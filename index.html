@@ -3984,7 +3984,6 @@ updateTopMode();
 // 🧩 Inject FlowState strategy options into the Quick Settings dropdown
 // =============================================
 (function injectFlowStateStrategies() {
-    // Find the existing strategy dropdown – if not present, we create one inside quick settings.
     let stratSelect = document.getElementById('qsStrategy');
     if (!stratSelect) {
         const anchor = document.getElementById('qsApplyBtn');
@@ -4004,7 +4003,7 @@ updateTopMode();
         stratSelect = document.getElementById('qsStrategy');
     }
     if (stratSelect) {
-        // Add FlowState options if not present
+        // Ensure options exist
         const hasFlow = Array.from(stratSelect.options).some(o => o.value === 'FLOW_MATCHES');
         if (!hasFlow) {
             const opt1 = document.createElement('option');
@@ -4015,28 +4014,48 @@ updateTopMode();
             opt2.textContent = 'FlowState Even/Odd';
             stratSelect.add(opt1);
             stratSelect.add(opt2);
-            // Set default
             stratSelect.value = 'FLOW_MATCHES';
         }
-        // Listen for changes
+        // Listen for changes – reset engine and clear signal when mode changes
         stratSelect.addEventListener('change', function() {
             const val = this.value;
-            if (val === 'FLOW_MATCHES') {
+            let modeChanged = false;
+            if (val === 'FLOW_MATCHES' && signalMode !== 'matches') {
                 signalMode = 'matches';
+                modeChanged = true;
                 document.querySelector('[data-field="strategyMode"]').textContent = 'FlowState Matches';
                 toast('📡 Switched to FlowState Matches', 'info');
-            } else if (val === 'FLOW_EVENODD') {
+            } else if (val === 'FLOW_EVENODD' && signalMode !== 'evenodd') {
                 signalMode = 'evenodd';
+                modeChanged = true;
                 document.querySelector('[data-field="strategyMode"]').textContent = 'FlowState Even/Odd';
                 toast('📡 Switched to FlowState Even/Odd', 'info');
             }
+            if (modeChanged) {
+                // Reset engine and clear current signal
+                flowEngine.reset();
+                // Clear active signal and countdown
+                if (typeof activeSignal !== 'undefined' && activeSignal) {
+                    activeSignal = null;
+                }
+                if (typeof prepInterval !== 'undefined' && prepInterval) {
+                    clearInterval(prepInterval);
+                    prepInterval = null;
+                }
+                // Update UI
+                if (liveTradeType) liveTradeType.textContent = '—';
+                document.querySelector('[data-field="signalDir"]').textContent = 'Waiting for signal...';
+                renderSignal();
+                console.log('🔄 FlowState engine reset for new mode:', signalMode);
+            }
         });
-        // Also set the UI text on load
+        // Set initial UI
         if (signalMode === 'matches') {
             document.querySelector('[data-field="strategyMode"]').textContent = 'FlowState Matches';
         } else {
             document.querySelector('[data-field="strategyMode"]').textContent = 'FlowState Even/Odd';
         }
+        stratSelect.value = signalMode === 'matches' ? 'FLOW_MATCHES' : 'FLOW_EVENODD';
     }
 })();
 
