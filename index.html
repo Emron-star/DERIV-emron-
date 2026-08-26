@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
     <title>EMRON AI — DigitEdge Trading Bot</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         /* ===== RESET & BASE ===== */
         :root {
@@ -97,12 +97,16 @@
             color: inherit;
             text-decoration: none;
         }
+
         /* ===== APP GRID ===== */
         .app {
             display: grid;
             grid-template-rows: var(--topbar-height) 1fr var(--footer-height);
             grid-template-columns: var(--sidebar-width) 1fr;
-            grid-template-areas: "topbar topbar" "sidebar main" "footer footer";
+            grid-template-areas:
+                "topbar topbar"
+                "sidebar main"
+                "footer footer";
             min-height: 100vh;
             min-height: 100dvh;
             position: relative;
@@ -110,6 +114,7 @@
             max-width: 100vw;
             overflow: hidden;
         }
+
         /* ===== TOPBAR ===== */
         .topbar {
             grid-area: topbar;
@@ -202,18 +207,6 @@
             height: 2px;
             background: var(--primary);
             border-radius: 2px;
-        }
-        .tab.flowstate-tab {
-            color: var(--accent-cyan);
-            border: 1px solid var(--accent-cyan);
-            border-radius: var(--radius-md);
-        }
-        .tab.flowstate-tab.active {
-            background: rgba(0, 188, 212, 0.15);
-            border-color: var(--accent-cyan);
-        }
-        .tab.flowstate-tab.active::after {
-            background: var(--accent-cyan);
         }
         .topbar-right {
             display: flex;
@@ -404,6 +397,7 @@
         .hamburger:active {
             transform: scale(0.9);
         }
+
         /* ===== SIDEBAR ===== */
         .sidebar {
             grid-area: sidebar;
@@ -467,6 +461,7 @@
             text-align: center;
             flex-shrink: 0;
         }
+
         /* ===== MAIN ===== */
         .main {
             grid-area: main;
@@ -494,6 +489,7 @@
                 transform: translateY(0);
             }
         }
+
         /* ===== CARDS ===== */
         .card {
             background: var(--glass-bg);
@@ -540,6 +536,7 @@
         .icon-btn:active {
             transform: scale(0.9);
         }
+
         /* ===== TRADING LAYOUT ===== */
         .trading-layout {
             display: grid;
@@ -556,6 +553,7 @@
             flex-direction: column;
             gap: clamp(10px, 1vw, 16px);
         }
+
         /* ===== STATUS BADGE ===== */
         .status-badge {
             display: inline-flex;
@@ -613,6 +611,7 @@
             min-height: clamp(38px, 3vw, 48px);
             min-width: clamp(70px, 5vw, 100px);
         }
+
         /* ===== SETTINGS LIST ===== */
         .settings-list {
             display: flex;
@@ -676,6 +675,29 @@
             margin-left: 4px;
             font-family: 'Inter', sans-serif;
         }
+        .confidence-pill {
+            display: inline-block;
+            padding: 1px clamp(6px, 0.4vw, 10px);
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: clamp(10px, 0.6vw, 12px);
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .confidence-pill.high {
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+        }
+        .confidence-pill.med {
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+        }
+        .confidence-pill.low {
+            border-color: var(--accent-red);
+            color: var(--accent-red);
+        }
+
         /* ===== QUICK SETTINGS ===== */
         .quick-settings {
             margin-top: clamp(6px, 0.6vw, 10px);
@@ -751,6 +773,7 @@
             gap: clamp(4px, 0.3vw, 6px);
             margin-bottom: clamp(6px, 0.5vw, 10px);
         }
+
         /* ===== PROGRESS ===== */
         .progress-container {
             margin-top: clamp(6px, 0.5vw, 10px);
@@ -781,6 +804,7 @@
             transition: width 0.5s ease;
             box-shadow: 0 0 8px var(--primary-glow);
         }
+
         /* ===== TABLES ===== */
         .table-wrapper {
             overflow-x: auto;
@@ -857,6 +881,7 @@
             margin-bottom: clamp(4px, 0.3vw, 8px);
             opacity: 0.5;
         }
+
         /* ===== CHART ===== */
         .chart-container {
             position: relative;
@@ -936,6 +961,66 @@
             letter-spacing: 0.1em;
             opacity: 0.5;
         }
+
+        /* ===== FLOWSTATE DASHBOARD ===== */
+        .flowstate-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(10px, 1vw, 16px);
+            margin-bottom: clamp(12px, 1vw, 20px);
+        }
+        .flowstate-signal-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: clamp(12px, 1vw, 18px);
+            text-align: center;
+        }
+        .flowstate-signal-card .signal-badge {
+            font-size: clamp(16px, 1.2vw, 22px);
+            padding: clamp(6px, 0.5vw, 10px) clamp(16px, 1.2vw, 24px);
+        }
+        .flowstate-signal-card .confidence-ring {
+            display: inline-block;
+            width: clamp(60px, 5vw, 80px);
+            height: clamp(60px, 5vw, 80px);
+            border-radius: 50%;
+            border: 4px solid var(--border);
+            position: relative;
+            margin: clamp(6px, 0.4vw, 10px) auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            font-size: clamp(16px, 1.2vw, 22px);
+        }
+        .flowstate-signal-card .confidence-ring.high {
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+        }
+        .flowstate-signal-card .confidence-ring.med {
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+        }
+        .flowstate-signal-card .confidence-ring.low {
+            border-color: var(--accent-red);
+            color: var(--accent-red);
+        }
+        .flowstate-signal-card .signal-detail {
+            font-size: clamp(10px, 0.6vw, 12px);
+            color: var(--text-muted);
+            margin-top: clamp(4px, 0.3vw, 8px);
+        }
+        .flowstate-signal-card .signal-detail strong {
+            color: var(--text-primary);
+        }
+        .flowstate-trade-history {
+            max-height: clamp(180px, 20vh, 280px);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
         /* ===== AI SIGNALS ===== */
         .hero {
             text-align: center;
@@ -1071,6 +1156,16 @@
             color: var(--text-muted);
             border: 1px solid var(--border-light);
         }
+        .signal-badge.even {
+            background: rgba(0, 230, 118, 0.12);
+            color: var(--accent-green);
+            border: 1px solid var(--accent-green);
+        }
+        .signal-badge.odd {
+            background: rgba(255, 23, 68, 0.12);
+            color: var(--accent-red);
+            border: 1px solid var(--accent-red);
+        }
         .metric-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -1185,6 +1280,7 @@
             font-size: clamp(8px, 0.4vw, 10px);
             color: var(--text-dim);
         }
+
         /* ===== SIGNAL MONITOR ===== */
         .connection-bar {
             display: flex;
@@ -1324,6 +1420,7 @@
             flex-wrap: wrap;
             gap: clamp(2px, 0.2vw, 6px);
         }
+
         /* ===== ACCORDION ===== */
         .accordion {
             margin-top: clamp(10px, 0.8vw, 16px);
@@ -1378,6 +1475,7 @@
             font-size: clamp(10px, 0.6vw, 12px);
             line-height: 1.6;
         }
+
         /* ===== HELP ===== */
         .search-bar {
             position: relative;
@@ -1481,6 +1579,7 @@
             min-height: clamp(34px, 2.6vw, 44px);
             padding: clamp(6px, 0.4vw, 10px) clamp(14px, 1vw, 24px);
         }
+
         /* ===== MODALS ===== */
         .modal-overlay {
             position: fixed;
@@ -1584,6 +1683,7 @@
             text-transform: uppercase;
             letter-spacing: 0.05em;
         }
+
         /* ===== TOASTS ===== */
         .toast-container {
             position: fixed;
@@ -1659,6 +1759,7 @@
                 transform: translateY(20px);
             }
         }
+
         /* ===== FOOTER ===== */
         .footer {
             grid-area: footer;
@@ -1680,6 +1781,7 @@
             font-size: clamp(7px, 0.4vw, 9px);
             color: var(--text-dim);
         }
+
         /* ===== SIGNAL STRATEGY GRID ===== */
         .signal-strategy-grid {
             display: grid;
@@ -1718,7 +1820,8 @@
                 transform: rotate(360deg);
             }
         }
-        /* ===== API Playground styles ===== */
+
+        /* ===== API PLAYGROUND ===== */
         .playground-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -1829,93 +1932,9 @@
             color: var(--text-primary);
             font-weight: 600;
         }
-        /* ===== FLOWSTATE TAB ===== */
-        .flowstate-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: clamp(10px, 1vw, 16px);
-            margin-bottom: clamp(12px, 1vw, 20px);
-        }
-        .fs-signal-display {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            padding: clamp(14px, 1.2vw, 20px);
-            text-align: center;
-        }
-        .fs-signal-display .fs-digit {
-            font-size: clamp(48px, 5vw, 72px);
-            font-weight: 800;
-            font-family: 'JetBrains Mono', monospace;
-            line-height: 1;
-        }
-        .fs-signal-display .fs-label {
-            font-size: clamp(10px, 0.6vw, 12px);
-            color: var(--text-muted);
-            margin-top: 4px;
-        }
-        .fs-signal-display .fs-confidence {
-            font-size: clamp(14px, 1vw, 18px);
-            font-weight: 600;
-            margin-top: 6px;
-        }
-        .fs-signal-display .fs-reason {
-            font-size: clamp(10px, 0.6vw, 12px);
-            color: var(--text-muted);
-            margin-top: 4px;
-        }
-        .fs-controls {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            padding: clamp(12px, 1vw, 18px);
-        }
-        .fs-controls .form-row {
-            margin-bottom: clamp(6px, 0.4vw, 10px);
-        }
-        .fs-controls .btn {
-            width: 100%;
-            min-height: clamp(38px, 3vw, 48px);
-        }
-        .fs-trade-history {
-            grid-column: 1 / -1;
-        }
-        .fs-trade-history .table-wrapper {
-            max-height: 200px;
-            overflow-y: auto;
-        }
-        .fs-status-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 4px 12px;
-            border-radius: var(--radius-md);
-            font-weight: 600;
-            font-size: clamp(10px, 0.6vw, 12px);
-        }
-        .fs-status-badge.waiting {
-            background: rgba(255, 214, 0, 0.1);
-            color: var(--accent-yellow);
-            border: 1px solid var(--accent-yellow);
-        }
-        .fs-status-badge.ready {
-            background: rgba(0, 230, 118, 0.1);
-            color: var(--accent-green);
-            border: 1px solid var(--accent-green);
-        }
-        .fs-status-badge.trading {
-            background: rgba(68, 85, 238, 0.1);
-            color: var(--primary);
-            border: 1px solid var(--primary);
-            animation: pulse 0.8s infinite;
-        }
-        .fs-tick-counter {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: clamp(12px, 0.8vw, 16px);
-            color: var(--accent-cyan);
-        }
+
         /* ============================================================ */
-        /* RESPONSIVE BREAKPOINTS                                        */
+        /* RESPONSIVE BREAKPOINTS */
         /* ============================================================ */
         @media (max-width: 380px) {
             .topbar-right .balance {
@@ -1997,7 +2016,10 @@
             }
             .app {
                 grid-template-columns: 1fr;
-                grid-template-areas: "topbar" "main" "footer";
+                grid-template-areas:
+                    "topbar"
+                    "main"
+                    "footer";
             }
             .status-indicator {
                 display: none !important;
@@ -2307,9 +2329,9 @@
             </div>
             <nav class="tabs" role="tablist">
                 <button class="tab active" data-tab="trading-hub" role="tab">Trading Hub</button>
+                <button class="tab" data-tab="flowstate" role="tab">🧠 FlowState</button>
                 <button class="tab" data-tab="ai-signals" role="tab">AI Signals</button>
                 <button class="tab" data-tab="signal-monitor" role="tab">Signal Monitor</button>
-                <button class="tab flowstate-tab" data-tab="flowstate" role="tab">🧠 FlowState</button>
                 <button class="tab" data-tab="api-playground" role="tab">API Playground</button>
                 <button class="tab" data-tab="help" role="tab">Help</button>
             </nav>
@@ -2374,6 +2396,12 @@
                                 <button class="btn btn-success" id="activateBtn">▶ Activate</button>
                                 <button class="btn btn-danger" id="deactivateBtn" disabled>⏸ Deactivate</button>
                             </div>
+                            <!-- Confidence display on dashboard -->
+                            <div style="margin-top:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                                <span style="font-size:clamp(9px,0.5vw,11px);color:var(--text-muted);">Last Signal:</span>
+                                <span id="dashboardSignalDisplay" style="font-size:clamp(9px,0.5vw,11px);color:var(--text-dim);">—</span>
+                                <span id="dashboardConfidenceDisplay" class="confidence-pill" style="display:none;">—</span>
+                            </div>
                         </div>
                         <!-- Current Window -->
                         <div class="card" id="windowCard">
@@ -2389,11 +2417,6 @@
                                     <span class="value live" id="currentRound">0 / 200 (min 5)</span>
                                 </div>
                                 <div class="setting-row"><span class="label">Digit feed</span><span class="value" style="color:var(--accent-cyan);">DigitEdge <span class="free-badge">FREE</span></span></div>
-                                <!-- Confidence Display -->
-                                <div class="setting-row">
-                                    <span class="label">📡 Signal Confidence</span>
-                                    <span class="value" id="dashboardConfidence" style="color:var(--accent-cyan);font-weight:600;">—</span>
-                                </div>
                                 <div class="progress-container">
                                     <div class="progress-label">
                                         <span class="current">$<span id="windowProfit">0.00</span></span>
@@ -2417,12 +2440,12 @@
                             <div class="card-body">
                                 <div class="settings-list">
                                     <div class="setting-row"><span class="label">Market (live)</span><span class="value live" id="liveMarketDisplay">Volatility 50</span></div>
-                                    <div class="setting-row"><span class="label">Contract (signal‑derived)</span><span class="value live" id="liveTradeType">MATCH</span></div>
+                                    <div class="setting-row"><span class="label">Trade type</span><span class="value live" id="liveTradeType">OVER 4</span></div>
                                     <div class="setting-row"><span class="label">Stake (live)</span><span class="value live" id="liveStakeDisplay">$10.00</span></div>
                                     <div class="settings-divider"><span class="settings-divider-label">DigitEdge Config</span></div>
                                     <div class="setting-row"><span class="label">Signal Strategy</span><span class="value" style="color:var(--accent-green);">ON <span class="free-badge">FREE</span></span></div>
                                     <div class="setting-row"><span class="label">Strategy mode</span><span class="value" data-field="strategyMode">FlowState Matches</span></div>
-                                    <div class="setting-row"><span class="label">Signal Confidence</span><span class="value" data-field="signalDir">60% threshold</span></div>
+                                    <div class="setting-row"><span class="label">Signal</span><span class="value" data-field="signalDir">Match</span></div>
                                     <div class="setting-row"><span class="label">Barrier</span><span class="value" data-field="barrier">0</span></div>
                                     <div class="setting-row"><span class="label">Duration</span><span class="value" data-field="duration">1 tick</span></div>
                                 </div>
@@ -2486,25 +2509,6 @@
                                             </select>
                                         </div>
                                     </div>
-                                    <!-- Strategy selector -->
-                                    <div class="form-row">
-                                        <div class="form-group">
-                                            <label>Strategy</label>
-                                            <select class="form-control" id="qsStrategy">
-                                                <option value="FLOW_MATCHES" selected>FlowState Matches</option>
-                                                <option value="FLOW_EVENODD">FlowState Even/Odd</option>
-                                            </select>
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Confidence Threshold</label>
-                                            <select class="form-control" id="qsConfidence">
-                                                <option value="60" selected>Medium (60%)</option>
-                                                <option value="70">High (70%)</option>
-                                                <option value="80">Very High (80%)</option>
-                                                <option value="50">Low (50%)</option>
-                                            </select>
-                                        </div>
-                                    </div>
                                     <div class="form-row">
                                         <div class="form-group">
                                             <label>Min Runs (before TP/SL)</label>
@@ -2513,6 +2517,16 @@
                                         <div class="form-group">
                                             <label>Max Runs (session limit)</label>
                                             <input class="form-control" id="qsMaxRuns" type="number" value="200" min="1">
+                                        </div>
+                                    </div>
+                                    <!-- FlowState strategy selector (injected) -->
+                                    <div class="form-row" id="flowStateStrategyRow">
+                                        <div class="form-group" style="grid-column:1/3;">
+                                            <label>FlowState Strategy</label>
+                                            <select class="form-control" id="qsFlowStateStrategy">
+                                                <option value="FLOW_MATCHES" selected>FlowState Matches</option>
+                                                <option value="FLOW_EVENODD">FlowState Even/Odd</option>
+                                            </select>
                                         </div>
                                     </div>
                                     <button class="btn-apply" id="qsApplyBtn">Apply Quick Settings</button>
@@ -2587,7 +2601,94 @@
                     </div>
                 </div>
             </div>
-            <!-- ===================== TAB 2: AI SIGNALS ===================== -->
+
+            <!-- ===================== TAB 2: FLOWSTATE MANUAL ===================== -->
+            <div class="tab-content" id="flowstate">
+                <div class="hero">
+                    <h1>🧠 FlowState — Real-Time Signal Engine</h1>
+                    <p>Watch the FlowState engine analyze tick data in real time. When confidence is high, a signal is generated. Trade manually or let the bot automate.</p>
+                    <div class="hero-ctas">
+                        <button class="btn btn-success" id="flowstateManualTradeBtn">⚡ Trade Now</button>
+                        <button class="btn btn-primary" id="flowstateAutoToggle">🤖 Auto-Trade ON</button>
+                        <button class="btn btn-ghost" id="flowstateResetEngine">🔄 Reset Engine</button>
+                    </div>
+                </div>
+                <div class="flowstate-grid">
+                    <!-- Signal Display -->
+                    <div class="flowstate-signal-card">
+                        <h3 style="font-size:clamp(12px,0.8vw,14px);color:var(--text-muted);margin-bottom:4px;">📡 Current Signal</h3>
+                        <div style="font-size:clamp(11px,0.6vw,13px);color:var(--text-dim);margin-bottom:6px;" id="flowstateSignalTime">—</div>
+                        <div id="flowstateSignalBadge" style="margin:4px 0;">
+                            <span class="signal-badge neutral">WAITING</span>
+                        </div>
+                        <div class="confidence-ring low" id="flowstateConfidenceRing">
+                            <span id="flowstateConfidencePct">0%</span>
+                        </div>
+                        <div style="font-size:clamp(10px,0.6vw,12px);color:var(--text-muted);">
+                            Confidence: <strong id="flowstateConfidenceNum">0</strong>%
+                        </div>
+                        <div class="signal-detail">
+                            <span>Prediction: <strong id="flowstatePrediction">—</strong></span>
+                            <span style="margin-left:10px;">Entry: <strong id="flowstateEntry">—</strong></span>
+                        </div>
+                        <div class="signal-detail" style="margin-top:2px;">
+                            <span>Reason: <strong id="flowstateReason" style="font-weight:400;">—</strong></span>
+                        </div>
+                        <div style="margin-top:6px;font-size:clamp(8px,0.4vw,10px);color:var(--text-dim);font-family:'JetBrains Mono',monospace;">
+                            Ticks: <span id="flowstateTickCount">0</span> · Mode: <span id="flowstateModeDisplay">Matches</span>
+                        </div>
+                    </div>
+                    <!-- Trade Controls & History -->
+                    <div class="card" style="display:flex;flex-direction:column;gap:6px;">
+                        <div class="card-header">
+                            <div class="card-title">📈 Manual Trade</div>
+                            <span class="free-badge">FREE</span>
+                        </div>
+                        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                            <div class="form-group" style="flex:1;min-width:80px;">
+                                <label>Stake</label>
+                                <input class="form-control" id="flowstateStake" type="number" step="0.01" value="10.00" style="min-height:34px;">
+                            </div>
+                            <div class="form-group" style="flex:1;min-width:80px;">
+                                <label>Contract</label>
+                                <select class="form-control" id="flowstateContractType" style="min-height:34px;">
+                                    <option value="DIGITMATCH">Match</option>
+                                    <option value="DIGITEVEN">Even</option>
+                                    <option value="DIGITODD">Odd</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button class="btn btn-success" id="flowstateManualTradeBtn2" style="width:100%;min-height:38px;">🚀 Execute Trade</button>
+                        <div style="font-size:clamp(8px,0.4vw,10px);color:var(--text-muted);">
+                            Last trade: <span id="flowstateLastTradeResult">—</span>
+                        </div>
+                        <div style="border-top:1px solid var(--border);padding-top:6px;margin-top:4px;">
+                            <div style="font-size:clamp(8px,0.4vw,10px);font-weight:600;color:var(--text-muted);">Trade History</div>
+                            <div class="flowstate-trade-history" id="flowstateTradeHistory">
+                                <div style="font-size:clamp(9px,0.5vw,11px);color:var(--text-dim);text-align:center;padding:8px 0;">No trades yet</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- FlowState stats -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">📊 FlowState Statistics</div>
+                    </div>
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;">
+                        <div class="metric-box"><div class="metric-label">Total Ticks</div><div class="metric-value" id="fsTotalTicks">0</div></div>
+                        <div class="metric-box"><div class="metric-label">Digits Tracked</div><div class="metric-value" id="fsDigitsTracked">0</div></div>
+                        <div class="metric-box"><div class="metric-label">Signals Generated</div><div class="metric-value" id="fsSignalsGen">0</div></div>
+                        <div class="metric-box"><div class="metric-label">Trades Executed</div><div class="metric-value" id="fsTradesExe">0</div></div>
+                        <div class="metric-box"><div class="metric-label">Win Rate</div><div class="metric-value" id="fsWinRate">0%</div></div>
+                    </div>
+                    <div style="margin-top:8px;font-size:clamp(9px,0.5vw,11px);color:var(--text-muted);font-family:'JetBrains Mono',monospace;">
+                        Last 5 digits: <span id="fsLastDigits">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===================== TAB 3: AI SIGNALS ===================== -->
             <div class="tab-content" id="ai-signals">
                 <div class="hero">
                     <h1>🧠 DigitEdge — AI-Powered Market Analysis</h1>
@@ -2705,7 +2806,8 @@
                     </div>
                 </div>
             </div>
-            <!-- ===================== TAB 3: SIGNAL MONITOR ===================== -->
+
+            <!-- ===================== TAB 4: SIGNAL MONITOR ===================== -->
             <div class="tab-content" id="signal-monitor">
                 <div class="connection-bar">
                     <div class="status-dot" style="background:var(--accent-green);box-shadow:0 0 8px var(--accent-green);"></div>
@@ -2795,127 +2897,11 @@
                     <span style="color:var(--accent-cyan);">🔓 FREE</span>
                 </div>
             </div>
-            <!-- ===================== TAB 4: FLOWSTATE ===================== -->
-            <div class="tab-content" id="flowstate">
-                <div class="hero" style="border-color:var(--accent-cyan);">
-                    <h1 style="background:linear-gradient(135deg,#fff,#00bcd4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">🧠 FlowState — Manual Trading</h1>
-                    <p>Real-time digit prediction with confidence scoring. Trade manually based on FlowState signals. <span class="free-badge" style="font-size:clamp(8px,0.5vw,10px);">FREE · NO SUBSCRIPTION</span></p>
-                    <div class="hero-ctas">
-                        <button class="btn btn-primary" id="fsGenerateBtn" style="border-color:var(--accent-cyan);background:rgba(0,188,212,0.2);color:var(--accent-cyan);">🎯 Generate Signal</button>
-                        <button class="btn btn-success" id="fsTradeBtn" disabled>📈 Trade Now</button>
-                        <button class="btn btn-ghost" id="fsResetBtn">🔄 Reset Engine</button>
-                    </div>
-                </div>
-                <div class="flowstate-grid">
-                    <!-- Signal Display -->
-                    <div class="fs-signal-display">
-                        <div style="font-size:clamp(10px,0.6vw,12px);color:var(--text-muted);margin-bottom:4px;">Predicted Digit</div>
-                        <div class="fs-digit" id="fsPredictedDigit" style="color:var(--accent-cyan);">?</div>
-                        <div class="fs-label">Last digit: <span id="fsLastDigit" style="color:var(--text-primary);font-weight:600;">—</span></div>
-                        <div class="fs-confidence" id="fsConfidenceDisplay">
-                            Confidence: <span style="color:var(--accent-green);" id="fsConfidenceValue">—</span>
-                        </div>
-                        <div class="fs-reason" id="fsReason">Awaiting signal…</div>
-                        <div style="margin-top:8px;display:flex;justify-content:center;gap:8px;flex-wrap:wrap;">
-                            <span class="fs-status-badge waiting" id="fsStatusBadge">⏳ Waiting</span>
-                            <span class="fs-tick-counter" id="fsTickCounter">Ticks: 0</span>
-                        </div>
-                        <div style="margin-top:6px;font-size:clamp(8px,0.4vw,10px);color:var(--text-dim);">
-                            <span id="fsMarketDisplay">Volatility 50</span> · <span id="fsModeDisplay">Matches</span>
-                        </div>
-                    </div>
-                    <!-- Controls -->
-                    <div class="fs-controls">
-                        <div style="font-weight:600;font-size:clamp(12px,0.8vw,14px);margin-bottom:8px;">⚙️ Manual Trade Controls</div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Stake ($)</label>
-                                <input class="form-control" id="fsStake" type="number" step="0.01" value="10.00">
-                            </div>
-                            <div class="form-group">
-                                <label>Contract Type</label>
-                                <select class="form-control" id="fsContractType">
-                                    <option value="DIGITMATCH">Match</option>
-                                    <option value="DIGITEVEN">Even</option>
-                                    <option value="DIGITODD">Odd</option>
-                                    <option value="DIGITOVER">Over</option>
-                                    <option value="DIGITUNDER">Under</option>
-                                    <option value="DIFFER">Differs</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Market</label>
-                                <select class="form-control" id="fsMarket">
-                                    <optgroup label="2-Second Ticks">
-                                        <option value="Volatility 10">Volatility 10</option>
-                                        <option value="Volatility 25">Volatility 25</option>
-                                        <option value="Volatility 50" selected>Volatility 50</option>
-                                        <option value="Volatility 75">Volatility 75</option>
-                                        <option value="Volatility 100">Volatility 100</option>
-                                    </optgroup>
-                                    <optgroup label="1-Second Ticks">
-                                        <option value="Volatility 10 (1s)">Volatility 10 (1s)</option>
-                                        <option value="Volatility 25 (1s)">Volatility 25 (1s)</option>
-                                        <option value="Volatility 50 (1s)">Volatility 50 (1s)</option>
-                                        <option value="Volatility 75 (1s)">Volatility 75 (1s)</option>
-                                        <option value="Volatility 100 (1s)">Volatility 100 (1s)</option>
-                                    </optgroup>
-                                    <optgroup label="Other Synthetics">
-                                        <option value="Crash 500">Crash 500</option>
-                                        <option value="Boom 500">Boom 500</option>
-                                        <option value="Range Break">Range Break</option>
-                                    </optgroup>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Barrier (for Match/Over/Under)</label>
-                                <input class="form-control" id="fsBarrier" type="number" value="0" min="0" max="9">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Confidence Threshold</label>
-                                <select class="form-control" id="fsConfThreshold">
-                                    <option value="60" selected>Medium (60%)</option>
-                                    <option value="70">High (70%)</option>
-                                    <option value="80">Very High (80%)</option>
-                                    <option value="50">Low (50%)</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Strategy Mode</label>
-                                <select class="form-control" id="fsStrategyMode">
-                                    <option value="matches" selected>Matches</option>
-                                    <option value="evenodd">Even / Odd</option>
-                                </select>
-                            </div>
-                        </div>
-                        <button class="btn btn-primary" id="fsApplySettingsBtn" style="margin-top:4px;">Apply Settings</button>
-                    </div>
-                    <!-- Trade History -->
-                    <div class="fs-trade-history card">
-                        <div class="card-header">
-                            <div class="card-title">📊 Manual Trade History</div>
-                            <div class="card-actions">
-                                <button class="icon-btn" id="fsClearHistoryBtn">🗑</button>
-                            </div>
-                        </div>
-                        <div class="table-wrapper">
-                            <table>
-                                <thead><tr><th>Time</th><th>Type</th><th>Digit</th><th>Stake</th><th>P/L</th></tr></thead>
-                                <tbody id="fsTradeHistory">
-                                    <tr><td colspan="5" class="empty-state"><span class="emoji">📊</span>No manual trades yet.</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
+
             <!-- ===================== TAB 5: API PLAYGROUND ===================== -->
             <div class="tab-content" id="api-playground">
                 <div class="playground-grid">
+                    <!-- Demo Account Card -->
                     <div class="account-card">
                         <div class="label">Demo account</div>
                         <div class="id">
@@ -2928,6 +2914,7 @@
                         </div>
                         <div class="balance-info" id="demoBalance">—</div>
                     </div>
+                    <!-- Real Account Card -->
                     <div class="account-card">
                         <div class="label">Real account</div>
                         <div class="id">
@@ -2941,6 +2928,7 @@
                         <div class="balance-info" id="realBalance">—</div>
                     </div>
                 </div>
+                <!-- PAT Token Section -->
                 <div class="pat-section">
                     <div style="display:flex;align-items:center;gap:clamp(6px,0.4vw,10px);flex-wrap:wrap;">
                         <span style="font-weight:600;font-size:clamp(12px,0.8vw,14px);">🔑 Enter PAT Token</span>
@@ -2961,6 +2949,7 @@
                     </div>
                 </div>
             </div>
+
             <!-- ===================== TAB 6: HELP ===================== -->
             <div class="tab-content" id="help">
                 <div class="search-bar">
@@ -2975,7 +2964,7 @@
                     </div>
                     <div class="faq-item">
                         <div class="faq-question">How do I start trading? <span class="faq-toggle">+</span></div>
-                        <div class="faq-answer">Click "Activate" on the Trading Hub, set your stake, and let DigitEdge do the rest. The bot will automatically place contracts based on FlowState signals.</div>
+                        <div class="faq-answer">Click "Activate" on the Trading Hub, set your stake, and let DigitEdge do the rest. The bot will automatically place DIGITOVER contracts on every tick with a 90% theoretical win rate on "Over 0".</div>
                     </div>
                     <div class="faq-item">
                         <div class="faq-question">Is DigitEdge really free? <span class="faq-toggle">+</span></div>
@@ -3021,6 +3010,7 @@
             <div class="footer-credit">All trading involves risk. Past performance is not indicative of future results. Demo-trade first.</div>
         </footer>
     </div>
+
     <!-- ============================================================ -->
     <!-- MODALS -->
     <!-- ============================================================ -->
@@ -3347,17 +3337,16 @@
     </div>
     <!-- ============ TOAST CONTAINER ============ -->
     <div class="toast-container" id="toastContainer"></div>
+
     <script>
         (function() {
             'use strict';
 
             // =============================================
-            // 🧠 FLOWSTATE ENGINE — Full implementation
+            // 🧠 FLOWSTATE SIGNAL ENGINE (embedded)
             // =============================================
             class FlowStateEngine {
-                constructor() {
-                    this.reset();
-                }
+                constructor() { this.reset(); }
                 reset() {
                     this.ticks = [];
                     this.digits = [];
@@ -3404,7 +3393,6 @@
                     const n = this.digits.length;
                     if (n < 40) return null;
                     const currentDigit = this.digits[n - 1];
-                    const scores = Array(10).fill(0);
                     const weightedFreq = this.getWeightedFrequency(35);
                     const streaks = this.getStreaks();
                     const maxStreak = Math.max(...streaks, 1);
@@ -3412,6 +3400,7 @@
                     const last5 = this.digits.slice(-5);
                     const last5Counts = Array(10).fill(0);
                     last5.forEach(d => last5Counts[d]++);
+                    const scores = Array(10).fill(0);
                     for (let i = 0; i < 10; i++) {
                         const freqScore = weightedFreq[i] * 40;
                         const streakScore = (streaks[i] / maxStreak) * 30;
@@ -3436,7 +3425,7 @@
                         entryDigit: primary.digit,
                         recoveryDigit: secondary.digit,
                         confidence: confidence,
-                        recoveryConfidence: Math.min(85, Math.round(secondary.score / (primary.score + 0.01) * 80)),
+                        recoveryConfidence: Math.round(secondary.score / (primary.score + 0.01) * 80),
                         reason: `${primary.digit} dominates (${(weightedFreq[primary.digit]*100).toFixed(0)}% freq)`,
                         strategy: 'matches'
                     };
@@ -3472,7 +3461,7 @@
                         return {
                             predictedDigit: dominant === 'EVEN' ? 0 : 1,
                             entryDigit: dominant === 'EVEN' ? 0 : 1,
-                            recoveryDigit: dominant === 'EVEN' ? 1 : 0,
+                            recoveryDigit: recovery === 'EVEN' ? 0 : 1,
                             prediction: dominant,
                             recoveryPrediction: recovery,
                             confidence: confidence,
@@ -3483,8 +3472,8 @@
                     }
                     return null;
                 }
-                getLastDigit() {
-                    return this.digits.length > 0 ? this.digits[this.digits.length - 1] : null;
+                getLastDigits(n = 5) {
+                    return this.digits.slice(-n);
                 }
                 getDigitCount() {
                     return this.digits.length;
@@ -3498,19 +3487,22 @@
             const REAL_ACCOUNT_ID = "ROT90355563";
             const DEMO_ACCOUNT_ID = "DOT90737951";
             let MODE = "DEMO";
-
+            let switchAttempted = false;
             let MIN_RUNS_BEFORE_TP_SL = 5;
             let MAX_RUNS_PER_SESSION = 200;
+            const SIGNAL_CONFIDENCE_THRESHOLD = 60;
 
-            // Instantiate the FlowState engine
+            // FlowState engine instance
             const flowEngine = new FlowStateEngine();
-            let signalMode = 'matches';
-            let flowStateConfidenceThreshold = 60;
-            let lastFlowStateSignal = null;
-            let fsTradeActive = false;
-            let fsTickCounter = 0;
-            let fsPendingTrade = null;
-            let fsManualHistory = [];
+            let signalMode = 'matches'; // 'matches' or 'evenodd'
+            let flowStateAutoTrade = true; // auto-trade when signal fires
+            let flowStateTradeHistory = [];
+            let flowStateSignalsGenerated = 0;
+            let flowStateTradesExecuted = 0;
+            let flowStateWins = 0;
+            let flowStateLosses = 0;
+            // Pending trade tracking for 5-tick verification
+            let pendingFlowTrade = null; // { prediction, entryDigit, stake, contractType, tickCount, signal }
 
             // =============================================
             // DOM refs
@@ -3518,9 +3510,9 @@
             const tabs = document.querySelectorAll('.tab');
             const contents = {
                 'trading-hub': document.getElementById('trading-hub'),
+                'flowstate': document.getElementById('flowstate'),
                 'ai-signals': document.getElementById('ai-signals'),
                 'signal-monitor': document.getElementById('signal-monitor'),
-                'flowstate': document.getElementById('flowstate'),
                 'api-playground': document.getElementById('api-playground'),
                 'help': document.getElementById('help'),
             };
@@ -3587,8 +3579,7 @@
             const qsApplyBtn = document.getElementById('qsApplyBtn');
             const qsMinRuns = document.getElementById('qsMinRuns');
             const qsMaxRuns = document.getElementById('qsMaxRuns');
-            const qsConfidence = document.getElementById('qsConfidence');
-            const qsStrategy = document.getElementById('qsStrategy');
+            const qsFlowStateStrategy = document.getElementById('qsFlowStateStrategy');
             const oauthClientId = document.getElementById('oauthClientId');
             const oauthRedirectUri = document.getElementById('oauthRedirectUri');
             const oauthLoginBtn = document.getElementById('oauthLoginBtn');
@@ -3617,29 +3608,34 @@
             const modeCurrent = document.getElementById('modeCurrent');
             const modeTarget = document.getElementById('modeTarget');
             const modeConfirmBtn = document.getElementById('modeConfirmBtn');
-            const dashboardConfidence = document.getElementById('dashboardConfidence');
-
-            // FlowState DOM
-            const fsPredictedDigit = document.getElementById('fsPredictedDigit');
-            const fsLastDigit = document.getElementById('fsLastDigit');
-            const fsConfidenceValue = document.getElementById('fsConfidenceValue');
-            const fsReason = document.getElementById('fsReason');
-            const fsStatusBadge = document.getElementById('fsStatusBadge');
-            const fsTickCounter = document.getElementById('fsTickCounter');
-            const fsMarketDisplay = document.getElementById('fsMarketDisplay');
-            const fsModeDisplay = document.getElementById('fsModeDisplay');
-            const fsGenerateBtn = document.getElementById('fsGenerateBtn');
-            const fsTradeBtn = document.getElementById('fsTradeBtn');
-            const fsResetBtn = document.getElementById('fsResetBtn');
-            const fsStake = document.getElementById('fsStake');
-            const fsContractType = document.getElementById('fsContractType');
-            const fsMarket = document.getElementById('fsMarket');
-            const fsBarrier = document.getElementById('fsBarrier');
-            const fsConfThreshold = document.getElementById('fsConfThreshold');
-            const fsStrategyMode = document.getElementById('fsStrategyMode');
-            const fsApplySettingsBtn = document.getElementById('fsApplySettingsBtn');
-            const fsTradeHistory = document.getElementById('fsTradeHistory');
-            const fsClearHistoryBtn = document.getElementById('fsClearHistoryBtn');
+            // FlowState tab elements
+            const fsSignalBadge = document.getElementById('flowstateSignalBadge');
+            const fsConfidenceRing = document.getElementById('flowstateConfidenceRing');
+            const fsConfidencePct = document.getElementById('flowstateConfidencePct');
+            const fsConfidenceNum = document.getElementById('flowstateConfidenceNum');
+            const fsPrediction = document.getElementById('flowstatePrediction');
+            const fsEntry = document.getElementById('flowstateEntry');
+            const fsReason = document.getElementById('flowstateReason');
+            const fsSignalTime = document.getElementById('flowstateSignalTime');
+            const fsTickCount = document.getElementById('flowstateTickCount');
+            const fsModeDisplay = document.getElementById('flowstateModeDisplay');
+            const fsTotalTicks = document.getElementById('fsTotalTicks');
+            const fsDigitsTracked = document.getElementById('fsDigitsTracked');
+            const fsSignalsGen = document.getElementById('fsSignalsGen');
+            const fsTradesExe = document.getElementById('fsTradesExe');
+            const fsWinRate = document.getElementById('fsWinRate');
+            const fsLastDigits = document.getElementById('fsLastDigits');
+            const fsTradeHistory = document.getElementById('flowstateTradeHistory');
+            const fsManualTradeBtn = document.getElementById('flowstateManualTradeBtn');
+            const fsManualTradeBtn2 = document.getElementById('flowstateManualTradeBtn2');
+            const fsAutoToggle = document.getElementById('flowstateAutoToggle');
+            const fsResetEngine = document.getElementById('flowstateResetEngine');
+            const fsStake = document.getElementById('flowstateStake');
+            const fsContractType = document.getElementById('flowstateContractType');
+            const fsLastTradeResult = document.getElementById('flowstateLastTradeResult');
+            // Dashboard signal display
+            const dashboardSignalDisplay = document.getElementById('dashboardSignalDisplay');
+            const dashboardConfidenceDisplay = document.getElementById('dashboardConfidenceDisplay');
 
             // =============================================
             // MARKET SYMBOLS
@@ -3703,45 +3699,128 @@
             let lastTradeTime = 0;
             const TRADE_TIMEOUT_MS = 10000;
             const TRADE_COOLDOWN_MS = 1200;
-
-            // 5-tick simulation state
-            let tradeTickMonitor = null;
-            let pendingTradeSignal = null;
-            let pendingTradeStake = 0;
+            // FlowState auto-trade tick tracking
+            let flowStateSignalCount = 0;
+            let lastFlowStateSignal = null;
 
             // =============================================
-            // 🚀 API WEBSOCKET MANAGER
+            // SETTINGS PERSISTENCE (localStorage)
+            // =============================================
+            function saveSettings() {
+                try {
+                    const settings = {
+                        baseStake: baseStake,
+                        martingaleMultiplier: martingaleMultiplier,
+                        maxMartingaleLevel: maxMartingaleLevel,
+                        profitTargetValue: profitTargetValue,
+                        stopLossValue: stopLossValue,
+                        currentMarket: currentMarket,
+                        minRuns: MIN_RUNS_BEFORE_TP_SL,
+                        maxRuns: MAX_RUNS_PER_SESSION,
+                        signalMode: signalMode,
+                        flowStateAutoTrade: flowStateAutoTrade,
+                        balance: balance,
+                        windowProfitValue: windowProfitValue,
+                        sessionCount: sessionCount,
+                        tradeCount: tradeCount,
+                        sessions: sessions.slice(-50),
+                        trades: trades.slice(-100),
+                        flowStateTradeHistory: flowStateTradeHistory.slice(-50),
+                        flowStateSignalsGenerated: flowStateSignalsGenerated,
+                        flowStateTradesExecuted: flowStateTradesExecuted,
+                        flowStateWins: flowStateWins,
+                        flowStateLosses: flowStateLosses
+                    };
+                    localStorage.setItem('emron_settings', JSON.stringify(settings));
+                } catch (e) { console.warn('Save settings error:', e); }
+            }
+
+            function loadSettings() {
+                try {
+                    const raw = localStorage.getItem('emron_settings');
+                    if (!raw) return;
+                    const s = JSON.parse(raw);
+                    if (s.baseStake) baseStake = s.baseStake;
+                    if (s.martingaleMultiplier) martingaleMultiplier = s.martingaleMultiplier;
+                    if (s.maxMartingaleLevel) maxMartingaleLevel = s.maxMartingaleLevel;
+                    if (s.profitTargetValue) profitTargetValue = s.profitTargetValue;
+                    if (s.stopLossValue) stopLossValue = s.stopLossValue;
+                    if (s.currentMarket) currentMarket = s.currentMarket;
+                    if (s.minRuns) MIN_RUNS_BEFORE_TP_SL = s.minRuns;
+                    if (s.maxRuns) MAX_RUNS_PER_SESSION = s.maxRuns;
+                    if (s.signalMode) signalMode = s.signalMode;
+                    if (s.flowStateAutoTrade !== undefined) flowStateAutoTrade = s.flowStateAutoTrade;
+                    if (s.balance) balance = s.balance;
+                    if (s.windowProfitValue) windowProfitValue = s.windowProfitValue;
+                    if (s.sessionCount) sessionCount = s.sessionCount;
+                    if (s.tradeCount) tradeCount = s.tradeCount;
+                    if (s.sessions) sessions = s.sessions.slice(-50);
+                    if (s.trades) trades = s.trades.slice(-100);
+                    if (s.flowStateTradeHistory) flowStateTradeHistory = s.flowStateTradeHistory.slice(-50);
+                    if (s.flowStateSignalsGenerated) flowStateSignalsGenerated = s.flowStateSignalsGenerated;
+                    if (s.flowStateTradesExecuted) flowStateTradesExecuted = s.flowStateTradesExecuted;
+                    if (s.flowStateWins) flowStateWins = s.flowStateWins;
+                    if (s.flowStateLosses) flowStateLosses = s.flowStateLosses;
+                    // Apply loaded settings to UI
+                    currentStake = baseStake;
+                    qsStake.value = baseStake.toFixed(2);
+                    qsMulti.value = martingaleMultiplier.toFixed(1);
+                    qsMaxLevel.value = maxMartingaleLevel;
+                    qsTP.value = profitTargetValue.toFixed(2);
+                    qsSL.value = stopLossValue.toFixed(2);
+                    qsMinRuns.value = MIN_RUNS_BEFORE_TP_SL;
+                    qsMaxRuns.value = MAX_RUNS_PER_SESSION;
+                    if (qsFlowStateStrategy) {
+                        qsFlowStateStrategy.value = signalMode === 'matches' ? 'FLOW_MATCHES' : 'FLOW_EVENODD';
+                    }
+                    updateMarketDisplay(currentMarket);
+                    updateProfitDisplay();
+                    renderSessions();
+                    renderTrades();
+                    renderFlowStateHistory();
+                    updateFlowStateStats();
+                    updateBalanceDisplay();
+                    // Set strategy mode display
+                    document.querySelector('[data-field="strategyMode"]').textContent =
+                        signalMode === 'matches' ? 'FlowState Matches' : 'FlowState Even/Odd';
+                    document.querySelector('[data-field="signalDir"]').textContent =
+                        signalMode === 'matches' ? 'Match' : 'Even/Odd';
+                    fsModeDisplay.textContent = signalMode === 'matches' ? 'Matches' : 'Even/Odd';
+                    // Update auto-toggle button
+                    if (fsAutoToggle) {
+                        fsAutoToggle.textContent = flowStateAutoTrade ? '🤖 Auto-Trade ON' : '🤖 Auto-Trade OFF';
+                        fsAutoToggle.className = flowStateAutoTrade ? 'btn btn-success' : 'btn btn-ghost';
+                    }
+                    toast('💾 Settings restored from storage', 'info');
+                } catch (e) { console.warn('Load settings error:', e); }
+            }
+
+            // =============================================
+            // WEBSOCKET MANAGER
             // =============================================
             async function connectWebSocket(token) {
                 const accountId = (MODE === 'REAL') ? REAL_ACCOUNT_ID : DEMO_ACCOUNT_ID;
                 manualDisconnect = false;
                 toast('🔐 Requesting secure WebSocket URL...', 'info');
-
                 try {
                     const response = await fetch('/api/get-otp', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ token: token, accountId: accountId, appId: DERIV_APP_ID })
                     });
-
                     if (!response.ok) {
                         const err = await response.json();
                         throw new Error(err.error || 'Failed to get OTP');
                     }
-
                     const { url } = await response.json();
                     console.log('Connecting to New API WS:', url);
-
                     ws = new WebSocket(url);
-
                     ws.onopen = function() {
-                        console.log('✅ New API WS OPEN - Authenticated via OTP');
+                        console.log('✅ New API WS OPEN');
                         wsConnected = true;
                         updateConnectionStatus(true);
                         toast('✅ Connected to Deriv (New API)', 'success');
-
                         accountInfo = { loginid: accountId, balance: 0, currency: 'USD' };
-
                         patAccountId.textContent = accountId;
                         patBalance.textContent = 'Fetching...';
                         if (MODE === 'DEMO') {
@@ -3755,28 +3834,16 @@
                             demoStatusDot.className = 'dot gray';
                             demoStatusText.textContent = 'Not connected';
                         }
-
                         sendWsRequest({ balance: 1, subscribe: 1 });
                         subscribeTicks();
-
-                        if (isActive) {
-                            setTimeout(placeTrade, 1000);
-                        }
-
+                        if (isActive) { setTimeout(placeTrade, 1000); }
                         if (window.wsPingInterval) clearInterval(window.wsPingInterval);
                         window.wsPingInterval = setInterval(() => {
-                            if (ws && ws.readyState === WebSocket.OPEN) {
-                                ws.send(JSON.stringify({ ping: 1 }));
-                            }
+                            if (ws && ws.readyState === WebSocket.OPEN) { ws.send(JSON.stringify({ ping: 1 })); }
                         }, 30000);
                     };
-
                     ws.onmessage = handleWebSocketMessage;
-
-                    ws.onerror = (err) => {
-                        console.error('❌ WebSocket error:', err);
-                    };
-
+                    ws.onerror = (err) => { console.error('❌ WebSocket error:', err); };
                     ws.onclose = () => {
                         if (window.wsPingInterval) clearInterval(window.wsPingInterval);
                         wsConnected = false;
@@ -3809,14 +3876,10 @@
                 }
             }
 
-            // =============================================
-            // WEBSOCKET MESSAGE HANDLER
-            // =============================================
             function handleWebSocketMessage(event) {
                 try {
                     const data = JSON.parse(event.data);
                     console.log('📩 WS:', data.msg_type, data);
-
                     switch (data.msg_type) {
                         case 'balance':
                             handleBalance(data);
@@ -3839,9 +3902,7 @@
                             handleError(data);
                             break;
                     }
-                } catch (e) {
-                    console.error('WS message parse error:', e);
-                }
+                } catch (e) { console.error('WS message parse error:', e); }
             }
 
             function handleBalance(data) {
@@ -3850,8 +3911,8 @@
                     balance = parseFloat(data.balance.balance);
                     updateBalanceDisplay();
                     if (!accountInfo) {
-                        accountInfo = { loginid: (MODE === 'REAL' ? REAL_ACCOUNT_ID : DEMO_ACCOUNT_ID),
-                        balance: balance, currency: data.balance.currency || 'USD' };
+                        accountInfo = { loginid: (MODE === 'REAL' ? REAL_ACCOUNT_ID : DEMO_ACCOUNT_ID), balance: balance,
+                            currency: data.balance.currency || 'USD' };
                     } else {
                         accountInfo.balance = balance;
                         if (data.balance.currency) accountInfo.currency = data.balance.currency;
@@ -3866,144 +3927,53 @@
                 }
             }
 
-            // =============================================
-            // TICK HANDLER — feeds engine + 5-tick monitor
-            // =============================================
+            // UPDATED: tick handler – feeds tick into FlowState engine and handles 5-tick verification
             function handleTick(data) {
                 if (data.error) return;
                 const tick = data.tick;
                 if (tick && tick.quote) {
                     if (data.subscription && data.subscription.id) tickSubscriptionId = data.subscription.id;
                     const price = parseFloat(tick.quote);
-                    // Feed to FlowState
+                    // Feed to FlowState engine
                     flowEngine.addTick(price, 3);
                     updateChartWithTick(price);
+                    updateFlowStateStats();
 
-                    // Update FS display
-                    const lastDigit = flowEngine.getLastDigit();
-                    if (fsLastDigit) fsLastDigit.textContent = lastDigit !== null ? lastDigit : '—';
-
-                    // --- 5-tick trade monitor ---
-                    if (tradeTickMonitor !== null && pendingTradeSignal !== null) {
-                        tradeTickMonitor++;
-                        fsTickCounter.textContent = `Ticks: ${tradeTickMonitor}/5`;
-                        const pred = pendingTradeSignal.predictedDigit;
-                        if (lastDigit === pred) {
-                            const profit = pendingTradeStake * 0.85;
-                            finishTradeMonitor(true, profit);
-                        } else if (tradeTickMonitor >= 5) {
-                            finishTradeMonitor(false, -pendingTradeStake);
+                    // --- 5-tick verification for pending trades ---
+                    if (pendingFlowTrade) {
+                        pendingFlowTrade.tickCount++;
+                        // Check after 5 ticks
+                        if (pendingFlowTrade.tickCount >= 5) {
+                            resolveFlowTrade();
                         }
-                        const fsTickMain = document.querySelector('#flowstate .fs-tick-counter');
-                        if (fsTickMain) fsTickMain.textContent = `Ticks: ${tradeTickMonitor}/5`;
                     }
 
-                    // Auto-bot: place trade if active and signal ready
+                    // --- Auto-trade: check for new signal ---
+                    if (isActive && flowStateAutoTrade && wsConnected && !isTradeInProgress &&
+                        (Date.now() - lastTradeTime) > TRADE_COOLDOWN_MS) {
+                        const signal = generateFlowStateSignal();
+                        if (signal) {
+                            // Place trade using the signal
+                            console.log('⚙️ FlowState auto-trade triggered:', signal);
+                            placeTradeWithSignal(signal);
+                        }
+                    }
+
+                    // --- Update FlowState UI (even if not trading) ---
+                    updateFlowStateUI();
+
                     const now = Date.now();
                     if (isActive && wsConnected && !isTradeInProgress && (now - lastTradeTime) > TRADE_COOLDOWN_MS) {
-                        let signal = null;
-                        if (signalMode === 'matches') {
-                            signal = flowEngine.generateMatchesSignal();
-                        } else {
-                            signal = flowEngine.generateEvenOddSignal();
-                        }
-                        if (signal && signal.confidence >= flowStateConfidenceThreshold) {
-                            lastFlowStateSignal = signal;
-                            updateDashboardConfidence(signal.confidence);
-                            console.log('📡 Auto-bot signal:', signal);
-                            placeTrade();
-                        }
+                        // The auto-trade above handles it via FlowState
                     }
                 }
             }
 
-            // =============================================
-            // 5-TICK TRADE MONITOR
-            // =============================================
-            function startTradeMonitor(signal, stake) {
-                tradeTickMonitor = 0;
-                pendingTradeSignal = signal;
-                pendingTradeStake = stake;
-                fsTickCounter.textContent = 'Ticks: 0/5';
-                const badge = document.getElementById('fsStatusBadge');
-                if (badge) {
-                    badge.className = 'fs-status-badge trading';
-                    badge.textContent = '⏳ Trading...';
-                }
-                const mainBadge = document.querySelector('#flowstate .fs-status-badge');
-                if (mainBadge) {
-                    mainBadge.className = 'fs-status-badge trading';
-                    mainBadge.textContent = '⏳ Trading...';
-                }
-                fsTradeActive = true;
-                document.getElementById('fsTradeBtn').disabled = true;
-                toast(`📈 Trade placed! Monitoring 5 ticks for digit ${signal.predictedDigit}...`, 'info');
-            }
-
-            function finishTradeMonitor(won, profit) {
-                const signal = pendingTradeSignal;
-                const stake = pendingTradeStake;
-                tradeTickMonitor = null;
-                pendingTradeSignal = null;
-                const badge = document.getElementById('fsStatusBadge');
-                if (badge) {
-                    badge.className = 'fs-status-badge ' + (won ? 'ready' : 'waiting');
-                    badge.textContent = won ? '✅ Won' : '❌ Lost';
-                }
-                const mainBadge = document.querySelector('#flowstate .fs-status-badge');
-                if (mainBadge) {
-                    mainBadge.className = 'fs-status-badge ' + (won ? 'ready' : 'waiting');
-                    mainBadge.textContent = won ? '✅ Won' : '❌ Lost';
-                }
-                fsTradeActive = false;
-                document.getElementById('fsTradeBtn').disabled = false;
-                fsTickCounter.textContent = 'Ticks: 0';
-
-                balance += profit;
-                updateBalanceDisplay();
-
-                const now = new Date();
-                const contractType = document.getElementById('fsContractType').value;
-                fsManualHistory.push({
-                    time: now.toLocaleTimeString(),
-                    type: contractType,
-                    digit: signal ? signal.predictedDigit : '?',
-                    stake: stake,
-                    pl: profit
-                });
-                renderFsTradeHistory();
-
-                toast((won ? '✅' : '❌') + ` Trade ${won ? 'won' : 'lost'}! P/L: $${profit.toFixed(2)}`, won ? 'success' :
-                    'error');
-
-                setTimeout(() => {
-                    const badgeReset = document.getElementById('fsStatusBadge');
-                    if (badgeReset) {
-                        badgeReset.className = 'fs-status-badge waiting';
-                        badgeReset.textContent = '⏳ Waiting';
-                    }
-                    const mainBadgeReset = document.querySelector('#flowstate .fs-status-badge');
-                    if (mainBadgeReset) {
-                        mainBadgeReset.className = 'fs-status-badge waiting';
-                        mainBadgeReset.textContent = '⏳ Waiting';
-                    }
-                }, 3000);
-            }
-
-            // =============================================
-            // PROPOSAL / BUY / CONTRACT
-            // =============================================
             function handleProposal(data) {
-                if (data.error) {
-                    toast('❌ Proposal error: ' + data.error.message, 'error');
-                    unjamTradeEngine();
-                    return;
-                }
+                if (data.error) { toast('❌ Proposal error: ' + data.error.message, 'error');
+                    unjamTradeEngine(); return; }
                 if (data.proposal) {
-                    sendWsRequest({
-                        buy: data.proposal.id,
-                        price: data.proposal.ask_price
-                    });
+                    sendWsRequest({ buy: data.proposal.id, price: data.proposal.ask_price });
                 }
             }
 
@@ -4019,11 +3989,7 @@
                     activeContractId = contract.contract_id;
                     toast(`📈 Trade placed! ID: ${contract.contract_id} | Payout: $${contract.payout}`, 'success');
                     armWatchdog();
-                    sendWsRequest({
-                        proposal_open_contract: 1,
-                        contract_id: contract.contract_id,
-                        subscribe: 1
-                    });
+                    sendWsRequest({ proposal_open_contract: 1, contract_id: contract.contract_id, subscribe: 1 });
                 }
             }
 
@@ -4035,9 +4001,7 @@
                     clearWatchdog();
                     const profit = parseFloat(contract.profit) || 0;
                     const won = profit > 0;
-                    if (data.subscription) {
-                        sendWsRequest({ forget: data.subscription.id });
-                    }
+                    if (data.subscription) { sendWsRequest({ forget: data.subscription.id }); }
                     isTradeInProgress = false;
                     activeContractId = null;
                     handleTradeResult(won, profit);
@@ -4048,9 +4012,7 @@
                 if (data.error) {
                     console.error('❌ API error object:', data.error);
                     toast('❌ API Error: ' + data.error.message, 'error');
-                    if (isTradeInProgress) {
-                        unjamTradeEngine();
-                    }
+                    if (isTradeInProgress) { unjamTradeEngine(); }
                 }
             }
 
@@ -4067,7 +4029,7 @@
             function armWatchdog() {
                 clearWatchdog();
                 proposalWatchdog = setTimeout(() => {
-                    console.warn('⏱ Watchdog: trade not settled within ' + (TRADE_TIMEOUT_MS / 1000) + 's — resetting & retrying');
+                    console.warn('⏱ Watchdog: trade not settled — resetting');
                     toast('⏱ Trade timeout — retrying…', 'info');
                     isTradeInProgress = false;
                     activeContractId = null;
@@ -4081,10 +4043,7 @@
             }
 
             function sendWsRequest(req) {
-                if (!ws || ws.readyState !== WebSocket.OPEN) {
-                    console.warn('WS not open, dropping request:', req);
-                    return;
-                }
+                if (!ws || ws.readyState !== WebSocket.OPEN) { console.warn('WS not open, dropping request:', req); return; }
                 req.req_id = wsReqId++;
                 ws.send(JSON.stringify(req));
                 console.log('📤 WS:', req);
@@ -4092,57 +4051,44 @@
 
             function subscribeTicks() {
                 const symbol = getSymbol(currentMarket);
-                if (tickSubscriptionId) {
-                    sendWsRequest({ forget: tickSubscriptionId });
-                    tickSubscriptionId = null;
-                }
+                if (tickSubscriptionId) { sendWsRequest({ forget: tickSubscriptionId });
+                    tickSubscriptionId = null; }
                 sendWsRequest({ ticks: symbol, subscribe: 1 });
             }
 
             // =============================================
-            // PLACE TRADE (auto-bot) — uses FlowState signal
+            // 💡 FLOWSTATE SIGNAL GENERATION
             // =============================================
-            function placeTrade() {
-                if (!isActive || isTradeInProgress) return;
-                if (!accessToken) {
-                    toast('No access token. Please connect.', 'error');
-                    return;
-                }
-
+            function generateFlowStateSignal() {
                 let signal = null;
                 if (signalMode === 'matches') {
                     signal = flowEngine.generateMatchesSignal();
                 } else {
                     signal = flowEngine.generateEvenOddSignal();
                 }
-
-                if (!signal || signal.confidence < flowStateConfidenceThreshold) {
-                    console.log(`⏳ No reliable signal (confidence ${signal?.confidence || 0}%), waiting...`);
-                    return;
+                if (signal && signal.confidence >= SIGNAL_CONFIDENCE_THRESHOLD) {
+                    return signal;
                 }
+                return null;
+            }
 
-                lastFlowStateSignal = signal;
-                updateDashboardConfidence(signal.confidence);
+            // =============================================
+            // 📈 PLACE TRADE WITH SIGNAL (FlowState auto)
+            // =============================================
+            function placeTradeWithSignal(signal) {
+                if (!isActive || isTradeInProgress) return;
+                if (!accessToken) { toast('No access token. Please connect.', 'error'); return; }
 
-                console.log(`📡 FlowState signal: ${signalMode} | entry: ${signal.entryDigit} | confidence: ${signal.confidence}%`);
+                console.log(`📡 FlowState trade: ${signalMode} | entry: ${signal.entryDigit} | conf: ${signal.confidence}%`);
 
                 let contractType = 'DIGITMATCH';
                 let barrier = null;
                 if (signalMode === 'matches') {
                     contractType = 'DIGITMATCH';
                     barrier = signal.entryDigit;
-                    if (liveTradeType) liveTradeType.textContent = `MATCH ${barrier}`;
-                    document.querySelector('[data-field="signalDir"]').textContent = `MATCH ${barrier}`;
                 } else {
-                    if (signal.prediction === 'EVEN') {
-                        contractType = 'DIGITEVEN';
-                        if (liveTradeType) liveTradeType.textContent = 'EVEN';
-                        document.querySelector('[data-field="signalDir"]').textContent = 'EVEN';
-                    } else {
-                        contractType = 'DIGITODD';
-                        if (liveTradeType) liveTradeType.textContent = 'ODD';
-                        document.querySelector('[data-field="signalDir"]').textContent = 'ODD';
-                    }
+                    if (signal.prediction === 'EVEN') contractType = 'DIGITEVEN';
+                    else contractType = 'DIGITODD';
                     barrier = null;
                 }
 
@@ -4159,16 +4105,429 @@
 
                 isTradeInProgress = true;
                 lastTradeTime = Date.now();
+                // Store pending trade for 5-tick verification (if in simulation mode)
+                // In real mode, we use the API settlement
+                if (!wsConnected) {
+                    // Simulation mode: use 5-tick verification
+                    pendingFlowTrade = {
+                        prediction: signal.predictedDigit !== undefined ? signal.predictedDigit : signal.prediction,
+                        entryDigit: signal.entryDigit,
+                        stake: currentStake,
+                        contractType: contractType,
+                        tickCount: 0,
+                        signal: signal,
+                        isEvenOdd: signalMode === 'evenodd',
+                        predictionLabel: signalMode === 'matches' ? String(signal.entryDigit) : (signal.prediction || '—')
+                    };
+                    toast(`📊 FlowState trade placed (sim) — waiting 5 ticks...`, 'info');
+                    // Don't send real buy, simulate
+                    isTradeInProgress = false; // we handle it via ticks
+                    // Record trade start
+                    flowStateTradesExecuted++;
+                    flowStateSignalCount++;
+                    saveSettings();
+                    return;
+                }
+
+                // Real mode: send buy via API
                 sendWsRequest({ buy: 1, price: currentStake, parameters: params });
                 armWatchdog();
+                flowStateTradesExecuted++;
+                flowStateSignalCount++;
+                saveSettings();
+                // Update dashboard signal display
+                updateDashboardSignal(signal);
             }
 
             // =============================================
-            // TRADE RESULT HANDLER
+            // 🧪 RESOLVE FLOW TRADE (5-tick verification)
+            // =============================================
+            function resolveFlowTrade() {
+                if (!pendingFlowTrade) return;
+                const pt = pendingFlowTrade;
+                pendingFlowTrade = null;
+
+                // Get the actual digit after 5 ticks
+                const digits = flowEngine.getLastDigits(5);
+                if (digits.length < 5) {
+                    // Not enough data, treat as loss
+                    toast('⚠️ Not enough ticks for verification — trade lost', 'error');
+                    handleFlowTradeResult(false, -pt.stake, pt);
+                    return;
+                }
+
+                // Check if prediction matches any of the 5 ticks
+                let won = false;
+                if (pt.isEvenOdd) {
+                    // Even/Odd: check parity
+                    const prediction = pt.prediction;
+                    for (let d of digits) {
+                        const isEven = d % 2 === 0;
+                        if ((prediction === 'EVEN' && isEven) || (prediction === 'ODD' && !isEven)) {
+                            won = true;
+                            break;
+                        }
+                    }
+                } else {
+                    // Matches: check exact digit
+                    const target = pt.entryDigit;
+                    for (let d of digits) {
+                        if (d === target) { won = true; break; }
+                    }
+                }
+
+                const pl = won ? pt.stake * 0.85 : -pt.stake;
+                handleFlowTradeResult(won, pl, pt);
+            }
+
+            function handleFlowTradeResult(won, profit, tradeInfo) {
+                // Update balance and stats
+                balance += profit;
+                windowProfitValue += profit;
+                updateBalanceDisplay();
+                updateProfitDisplay();
+
+                const label = tradeInfo ? tradeInfo.predictionLabel || '—' : '—';
+                const typeLabel = tradeInfo ? (tradeInfo.isEvenOdd ? 'Even/Odd' : 'Match') : 'FlowState';
+
+                // Record trade
+                const now = new Date();
+                trades.push({
+                    time: now.toLocaleTimeString(),
+                    type: `${typeLabel} ${label}`,
+                    symbol: currentMarket,
+                    stake: tradeInfo ? tradeInfo.stake : currentStake,
+                    pl: profit
+                });
+                tradeCount++;
+                renderTrades();
+
+                // FlowState history
+                flowStateTradeHistory.push({
+                    time: now.toLocaleTimeString(),
+                    prediction: label,
+                    stake: tradeInfo ? tradeInfo.stake : currentStake,
+                    result: won ? 'Won' : 'Lost',
+                    profit: profit,
+                    confidence: tradeInfo && tradeInfo.signal ? tradeInfo.signal.confidence : 0
+                });
+                if (won) flowStateWins++;
+                else flowStateLosses++;
+                renderFlowStateHistory();
+                updateFlowStateStats();
+                saveSettings();
+
+                // Update last trade result
+                fsLastTradeResult.textContent = `${won ? '✅ Won' : '❌ Lost'} $${profit.toFixed(2)}`;
+                fsLastTradeResult.style.color = won ? 'var(--accent-green)' : 'var(--accent-red)';
+
+                toast(`${won ? '✅' : '❌'} FlowState trade ${won ? 'won' : 'lost'} $${profit.toFixed(2)}`,
+                    won ? 'success' : 'error');
+
+                // Update dashboard
+                updateDashboardSignal(null);
+
+                // Martingale logic for bot
+                if (won) {
+                    consecutiveLosses = 0;
+                    martingaleLevel = 0;
+                    currentStake = baseStake;
+                    liveStakeDisplay.textContent = '$' + currentStake.toFixed(2);
+                } else {
+                    consecutiveLosses++;
+                    martingaleLevel++;
+                    if (martingaleLevel <= maxMartingaleLevel) {
+                        currentStake = baseStake * Math.pow(martingaleMultiplier, martingaleLevel);
+                        liveStakeDisplay.textContent = '$' + currentStake.toFixed(2);
+                    } else {
+                        toast('⚠️ Max martingale level reached. Stopping.', 'error');
+                        stopTrading();
+                        return;
+                    }
+                }
+
+                // Check TP/SL
+                if (sessionTradeCount >= MIN_RUNS_BEFORE_TP_SL) {
+                    if (windowProfitValue >= profitTargetValue) {
+                        const profitAmt = windowProfitValue;
+                        sessions.push({ window: `Window ${++sessionCount}`, profit: profitAmt });
+                        renderSessions();
+                        tpAmount.textContent = profitAmt.toFixed(2);
+                        tpModal.classList.add('active');
+                        toast(`🎉 Take Profit hit! $${profitAmt.toFixed(2)}`, 'success');
+                        windowProfitValue = 0;
+                        updateProfitDisplay();
+                        consecutiveLosses = 0;
+                        martingaleLevel = 0;
+                        currentStake = baseStake;
+                        liveStakeDisplay.textContent = '$' + currentStake.toFixed(2);
+                        saveSettings();
+                    }
+                    if (windowProfitValue <= -stopLossValue) {
+                        toast(`🛑 Stop Loss triggered at $${stopLossValue.toFixed(2)}`, 'error');
+                        stopTrading();
+                        return;
+                    }
+                }
+
+                // Continue trading if active
+                if (isActive && !isTradeInProgress) {
+                    setTimeout(() => {
+                        if (isActive && !isTradeInProgress) {
+                            // Auto-trade will pick up next signal via tick handler
+                        }
+                    }, 1500);
+                }
+            }
+
+            // =============================================
+            // 📊 UPDATE FLOWSTATE UI
+            // =============================================
+            function updateFlowStateUI() {
+                const signal = generateFlowStateSignal();
+                const digits = flowEngine.getLastDigits(5);
+
+                // Update stats
+                fsTickCount.textContent = flowEngine.getDigitCount();
+                fsTotalTicks.textContent = flowEngine.ticks.length;
+                fsDigitsTracked.textContent = flowEngine.digits.length;
+                fsSignalsGen.textContent = flowStateSignalsGenerated;
+                fsTradesExe.textContent = flowStateTradesExecuted;
+                const totalTrades = flowStateWins + flowStateLosses;
+                fsWinRate.textContent = totalTrades > 0 ? Math.round((flowStateWins / totalTrades) * 100) + '%' : '0%';
+                fsLastDigits.textContent = digits.length > 0 ? digits.join(' ') : '—';
+                fsModeDisplay.textContent = signalMode === 'matches' ? 'Matches' : 'Even/Odd';
+
+                if (signal) {
+                    flowStateSignalsGenerated++;
+                    lastFlowStateSignal = signal;
+                    // Update badge
+                    let badgeHtml = '';
+                    let confClass = 'low';
+                    if (signal.confidence >= 75) confClass = 'high';
+                    else if (signal.confidence >= 60) confClass = 'med';
+
+                    if (signalMode === 'matches') {
+                        badgeHtml = `<span class="signal-badge buy">MATCH ${signal.entryDigit}</span>`;
+                        fsPrediction.textContent = `Digit ${signal.entryDigit}`;
+                        fsEntry.textContent = signal.entryDigit;
+                    } else {
+                        const dir = signal.prediction || 'NEUTRAL';
+                        const cls = dir === 'EVEN' ? 'even' : 'odd';
+                        badgeHtml = `<span class="signal-badge ${cls}">${dir}</span>`;
+                        fsPrediction.textContent = dir;
+                        fsEntry.textContent = dir === 'EVEN' ? '0' : '1';
+                    }
+                    fsSignalBadge.innerHTML = badgeHtml;
+                    fsConfidencePct.textContent = signal.confidence + '%';
+                    fsConfidenceNum.textContent = signal.confidence;
+                    fsConfidenceRing.className = `confidence-ring ${confClass}`;
+                    fsReason.textContent = signal.reason || '—';
+                    fsSignalTime.textContent = new Date().toLocaleTimeString();
+
+                    // Update dashboard display
+                    updateDashboardSignal(signal);
+
+                    // Save signal count
+                    saveSettings();
+                } else {
+                    if (!lastFlowStateSignal) {
+                        fsSignalBadge.innerHTML = `<span class="signal-badge neutral">WAITING</span>`;
+                        fsConfidencePct.textContent = '0%';
+                        fsConfidenceNum.textContent = '0';
+                        fsConfidenceRing.className = 'confidence-ring low';
+                        fsPrediction.textContent = '—';
+                        fsEntry.textContent = '—';
+                        fsReason.textContent = '—';
+                        // Clear dashboard if no signal
+                        if (dashboardSignalDisplay) {
+                            dashboardSignalDisplay.textContent = '—';
+                            dashboardConfidenceDisplay.style.display = 'none';
+                        }
+                    }
+                }
+            }
+
+            function updateDashboardSignal(signal) {
+                if (!dashboardSignalDisplay || !dashboardConfidenceDisplay) return;
+                if (signal) {
+                    const label = signalMode === 'matches' ? `Match ${signal.entryDigit}` : (signal.prediction || '—');
+                    dashboardSignalDisplay.textContent = `${label} (${signal.confidence}%)`;
+                    dashboardConfidenceDisplay.style.display = 'inline-block';
+                    dashboardConfidenceDisplay.textContent = signal.confidence + '%';
+                    dashboardConfidenceDisplay.className = 'confidence-pill';
+                    if (signal.confidence >= 75) dashboardConfidenceDisplay.classList.add('high');
+                    else if (signal.confidence >= 60) dashboardConfidenceDisplay.classList.add('med');
+                    else dashboardConfidenceDisplay.classList.add('low');
+                } else {
+                    dashboardSignalDisplay.textContent = '—';
+                    dashboardConfidenceDisplay.style.display = 'none';
+                }
+            }
+
+            function updateFlowStateStats() {
+                fsTotalTicks.textContent = flowEngine.ticks.length;
+                fsDigitsTracked.textContent = flowEngine.digits.length;
+                fsSignalsGen.textContent = flowStateSignalsGenerated;
+                fsTradesExe.textContent = flowStateTradesExecuted;
+                const totalTrades = flowStateWins + flowStateLosses;
+                fsWinRate.textContent = totalTrades > 0 ? Math.round((flowStateWins / totalTrades) * 100) + '%' : '0%';
+                const digits = flowEngine.getLastDigits(5);
+                fsLastDigits.textContent = digits.length > 0 ? digits.join(' ') : '—';
+                fsTickCount.textContent = flowEngine.getDigitCount();
+            }
+
+            function renderFlowStateHistory() {
+                if (!fsTradeHistory) return;
+                if (flowStateTradeHistory.length === 0) {
+                    fsTradeHistory.innerHTML =
+                        `<div style="font-size:clamp(9px,0.5vw,11px);color:var(--text-dim);text-align:center;padding:8px 0;">No trades yet</div>`;
+                    return;
+                }
+                let html = '';
+                flowStateTradeHistory.slice().reverse().slice(0, 20).forEach(t => {
+                    const cls = t.result === 'Won' ? 'profit' : 'loss';
+                    const sign = t.profit >= 0 ? '+' : '';
+                    html += `<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--border);font-size:clamp(9px,0.5vw,11px);font-family:'JetBrains Mono',monospace;">
+                        <span>${t.time}</span>
+                        <span>${t.prediction}</span>
+                        <span class="${cls}">${sign}$${t.profit.toFixed(2)}</span>
+                        <span style="color:${t.result === 'Won' ? 'var(--accent-green)' : 'var(--accent-red)'}">${t.result}</span>
+                        <span style="color:var(--text-dim);font-size:clamp(7px,0.4vw,9px);">${t.confidence}%</span>
+                    </div>`;
+                });
+                fsTradeHistory.innerHTML = html;
+            }
+
+            // =============================================
+            // 🧪 Simulate trade (fallback)
+            // =============================================
+            function simulateTrade() {
+                const signal = generateFlowStateSignal();
+                // Use FlowState for simulation if available
+                if (signal) {
+                    // Use the 5-tick verification path
+                    pendingFlowTrade = {
+                        prediction: signal.predictedDigit !== undefined ? signal.predictedDigit : signal.prediction,
+                        entryDigit: signal.entryDigit,
+                        stake: currentStake,
+                        contractType: signalMode === 'matches' ? 'DIGITMATCH' : (signal.prediction === 'EVEN' ?
+                            'DIGITEVEN' : 'DIGITODD'),
+                        tickCount: 0,
+                        signal: signal,
+                        isEvenOdd: signalMode === 'evenodd',
+                        predictionLabel: signalMode === 'matches' ? String(signal.entryDigit) : (signal.prediction || '—')
+                    };
+                    toast(`📊 FlowState trade placed (sim) — waiting 5 ticks...`, 'info');
+                    flowStateTradesExecuted++;
+                    flowStateSignalCount++;
+                    saveSettings();
+                    return;
+                }
+                // Fallback: random
+                const win = Math.random() < 0.5;
+                const pl = win ? currentStake * 0.85 : -currentStake;
+                handleTradeResult(win, pl);
+            }
+
+            // =============================================
+            // 🚀 Trading Lifecycle
+            // =============================================
+            function startTrading() {
+                if (isActive) return;
+                isActive = true;
+                statusBadge.className = 'status-badge active';
+                statusText.textContent = 'ACTIVE';
+                activateBtn.disabled = true;
+                deactivateBtn.disabled = false;
+                botState.textContent = 'RUNNING';
+                windowTime.textContent = new Date().toLocaleTimeString();
+
+                sessionTradeCount = 0;
+                if (currentRound) {
+                    currentRound.textContent = `0 / ${MAX_RUNS_PER_SESSION} (min ${MIN_RUNS_BEFORE_TP_SL})`;
+                }
+
+                martingaleLevel = 0;
+                consecutiveLosses = 0;
+                currentStake = baseStake;
+                liveStakeDisplay.textContent = '$' + currentStake.toFixed(2);
+
+                const mode = accessToken && wsConnected ? 'REAL' : 'SIMULATION';
+                toast(`🚀 DigitEdge bot activated — FlowState ${signalMode} (${mode})`, 'success');
+
+                windowProfitValue = 0;
+                updateProfitDisplay();
+
+                if (accessToken && wsConnected) {
+                    isRealTrading = true;
+                    subscribeTicks();
+                    // Wait for tick to trigger auto-trade
+                } else {
+                    isRealTrading = false;
+                    if (updateInterval) clearInterval(updateInterval);
+                    updateInterval = setInterval(() => {
+                        if (!isActive) return;
+                        if (!wsConnected) {
+                            // Use FlowState simulation
+                            const signal = generateFlowStateSignal();
+                            if (signal && flowStateAutoTrade) {
+                                // Simulate using 5-tick verification
+                                pendingFlowTrade = {
+                                    prediction: signal.predictedDigit !== undefined ? signal.predictedDigit : signal
+                                        .prediction,
+                                    entryDigit: signal.entryDigit,
+                                    stake: currentStake,
+                                    contractType: signalMode === 'matches' ? 'DIGITMATCH' : (signal.prediction ===
+                                        'EVEN' ? 'DIGITEVEN' : 'DIGITODD'),
+                                    tickCount: 0,
+                                    signal: signal,
+                                    isEvenOdd: signalMode === 'evenodd',
+                                    predictionLabel: signalMode === 'matches' ? String(signal.entryDigit) : (signal
+                                        .prediction || '—')
+                                };
+                                toast(`📊 FlowState trade (sim) — waiting 5 ticks...`, 'info');
+                                flowStateTradesExecuted++;
+                                flowStateSignalCount++;
+                                saveSettings();
+                            } else {
+                                // Fallback random
+                                simulateTrade();
+                            }
+                        }
+                    }, 2800);
+                }
+                saveSettings();
+            }
+
+            function stopTrading() {
+                if (!isActive) return;
+                isActive = false;
+                clearWatchdog();
+                isTradeInProgress = false;
+                statusBadge.className = 'status-badge inactive';
+                statusText.textContent = 'INACTIVE';
+                activateBtn.disabled = false;
+                deactivateBtn.disabled = true;
+                botState.textContent = 'IDLE';
+
+                if (updateInterval) { clearInterval(updateInterval);
+                    updateInterval = null; }
+
+                if (ws && wsConnected) {
+                    sendWsRequest({ forget_all: 'ticks' });
+                    if (activeContractId) { sendWsRequest({ forget_all: 'proposal_open_contract' }); }
+                }
+                activeContractId = null;
+                toast('⏸ DigitEdge bot deactivated', 'error');
+                saveSettings();
+            }
+
+            // =============================================
+            // 🧮 Trade result handler (for API trades)
             // =============================================
             function handleTradeResult(win, profit) {
                 const pl = win ? profit : -currentStake;
-
                 balance += pl;
                 windowProfitValue += pl;
                 updateBalanceDisplay();
@@ -4180,9 +4539,7 @@
                 }
 
                 const now = new Date();
-                const typeLabel = signalMode === 'matches' ?
-                    `MATCH ${flowEngine.digits.length > 0 ? flowEngine.digits[flowEngine.digits.length - 1] : '?'}` :
-                    `EVEN/ODD`;
+                const typeLabel = signalMode === 'matches' ? `MATCH` : `EVEN/ODD`;
                 trades.push({
                     time: now.toLocaleTimeString(),
                     type: typeLabel,
@@ -4192,6 +4549,7 @@
                 });
                 tradeCount++;
                 renderTrades();
+                saveSettings();
 
                 if (win) {
                     consecutiveLosses = 0;
@@ -4232,6 +4590,7 @@
                         martingaleLevel = 0;
                         currentStake = baseStake;
                         liveStakeDisplay.textContent = '$' + currentStake.toFixed(2);
+                        saveSettings();
                     }
                     if (windowProfitValue <= -stopLossValue) {
                         toast(`🛑 Stop Loss triggered at $${stopLossValue.toFixed(2)}`, 'error');
@@ -4245,96 +4604,36 @@
                 }
             }
 
-            // =============================================
-            // START / STOP TRADING
-            // =============================================
-            function startTrading() {
-                if (isActive) return;
-                isActive = true;
-                statusBadge.className = 'status-badge active';
-                statusText.textContent = 'ACTIVE';
-                activateBtn.disabled = true;
-                deactivateBtn.disabled = false;
-                botState.textContent = 'RUNNING';
-                windowTime.textContent = new Date().toLocaleTimeString();
+            // Legacy placeTrade (kept for compatibility, but auto-trade now uses FlowState)
+            function placeTrade() {
+                if (!isActive || isTradeInProgress) return;
+                if (!accessToken) { toast('No access token. Please connect.', 'error'); return; }
 
-                sessionTradeCount = 0;
-                if (currentRound) {
-                    currentRound.textContent = `0 / ${MAX_RUNS_PER_SESSION} (min ${MIN_RUNS_BEFORE_TP_SL})`;
-                }
-
-                martingaleLevel = 0;
-                consecutiveLosses = 0;
-                currentStake = baseStake;
-                liveStakeDisplay.textContent = '$' + currentStake.toFixed(2);
-
-                const mode = accessToken && wsConnected ? 'REAL' : 'SIMULATION';
-                toast(`🚀 DigitEdge bot activated — FlowState ${signalMode} (${mode})`, 'success');
-
-                windowProfitValue = 0;
-                updateProfitDisplay();
-
-                if (accessToken && wsConnected) {
-                    isRealTrading = true;
-                    subscribeTicks();
-                    setTimeout(placeTrade, 1000);
+                // Use FlowState signal
+                const signal = generateFlowStateSignal();
+                if (signal) {
+                    placeTradeWithSignal(signal);
                 } else {
-                    isRealTrading = false;
-                    if (updateInterval) clearInterval(updateInterval);
-                    updateInterval = setInterval(() => {
-                        if (!isActive) return;
-                        if (!wsConnected) simulateTrade();
-                    }, 2800);
-                }
-            }
-
-            function stopTrading() {
-                if (!isActive) return;
-                isActive = false;
-                clearWatchdog();
-                isTradeInProgress = false;
-                statusBadge.className = 'status-badge inactive';
-                statusText.textContent = 'INACTIVE';
-                activateBtn.disabled = false;
-                deactivateBtn.disabled = true;
-                botState.textContent = 'IDLE';
-
-                if (updateInterval) { clearInterval(updateInterval);
-                    updateInterval = null; }
-
-                if (ws && wsConnected) {
-                    sendWsRequest({ forget_all: 'ticks' });
-                    if (activeContractId) {
-                        sendWsRequest({ forget_all: 'proposal_open_contract' });
-                    }
-                }
-                activeContractId = null;
-                toast('⏸ DigitEdge bot deactivated', 'error');
-            }
-
-            function simulateTrade() {
-                let signal = null;
-                if (signalMode === 'matches') signal = flowEngine.generateMatchesSignal();
-                else signal = flowEngine.generateEvenOddSignal();
-                const win = signal && signal.confidence >= flowStateConfidenceThreshold ? (Math.random() < 0.75) : (Math.random() <
-                    0.5);
-                const pl = win ? currentStake * 0.85 : -currentStake;
-                handleTradeResult(win, pl);
-            }
-
-            // =============================================
-            // UPDATE DASHBOARD CONFIDENCE
-            // =============================================
-            function updateDashboardConfidence(conf) {
-                if (dashboardConfidence) {
-                    dashboardConfidence.textContent = conf + '%';
-                    dashboardConfidence.style.color = conf >= 70 ? 'var(--accent-green)' :
-                        conf >= 55 ? 'var(--accent-yellow)' : 'var(--accent-red)';
+                    // Fallback: simple DIGITOVER trade
+                    const params = {
+                        amount: currentStake,
+                        basis: 'stake',
+                        contract_type: 'DIGITOVER',
+                        currency: 'USD',
+                        duration: 1,
+                        duration_unit: 't',
+                        symbol: getSymbol(currentMarket),
+                        barrier: '0'
+                    };
+                    isTradeInProgress = true;
+                    lastTradeTime = Date.now();
+                    sendWsRequest({ buy: 1, price: currentStake, parameters: params });
+                    armWatchdog();
                 }
             }
 
             // =============================================
-            // CHART
+            // Chart (unchanged)
             // =============================================
             function updateChartWithTick(price) {
                 const last = chartData.length > 0 ? chartData[chartData.length - 1].close : price;
@@ -4440,7 +4739,7 @@
             }
 
             // =============================================
-            // OAuth 2.0 with PKCE
+            // OAuth 2.0 with PKCE (unchanged)
             // =============================================
             const AUTH_BASE = 'https://oauth.deriv.com/oauth2/authorize';
             const TOKEN_EXCHANGE_ENDPOINT = '/api/exchange-token';
@@ -4481,9 +4780,7 @@
                         state: sessionStorage.getItem('oauth_state'),
                         clientId: sessionStorage.getItem('oauth_client_id')
                     };
-                } catch (e) {
-                    return { verifier: null, state: null, clientId: null };
-                }
+                } catch (e) { return { verifier: null, state: null, clientId: null }; }
             }
 
             function clearPKCE() {
@@ -4569,7 +4866,7 @@
             }
 
             // =============================================
-            // TOKEN STORAGE
+            // 🔒 TOKEN STORAGE
             // =============================================
             function setAccessToken(token) {
                 accessToken = token;
@@ -4628,48 +4925,8 @@
             }
 
             // =============================================
-            // QUICK SETTINGS + PERSISTENCE
+            // Quick Settings (updated)
             // =============================================
-            function saveSettingsToStorage() {
-                try {
-                    const settings = {
-                        baseStake,
-                        martingaleMultiplier,
-                        maxMartingaleLevel,
-                        profitTargetValue,
-                        stopLossValue,
-                        currentMarket,
-                        MIN_RUNS_BEFORE_TP_SL,
-                        MAX_RUNS_PER_SESSION,
-                        flowStateConfidenceThreshold,
-                        signalMode,
-                        balance
-                    };
-                    localStorage.setItem('emron_settings', JSON.stringify(settings));
-                } catch (e) { console.warn('Settings save failed', e); }
-            }
-
-            function loadSettingsFromStorage() {
-                try {
-                    const raw = localStorage.getItem('emron_settings');
-                    if (!raw) return false;
-                    const s = JSON.parse(raw);
-                    if (s.baseStake !== undefined) baseStake = s.baseStake;
-                    if (s.martingaleMultiplier !== undefined) martingaleMultiplier = s.martingaleMultiplier;
-                    if (s.maxMartingaleLevel !== undefined) maxMartingaleLevel = s.maxMartingaleLevel;
-                    if (s.profitTargetValue !== undefined) profitTargetValue = s.profitTargetValue;
-                    if (s.stopLossValue !== undefined) stopLossValue = s.stopLossValue;
-                    if (s.currentMarket !== undefined) currentMarket = s.currentMarket;
-                    if (s.MIN_RUNS_BEFORE_TP_SL !== undefined) MIN_RUNS_BEFORE_TP_SL = s.MIN_RUNS_BEFORE_TP_SL;
-                    if (s.MAX_RUNS_PER_SESSION !== undefined) MAX_RUNS_PER_SESSION = s.MAX_RUNS_PER_SESSION;
-                    if (s.flowStateConfidenceThreshold !== undefined) flowStateConfidenceThreshold = s
-                        .flowStateConfidenceThreshold;
-                    if (s.signalMode !== undefined) signalMode = s.signalMode;
-                    if (s.balance !== undefined) balance = s.balance;
-                    return true;
-                } catch (e) { console.warn('Settings load failed', e); return false; }
-            }
-
             function applyQuickSettings() {
                 const stake = parseFloat(qsStake.value) || 10;
                 const multi = parseFloat(qsMulti.value) || 1.5;
@@ -4679,8 +4936,6 @@
                 const market = qsMarket.value;
                 const minRuns = parseInt(qsMinRuns.value) || 5;
                 const maxRuns = parseInt(qsMaxRuns.value) || 200;
-                const conf = parseInt(qsConfidence.value) || 60;
-                const strat = qsStrategy ? qsStrategy.value : 'FLOW_MATCHES';
 
                 MIN_RUNS_BEFORE_TP_SL = minRuns;
                 MAX_RUNS_PER_SESSION = maxRuns;
@@ -4690,17 +4945,6 @@
                 maxMartingaleLevel = maxLvl;
                 profitTargetValue = tp;
                 stopLossValue = sl;
-                flowStateConfidenceThreshold = conf;
-
-                if (strat === 'FLOW_MATCHES') {
-                    signalMode = 'matches';
-                    document.querySelector('[data-field="strategyMode"]').textContent = 'FlowState Matches';
-                    if (fsModeDisplay) fsModeDisplay.textContent = 'Matches';
-                } else {
-                    signalMode = 'evenodd';
-                    document.querySelector('[data-field="strategyMode"]').textContent = 'FlowState Even/Odd';
-                    if (fsModeDisplay) fsModeDisplay.textContent = 'Even/Odd';
-                }
 
                 liveStakeDisplay.textContent = '$' + stake.toFixed(2);
                 updateProfitDisplay();
@@ -4712,15 +4956,24 @@
                     currentRound.textContent = `0 / ${MAX_RUNS_PER_SESSION} (min ${MIN_RUNS_BEFORE_TP_SL})`;
                 }
 
-                document.querySelector('[data-field="signalDir"]').textContent = flowStateConfidenceThreshold + '% threshold';
+                // Update strategy from dropdown
+                if (qsFlowStateStrategy) {
+                    const val = qsFlowStateStrategy.value;
+                    if (val === 'FLOW_MATCHES') {
+                        signalMode = 'matches';
+                        document.querySelector('[data-field="strategyMode"]').textContent = 'FlowState Matches';
+                        document.querySelector('[data-field="signalDir"]').textContent = 'Match';
+                        fsModeDisplay.textContent = 'Matches';
+                    } else if (val === 'FLOW_EVENODD') {
+                        signalMode = 'evenodd';
+                        document.querySelector('[data-field="strategyMode"]').textContent = 'FlowState Even/Odd';
+                        document.querySelector('[data-field="signalDir"]').textContent = 'Even/Odd';
+                        fsModeDisplay.textContent = 'Even/Odd';
+                    }
+                }
 
-                if (fsConfThreshold) fsConfThreshold.value = String(conf);
-                if (fsStrategyMode) fsStrategyMode.value = signalMode;
-                if (fsStake) fsStake.value = stake;
-
-                toast('✅ Quick settings applied (FlowState ' + signalMode + ', confidence ≥ ' + flowStateConfidenceThreshold +
-                    '%)', 'success');
-                saveSettingsToStorage();
+                saveSettings();
+                toast('✅ Quick settings applied (FlowState ' + signalMode + ')', 'success');
             }
 
             function applyPreset(preset) {
@@ -4743,7 +4996,7 @@
             }
 
             // =============================================
-            // HELPERS
+            // Helpers
             // =============================================
             function toast(message, type = 'info') {
                 const el = document.createElement('div');
@@ -4800,35 +5053,16 @@
                 tradesBody.innerHTML = html;
             }
 
-            function renderFsTradeHistory() {
-                if (fsManualHistory.length === 0) {
-                    fsTradeHistory.innerHTML =
-                        `<tr><td colspan="5" class="empty-state"><span class="emoji">📊</span>No manual trades yet.</td></tr>`;
-                    return;
-                }
-                let html = '';
-                fsManualHistory.slice().reverse().forEach(t => {
-                    const cls = t.pl >= 0 ? 'profit' : 'loss';
-                    const sign = t.pl >= 0 ? '+' : '';
-                    html +=
-                        `<tr><td>${t.time}</td><td>${t.type}</td><td>${t.digit}</td><td>$${t.stake.toFixed(2)}</td><td class="${cls}">${sign}$${t.pl.toFixed(2)}</td></tr>`;
-                });
-                fsTradeHistory.innerHTML = html;
-            }
-
             function updateMarketDisplay(market) {
                 currentMarket = market;
                 liveMarketDisplay.textContent = market;
                 chartSymbol.textContent = market;
-                if (fsMarketDisplay) fsMarketDisplay.textContent = market;
                 for (let opt of qsMarket.options) { if (opt.value === market) { qsMarket.value = market; break; } }
                 if (editMarket) { for (let opt of editMarket.options) { if (opt.value === market) { editMarket.value =
                             market; break; } } }
                 if (aiMarket) { for (let opt of aiMarket.options) { if (opt.value === market) { aiMarket.value = market;
                             break; } } }
                 if (ssMarket) { for (let opt of ssMarket.options) { if (opt.value === market) { ssMarket.value = market;
-                            break; } } }
-                if (fsMarket) { for (let opt of fsMarket.options) { if (opt.value === market) { fsMarket.value = market;
                             break; } } }
                 const shortMap = {
                     'Volatility 10': 'VOL10',
@@ -4847,13 +5081,15 @@
                 };
                 const short = shortMap[market] || 'VOL50';
                 symbolOptions.forEach(el => el.classList.toggle('active', el.dataset.symbol === short));
+                // Reset FlowState engine when market changes
                 flowEngine.reset();
+                updateFlowStateStats();
                 toast(`📊 Switched to ${market} — FlowState engine reset`, 'info');
-                saveSettingsToStorage();
+                saveSettings();
             }
 
             // =============================================
-            // AI SIGNALS
+            // AI Signals (unchanged)
             // =============================================
             function generateAISignal() {
                 const market = document.getElementById('aiMarket').value;
@@ -4908,7 +5144,7 @@
             }
 
             // =============================================
-            // SIGNAL MONITOR
+            // Signal Monitor (unchanged)
             // =============================================
             function updateMonitor() {
                 const buy = Math.floor(Math.random() * 5);
@@ -4940,7 +5176,7 @@
             }
 
             // =============================================
-            // MODALS LOGIC
+            // Modals logic
             // =============================================
             function openSignalStrategy() {
                 document.getElementById('ssMaster').value = 'on';
@@ -4950,7 +5186,8 @@
                 document.getElementById('ssSides').value = 'Over only';
                 document.getElementById('ssBarrier').value = '0';
                 document.getElementById('ssDuration').value = '1';
-                for (let opt of ssMarket.options) { if (opt.value === currentMarket) { ssMarket.value = currentMarket; break; } }
+                for (let opt of ssMarket.options) { if (opt.value === currentMarket) { ssMarket.value = currentMarket;
+                        break; } }
                 document.getElementById('ssEntry').value = 'None — trade every cycle';
                 signalStrategyModal.classList.add('active');
             }
@@ -4962,12 +5199,14 @@
                 const duration = document.getElementById('ssDuration').value;
                 const market = document.getElementById('ssMarket').value;
                 document.querySelector('[data-field="strategyMode"]').textContent = strategy;
+                document.querySelector('[data-field="signalDir"]').textContent = signal;
                 document.querySelector('[data-field="barrier"]').textContent = barrier;
-                document.querySelector('[data-field="duration"]').textContent = duration + ' tick' + (duration > 1 ?
-                    's' : '');
+                document.querySelector('[data-field="duration"]').textContent = duration + ' tick' + (duration > 1 ? 's' :
+                '');
                 if (market !== 'Signal market (recommended)') updateMarketDisplay(market);
                 signalStrategyModal.classList.remove('active');
                 toast('📡 DigitEdge signal strategy applied', 'success');
+                saveSettings();
             }
 
             function openRiskMgmt() {
@@ -5005,7 +5244,7 @@
                 updateProfitDisplay();
                 riskMgmtModal.classList.remove('active');
                 toast('🛡 Risk settings applied', 'success');
-                saveSettingsToStorage();
+                saveSettings();
             }
 
             function openSettingsModal() {
@@ -5018,7 +5257,7 @@
                 settingsModal.classList.add('active');
             }
 
-            function saveSettings() {
+            function saveSettingsModal() {
                 const stake = parseFloat(document.getElementById('editStake').value) || 10;
                 const market = document.getElementById('editMarket').value;
                 baseStake = stake;
@@ -5028,177 +5267,79 @@
                 updateMarketDisplay(market);
                 settingsModal.classList.remove('active');
                 toast('⚙️ Settings saved', 'success');
-                saveSettingsToStorage();
+                saveSettings();
             }
 
             // =============================================
-            // FLOWSTATE MANUAL TRADING FUNCTIONS
+            // FlowState manual trade
             // =============================================
-            function generateFlowStateSignal() {
-                const mode = fsStrategyMode ? fsStrategyMode.value : 'matches';
-                let signal = null;
-                if (mode === 'matches') {
-                    signal = flowEngine.generateMatchesSignal();
-                } else {
-                    signal = flowEngine.generateEvenOddSignal();
-                }
-
+            function executeFlowStateManualTrade() {
+                const signal = generateFlowStateSignal();
                 if (!signal) {
-                    toast('⏳ Not enough data. Need at least 40 ticks.', 'error');
-                    if (fsPredictedDigit) fsPredictedDigit.textContent = '?';
-                    if (fsConfidenceValue) fsConfidenceValue.textContent = '—';
-                    if (fsReason) fsReason.textContent = 'Insufficient data';
-                    document.getElementById('fsTradeBtn').disabled = true;
+                    toast('⚠️ No valid FlowState signal. Wait for more data.', 'error');
                     return;
                 }
-
-                lastFlowStateSignal = signal;
-                const threshold = parseInt(fsConfThreshold ? fsConfThreshold.value : '60');
-
-                if (fsPredictedDigit) fsPredictedDigit.textContent = signal.predictedDigit;
-                if (fsConfidenceValue) {
-                    fsConfidenceValue.textContent = signal.confidence + '%';
-                    fsConfidenceValue.style.color = signal.confidence >= 70 ? 'var(--accent-green)' :
-                        signal.confidence >= 55 ? 'var(--accent-yellow)' : 'var(--accent-red)';
-                }
-                if (fsReason) fsReason.textContent = signal.reason + (signal.strategy ? ` (${signal.strategy})` : '');
-                if (fsLastDigit) fsLastDigit.textContent = flowEngine.getLastDigit() !== null ? flowEngine.getLastDigit() :
-                    '—';
-
-                updateDashboardConfidence(signal.confidence);
-
-                const badge = document.getElementById('fsStatusBadge');
-                if (badge) {
-                    if (signal.confidence >= threshold) {
-                        badge.className = 'fs-status-badge ready';
-                        badge.textContent = '✅ Ready to Trade';
-                        document.getElementById('fsTradeBtn').disabled = false;
-                        toast(`📡 Signal ready! Digit ${signal.predictedDigit} @ ${signal.confidence}% confidence`, 'success');
-                    } else {
-                        badge.className = 'fs-status-badge waiting';
-                        badge.textContent = `⏳ Low confidence (${signal.confidence}% < ${threshold}%)`;
-                        document.getElementById('fsTradeBtn').disabled = true;
-                    }
-                }
-            }
-
-            function executeFlowStateTrade() {
-                if (fsTradeActive) {
-                    toast('⏳ A trade is already in progress!', 'error');
-                    return;
-                }
-
-                const signal = lastFlowStateSignal;
-                if (!signal) {
-                    toast('❌ No signal available. Generate one first.', 'error');
-                    return;
-                }
-
-                const threshold = parseInt(fsConfThreshold ? fsConfThreshold.value : '60');
-                if (signal.confidence < threshold) {
-                    toast(`❌ Confidence ${signal.confidence}% below threshold ${threshold}%`, 'error');
-                    return;
-                }
-
                 const stake = parseFloat(fsStake.value) || 10;
                 const contractType = fsContractType.value;
-                const market = fsMarket.value;
-                const barrier = parseInt(fsBarrier.value) || 0;
 
-                startTradeMonitor(signal, stake);
+                // Override contract type based on user selection
+                let actualContract = contractType;
+                let barrier = null;
+                let predictionLabel = '—';
 
-                const now = new Date();
-                fsManualHistory.push({
-                    time: now.toLocaleTimeString(),
-                    type: contractType,
-                    digit: signal.predictedDigit,
-                    stake: stake,
-                    pl: 0
-                });
-                renderFsTradeHistory();
+                if (contractType === 'DIGITMATCH') {
+                    barrier = signal.entryDigit;
+                    predictionLabel = String(signal.entryDigit);
+                } else if (contractType === 'DIGITEVEN') {
+                    predictionLabel = 'EVEN';
+                } else if (contractType === 'DIGITODD') {
+                    predictionLabel = 'ODD';
+                }
 
-                toast(`📈 Manual trade placed: ${contractType} on ${market} for $${stake}`, 'success');
-
-                if (accessToken && wsConnected) {
+                // For manual trades, use 5-tick verification (sim mode) or API if connected
+                if (!wsConnected) {
+                    pendingFlowTrade = {
+                        prediction: signal.predictedDigit !== undefined ? signal.predictedDigit : signal.prediction,
+                        entryDigit: signal.entryDigit,
+                        stake: stake,
+                        contractType: actualContract,
+                        tickCount: 0,
+                        signal: signal,
+                        isEvenOdd: contractType === 'DIGITEVEN' || contractType === 'DIGITODD',
+                        predictionLabel: predictionLabel,
+                        manual: true
+                    };
+                    toast(`📊 Manual FlowState trade placed — waiting 5 ticks...`, 'info');
+                    flowStateTradesExecuted++;
+                    flowStateSignalCount++;
+                    saveSettings();
+                    // Update dashboard
+                    updateDashboardSignal(signal);
+                } else {
+                    // Real API trade
                     const params = {
                         amount: stake,
                         basis: 'stake',
-                        contract_type: contractType,
+                        contract_type: actualContract,
                         currency: 'USD',
                         duration: 1,
                         duration_unit: 't',
-                        symbol: getSymbol(market)
+                        symbol: getSymbol(currentMarket)
                     };
-                    if (contractType === 'DIGITMATCH' || contractType === 'DIGITOVER' || contractType === 'DIGITUNDER') {
-                        params.barrier = String(barrier);
-                    }
-                    if (contractType === 'DIFFER') {
-                        params.barrier = String(barrier);
-                    }
+                    if (barrier !== null) params.barrier = String(barrier);
+                    isTradeInProgress = true;
+                    lastTradeTime = Date.now();
                     sendWsRequest({ buy: 1, price: stake, parameters: params });
-                    toast(`🔄 Real trade placed via Deriv API`, 'info');
-                } else {
-                    toast(`🔄 Simulated trade (not connected to Deriv)`, 'info');
+                    armWatchdog();
+                    flowStateTradesExecuted++;
+                    flowStateSignalCount++;
+                    toast(`📈 Manual FlowState trade sent via API`, 'success');
+                    saveSettings();
                 }
             }
 
-            function resetFlowStateEngine() {
-                flowEngine.reset();
-                if (fsPredictedDigit) fsPredictedDigit.textContent = '?';
-                if (fsConfidenceValue) fsConfidenceValue.textContent = '—';
-                if (fsReason) fsReason.textContent = 'Engine reset';
-                if (fsLastDigit) fsLastDigit.textContent = '—';
-                if (fsTickCounter) fsTickCounter.textContent = 'Ticks: 0';
-                const badge = document.getElementById('fsStatusBadge');
-                if (badge) {
-                    badge.className = 'fs-status-badge waiting';
-                    badge.textContent = '⏳ Waiting';
-                }
-                document.getElementById('fsTradeBtn').disabled = true;
-                tradeTickMonitor = null;
-                pendingTradeSignal = null;
-                fsTradeActive = false;
-                toast('🔄 FlowState engine reset', 'info');
-            }
-
-            function applyFlowStateSettings() {
-                const conf = parseInt(fsConfThreshold ? fsConfThreshold.value : '60');
-                const mode = fsStrategyMode ? fsStrategyMode.value : 'matches';
-                const market = fsMarket ? fsMarket.value : currentMarket;
-                const stake = parseFloat(fsStake ? fsStake.value : '10');
-
-                flowStateConfidenceThreshold = conf;
-                signalMode = mode;
-                if (market !== currentMarket) updateMarketDisplay(market);
-                if (qsStake) qsStake.value = stake.toFixed(2);
-                if (qsConfidence) qsConfidence.value = String(conf);
-                if (qsStrategy) qsStrategy.value = mode === 'matches' ? 'FLOW_MATCHES' : 'FLOW_EVENODD';
-
-                if (fsModeDisplay) fsModeDisplay.textContent = mode === 'matches' ? 'Matches' : 'Even/Odd';
-                if (fsMarketDisplay) fsMarketDisplay.textContent = market;
-
-                document.querySelector('[data-field="strategyMode"]').textContent = mode === 'matches' ?
-                    'FlowState Matches' : 'FlowState Even/Odd';
-                document.querySelector('[data-field="signalDir"]').textContent = conf + '% threshold';
-
-                toast('✅ FlowState settings applied', 'success');
-                saveSettingsToStorage();
-                generateFlowStateSignal();
-            }
-
             // =============================================
-            // MODE SWITCH (DEMO/REAL)
-            // =============================================
-            function updateTopMode() {
-                topModeLabel.textContent = MODE;
-                topModeToggleBtn.style.borderColor = (MODE === 'REAL') ? 'var(--accent-red)' : 'var(--accent-yellow)';
-                topModeToggleBtn.style.color = (MODE === 'REAL') ? 'var(--accent-red)' : 'var(--accent-yellow)';
-                const playgroundLabel = document.getElementById('modeLabel');
-                if (playgroundLabel) playgroundLabel.textContent = MODE;
-            }
-
-            // =============================================
-            // EVENT LISTENERS
+            // Event listeners
             // =============================================
             tabs.forEach(tab => {
                 tab.addEventListener('click', function() {
@@ -5206,8 +5347,10 @@
                     tabs.forEach(t => t.classList.remove('active'));
                     this.classList.add('active');
                     Object.keys(contents).forEach(key => contents[key].classList.toggle('active', key === target));
+                    // Refresh FlowState UI when tab is shown
                     if (target === 'flowstate') {
-                        generateFlowStateSignal();
+                        updateFlowStateUI();
+                        renderFlowStateHistory();
                     }
                 });
             });
@@ -5237,7 +5380,7 @@
             document.getElementById('rmMaxLevel').addEventListener('input', updateStakeLadder);
             rmSaveBtn.addEventListener('click', saveRiskMgmt);
             editSettingsBtn.addEventListener('click', openSettingsModal);
-            saveSettingsBtn.addEventListener('click', saveSettings);
+            saveSettingsBtn.addEventListener('click', saveSettingsModal);
 
             document.querySelectorAll('.modal-close').forEach(el => {
                 el.addEventListener('click', function() {
@@ -5248,7 +5391,7 @@
 
             document.querySelectorAll('.modal-overlay').forEach(overlay => {
                 overlay.addEventListener('click', function(e) { if (e.target === this) this.classList.remove(
-                        'active'); });
+                    'active'); });
             });
 
             tpProceedBtn.addEventListener('click', () => {
@@ -5260,12 +5403,13 @@
                 sessions = [];
                 renderSessions();
                 toast('📋 Sessions cleared', 'info');
+                saveSettings();
             });
 
             generateSignalBtn.addEventListener('click', generateAISignal);
             runAnalysisBtn.addEventListener('click', generateAISignal);
             document.getElementById('saveSignalBtn').addEventListener('click', () => toast('💾 Signal saved to history',
-                'info'));
+            'info'));
 
             symbolOptions.forEach(el => {
                 el.addEventListener('click', function() {
@@ -5310,8 +5454,8 @@
                     const item = this.closest('.faq-item');
                     if (item) {
                         item.classList.toggle('open');
-                        this.querySelector('.faq-toggle').textContent = item.classList.contains('open') ?
-                            '−' : '+';
+                        this.querySelector('.faq-toggle').textContent = item.classList.contains('open') ? '−' :
+                            '+';
                     }
                 });
             });
@@ -5349,6 +5493,7 @@
             oauthLoginBtn.addEventListener('click', () => initiateAuth(null));
             oauthSignupBtn.addEventListener('click', () => initiateAuth('registration'));
             oauthDisconnectBtn.addEventListener('click', disconnect);
+
             manualTokenBtn.addEventListener('click', () => {
                 const token = manualToken.value.trim();
                 if (token) {
@@ -5359,12 +5504,14 @@
                     toast('Please paste a valid token', 'error');
                 }
             });
+
             connectBtn.addEventListener('click', () => {
                 const savedClient = localStorage.getItem('emron_oauth_client');
                 if (savedClient) oauthClientId.value = savedClient;
                 oauthRedirectUri.value = window.location.origin;
                 connectModal.classList.add('active');
             });
+
             patConnectBtn.addEventListener('click', () => {
                 const token = patTokenInput.value.trim();
                 if (token) {
@@ -5375,7 +5522,9 @@
                     toast('Please enter a PAT token', 'error');
                 }
             });
+
             patDisconnectBtn.addEventListener('click', disconnect);
+
             document.getElementById('modeToggleBtn').addEventListener('click', function() {
                 topModeToggleBtn.click();
             });
@@ -5396,50 +5545,37 @@
                 });
             });
 
-            // FlowState event listeners
-            fsGenerateBtn.addEventListener('click', generateFlowStateSignal);
-            fsTradeBtn.addEventListener('click', executeFlowStateTrade);
-            fsResetBtn.addEventListener('click', resetFlowStateEngine);
-            fsApplySettingsBtn.addEventListener('click', applyFlowStateSettings);
-            fsClearHistoryBtn.addEventListener('click', () => {
-                fsManualHistory = [];
-                renderFsTradeHistory();
-                toast('🗑 Manual trade history cleared', 'info');
-            });
-
-            // Sync FS contract type with barrier visibility
-            fsContractType.addEventListener('change', function() {
-                const val = this.value;
-                const barrierGroup = fsBarrier.closest('.form-group');
-                if (val === 'DIGITEVEN' || val === 'DIGITODD') {
-                    barrierGroup.style.display = 'none';
-                } else {
-                    barrierGroup.style.display = '';
-                }
-            });
-            setTimeout(() => {
-                if (fsContractType) {
-                    const evt = new Event('change');
-                    fsContractType.dispatchEvent(evt);
-                }
-            }, 100);
+            // =============================================
+            // Countdown
+            // =============================================
+            setInterval(() => {
+                if (countdown <= 0) { countdown = 5;
+                    updateMonitor(); } else { countdown--;
+                    updateCountdown.textContent = countdown; }
+            }, 1000);
 
             // =============================================
-            // MODE SWITCH (top bar)
+            // DEMO / REAL SWITCH
             // =============================================
+            function updateTopMode() {
+                topModeLabel.textContent = MODE;
+                topModeToggleBtn.style.borderColor = (MODE === 'REAL') ? 'var(--accent-red)' : 'var(--accent-yellow)';
+                topModeToggleBtn.style.color = (MODE === 'REAL') ? 'var(--accent-red)' : 'var(--accent-yellow)';
+                const playgroundLabel = document.getElementById('modeLabel');
+                if (playgroundLabel) playgroundLabel.textContent = MODE;
+            }
+
             topModeToggleBtn.addEventListener('click', () => {
                 if (MODE === 'DEMO') {
                     modeConfirmTitle.textContent = 'Switch to REAL';
-                    modeConfirmWarning.innerHTML =
-                        '<strong>⚠️ You are about to trade with REAL money.</strong>';
+                    modeConfirmWarning.innerHTML = '<strong>⚠️ You are about to trade with REAL money.</strong>';
                     modeCurrent.textContent = 'DEMO';
                     modeTarget.textContent = 'REAL';
                     modeConfirmBtn.style.background = 'var(--accent-red)';
                     modeConfirmBtn.textContent = 'Confirm Real Switch';
                 } else {
                     modeConfirmTitle.textContent = 'Switch to DEMO';
-                    modeConfirmWarning.innerHTML =
-                        '<strong>🛡️ Switch back to demo virtual funds.</strong>';
+                    modeConfirmWarning.innerHTML = '<strong>🛡️ Switch back to demo virtual funds.</strong>';
                     modeCurrent.textContent = 'REAL';
                     modeTarget.textContent = 'DEMO';
                     modeConfirmBtn.style.background = 'var(--accent-green)';
@@ -5463,20 +5599,68 @@
                 if (modeToggleBtn) {
                     modeToggleBtn.innerHTML = `MODE: <strong id="modeLabel">${MODE}</strong>`;
                 }
-                saveSettingsToStorage();
+                saveSettings();
             });
 
-            // =============================================
-            // COUNTDOWN
-            // =============================================
-            setInterval(() => {
-                if (countdown <= 0) { countdown = 5;
-                    updateMonitor(); } else { countdown--;
-                    updateCountdown.textContent = countdown; }
-            }, 1000);
+            document.querySelectorAll('.modal-overlay').forEach(overlay => {
+                overlay.addEventListener('click', function(e) { if (e.target === this) this.classList.remove(
+                    'active'); });
+            });
+            updateTopMode();
 
             // =============================================
-            // INIT
+            // FlowState event listeners
+            // =============================================
+            fsManualTradeBtn.addEventListener('click', executeFlowStateManualTrade);
+            fsManualTradeBtn2.addEventListener('click', executeFlowStateManualTrade);
+
+            fsAutoToggle.addEventListener('click', function() {
+                flowStateAutoTrade = !flowStateAutoTrade;
+                this.textContent = flowStateAutoTrade ? '🤖 Auto-Trade ON' : '🤖 Auto-Trade OFF';
+                this.className = flowStateAutoTrade ? 'btn btn-success' : 'btn btn-ghost';
+                toast(`Auto-trade ${flowStateAutoTrade ? 'ON' : 'OFF'}`, 'info');
+                saveSettings();
+            });
+
+            fsResetEngine.addEventListener('click', function() {
+                flowEngine.reset();
+                flowStateTradeHistory = [];
+                flowStateSignalsGenerated = 0;
+                flowStateTradesExecuted = 0;
+                flowStateWins = 0;
+                flowStateLosses = 0;
+                pendingFlowTrade = null;
+                updateFlowStateUI();
+                renderFlowStateHistory();
+                toast('🔄 FlowState engine reset', 'info');
+                saveSettings();
+            });
+
+            // Listen for strategy change from quick settings
+            if (qsFlowStateStrategy) {
+                qsFlowStateStrategy.addEventListener('change', function() {
+                    const val = this.value;
+                    if (val === 'FLOW_MATCHES') {
+                        signalMode = 'matches';
+                        document.querySelector('[data-field="strategyMode"]').textContent = 'FlowState Matches';
+                        document.querySelector('[data-field="signalDir"]').textContent = 'Match';
+                        fsModeDisplay.textContent = 'Matches';
+                        toast('📡 Switched to FlowState Matches', 'info');
+                    } else if (val === 'FLOW_EVENODD') {
+                        signalMode = 'evenodd';
+                        document.querySelector('[data-field="strategyMode"]').textContent = 'FlowState Even/Odd';
+                        document.querySelector('[data-field="signalDir"]').textContent = 'Even/Odd';
+                        fsModeDisplay.textContent = 'Even/Odd';
+                        toast('📡 Switched to FlowState Even/Odd', 'info');
+                    }
+                    flowEngine.reset();
+                    updateFlowStateUI();
+                    saveSettings();
+                });
+            }
+
+            // =============================================
+            // Init
             // =============================================
             loadStoredToken();
             handleOAuthCallback();
@@ -5484,8 +5668,16 @@
             if (savedClient) oauthClientId.value = savedClient;
             oauthRedirectUri.value = window.location.origin;
 
-            loadSettingsFromStorage();
+            // Load settings from localStorage
+            loadSettings();
 
+            // Ensure UI is in sync
+            updateBalanceDisplay();
+            updateProfitDisplay();
+            renderSessions();
+            renderTrades();
+            initChart();
+            updateMarketDisplay(currentMarket);
             qsStake.value = baseStake.toFixed(2);
             qsMulti.value = martingaleMultiplier.toFixed(1);
             qsMaxLevel.value = maxMartingaleLevel;
@@ -5493,39 +5685,27 @@
             qsSL.value = stopLossValue.toFixed(2);
             qsMinRuns.value = MIN_RUNS_BEFORE_TP_SL;
             qsMaxRuns.value = MAX_RUNS_PER_SESSION;
-            qsConfidence.value = String(flowStateConfidenceThreshold);
-            qsStrategy.value = signalMode === 'matches' ? 'FLOW_MATCHES' : 'FLOW_EVENODD';
-            for (let opt of qsMarket.options) { if (opt.value === currentMarket) { qsMarket.value = currentMarket; break; } }
+            if (qsFlowStateStrategy) {
+                qsFlowStateStrategy.value = signalMode === 'matches' ? 'FLOW_MATCHES' : 'FLOW_EVENODD';
+            }
 
-            if (fsStake) fsStake.value = baseStake.toFixed(2);
-            if (fsConfThreshold) fsConfThreshold.value = String(flowStateConfidenceThreshold);
-            if (fsStrategyMode) fsStrategyMode.value = signalMode;
-            if (fsMarket) { for (let opt of fsMarket.options) { if (opt.value === currentMarket) { fsMarket.value =
-                            currentMarket; break; } } }
-            if (fsModeDisplay) fsModeDisplay.textContent = signalMode === 'matches' ? 'Matches' : 'Even/Odd';
-            if (fsMarketDisplay) fsMarketDisplay.textContent = currentMarket;
+            // Update FlowState UI
+            updateFlowStateUI();
+            renderFlowStateHistory();
 
-            document.querySelector('[data-field="strategyMode"]').textContent = signalMode === 'matches' ?
-                'FlowState Matches' : 'FlowState Even/Odd';
-            document.querySelector('[data-field="signalDir"]').textContent = flowStateConfidenceThreshold + '% threshold';
-
-            updateBalanceDisplay();
-            updateProfitDisplay();
-            renderSessions();
-            renderTrades();
-            renderFsTradeHistory();
-            initChart();
-            updateMarketDisplay(currentMarket);
             setTimeout(updateMonitor, 500);
             setInterval(() => { if (!isActive) { generateChartData();
                     drawChart(); } }, 7000);
             window.addEventListener('resize', initChart);
-            setTimeout(generateFlowStateSignal, 1000);
 
-            console.log('🔷 EMRON AI — FlowState Engine fully integrated');
+            // Auto-save settings periodically
+            setInterval(saveSettings, 30000);
+
+            console.log('🔷 EMRON AI — DigitEdge FREE & UNLOCKED (FlowState integrated)');
+            console.log('📊 WebSocket endpoint: Proxy /api/get-otp (New API)');
+            console.log(`📊 Run limits: min=${MIN_RUNS_BEFORE_TP_SL}, max=${MAX_RUNS_PER_SESSION}`);
             console.log('📈 FlowState signal mode:', signalMode);
-            console.log('📈 FlowState confidence threshold:', flowStateConfidenceThreshold);
-            console.log('📈 Settings saved to localStorage');
+            console.log('📈 Auto-trade:', flowStateAutoTrade ? 'ON' : 'OFF');
 
         })();
     </script>
