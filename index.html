@@ -706,64 +706,111 @@
             opacity: 0.5;
         }
 
-        /* ===== FLOWSTATE DASHBOARD ===== */
-        .flowstate-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: clamp(10px, 1vw, 16px);
+        /* ============================================================ */
+        /* FLOWSTATE DASHBOARD (Original Style) */
+        /* ============================================================ */
+        .fs-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: clamp(8px, 0.8vw, 16px);
             margin-bottom: clamp(12px, 1vw, 20px);
         }
-        .flowstate-signal-card {
+        .fs-header h2 {
+            font-size: clamp(16px, 1.4vw, 22px);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #fff, #a8b5ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .fs-connect-btn {
+            background: rgba(0, 230, 118, 0.1);
+            border: 1px solid var(--accent-green);
+            color: var(--accent-green);
+            padding: clamp(4px, 0.3vw, 8px) clamp(12px, 0.8vw, 18px);
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: clamp(10px, 0.7vw, 12px);
+            transition: all 0.2s;
+        }
+        .fs-connect-btn:hover { background: rgba(0, 230, 118, 0.2); }
+        .fs-tabs {
+            display: flex;
+            gap: clamp(2px, 0.15vw, 4px);
+            background: var(--bg-surface);
+            border-radius: var(--radius-md);
+            padding: 2px;
+            border: 1px solid var(--border);
+            margin-bottom: clamp(12px, 1vw, 16px);
+        }
+        .fs-tab {
+            padding: clamp(4px, 0.3vw, 8px) clamp(12px, 0.8vw, 20px);
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            font-size: clamp(10px, 0.7vw, 12px);
+            color: var(--text-muted);
+            transition: all 0.2s;
+            cursor: pointer;
+            min-height: clamp(28px, 2.2vw, 34px);
+            display: flex;
+            align-items: center;
+        }
+        .fs-tab.active { background: var(--primary); color: white; }
+        .fs-tab:hover:not(.active) { color: var(--text-primary); }
+        .fs-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(12px, 1vw, 20px);
+            margin-bottom: clamp(12px, 1vw, 20px);
+        }
+        .fs-signal-card {
             background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: var(--radius-lg);
             padding: clamp(12px, 1vw, 18px);
+        }
+        .fs-signal-card .label { color: var(--text-muted); font-size: clamp(9px, 0.5vw, 11px); text-transform: uppercase; letter-spacing: 0.05em; }
+        .fs-signal-card .value { font-family: 'JetBrains Mono', monospace; font-weight: 600; font-size: clamp(14px, 1vw, 18px); margin-top: 2px; }
+        .fs-signal-card .reason { font-size: clamp(10px, 0.6vw, 12px); color: var(--text-muted); margin-top: 4px; }
+        .fs-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: clamp(8px, 0.6vw, 12px);
+            margin-top: clamp(8px, 0.6vw, 12px);
+        }
+        .fs-stat-box { background: var(--bg-surface); border-radius: var(--radius-md); padding: clamp(6px, 0.4vw, 10px); text-align: center; border: 1px solid var(--border); }
+        .fs-stat-box .stat-label { font-size: clamp(7px, 0.4vw, 9px); color: var(--text-muted); text-transform: uppercase; }
+        .fs-stat-box .stat-value { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(14px, 1vw, 18px); }
+        .fs-tick-feed {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: clamp(8px, 0.5vw, 12px);
+            max-height: clamp(160px, 18vh, 240px);
+            overflow-y: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(10px, 0.6vw, 12px);
+        }
+        .fs-tick-feed .tick-item { display: flex; justify-content: space-between; padding: 2px 4px; border-bottom: 1px solid var(--border); }
+        .fs-tick-feed .tick-item:last-child { border-bottom: none; }
+        .fs-tick-feed .tick-time { color: var(--text-muted); }
+        .fs-tick-feed .tick-price { color: var(--accent-cyan); }
+        .fs-output {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: clamp(8px, 0.5vw, 14px);
+            margin-top: clamp(8px, 0.6vw, 12px);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(11px, 0.6vw, 13px);
             text-align: center;
         }
-        .flowstate-signal-card .signal-badge {
-            font-size: clamp(16px, 1.2vw, 22px);
-            padding: clamp(6px, 0.5vw, 10px) clamp(16px, 1.2vw, 24px);
-        }
-        .flowstate-signal-card .confidence-ring {
-            display: inline-block;
-            width: clamp(60px, 5vw, 80px);
-            height: clamp(60px, 5vw, 80px);
-            border-radius: 50%;
-            border: 4px solid var(--border);
-            position: relative;
-            margin: clamp(6px, 0.4vw, 10px) auto;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'JetBrains Mono', monospace;
-            font-weight: 700;
-            font-size: clamp(16px, 1.2vw, 22px);
-        }
-        .flowstate-signal-card .confidence-ring.high {
-            border-color: var(--accent-green);
-            color: var(--accent-green);
-        }
-        .flowstate-signal-card .confidence-ring.med {
-            border-color: var(--accent-yellow);
-            color: var(--accent-yellow);
-        }
-        .flowstate-signal-card .confidence-ring.low {
-            border-color: var(--accent-red);
-            color: var(--accent-red);
-        }
-        .flowstate-signal-card .signal-detail {
-            font-size: clamp(10px, 0.6vw, 12px);
-            color: var(--text-muted);
-            margin-top: clamp(4px, 0.3vw, 8px);
-        }
-        .flowstate-signal-card .signal-detail strong {
-            color: var(--text-primary);
-        }
-        .flowstate-trade-history {
-            max-height: clamp(180px, 20vh, 280px);
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-        }
+        .fs-output .signal-badge { font-size: clamp(14px, 1vw, 18px); padding: clamp(4px, 0.3vw, 8px) clamp(12px, 0.8vw, 20px); }
+        .fs-market-select { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: clamp(4px, 0.3vw, 8px); color: var(--text-primary); font-family: 'JetBrains Mono', monospace; }
+        .fs-engine-btn { min-height: clamp(36px, 2.8vw, 44px); padding: clamp(6px, 0.4vw, 10px) clamp(16px, 1vw, 24px); font-weight: 700; }
 
         /* ===== AI SIGNALS ===== */
         .hero {
@@ -1355,7 +1402,8 @@
             .gauges-grid { grid-template-columns: 1fr; }
             .metric-grid { grid-template-columns: 1fr; }
             .preset-grid { grid-template-columns: 1fr; }
-            .flowstate-grid { grid-template-columns: 1fr; }
+            .fs-grid { grid-template-columns: 1fr; }
+            .fs-stats-grid { grid-template-columns: 1fr; }
         }
         @media (max-width: 600px) {
             .hamburger { display: flex !important; }
@@ -1413,8 +1461,9 @@
             .gauges-grid { grid-template-columns: 1fr 1fr 1fr; }
             .metric-grid { grid-template-columns: 1fr 1fr; }
             .hero h1 { font-size: clamp(18px, 3vw, 24px); }
-            .flowstate-grid { grid-template-columns: 1fr; }
+            .fs-grid { grid-template-columns: 1fr; }
             .playground-grid { grid-template-columns: 1fr; }
+            .fs-stats-grid { grid-template-columns: 1fr 1fr; }
         }
         @media (min-width: 601px) and (max-width: 1024px) {
             .app { grid-template-columns: clamp(52px, 6vw, 80px) 1fr; }
@@ -1438,7 +1487,8 @@
             .signal-strategy-grid .form-group.full { grid-column: 1 / -1; }
             .symbol-selector { grid-template-columns: repeat(auto-fill, minmax(clamp(70px, 6vw, 100px), 1fr)); }
             .preset-grid { grid-template-columns: 1fr 1fr; }
-            .flowstate-grid { grid-template-columns: 1fr 1fr; }
+            .fs-grid { grid-template-columns: 1fr 1fr; }
+            .fs-stats-grid { grid-template-columns: repeat(3, 1fr); }
         }
         @media (min-width: 1025px) {
             .app { grid-template-columns: var(--sidebar-width) 1fr; }
@@ -1462,7 +1512,8 @@
             #candleChart { height: calc(100% - 48px); min-height: clamp(212px, 27vh, 312px); }
             .toast-container { left: auto; right: clamp(16px, 1.5vw, 28px); bottom: clamp(16px, 1.5vw, 28px); max-width: 380px; }
             .preset-grid { grid-template-columns: 1fr 1fr; }
-            .flowstate-grid { grid-template-columns: 1fr 1fr; }
+            .fs-grid { grid-template-columns: 1fr 1fr; }
+            .fs-stats-grid { grid-template-columns: repeat(3, 1fr); }
         }
         @media (min-width: 1600px) {
             :root { --sidebar-width: 260px; }
@@ -1762,78 +1813,93 @@
                 </div>
             </div>
 
-            <!-- ===================== TAB 2: FLOWSTATE BOT ===================== -->
+            <!-- ===================== TAB 2: FLOWSTATE ORIGINAL ===================== -->
             <div class="tab-content" id="flowstate">
-                <div class="hero">
-                    <h1>🧠 FlowState — Independent Signal Engine</h1>
-                    <p>Pure FlowState trading. The bot listens to the FlowState engine and trades automatically when a signal fires.</p>
-                    <div class="hero-ctas">
-                        <button class="btn btn-success" id="fsActivateBtn">▶ Activate Bot</button>
-                        <button class="btn btn-danger" id="fsDeactivateBtn" disabled>⏸ Deactivate</button>
+                <div class="fs-header">
+                    <h2>🧠 FLOWSTATE — MATCHES & EVEN/ODD ENGINE</h2>
+                    <button class="fs-connect-btn" id="fsSyncBtn">🔗 SYNCEED</button>
+                </div>
+                <div class="fs-tabs">
+                    <div class="fs-tab active" id="fsTabMatches">MATCHES</div>
+                    <div class="fs-tab" id="fsTabEvenOdd">EVEN/ODD</div>
+                </div>
+                <div class="fs-grid">
+                    <div class="fs-signal-card">
+                        <div class="label">Current Signal</div>
+                        <div class="status-badge inactive" id="fsStatusBadge" style="margin-top:4px;">
+                            <div class="status-dot-inline"></div>
+                            <span id="fsStatusText">INACTIVE</span>
+                        </div>
+                        <div style="margin-top:8px;">
+                            <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px;">
+                                <span>Prediction: <strong id="fsPrediction">—</strong></span>
+                                <span>Confidence: <strong id="fsConfidence">0%</strong></span>
+                            </div>
+                            <div class="reason" id="fsReason">—</div>
+                            <div style="margin-top:6px;font-size:clamp(10px,0.6vw,12px);color:var(--text-muted);">Last Trade: <span id="fsLastTradeResult">—</span></div>
+                        </div>
+                    </div>
+                    <div class="fs-signal-card">
+                        <div class="label">FlowState Settings</div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px;">
+                            <div>
+                                <div style="font-size:clamp(7px,0.4vw,9px);color:var(--text-muted);text-transform:uppercase;">Stake ($)</div>
+                                <input class="form-control" id="fsStakeInput" type="number" value="10" step="0.01" style="min-height:32px;font-size:clamp(10px,0.6vw,12px);">
+                            </div>
+                            <div>
+                                <div style="font-size:clamp(7px,0.4vw,9px);color:var(--text-muted);text-transform:uppercase;">Strategy</div>
+                                <select class="form-control" id="fsStrategySelect" style="min-height:32px;font-size:clamp(10px,0.6vw,12px);">
+                                    <option value="matches">Matches</option>
+                                    <option value="evenodd">Even/Odd</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" id="fsApplySettingsBtn" style="width:100%;margin-top:6px;min-height:32px;">Apply Settings</button>
                     </div>
                 </div>
-                <div class="trading-layout">
-                    <div class="left-panel">
-                        <div class="card">
-                            <div class="card-header"><div class="card-title">📡 Current Signal</div></div>
-                            <div class="card-body" id="fsSignalDisplay">
-                                <div class="status-badge inactive" id="fsStatusBadge">
-                                    <div class="status-dot-inline"></div>
-                                    <span id="fsStatusText">INACTIVE</span>
-                                </div>
-                                <div style="margin-top: 12px;">
-                                    <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px;">
-                                        <span>Prediction: <strong id="fsPrediction">—</strong></span>
-                                        <span>Confidence: <strong id="fsConfidence">0%</strong></span>
-                                    </div>
-                                    <div style="margin-top:4px;">Reason: <span id="fsReason">—</span></div>
-                                    <div style="margin-top:4px;font-size:clamp(9px,0.5vw,11px);color:var(--text-muted);">Last Trade: <span id="fsLastTradeResult">—</span></div>
-                                </div>
-                            </div>
+                <div class="fs-grid">
+                    <div class="fs-signal-card">
+                        <div class="label">FlowState Stats</div>
+                        <div class="fs-stats-grid">
+                            <div class="fs-stat-box"><div class="stat-label">Trades</div><div class="stat-value" id="fsTotalTrades">0</div></div>
+                            <div class="fs-stat-box"><div class="stat-label">Win Rate</div><div class="stat-value" id="fsWinRate">0%</div></div>
+                            <div class="fs-stat-box"><div class="stat-label">P/L</div><div class="stat-value" id="fsPnL">$0.00</div></div>
                         </div>
-                        <div class="card">
-                            <div class="card-header"><div class="card-title">⚙️ FlowState Settings</div></div>
-                            <div class="card-body">
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label>Stake ($)</label>
-                                        <input class="form-control" id="fsStake" type="number" value="10" step="0.01">
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Strategy</label>
-                                        <select class="form-control" id="fsStrategy">
-                                            <option value="matches">Matches</option>
-                                            <option value="evenodd">Even/Odd</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <button class="btn btn-primary" id="fsApplySettingsBtn" style="width:100%;">Apply Settings</button>
-                            </div>
+                        <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;">
+                            <button class="btn btn-success fs-engine-btn" id="fsStartEngineBtn">▶ START ENGINE</button>
+                            <button class="btn btn-danger fs-engine-btn" id="fsStopEngineBtn" disabled>⏹ QUIET STATE</button>
+                            <select class="fs-market-select" id="fsMarketSelect">
+                                <option value="Volatility 50">VOL 50</option>
+                                <option value="Volatility 75">VOL 75</option>
+                                <option value="Volatility 100">VOL 100</option>
+                                <option value="Volatility 10 (1s)">VOL 10 (1s)</option>
+                                <option value="Volatility 25 (1s)">VOL 25 (1s)</option>
+                                <option value="Volatility 50 (1s)">VOL 50 (1s)</option>
+                                <option value="Volatility 75 (1s)">VOL 75 (1s)</option>
+                                <option value="Volatility 100 (1s)">VOL 100 (1s)</option>
+                            </select>
                         </div>
                     </div>
-                    <div class="right-panel">
-                        <div class="card">
-                            <div class="card-header"><div class="card-title">📊 FlowState Stats</div></div>
-                            <div class="card-body">
-                                <div class="metric-grid">
-                                    <div class="metric-box"><div class="metric-label">Trades</div><div class="metric-value" id="fsTotalTrades">0</div></div>
-                                    <div class="metric-box"><div class="metric-label">Win Rate</div><div class="metric-value" id="fsWinRate">0%</div></div>
-                                    <div class="metric-box"><div class="metric-label">P/L</div><div class="metric-value" id="fsPnL">$0.00</div></div>
-                                </div>
-                            </div>
+                    <div class="fs-signal-card">
+                        <div class="label">Live Tick Feed</div>
+                        <div class="fs-tick-feed" id="fsTickFeed">
+                            <div style="text-align:center;color:var(--text-muted);padding:12px 0;">Waiting for ticks...</div>
                         </div>
-                        <div class="card">
-                            <div class="card-header"><div class="card-title">📜 Trade History</div></div>
-                            <div class="card-body">
-                                <div class="table-wrapper">
-                                    <table>
-                                        <thead><tr><th>Time</th><th>Signal</th><th>Result</th><th>Profit</th></tr></thead>
-                                        <tbody id="fsTradeHistoryBody">
-                                            <tr><td colspan="4" class="empty-state"><span class="emoji">📜</span>No trades yet</td></tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
+                    </div>
+                </div>
+                <div class="fs-output" id="fsOutput">
+                    <span style="color:var(--text-muted);">📡 Signal output will appear here</span>
+                </div>
+                <div style="margin-top:clamp(12px,1vw,20px);">
+                    <div class="card">
+                        <div class="card-header"><div class="card-title">📜 Trade History</div></div>
+                        <div class="table-wrapper">
+                            <table>
+                                <thead><tr><th>Time</th><th>Signal</th><th>Result</th><th>Profit</th></tr></thead>
+                                <tbody id="fsTradeHistoryBody">
+                                    <tr><td colspan="4" class="empty-state"><span class="emoji">📜</span>No trades yet</td></tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -2254,7 +2320,7 @@
                     </div>
                 </div>
                 <div style="margin-top:clamp(8px,0.6vw,12px);padding:clamp(4px,0.3vw,8px) clamp(8px,0.5vw,12px);background:rgba(0,230,118,0.06);border-radius:var(--radius-md);border:1px solid var(--accent-green);font-size:clamp(9px,0.5vw,11px);color:var(--text-muted);">
-                    <span style="color:var(--accent-green);">✅</span> Next Trade Preview: <strong style="color:var(--text-primary);">CALL on V50 · 1s</strong> — <span style="color:var(--accent-cyan);">DigitEdge active</span>
+                    <span style="color:var(--accent-green);">✅</span> Next Trade Preview: <strong style="color:var(--text-primary);" id="ssPreviewText">CALL on V50 · 1s</strong> — <span style="color:var(--accent-cyan);">DigitEdge active</span>
                 </div>
                 <div class="modal-actions">
                     <button class="btn btn-ghost" data-modal="signalStrategyModal">Close</button>
@@ -2638,7 +2704,7 @@
             let MAX_RUNS_PER_SESSION = 200;
             const SIGNAL_CONFIDENCE_THRESHOLD = 60;
 
-            // FlowState engine instance (shared for analysis, but bot logic separate)
+            // FlowState engine instance
             const flowEngine = new FlowStateEngine();
 
             // =============================================
@@ -2745,22 +2811,40 @@
             const modeTarget = document.getElementById('modeTarget');
             const modeConfirmBtn = document.getElementById('modeConfirmBtn');
 
+            // Signal Strategy fields
+            const ssMaster = document.getElementById('ssMaster');
+            const ssStrategy = document.getElementById('ssStrategy');
+            const ssSource = document.getElementById('ssSource');
+            const ssSignal = document.getElementById('ssSignal');
+            const ssSides = document.getElementById('ssSides');
+            const ssBarrier = document.getElementById('ssBarrier');
+            const ssDuration = document.getElementById('ssDuration');
+            const ssMarketSelect = document.getElementById('ssMarket');
+            const ssEntry = document.getElementById('ssEntry');
+            const ssPreviewText = document.getElementById('ssPreviewText');
+
             // FlowState Tab Elements
-            const fsActivateBtn = document.getElementById('fsActivateBtn');
-            const fsDeactivateBtn = document.getElementById('fsDeactivateBtn');
+            const fsSyncBtn = document.getElementById('fsSyncBtn');
+            const fsTabMatches = document.getElementById('fsTabMatches');
+            const fsTabEvenOdd = document.getElementById('fsTabEvenOdd');
             const fsStatusBadge = document.getElementById('fsStatusBadge');
             const fsStatusText = document.getElementById('fsStatusText');
             const fsPrediction = document.getElementById('fsPrediction');
             const fsConfidence = document.getElementById('fsConfidence');
             const fsReason = document.getElementById('fsReason');
             const fsLastTradeResult = document.getElementById('fsLastTradeResult');
-            const fsStake = document.getElementById('fsStake');
-            const fsStrategy = document.getElementById('fsStrategy');
+            const fsStakeInput = document.getElementById('fsStakeInput');
+            const fsStrategySelect = document.getElementById('fsStrategySelect');
             const fsApplySettingsBtn = document.getElementById('fsApplySettingsBtn');
             const fsTotalTrades = document.getElementById('fsTotalTrades');
             const fsWinRate = document.getElementById('fsWinRate');
             const fsPnL = document.getElementById('fsPnL');
             const fsTradeHistoryBody = document.getElementById('fsTradeHistoryBody');
+            const fsStartEngineBtn = document.getElementById('fsStartEngineBtn');
+            const fsStopEngineBtn = document.getElementById('fsStopEngineBtn');
+            const fsMarketSelect = document.getElementById('fsMarketSelect');
+            const fsTickFeed = document.getElementById('fsTickFeed');
+            const fsOutput = document.getElementById('fsOutput');
 
             // =============================================
             // MARKET SYMBOLS
@@ -2825,17 +2909,27 @@
             const TRADE_TIMEOUT_MS = 10000;
             const TRADE_COOLDOWN_MS = 1200;
 
+            // Signal Strategy State
+            let emronSignalConfig = {
+                signal: 'Over',
+                barrier: '0',
+                duration: '1',
+                market: 'Volatility 50',
+                strategy: 'Single signal — trade every cycle'
+            };
+
             // FlowState Bot State (Independent)
-            let fsBotActive = false;
+            let fsEngineRunning = false;
             let fsStakeAmount = 10;
             let fsStrategyMode = 'matches'; // 'matches' or 'evenodd'
             let fsTrades = [];
             let fsWinCount = 0;
             let fsLoseCount = 0;
             let fsPnLAmount = 0;
-            let pendingFsContractId = null;
-            let fsTradeInProgress = false;
             let fsLastSignal = null;
+            let fsTickHistory = [];
+            let fsSimInterval = null;
+            let fsMarket = 'Volatility 50';
 
             // =============================================
             // WEBSOCKET MANAGER (Shared)
@@ -2986,13 +3080,18 @@
                     }
 
                     // --- FlowState Bot Logic ---
-                    if (fsBotActive && !fsTradeInProgress) {
+                    if (fsEngineRunning) {
                         const signal = generateFlowStateSignal();
                         if (signal) {
                             fsLastSignal = signal;
                             updateFsDashboard(signal);
+                            // Auto-trade when engine is running
                             fsPlaceTrade(signal);
                         }
+                    }
+                    // Update tick feed for FlowState
+                    if (fsEngineRunning) {
+                        updateFsTickFeed(price);
                     }
                 }
             }
@@ -3009,8 +3108,7 @@
                 if (data.error) {
                     toast('❌ Buy error: ' + data.error.message, 'error');
                     unjamTradeEngine();
-                    if (fsTradeInProgress) {
-                        fsTradeInProgress = false;
+                    if (fsEngineRunning) {
                         handleFsTradeResult(false, -fsStakeAmount);
                     } else {
                         handleTradeResult(false, -currentStake);
@@ -3019,9 +3117,7 @@
                 }
                 if (data.buy) {
                     const contract = data.buy;
-                    if (fsTradeInProgress) {
-                        pendingFsContractId = contract.contract_id;
-                        fsTradeInProgress = false;
+                    if (fsEngineRunning) {
                         toast(`📈 Flowstate Trade placed! ID: ${contract.contract_id}`, 'success');
                         sendWsRequest({ proposal_open_contract: 1, contract_id: contract.contract_id, subscribe: 1 });
                     } else {
@@ -3042,8 +3138,8 @@
                     const won = profit > 0;
                     if (data.subscription) { sendWsRequest({ forget: data.subscription.id }); }
 
-                    if (pendingFsContractId === contract.contract_id) {
-                        pendingFsContractId = null;
+                    if (fsEngineRunning) {
+                        // FlowState trade
                         handleFsTradeResult(won, profit);
                     } else if (activeContractId === contract.contract_id) {
                         activeContractId = null;
@@ -3059,7 +3155,6 @@
                     console.error('❌ API error object:', data.error);
                     toast('❌ API Error: ' + data.error.message, 'error');
                     if (isTradeInProgress) { unjamTradeEngine(); }
-                    if (fsTradeInProgress) { fsTradeInProgress = false; }
                 }
             }
 
@@ -3124,7 +3219,6 @@
             // =============================================
             function fsPlaceTrade(signal) {
                 if (!wsConnected) {
-                    // Simulate trade
                     simulateFsTrade(signal);
                     return;
                 }
@@ -3144,17 +3238,15 @@
                     currency: 'USD',
                     duration: 1,
                     duration_unit: 't',
-                    symbol: getSymbol(currentMarket)
+                    symbol: getSymbol(fsMarket)
                 };
                 if (barrier !== null) params.barrier = String(barrier);
 
-                fsTradeInProgress = true;
                 sendWsRequest({ buy: 1, price: fsStakeAmount, parameters: params });
             }
 
             function simulateFsTrade(signal) {
-                // Simulate 5-tick verification
-                const win = Math.random() < 0.6; // Simulate win rate
+                const win = Math.random() < 0.6;
                 const pl = win ? fsStakeAmount * 0.85 : -fsStakeAmount;
                 setTimeout(() => {
                     handleFsTradeResult(win, pl);
@@ -3179,29 +3271,53 @@
                 renderFsTradeHistory();
                 fsLastTradeResult.textContent = `${won ? '✅ Won' : '❌ Lost'} $${profit.toFixed(2)}`;
                 fsLastTradeResult.style.color = won ? 'var(--accent-green)' : 'var(--accent-red)';
-
+                fsOutput.innerHTML = `
+                    <span style="color:${won ? 'var(--accent-green)' : 'var(--accent-red)'};font-weight:700;">
+                        ${won ? '✅ WIN' : '❌ LOSS'} — $${profit.toFixed(2)}
+                    </span>
+                    <span style="color:var(--text-muted);margin-left:8px;">${fsLastSignal ? fsLastSignal.reason : ''}</span>
+                `;
                 toast(`${won ? '✅' : '❌'} FlowState trade ${won ? 'won' : 'lost'} $${profit.toFixed(2)}`,
                     won ? 'success' : 'error');
             }
 
             // =============================================
-            // 📊 EMRON AI BOT TRADING (Reverted to original)
+            // 📊 EMRON AI BOT TRADING (Fixed Signal Strategy)
             // =============================================
             function placeTrade() {
                 if (!isActive || isTradeInProgress) return;
                 if (!accessToken) { toast('No access token. Please connect.', 'error'); return; }
 
-                // EMRON AI uses DIGITOVER strategy by default
+                // Map signal to contract type
+                let contractType = 'DIGITOVER';
+                let barrier = emronSignalConfig.barrier;
+                const signal = emronSignalConfig.signal;
+
+                if (signal === 'Over') {
+                    contractType = 'DIGITOVER';
+                } else if (signal === 'Under') {
+                    contractType = 'DIGITUNDER';
+                } else if (signal === 'Rise') {
+                    contractType = 'CALL';
+                    barrier = null;
+                } else if (signal === 'Fall') {
+                    contractType = 'PUT';
+                    barrier = null;
+                }
+
                 const params = {
                     amount: currentStake,
                     basis: 'stake',
-                    contract_type: 'DIGITOVER',
+                    contract_type: contractType,
                     currency: 'USD',
-                    duration: 1,
+                    duration: parseInt(emronSignalConfig.duration) || 1,
                     duration_unit: 't',
-                    symbol: getSymbol(currentMarket),
-                    barrier: '0'
+                    symbol: getSymbol(emronSignalConfig.market || currentMarket)
                 };
+                if (barrier !== null && barrier !== undefined && barrier !== '') {
+                    params.barrier = String(barrier);
+                }
+
                 isTradeInProgress = true;
                 lastTradeTime = Date.now();
                 sendWsRequest({ buy: 1, price: currentStake, parameters: params });
@@ -3226,8 +3342,8 @@
                 const now = new Date();
                 trades.push({
                     time: now.toLocaleTimeString(),
-                    type: 'DIGITOVER 0',
-                    symbol: currentMarket,
+                    type: `${emronSignalConfig.signal} ${emronSignalConfig.barrier}`,
+                    symbol: emronSignalConfig.market || currentMarket,
                     stake: currentStake,
                     pl: pl
                 });
@@ -3319,7 +3435,6 @@
                     updateInterval = setInterval(() => {
                         if (!isActive) return;
                         if (!wsConnected) {
-                            // Simulate trade for demo
                             const win = Math.random() < 0.5;
                             const pl = win ? currentStake * 0.85 : -currentStake;
                             handleTradeResult(win, pl);
@@ -3362,6 +3477,13 @@
                 fsReason.textContent = signal.reason || '—';
                 fsStatusBadge.className = 'status-badge active';
                 fsStatusText.textContent = 'SIGNAL READY';
+                fsOutput.innerHTML = `
+                    <span style="color:var(--accent-cyan);font-weight:700;">
+                        ${fsStrategyMode === 'matches' ? `MATCH ${signal.entryDigit}` : signal.prediction}
+                    </span>
+                    <span style="color:var(--text-muted);margin-left:8px;">Confidence: ${signal.confidence}%</span>
+                    <span style="color:var(--text-dim);margin-left:8px;font-size:clamp(9px,0.5vw,11px);">${signal.reason}</span>
+                `;
             }
 
             function updateFsDashboardStats() {
@@ -3392,31 +3514,44 @@
                 fsTradeHistoryBody.innerHTML = html;
             }
 
-            function startFsBot() {
-                if (fsBotActive) return;
-                fsBotActive = true;
-                fsStatusBadge.className = 'status-badge active';
-                fsStatusText.textContent = 'ACTIVE';
-                fsActivateBtn.disabled = true;
-                fsDeactivateBtn.disabled = false;
-                toast('🧠 FlowState bot activated', 'success');
-                // Reset stats if needed
-                updateFsDashboardStats();
+            function updateFsTickFeed(price) {
+                const time = new Date().toLocaleTimeString();
+                fsTickHistory.unshift({ time, price });
+                if (fsTickHistory.length > 20) fsTickHistory.pop();
+
+                let html = '';
+                fsTickHistory.forEach(t => {
+                    html +=
+                        `<div class="tick-item"><span class="tick-time">${t.time}</span><span class="tick-price">${t.price.toFixed(2)}</span></div>`;
+                });
+                fsTickFeed.innerHTML = html;
             }
 
-            function stopFsBot() {
-                if (!fsBotActive) return;
-                fsBotActive = false;
-                fsTradeInProgress = false;
+            function startFsEngine() {
+                if (fsEngineRunning) return;
+                fsEngineRunning = true;
+                fsStartEngineBtn.disabled = true;
+                fsStopEngineBtn.disabled = false;
+                fsStatusBadge.className = 'status-badge active';
+                fsStatusText.textContent = 'ENGINE RUNNING';
+                toast('🧠 FlowState engine started', 'success');
+                // Reset tick feed
+                fsTickFeed.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:12px 0;">Waiting for ticks...</div>';
+                fsTickHistory = [];
+            }
+
+            function stopFsEngine() {
+                if (!fsEngineRunning) return;
+                fsEngineRunning = false;
+                fsStartEngineBtn.disabled = false;
+                fsStopEngineBtn.disabled = true;
                 fsStatusBadge.className = 'status-badge inactive';
                 fsStatusText.textContent = 'INACTIVE';
-                fsActivateBtn.disabled = false;
-                fsDeactivateBtn.disabled = true;
-                toast('⏸ FlowState bot deactivated', 'error');
+                toast('⏹ FlowState engine stopped', 'error');
             }
 
             // =============================================
-            // Chart (unchanged)
+            // Chart
             // =============================================
             function updateChartWithTick(price) {
                 const last = chartData.length > 0 ? chartData[chartData.length - 1].close : price;
@@ -3942,33 +4077,57 @@
             // Modals logic
             // =============================================
             function openSignalStrategy() {
-                document.getElementById('ssMaster').value = 'on';
-                document.getElementById('ssStrategy').value = 'Single signal — trade every cycle';
-                document.getElementById('ssSource').value = 'DigitEdge feed (FREE — unlocked)';
-                document.getElementById('ssSignal').value = 'Over';
-                document.getElementById('ssSides').value = 'Over only';
-                document.getElementById('ssBarrier').value = '0';
-                document.getElementById('ssDuration').value = '1';
-                for (let opt of ssMarket.options) { if (opt.value === currentMarket) { ssMarket.value = currentMarket;
-                        break; } }
-                document.getElementById('ssEntry').value = 'None — trade every cycle';
+                // Load current config into modal
+                ssMaster.value = 'on';
+                ssStrategy.value = emronSignalConfig.strategy || 'Single signal — trade every cycle';
+                ssSource.value = 'DigitEdge feed (FREE — unlocked)';
+                ssSignal.value = emronSignalConfig.signal || 'Over';
+                ssSides.value = 'Over only';
+                ssBarrier.value = emronSignalConfig.barrier || '0';
+                ssDuration.value = emronSignalConfig.duration || '1';
+                for (let opt of ssMarketSelect.options) {
+                    if (opt.value === (emronSignalConfig.market || currentMarket)) {
+                        ssMarketSelect.value = opt.value;
+                        break;
+                    }
+                }
+                ssEntry.value = 'None — trade every cycle';
+                // Update preview
+                updateSignalPreview();
                 signalStrategyModal.classList.add('active');
             }
 
+            function updateSignalPreview() {
+                const signal = ssSignal.value;
+                const barrier = ssBarrier.value;
+                const market = ssMarketSelect.value;
+                const preview = `${signal} on ${market} · ${ssDuration.value}t`;
+                ssPreviewText.textContent = preview;
+            }
+
             function saveSignalStrategy() {
-                const strategy = document.getElementById('ssStrategy').value;
-                const signal = document.getElementById('ssSignal').value;
-                const barrier = document.getElementById('ssBarrier').value;
-                const duration = document.getElementById('ssDuration').value;
-                const market = document.getElementById('ssMarket').value;
-                document.querySelector('[data-field="strategyMode"]').textContent = strategy;
-                document.querySelector('[data-field="signalDir"]').textContent = signal;
-                document.querySelector('[data-field="barrier"]').textContent = barrier;
-                document.querySelector('[data-field="duration"]').textContent = duration + ' tick' + (duration > 1 ? 's' :
-                '');
-                if (market !== 'Signal market (recommended)') updateMarketDisplay(market);
+                emronSignalConfig.signal = ssSignal.value;
+                emronSignalConfig.barrier = ssBarrier.value;
+                emronSignalConfig.duration = ssDuration.value;
+                emronSignalConfig.market = ssMarketSelect.value !== 'Signal market (recommended)' ? ssMarketSelect.value :
+                    currentMarket;
+                emronSignalConfig.strategy = ssStrategy.value;
+
+                document.querySelector('[data-field="strategyMode"]').textContent = emronSignalConfig.strategy;
+                document.querySelector('[data-field="signalDir"]').textContent = emronSignalConfig.signal;
+                document.querySelector('[data-field="barrier"]').textContent = emronSignalConfig.barrier;
+                document.querySelector('[data-field="duration"]').textContent = emronSignalConfig.duration + ' tick' + (
+                    parseInt(emronSignalConfig.duration) > 1 ? 's' : '');
+
+                if (emronSignalConfig.market !== currentMarket) {
+                    updateMarketDisplay(emronSignalConfig.market);
+                }
+
+                // Update live trade type display
+                liveTradeType.textContent = `${emronSignalConfig.signal} ${emronSignalConfig.barrier}`;
+
                 signalStrategyModal.classList.remove('active');
-                toast('📡 DigitEdge signal strategy applied', 'success');
+                toast('📡 Signal strategy applied to EMRON AI', 'success');
             }
 
             function openRiskMgmt() {
@@ -4060,8 +4219,14 @@
                 btn.addEventListener('click', function() { applyPreset(this.dataset.preset); });
             });
 
+            // Signal Strategy
             signalStrategyBtn.addEventListener('click', openSignalStrategy);
+            ssSignal.addEventListener('change', updateSignalPreview);
+            ssBarrier.addEventListener('change', updateSignalPreview);
+            ssDuration.addEventListener('change', updateSignalPreview);
+            ssMarketSelect.addEventListener('change', updateSignalPreview);
             ssSaveBtn.addEventListener('click', saveSignalStrategy);
+
             riskMgmtBtn.addEventListener('click', openRiskMgmt);
             document.getElementById('rmMulti').addEventListener('input', updateStakeLadder);
             document.getElementById('rmMaxLevel').addEventListener('input', updateStakeLadder);
@@ -4294,18 +4459,55 @@
             updateTopMode();
 
             // =============================================
-            // FlowState Bot Event Listeners
+            // FlowState Event Listeners
             // =============================================
-            fsActivateBtn.addEventListener('click', startFsBot);
-            fsDeactivateBtn.addEventListener('click', stopFsBot);
+            fsSyncBtn.addEventListener('click', () => {
+                toast('🔗 Synced with FlowState engine', 'info');
+            });
+
+            fsTabMatches.addEventListener('click', function() {
+                fsTabMatches.classList.add('active');
+                fsTabEvenOdd.classList.remove('active');
+                fsStrategyMode = 'matches';
+                fsStrategySelect.value = 'matches';
+                toast('📊 Switched to MATCHES mode', 'info');
+                flowEngine.reset();
+                fsOutput.innerHTML = '<span style="color:var(--text-muted);">📡 MATCHES mode active</span>';
+            });
+
+            fsTabEvenOdd.addEventListener('click', function() {
+                fsTabEvenOdd.classList.add('active');
+                fsTabMatches.classList.remove('active');
+                fsStrategyMode = 'evenodd';
+                fsStrategySelect.value = 'evenodd';
+                toast('📊 Switched to EVEN/ODD mode', 'info');
+                flowEngine.reset();
+                fsOutput.innerHTML = '<span style="color:var(--text-muted);">📡 EVEN/ODD mode active</span>';
+            });
 
             fsApplySettingsBtn.addEventListener('click', function() {
-                const stake = parseFloat(fsStake.value) || 10;
-                const strategy = fsStrategy.value;
+                const stake = parseFloat(fsStakeInput.value) || 10;
+                const strategy = fsStrategySelect.value;
                 fsStakeAmount = stake;
                 fsStrategyMode = strategy;
+                // Update tab UI
+                if (strategy === 'matches') {
+                    fsTabMatches.classList.add('active');
+                    fsTabEvenOdd.classList.remove('active');
+                } else {
+                    fsTabEvenOdd.classList.add('active');
+                    fsTabMatches.classList.remove('active');
+                }
                 toast(`✅ FlowState settings applied: ${strategy}, $${stake}`, 'success');
-                // Reset engine if strategy changes? No, keep engine running, just change mode.
+                flowEngine.reset();
+            });
+
+            fsStartEngineBtn.addEventListener('click', startFsEngine);
+            fsStopEngineBtn.addEventListener('click', stopFsEngine);
+
+            fsMarketSelect.addEventListener('change', function() {
+                fsMarket = this.value;
+                toast(`📊 FlowState market set to ${fsMarket}`, 'info');
             });
 
             // =============================================
@@ -4341,8 +4543,8 @@
             window.addEventListener('resize', initChart);
 
             console.log('🔷 EMRON AI — DigitEdge FREE & UNLOCKED');
-            console.log('📊 FlowState bot is independent.');
-            console.log('📈 EMRON AI bot uses DIGITOVER strategy.');
+            console.log('📊 FlowState engine is independent.');
+            console.log('📈 EMRON AI bot uses Signal Strategy.');
 
         })();
     </script>
