@@ -4067,7 +4067,7 @@
             }
 
             // =============================================
-            // PROPOSAL / BUY HANDLERS (FIXED: parameters spread)
+            // PROPOSAL / BUY HANDLERS (FIXED: parameters spread, symbol -> underlying_symbol)
             // =============================================
             function handleProposal(data) {
                 if (data.error) {
@@ -4230,10 +4230,9 @@
                     currency: 'USD',
                     duration: 1,
                     duration_unit: 't',
-                    symbol: getSymbol(fsMarket)
+                    underlying_symbol: getSymbol(fsMarket)  // FIXED: symbol -> underlying_symbol
                 };
                 isFsProposal = true;
-                // FIXED: spread parameters instead of nesting
                 sendWsRequest({ proposal: 1, ...params });
             }
 
@@ -4263,7 +4262,7 @@
             }
 
             // =============================================
-            // 📊 EMRON AI BOT TRADING (Even/Odd) — FIXED PROPOSAL
+            // 📊 EMRON AI BOT TRADING (Even/Odd) — FIXED PROPOSAL & SYMBOL
             // =============================================
             function placeTrade(signal) {
                 if (!isActive || isTradeInProgress) return;
@@ -4278,13 +4277,12 @@
                     currency: 'USD',
                     duration: parseInt(emronSignalConfig.duration) || 1,
                     duration_unit: 't',
-                    symbol: getSymbol(emronSignalConfig.market || currentMarket)
+                    underlying_symbol: getSymbol(emronSignalConfig.market || currentMarket)  // FIXED: symbol -> underlying_symbol
                 };
 
                 isEmronProposal = true;
                 isTradeInProgress = true;
                 lastTradeTime = Date.now();
-                // FIXED: spread parameters instead of nesting
                 sendWsRequest({ proposal: 1, ...params });
                 setTimeout(() => {
                     if (isEmronProposal) {
@@ -5534,7 +5532,7 @@
             console.log('🔷 EMRON AI — DigitEdge Even/Odd FREE & UNLOCKED');
             console.log('📊 Even/Odd engine active — trading only on positive edge.');
             console.log('📈 Break-even at ' + (be * 100).toFixed(1) + '% with ' + PAYOUT_RATIO + '% payout.');
-            console.log('✅ PROPOSAL FIX APPLIED: parameters are now spread correctly.');
+            console.log('✅ PROPOSAL FIX APPLIED: parameters now use underlying_symbol.');
 
         })();
     </script>
