@@ -2768,11 +2768,12 @@
             <!-- ===================== TAB 2: FLOWSTATE ===================== -->
             <div class="tab-content" id="flowstate">
                 <div class="fs-header">
-                    <h2>🧠 FLOWSTATE — MATCHES & EVEN/ODD ENGINE</h2>
+                    <h2>🧠 FLOWSTATE — MATCHES, DIFFERS & EVEN/ODD ENGINE</h2>
                     <button class="fs-connect-btn" id="fsSyncBtn">🔗 SYNCED</button>
                 </div>
                 <div class="fs-tabs">
                     <div class="fs-tab active" id="fsTabMatches">MATCHES</div>
+                    <div class="fs-tab" id="fsTabDiffers">DIFFERS</div>
                     <div class="fs-tab" id="fsTabEvenOdd">EVEN/ODD</div>
                 </div>
                 <div class="fs-grid">
@@ -2802,6 +2803,7 @@
                                 <div style="font-size:clamp(7px,0.4vw,9px);color:var(--text-muted);text-transform:uppercase;">Strategy</div>
                                 <select class="form-control" id="fsStrategySelect" style="min-height:32px;font-size:clamp(10px,0.6vw,12px);">
                                     <option value="matches">Matches</option>
+                                    <option value="differs">Differs</option>
                                     <option value="evenodd">Even/Odd</option>
                                 </select>
                             </div>
@@ -3482,6 +3484,103 @@
             'use strict';
 
             // =============================================
+            // 🧠 DIGIT ENGINE for MATCHES and DIFFERS
+            // =============================================
+            class DigitEngine {
+                constructor() {
+                    this.reset();
+                }
+                reset() {
+                    this.ticks = [];
+                    this.digits = [];
+                    this.transitionMatrix = Array.from({ length: 10 }, () => Array(10).fill(0));
+                }
+                addTick(price, decimals) {
+                    const priceStr = price.toFixed(decimals);
+                    const lastDigit = parseInt(priceStr.slice(-1));
+                    if (this.digits.length > 0) {
+                        const prev = this.digits[this.digits.length - 1];
+                        this.transitionMatrix[prev][lastDigit]++;
+                    }
+                    this.ticks.push({ price, digit: lastDigit, time: Date.now() });
+                    this.digits.push(lastDigit);
+                    if (this.ticks.length > 2000) {
+                        this.ticks.shift();
+                        this.digits.shift();
+                    }
+                    return lastDigit;
+                }
+                getFrequency(windowSize) {
+                    const d = this.digits.slice(-windowSize);
+                    const counts = Array(10).fill(0);
+                    d.forEach((digit, i) => {
+                        const weight = 1 + (i / d.length);
+                        counts[digit] += weight;
+                    });
+                    const total = counts.reduce((a, b) => a + b, 0) || 1;
+                    return counts.map(c => c / total);
+                }
+                getStreaks() {
+                    const streaks = Array(10).fill(this.digits.length);
+                    for (let i = this.digits.length - 1; i >= 0; i--) {
+                        const d = this.digits[i];
+                        if (streaks[d] === this.digits.length) streaks[d] = this.digits.length - 1 - i;
+                    }
+                    return streaks;
+                }
+                getTransitions(from) {
+                    const row = this.transitionMatrix[from] || Array(10).fill(0);
+                    const total = row.reduce((a, b) => a + b, 0) || 1;
+                    return row.map(x => x / total);
+                }
+                generateSignal(minConfidence) {
+                    const n = this.digits.length;
+                    if (n < 40) return null;
+                    const currentDigit = this.digits[n - 1];
+                    const weightedFreq = this.getFrequency(35);
+                    const streaks = this.getStreaks();
+                    const maxStreak = Math.max(...streaks, 1);
+                    const transProbs = this.getTransitions(currentDigit);
+                    const last5 = this.digits.slice(-5);
+                    const last5Counts = Array(10).fill(0);
+                    last5.forEach(d => last5Counts[d]++);
+                    const scores = Array(10).fill(0);
+                    for (let i = 0; i < 10; i++) {
+                        const freqScore = weightedFreq[i] * 40;
+                        const streakScore = (streaks[i] / maxStreak) * 30;
+                        const transScore = transProbs[i] * 20;
+                        const recentScore = (last5Counts[i] / 5) * 10;
+                        scores[i] = freqScore + streakScore + transScore + recentScore;
+                    }
+                    const sorted = scores.map((s, i) => ({ digit: i, score: s })).sort((a, b) => b.score - a.score);
+                    const primary = sorted[0];
+                    const secondary = sorted[1];
+                    const avgScore = scores.reduce((a, b) => a + b, 0) / 10;
+                    const range = Math.max(...scores) - Math.min(...scores) || 1;
+                    const dominance = (primary.score - avgScore) / range;
+                    const dataFactor = Math.min(1, n / 500);
+                    const dominanceFactor = Math.min(1, dominance * 3);
+                    const recentSupport = last5Counts[primary.digit] >= 2 ? 1 : 0.5;
+                    let confidence = Math.round((dominanceFactor * 50 + recentSupport * 30 + dataFactor * 20));
+                    confidence = Math.max(55, Math.min(98, confidence));
+                    if (confidence < minConfidence) return null;
+                    return {
+                        predictedDigit: primary.digit,
+                        recoveryDigit: secondary.digit,
+                        confidence: confidence,
+                        recoveryConfidence: Math.round(secondary.score / (primary.score + 0.01) * 80),
+                        reason: `${primary.digit} dominates (${(weightedFreq[primary.digit]*100).toFixed(0)}% freq)`
+                    };
+                }
+                getLastDigits(n) {
+                    return this.digits.slice(-n);
+                }
+                getDigitCount() {
+                    return this.digits.length;
+                }
+            }
+
+            // =============================================
             // 🧠 EVEN/ODD SIGNAL ENGINE (Parity-Focused)
             // =============================================
             class EvenOddEngine {
@@ -3527,10 +3626,9 @@
                     return diff <= tolerance;
                 }
                 isStrictlyBalanced() {
-                    // Returns true only if even and odd are exactly 50/50 (within 0.5%)
                     const freq = this.getParityFrequency(Math.min(this.parities.length, 100));
                     const diff = Math.abs(freq.even - freq.odd) * 100;
-                    return diff < 0.5; // strict 50/50
+                    return diff < 0.5;
                 }
                 getBalanceInfo() {
                     const freq = this.getParityFrequency(Math.min(this.parities.length, 100));
@@ -3580,13 +3678,11 @@
                 generateSignal(minConfidence, minEdge, payoutRatio, requireBalance, balanceTolerance) {
                     const n = this.parities.length;
                     if (n < 40) return null;
-
                     const freq = this.getParityFrequency(35);
                     const runLength = this.getParityRunLength();
                     const trans = this.getTransitionProbs();
                     const entropy = this.getDigitEntropy();
                     const lastParity = this.parities[this.parities.length - 1];
-
                     let evenScore = 0;
                     evenScore += freq.even * 35;
                     if (lastParity === true) {
@@ -3601,21 +3697,17 @@
                     }
                     const entropyFactor = Math.max(0, 1 - entropy / 4);
                     evenScore += entropyFactor * 20;
-
                     const pEven = Math.max(0.05, Math.min(0.95, evenScore / 100));
                     const pOdd = 1 - pEven;
                     const side = pEven >= pOdd ? 'EVEN' : 'ODD';
                     const pSide = Math.max(pEven, pOdd);
                     const confidence = Math.round(Math.min(98, 50 + pSide * 45 + (1 - entropy / 4) * 15));
-
                     const requiredProb = 1 / (1 + payoutRatio / 100);
                     const edge = pSide - requiredProb;
                     const minEdgeVal = minEdge / 100;
-
                     const decision = (confidence >= minConfidence && edge > minEdgeVal) ? 'TRADE' : 'NO_TRADE';
                     const balanceInfo = this.getBalanceInfo();
                     const strictBalanced = this.isStrictlyBalanced();
-
                     return {
                         side: side,
                         pEven: pEven,
@@ -3632,7 +3724,7 @@
                         lastParity: lastParity ? 'EVEN' : 'ODD',
                         balanceInfo: balanceInfo,
                         isBalanced: this.isMarketBalanced(balanceTolerance),
-                        strictBalanced: strictBalanced // only true when exactly 50/50
+                        strictBalanced: strictBalanced
                     };
                 }
                 getLastDigits(n) {
@@ -3653,14 +3745,15 @@
             let MIN_RUNS_BEFORE_TP_SL = 5;
             let MAX_RUNS_PER_SESSION = 200;
             let MIN_CONFIDENCE = 60;
-            let MIN_EDGE = 2.0; // percent
-            let PAYOUT_RATIO = 95.0; // percent
-            let MAX_OPEN_CONTRACTS = 2; // allow up to 2 when trading both sides
+            let MIN_EDGE = 2.0;
+            let PAYOUT_RATIO = 95.0;
+            let MAX_OPEN_CONTRACTS = 2;
             let TRADE_COOLDOWN_MS = 150;
-            let BALANCE_TOLERANCE = 5; // percent (for display/info)
-            let TRADE_BOTH_ON_STRICT_50 = true; // only on strict 50/50
+            let BALANCE_TOLERANCE = 5;
+            let TRADE_BOTH_ON_STRICT_50 = true;
 
-            // Even/Odd engine instance
+            // Engines
+            const digitEngine = new DigitEngine();
             const eoEngine = new EvenOddEngine();
 
             // =============================================
@@ -3790,6 +3883,7 @@
             // FlowState Tab Elements
             const fsSyncBtn = document.getElementById('fsSyncBtn');
             const fsTabMatches = document.getElementById('fsTabMatches');
+            const fsTabDiffers = document.getElementById('fsTabDiffers');
             const fsTabEvenOdd = document.getElementById('fsTabEvenOdd');
             const fsStatusBadge = document.getElementById('fsStatusBadge');
             const fsStatusText = document.getElementById('fsStatusText');
@@ -3880,7 +3974,7 @@
             // Flags for proposal/buy handling
             let isEmronProposal = false;
             let isEmronBuy = false;
-            let pendingTradeCount = 0; // to track both-side trades
+            let pendingTradeCount = 0;
 
             // Even/Odd Signal Config
             let emronSignalConfig = {
@@ -3898,7 +3992,7 @@
                 tradeBothOnStrict50: true
             };
 
-            // FlowState Bot State (Independent)
+            // FlowState Bot State
             let fsEngineRunning = false;
             let fsStakeAmount = 10;
             let fsStrategyMode = 'matches';
@@ -4042,38 +4136,33 @@
                 }
             }
 
-            // Tick handler: feeds Even/Odd engine and triggers trades
             function handleTick(data) {
                 if (data.error) return;
                 const tick = data.tick;
                 if (tick && tick.quote) {
                     if (data.subscription && data.subscription.id) tickSubscriptionId = data.subscription.id;
                     const price = parseFloat(tick.quote);
-                    // Feed Even/Odd engine
                     const result = eoEngine.addTick(price, 3);
+                    digitEngine.addTick(price, 3);
                     updateChartWithTick(price);
                     updateEoDisplay(result);
 
                     // --- EMRON AI Bot Logic (Even/Odd) ---
                     if (isActive && wsConnected && !isTradeInProgress && openContracts < MAX_OPEN_CONTRACTS &&
                         (Date.now() - lastTradeTime) > TRADE_COOLDOWN_MS) {
-                        // Generate signal from engine
                         const signal = eoEngine.generateSignal(
                             emronSignalConfig.minConfidence || MIN_CONFIDENCE,
                             emronSignalConfig.minEdge || MIN_EDGE,
                             emronSignalConfig.payoutRatio || PAYOUT_RATIO,
-                            false, // we don't require balance for decision; we handle separately
+                            false,
                             emronSignalConfig.balanceTolerance || BALANCE_TOLERANCE
                         );
                         if (signal) {
                             lastSignal = signal;
-                            // Determine if we should trade both sides (only on strict 50/50)
                             const shouldTradeBoth = TRADE_BOTH_ON_STRICT_50 && signal.strictBalanced;
                             if (shouldTradeBoth) {
-                                // Trade both EVEN and ODD
                                 placeTradeBoth(signal);
                             } else if (signal.decision === 'TRADE') {
-                                // Trade only the predicted side (original logic)
                                 emronSignalConfig.side = signal.side;
                                 emronSignalConfig.confidence = signal.confidence;
                                 emronSignalConfig.edge = signal.edge;
@@ -4081,7 +4170,6 @@
                                 updateEoPredictionDisplay(signal);
                                 placeTrade(signal);
                             } else {
-                                // No trade
                                 emronSignalConfig.decision = 'NO_TRADE';
                                 emronSignalConfig.side = signal.side || '—';
                                 emronSignalConfig.confidence = signal.confidence || 0;
@@ -4153,9 +4241,6 @@
                 }
             }
 
-            // =============================================
-            // PROPOSAL / BUY HANDLERS (FIXED: parameters spread, symbol -> underlying_symbol)
-            // =============================================
             function handleProposal(data) {
                 if (data.error) {
                     toast('❌ Proposal error: ' + data.error.message, 'error');
@@ -4285,39 +4370,59 @@
             }
 
             // =============================================
-            // 💡 FLOWSTATE SIGNAL GENERATION (legacy)
+            // 💡 FLOWSTATE SIGNAL GENERATION
             // =============================================
             function generateFlowStateSignal() {
-                const signal = eoEngine.generateSignal(
-                    55, 1.0, 95,
-                    false,
-                    BALANCE_TOLERANCE
-                );
-                if (signal && signal.decision === 'TRADE') {
-                    return {
-                        side: signal.side,
-                        confidence: signal.confidence,
-                        reason: signal.reason,
-                        strategy: 'evenodd'
-                    };
+                if (fsStrategyMode === 'evenodd') {
+                    const signal = eoEngine.generateSignal(55, 1.0, 95, false, BALANCE_TOLERANCE);
+                    if (signal && signal.decision === 'TRADE') {
+                        return {
+                            side: signal.side,
+                            confidence: signal.confidence,
+                            reason: signal.reason,
+                            strategy: 'evenodd'
+                        };
+                    }
+                    return null;
+                } else {
+                    const minConf = 55;
+                    const sig = digitEngine.generateSignal(minConf);
+                    if (sig) {
+                        return {
+                            side: `Digit ${sig.predictedDigit}`,
+                            confidence: sig.confidence,
+                            reason: sig.reason,
+                            strategy: fsStrategyMode,
+                            predictedDigit: sig.predictedDigit
+                        };
+                    }
+                    return null;
                 }
-                return null;
             }
 
             // =============================================
-            // 📈 FLOWSTATE BOT TRADING (legacy)
+            // 📈 FLOWSTATE BOT TRADING
             // =============================================
             let isFsProposal = false;
             let isFsBuy = false;
 
             function fsPlaceTrade(signal) {
                 if (!wsConnected) {
-                    const win = Math.random() < 0.55;
+                    const win = Math.random() < 0.5;
                     const pl = win ? fsStakeAmount * 0.85 : -fsStakeAmount;
                     setTimeout(() => { handleFsTradeResult(win, pl); }, 1500);
                     return;
                 }
-                const contractType = signal.side === 'EVEN' ? 'DIGITEVEN' : 'DIGITODD';
+                let contractType, barrier;
+                if (signal.strategy === 'evenodd') {
+                    contractType = signal.side === 'EVEN' ? 'DIGITEVEN' : 'DIGITODD';
+                } else if (signal.strategy === 'matches') {
+                    contractType = 'DIGITMATCH';
+                    barrier = signal.predictedDigit;
+                } else if (signal.strategy === 'differs') {
+                    contractType = 'DIGITDIFF';
+                    barrier = signal.predictedDigit;
+                }
                 const params = {
                     amount: fsStakeAmount,
                     basis: 'stake',
@@ -4327,6 +4432,9 @@
                     duration_unit: 't',
                     underlying_symbol: getSymbol(fsMarket)
                 };
+                if (barrier !== undefined && barrier !== null) {
+                    params.barrier = String(barrier);
+                }
                 isFsProposal = true;
                 sendWsRequest({ proposal: 1, ...params });
             }
@@ -4335,9 +4443,10 @@
                 fsPnLAmount += profit;
                 if (won) fsWinCount++;
                 else fsLoseCount++;
+                const signalStr = fsLastSignal ? fsLastSignal.side : '—';
                 fsTrades.push({
                     time: new Date().toLocaleTimeString(),
-                    signal: fsLastSignal ? fsLastSignal.side : '—',
+                    signal: signalStr,
                     result: won ? 'Won' : 'Lost',
                     profit: profit,
                     confidence: fsLastSignal ? fsLastSignal.confidence : 0
@@ -4357,7 +4466,7 @@
             }
 
             // =============================================
-            // 📊 EMRON AI BOT TRADING (Even/Odd) — FIXED PROPOSAL & SYMBOL
+            // 📊 EMRON AI BOT TRADING (Even/Odd)
             // =============================================
             function placeTrade(signal) {
                 if (!isActive || isTradeInProgress) return;
@@ -4395,19 +4504,16 @@
                 }, 5000);
             }
 
-            // New function: trade both sides (EVEN and ODD) simultaneously, only on strict 50/50
             function placeTradeBoth(signal) {
                 if (!isActive || isTradeInProgress) return;
                 if (!accessToken) { toast('No access token. Please connect.', 'error'); return; }
                 if (!signal || !signal.strictBalanced) return;
 
-                // We will place two trades: one EVEN, one ODD
                 const stake = currentStake;
                 const marketSymbol = getSymbol(emronSignalConfig.market || currentMarket);
                 const duration = parseInt(emronSignalConfig.duration) || 1;
                 const currency = 'USD';
 
-                // First trade: EVEN
                 const paramsEven = {
                     amount: stake,
                     basis: 'stake',
@@ -4417,7 +4523,6 @@
                     duration_unit: 't',
                     underlying_symbol: marketSymbol
                 };
-                // Second trade: ODD
                 const paramsOdd = {
                     amount: stake,
                     basis: 'stake',
@@ -4450,106 +4555,6 @@
                 sendWsRequest({ proposal: 1, ...params });
             }
 
-            // Override handleProposal to also handle both-trade queue
-            const origHandleProposal = handleProposal;
-            handleProposal = function(data) {
-                if (data.error) {
-                    toast('❌ Proposal error: ' + data.error.message, 'error');
-                    if (isEmronProposal) {
-                        isEmronProposal = false;
-                        if (window._bothTradeQueue) {
-                            pendingTradeCount--;
-                            if (pendingTradeCount <= 0) {
-                                pendingTradeCount = 0;
-                                isTradeInProgress = false;
-                            }
-                            processBothTradeQueue();
-                        }
-                    }
-                    if (isFsProposal) { isFsProposal = false; }
-                    return;
-                }
-                if (data.proposal) {
-                    const proposalId = data.proposal.id;
-                    const askPrice = data.proposal.ask_price;
-                    if (isEmronProposal) {
-                        isEmronProposal = false;
-                        isEmronBuy = true;
-                        sendWsRequest({ buy: proposalId, price: askPrice });
-                    } else if (isFsProposal) {
-                        isFsProposal = false;
-                        isFsBuy = true;
-                        sendWsRequest({ buy: proposalId, price: askPrice });
-                    }
-                }
-            };
-
-            // Override handleBuy to continue both-trade queue
-            const origHandleBuy = handleBuy;
-            handleBuy = function(data) {
-                if (data.error) {
-                    toast('❌ Buy error: ' + data.error.message, 'error');
-                    if (isEmronBuy) {
-                        isEmronBuy = false;
-                        isTradeInProgress = false;
-                        pendingTradeCount--;
-                        if (window._bothTradeQueue) {
-                            processBothTradeQueue();
-                        }
-                        handleTradeResult(false, -currentStake);
-                    }
-                    if (isFsBuy) { isFsBuy = false;
-                        handleFsTradeResult(false, -fsStakeAmount); }
-                    return;
-                }
-                if (data.buy) {
-                    const contract = data.buy;
-                    if (isEmronBuy) {
-                        isEmronBuy = false;
-                        activeContractId = contract.contract_id;
-                        openContracts++;
-                        pendingTradeCount--;
-                        toast(`📈 Even/Odd trade placed! ID: ${contract.contract_id}`, 'success');
-                        armWatchdog();
-                        sendWsRequest({ proposal_open_contract: 1, contract_id: contract.contract_id, subscribe: 1 });
-                        if (window._bothTradeQueue && window._bothTradeQueue.length > 0) {
-                            setTimeout(processBothTradeQueue, 100);
-                        } else {
-                            if (pendingTradeCount <= 0) {
-                                pendingTradeCount = 0;
-                                isTradeInProgress = false;
-                            }
-                        }
-                    } else if (isFsBuy) {
-                        isFsBuy = false;
-                        toast(`📈 FlowState trade placed! ID: ${contract.contract_id}`, 'success');
-                        sendWsRequest({ proposal_open_contract: 1, contract_id: contract.contract_id, subscribe: 1 });
-                    }
-                }
-            };
-
-            // Override handleContractUpdate to handle both trades result
-            const origHandleContractUpdate = handleContractUpdate;
-            handleContractUpdate = function(data) {
-                if (data.error) return;
-                const contract = data.proposal_open_contract;
-                if (!contract) return;
-                if (contract.is_sold) {
-                    const profit = parseFloat(contract.profit) || 0;
-                    const won = profit > 0;
-                    if (data.subscription) { sendWsRequest({ forget: data.subscription.id }); }
-                    if (activeContractId === contract.contract_id) {
-                        activeContractId = null;
-                        openContracts = Math.max(0, openContracts - 1);
-                        isTradeInProgress = false;
-                        clearWatchdog();
-                        handleTradeResult(won, profit);
-                    } else {
-                        handleFsTradeResult(won, profit);
-                    }
-                }
-            };
-
             // =============================================
             // 🧮 EMRON AI TRADE RESULT HANDLER
             // =============================================
@@ -4576,7 +4581,6 @@
                 });
                 renderTrades();
 
-                // Reset stake (fixed stake, no martingale)
                 currentStake = baseStake;
                 liveStakeDisplay.textContent = '$' + currentStake.toFixed(2);
 
@@ -4609,7 +4613,6 @@
                 if (isActive && !isTradeInProgress && openContracts < MAX_OPEN_CONTRACTS) {
                     setTimeout(() => {
                         if (isActive && !isTradeInProgress && openContracts < MAX_OPEN_CONTRACTS) {
-                            // Generate new signal and trade
                             const sig = eoEngine.generateSignal(
                                 emronSignalConfig.minConfidence || MIN_CONFIDENCE,
                                 emronSignalConfig.minEdge || MIN_EDGE,
@@ -4662,9 +4665,9 @@
                     updateInterval = setInterval(() => {
                         if (!isActive) return;
                         if (!wsConnected) {
-                            // Simulate tick
                             const price = 9732 + Math.random() * 20;
                             eoEngine.addTick(price, 3);
+                            digitEngine.addTick(price, 3);
                             const sig = eoEngine.generateSignal(
                                 emronSignalConfig.minConfidence || MIN_CONFIDENCE,
                                 emronSignalConfig.minEdge || MIN_EDGE,
@@ -4674,7 +4677,6 @@
                             );
                             if (sig) {
                                 if (TRADE_BOTH_ON_STRICT_50 && sig.strictBalanced) {
-                                    // Simulate both trades
                                     const win1 = Math.random() < 0.5;
                                     const win2 = Math.random() < 0.5;
                                     const pl1 = win1 ? currentStake * 0.85 : -currentStake;
@@ -4726,7 +4728,7 @@
                 fsStatusBadge.className = 'status-badge active';
                 fsStatusText.textContent = 'SIGNAL READY';
                 fsOutput.innerHTML = `
-                    <span style="color:${signal.side === 'EVEN' ? 'var(--accent-green)' : 'var(--accent-red)'};font-weight:700;">
+                    <span style="color:var(--accent-cyan);font-weight:700;">
                         ${signal.side}
                     </span>
                     <span style="color:var(--text-muted);margin-left:8px;">Confidence: ${signal.confidence}%</span>
@@ -4797,20 +4799,8 @@
             }
 
             // =============================================
-            // Chart
+            // Chart, OAuth, Quick Settings, etc.
             // =============================================
-            function updateChartWithTick(price) {
-                const last = chartData.length > 0 ? chartData[chartData.length - 1].close : price;
-                const open = last;
-                const close = price;
-                const high = Math.max(open, close) + 0.1;
-                const low = Math.min(open, close) - 0.1;
-                chartData.push({ open, high, low, close, time: chartData.length });
-                if (chartData.length > 80) chartData.shift();
-                chartPrice.textContent = close.toFixed(2);
-                drawChart();
-            }
-
             function initChart() {
                 const rect = chartCanvas.getBoundingClientRect();
                 const dpr = window.devicePixelRatio || 1;
@@ -4900,6 +4890,18 @@
                         ctx.fillText(i, padding.left + i * spacing + spacing / 2, h - 2);
                     }
                 });
+            }
+
+            function updateChartWithTick(price) {
+                const last = chartData.length > 0 ? chartData[chartData.length - 1].close : price;
+                const open = last;
+                const close = price;
+                const high = Math.max(open, close) + 0.1;
+                const low = Math.min(open, close) - 0.1;
+                chartData.push({ open, high, low, close, time: chartData.length });
+                if (chartData.length > 80) chartData.shift();
+                chartPrice.textContent = close.toFixed(2);
+                drawChart();
             }
 
             // =============================================
@@ -5029,9 +5031,6 @@
                 }
             }
 
-            // =============================================
-            // 🔒 TOKEN STORAGE
-            // =============================================
             function setAccessToken(token) {
                 accessToken = token;
                 if (token) {
@@ -5088,9 +5087,6 @@
                 toast('Disconnected', 'info');
             }
 
-            // =============================================
-            // Quick Settings
-            // =============================================
             function applyQuickSettings() {
                 const stake = parseFloat(qsStake.value) || 1;
                 const minConf = parseFloat(qsMinConfidence.value) || 60;
@@ -5135,10 +5131,8 @@
                     currentRound.textContent = `0 / ${MAX_RUNS_PER_SESSION} (min ${MIN_RUNS_BEFORE_TP_SL})`;
                 }
 
-                // Update break-even display
                 const be = 1 / (1 + PAYOUT_RATIO / 100);
                 rmBreakEvenDisplay.textContent = Math.round(be * 100) + '%';
-                // Update max open contracts in risk modal
                 rmMaxOpen.value = MAX_OPEN_CONTRACTS;
 
                 toast('✅ Quick settings applied', 'success');
@@ -5171,9 +5165,6 @@
                 toast(`Loaded preset: ${preset}`, 'success');
             }
 
-            // =============================================
-            // Helpers
-            // =============================================
             function toast(message, type = 'info') {
                 const el = document.createElement('div');
                 el.className = `toast ${type}`;
@@ -5258,12 +5249,10 @@
                 const short = shortMap[market] || 'VOL50';
                 symbolOptions.forEach(el => el.classList.toggle('active', el.dataset.symbol === short));
                 eoEngine.reset();
-                toast(`📊 Switched to ${market} — Even/Odd engine reset`, 'info');
+                digitEngine.reset();
+                toast(`📊 Switched to ${market} — engines reset`, 'info');
             }
 
-            // =============================================
-            // AI Signals (Even/Odd)
-            // =============================================
             function generateAISignal() {
                 const market = document.getElementById('aiMarket').value;
                 const timeframe = document.getElementById('aiTimeframe').value;
@@ -5315,9 +5304,6 @@
                 toast(`📡 DigitEdge Even/Odd signal on ${market}`, 'info');
             }
 
-            // =============================================
-            // Signal Monitor
-            // =============================================
             function updateMonitor() {
                 const even = Math.floor(Math.random() * 5);
                 const odd = Math.floor(Math.random() * 4);
@@ -5348,9 +5334,6 @@
                 if (monitorHistory.children.length > 10) monitorHistory.removeChild(monitorHistory.lastChild);
             }
 
-            // =============================================
-            // Modals logic
-            // =============================================
             function openSignalStrategy() {
                 ssMaster.value = 'on';
                 ssStrategy.value = 'Even/Odd Ultra-Fast';
@@ -5378,7 +5361,8 @@
                 const minEdge = ssMinEdge.value || 2.0;
                 const balanceTol = ssBalanceTolerance.value || 5;
                 const tradeBoth = ssTradeBoth.value === 'true';
-                const preview = `Even/Odd on ${market} · conf ${minConf}% · edge ${minEdge}% · both ${tradeBoth ? 'on (strict 50/50)' : 'off'} (tol ${balanceTol}%)`;
+                const preview =
+                    `Even/Odd on ${market} · conf ${minConf}% · edge ${minEdge}% · both ${tradeBoth ? 'on (strict 50/50)' : 'off'} (tol ${balanceTol}%)`;
                 ssPreviewText.textContent = preview;
             }
 
@@ -5416,7 +5400,6 @@
                     updateMarketDisplay(emronSignalConfig.market);
                 }
 
-                // Update break-even display
                 const be = 1 / (1 + payout / 100);
                 rmBreakEvenDisplay.textContent = Math.round(be * 100) + '%';
                 rmMaxOpen.value = MAX_OPEN_CONTRACTS;
@@ -5752,6 +5735,7 @@
 
             fsTabMatches.addEventListener('click', function() {
                 fsTabMatches.classList.add('active');
+                fsTabDiffers.classList.remove('active');
                 fsTabEvenOdd.classList.remove('active');
                 fsStrategyMode = 'matches';
                 fsStrategySelect.value = 'matches';
@@ -5759,9 +5743,20 @@
                 fsOutput.innerHTML = '<span style="color:var(--text-muted);">📡 MATCHES mode active</span>';
             });
 
+            fsTabDiffers.addEventListener('click', function() {
+                fsTabDiffers.classList.add('active');
+                fsTabMatches.classList.remove('active');
+                fsTabEvenOdd.classList.remove('active');
+                fsStrategyMode = 'differs';
+                fsStrategySelect.value = 'differs';
+                toast('📊 Switched to DIFFERS mode', 'info');
+                fsOutput.innerHTML = '<span style="color:var(--text-muted);">📡 DIFFERS mode active</span>';
+            });
+
             fsTabEvenOdd.addEventListener('click', function() {
                 fsTabEvenOdd.classList.add('active');
                 fsTabMatches.classList.remove('active');
+                fsTabDiffers.classList.remove('active');
                 fsStrategyMode = 'evenodd';
                 fsStrategySelect.value = 'evenodd';
                 toast('📊 Switched to EVEN/ODD mode', 'info');
@@ -5775,10 +5770,16 @@
                 fsStrategyMode = strategy;
                 if (strategy === 'matches') {
                     fsTabMatches.classList.add('active');
+                    fsTabDiffers.classList.remove('active');
+                    fsTabEvenOdd.classList.remove('active');
+                } else if (strategy === 'differs') {
+                    fsTabDiffers.classList.add('active');
+                    fsTabMatches.classList.remove('active');
                     fsTabEvenOdd.classList.remove('active');
                 } else {
                     fsTabEvenOdd.classList.add('active');
                     fsTabMatches.classList.remove('active');
+                    fsTabDiffers.classList.remove('active');
                 }
                 toast(`✅ FlowState settings applied: ${strategy}, $${stake}`, 'success');
             });
@@ -5818,17 +5819,14 @@
             qsBalanceTolerance.value = BALANCE_TOLERANCE;
             qsTradeBoth.value = TRADE_BOTH_ON_STRICT_50 ? 'true' : 'false';
 
-            // Default Even/Odd prediction display
             eoPredictionDisplay.textContent = '—';
             eoConfidenceDisplay.textContent = '—';
             eoEdgeDisplay.textContent = '—';
             eoBalanceDisplay.textContent = '—';
 
-            // Set default FlowState UI
             updateFsDashboardStats();
             renderFsTradeHistory();
 
-            // Break-even display
             const be = 1 / (1 + PAYOUT_RATIO / 100);
             rmBreakEvenDisplay.textContent = Math.round(be * 100) + '%';
             rmMaxOpen.value = MAX_OPEN_CONTRACTS;
@@ -5839,9 +5837,7 @@
             window.addEventListener('resize', initChart);
 
             console.log('🔷 EMRON AI — DigitEdge Even/Odd FREE & UNLOCKED');
-            console.log('📊 Even/Odd engine active — trading on edge or both sides on strict 50/50.');
-            console.log('📈 Break-even at ' + (be * 100).toFixed(1) + '% with ' + PAYOUT_RATIO + '% payout.');
-            console.log('✅ PROPOSAL FIX APPLIED: parameters now use underlying_symbol.');
+            console.log('📊 FlowState now includes MATCHES, DIFFERS, and EVEN/ODD.');
             console.log('✅ Strict 50/50 both-side trading enabled.');
 
         })();
