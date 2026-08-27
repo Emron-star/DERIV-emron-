@@ -1241,6 +1241,11 @@
             color: var(--text-muted);
             border: 1px solid var(--border-light);
         }
+        .signal-badge.both {
+            background: rgba(0, 188, 212, 0.15);
+            color: var(--accent-cyan);
+            border: 1px solid var(--accent-cyan);
+        }
         .metric-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -2034,6 +2039,9 @@
         .eo-prediction .side.odd {
             color: var(--accent-red);
         }
+        .eo-prediction .side.both {
+            color: var(--accent-cyan);
+        }
         .eo-prediction .side.no-trade {
             color: var(--text-muted);
         }
@@ -2588,6 +2596,7 @@
                                     <div class="setting-row"><span class="label">Prediction</span><span class="value" data-field="strategyMode" id="eoPredictionDisplay">—</span></div>
                                     <div class="setting-row"><span class="label">Confidence</span><span class="value" data-field="eoConfidence" id="eoConfidenceDisplay">—</span></div>
                                     <div class="setting-row"><span class="label">Edge</span><span class="value" data-field="eoEdge" id="eoEdgeDisplay">—</span></div>
+                                    <div class="setting-row"><span class="label">Balance</span><span class="value" data-field="eoBalance" id="eoBalanceDisplay">—</span></div>
                                     <div class="setting-row"><span class="label">Duration</span><span class="value" data-field="duration">1 tick</span></div>
                                 </div>
                                 <!-- Even/Odd Quick Settings -->
@@ -2617,7 +2626,20 @@
                                         </div>
                                         <div class="form-group">
                                             <label>Max Open Contracts</label>
-                                            <input class="form-control" id="qsMaxOpen" type="number" value="1">
+                                            <input class="form-control" id="qsMaxOpen" type="number" value="2">
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>Balance Tolerance (%)</label>
+                                            <input class="form-control" id="qsBalanceTolerance" type="number" step="1" value="5">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Trade Both on Strict 50/50</label>
+                                            <select class="form-control" id="qsTradeBoth">
+                                                <option value="true" selected>Yes</option>
+                                                <option value="false">No</option>
+                                            </select>
                                         </div>
                                     </div>
                                     <div class="form-row">
@@ -3191,6 +3213,17 @@
                         <label>Minimum Edge (%)</label>
                         <input class="form-control" id="ssMinEdge" type="number" step="0.1" value="2.0" min="0.5" max="10">
                     </div>
+                    <div class="form-group">
+                        <label>Balance Tolerance (%)</label>
+                        <input class="form-control" id="ssBalanceTolerance" type="number" value="5" min="1" max="20">
+                    </div>
+                    <div class="form-group">
+                        <label>Trade Both on Strict 50/50</label>
+                        <select class="form-control" id="ssTradeBoth">
+                            <option value="true" selected>Yes</option>
+                            <option value="false">No</option>
+                        </select>
+                    </div>
                     <div class="form-group full">
                         <label>Payout Ratio (%)</label>
                         <input class="form-control" id="ssPayout" type="number" step="0.1" value="95.0" min="80" max="100">
@@ -3263,7 +3296,7 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label>Max Open Contracts</label>
-                        <input class="form-control" id="rmMaxOpen" type="number" value="1" min="1" max="3">
+                        <input class="form-control" id="rmMaxOpen" type="number" value="2" min="1" max="5">
                     </div>
                     <div class="form-group">
                         <label>Cooldown (ms)</label>
@@ -3486,6 +3519,27 @@
                     const total = p.length || 1;
                     return { even: evens / total, odd: (total - evens) / total };
                 }
+                isMarketBalanced(tolerance) {
+                    const freq = this.getParityFrequency(Math.min(this.parities.length, 100));
+                    const evenPct = freq.even * 100;
+                    const oddPct = freq.odd * 100;
+                    const diff = Math.abs(evenPct - oddPct);
+                    return diff <= tolerance;
+                }
+                isStrictlyBalanced() {
+                    // Returns true only if even and odd are exactly 50/50 (within 0.5%)
+                    const freq = this.getParityFrequency(Math.min(this.parities.length, 100));
+                    const diff = Math.abs(freq.even - freq.odd) * 100;
+                    return diff < 0.5; // strict 50/50
+                }
+                getBalanceInfo() {
+                    const freq = this.getParityFrequency(Math.min(this.parities.length, 100));
+                    return {
+                        evenPct: freq.even * 100,
+                        oddPct: freq.odd * 100,
+                        diff: Math.abs(freq.even - freq.odd) * 100
+                    };
+                }
                 getParityRunLength() {
                     if (this.parities.length === 0) return { even: 0, odd: 0 };
                     let evenRun = 0,
@@ -3523,7 +3577,7 @@
                     }
                     return entropy;
                 }
-                generateSignal(minConfidence, minEdge, payoutRatio) {
+                generateSignal(minConfidence, minEdge, payoutRatio, requireBalance, balanceTolerance) {
                     const n = this.parities.length;
                     if (n < 40) return null;
 
@@ -3533,41 +3587,34 @@
                     const entropy = this.getDigitEntropy();
                     const lastParity = this.parities[this.parities.length - 1];
 
-                    // Weighted score for EVEN
                     let evenScore = 0;
-                    // Frequency weight
                     evenScore += freq.even * 35;
-                    // Run length weight (if last was even, favor even continuation)
                     if (lastParity === true) {
                         evenScore += (runLength.even / Math.max(1, runLength.even + runLength.odd)) * 25;
                     } else {
                         evenScore += (1 - (runLength.odd / Math.max(1, runLength.odd + runLength.even))) * 25;
                     }
-                    // Transition weight
                     if (lastParity === true) {
                         evenScore += trans.evenAfterEven * 20;
                     } else {
                         evenScore += trans.evenAfterOdd * 20;
                     }
-                    // Entropy weight — lower entropy means more predictable
                     const entropyFactor = Math.max(0, 1 - entropy / 4);
                     evenScore += entropyFactor * 20;
 
-                    // Normalize to probability
                     const pEven = Math.max(0.05, Math.min(0.95, evenScore / 100));
                     const pOdd = 1 - pEven;
-
-                    // Determine which side has higher probability
                     const side = pEven >= pOdd ? 'EVEN' : 'ODD';
                     const pSide = Math.max(pEven, pOdd);
                     const confidence = Math.round(Math.min(98, 50 + pSide * 45 + (1 - entropy / 4) * 15));
 
-                    // Calculate edge
                     const requiredProb = 1 / (1 + payoutRatio / 100);
                     const edge = pSide - requiredProb;
                     const minEdgeVal = minEdge / 100;
 
                     const decision = (confidence >= minConfidence && edge > minEdgeVal) ? 'TRADE' : 'NO_TRADE';
+                    const balanceInfo = this.getBalanceInfo();
+                    const strictBalanced = this.isStrictlyBalanced();
 
                     return {
                         side: side,
@@ -3578,11 +3625,14 @@
                         requiredProbability: requiredProb,
                         edge: edge,
                         decision: decision,
-                        reason: `${side} ${(pSide*100).toFixed(1)}% · edge ${(edge*100).toFixed(1)}%`,
+                        reason: `${side} ${(pSide*100).toFixed(1)}% · edge ${(edge*100).toFixed(1)}% · balance ${balanceInfo.evenPct.toFixed(1)}/${balanceInfo.oddPct.toFixed(1)}`,
                         entropy: entropy,
                         runLength: runLength,
                         transition: trans,
-                        lastParity: lastParity ? 'EVEN' : 'ODD'
+                        lastParity: lastParity ? 'EVEN' : 'ODD',
+                        balanceInfo: balanceInfo,
+                        isBalanced: this.isMarketBalanced(balanceTolerance),
+                        strictBalanced: strictBalanced // only true when exactly 50/50
                     };
                 }
                 getLastDigits(n) {
@@ -3605,8 +3655,10 @@
             let MIN_CONFIDENCE = 60;
             let MIN_EDGE = 2.0; // percent
             let PAYOUT_RATIO = 95.0; // percent
-            let MAX_OPEN_CONTRACTS = 1;
+            let MAX_OPEN_CONTRACTS = 2; // allow up to 2 when trading both sides
             let TRADE_COOLDOWN_MS = 150;
+            let BALANCE_TOLERANCE = 5; // percent (for display/info)
+            let TRADE_BOTH_ON_STRICT_50 = true; // only on strict 50/50
 
             // Even/Odd engine instance
             const eoEngine = new EvenOddEngine();
@@ -3677,6 +3729,7 @@
             const eoPredictionDisplay = document.getElementById('eoPredictionDisplay');
             const eoConfidenceDisplay = document.getElementById('eoConfidenceDisplay');
             const eoEdgeDisplay = document.getElementById('eoEdgeDisplay');
+            const eoBalanceDisplay = document.getElementById('eoBalanceDisplay');
             const ssMarket = document.getElementById('ssMarket');
             const aiMarket = document.getElementById('aiMarket');
             const qsStake = document.getElementById('qsStake');
@@ -3690,6 +3743,8 @@
             const qsMinRuns = document.getElementById('qsMinRuns');
             const qsMaxRuns = document.getElementById('qsMaxRuns');
             const qsCooldown = document.getElementById('qsCooldown');
+            const qsBalanceTolerance = document.getElementById('qsBalanceTolerance');
+            const qsTradeBoth = document.getElementById('qsTradeBoth');
             const oauthClientId = document.getElementById('oauthClientId');
             const oauthRedirectUri = document.getElementById('oauthRedirectUri');
             const oauthLoginBtn = document.getElementById('oauthLoginBtn');
@@ -3728,6 +3783,8 @@
             const ssPayout = document.getElementById('ssPayout');
             const ssMarketSelect = document.getElementById('ssMarket');
             const ssEntry = document.getElementById('ssEntry');
+            const ssBalanceTolerance = document.getElementById('ssBalanceTolerance');
+            const ssTradeBoth = document.getElementById('ssTradeBoth');
             const ssPreviewText = document.getElementById('ssPreviewText');
 
             // FlowState Tab Elements
@@ -3823,6 +3880,7 @@
             // Flags for proposal/buy handling
             let isEmronProposal = false;
             let isEmronBuy = false;
+            let pendingTradeCount = 0; // to track both-side trades
 
             // Even/Odd Signal Config
             let emronSignalConfig = {
@@ -3835,7 +3893,9 @@
                 strategy: 'Even/Odd Ultra-Fast',
                 minConfidence: 60,
                 minEdge: 2.0,
-                payoutRatio: 95.0
+                payoutRatio: 95.0,
+                balanceTolerance: 5,
+                tradeBothOnStrict50: true
             };
 
             // FlowState Bot State (Independent)
@@ -4001,22 +4061,33 @@
                         const signal = eoEngine.generateSignal(
                             emronSignalConfig.minConfidence || MIN_CONFIDENCE,
                             emronSignalConfig.minEdge || MIN_EDGE,
-                            emronSignalConfig.payoutRatio || PAYOUT_RATIO
+                            emronSignalConfig.payoutRatio || PAYOUT_RATIO,
+                            false, // we don't require balance for decision; we handle separately
+                            emronSignalConfig.balanceTolerance || BALANCE_TOLERANCE
                         );
-                        if (signal && signal.decision === 'TRADE') {
+                        if (signal) {
                             lastSignal = signal;
-                            emronSignalConfig.side = signal.side;
-                            emronSignalConfig.confidence = signal.confidence;
-                            emronSignalConfig.edge = signal.edge;
-                            emronSignalConfig.decision = 'TRADE';
-                            updateEoPredictionDisplay(signal);
-                            placeTrade(signal);
-                        } else if (signal) {
-                            emronSignalConfig.decision = 'NO_TRADE';
-                            emronSignalConfig.side = signal.side || '—';
-                            emronSignalConfig.confidence = signal.confidence || 0;
-                            emronSignalConfig.edge = signal.edge || 0;
-                            updateEoPredictionDisplay(signal);
+                            // Determine if we should trade both sides (only on strict 50/50)
+                            const shouldTradeBoth = TRADE_BOTH_ON_STRICT_50 && signal.strictBalanced;
+                            if (shouldTradeBoth) {
+                                // Trade both EVEN and ODD
+                                placeTradeBoth(signal);
+                            } else if (signal.decision === 'TRADE') {
+                                // Trade only the predicted side (original logic)
+                                emronSignalConfig.side = signal.side;
+                                emronSignalConfig.confidence = signal.confidence;
+                                emronSignalConfig.edge = signal.edge;
+                                emronSignalConfig.decision = 'TRADE';
+                                updateEoPredictionDisplay(signal);
+                                placeTrade(signal);
+                            } else {
+                                // No trade
+                                emronSignalConfig.decision = 'NO_TRADE';
+                                emronSignalConfig.side = signal.side || '—';
+                                emronSignalConfig.confidence = signal.confidence || 0;
+                                emronSignalConfig.edge = signal.edge || 0;
+                                updateEoPredictionDisplay(signal);
+                            }
                         }
                     }
 
@@ -4036,11 +4107,18 @@
             }
 
             function updateEoDisplay(result) {
-                // Update the parity display in the settings
                 const parityEl = document.querySelector('[data-field="strategyMode"]');
                 if (parityEl) {
                     const parity = result.parity ? 'EVEN' : 'ODD';
                     parityEl.textContent = `Last digit: ${result.digit} → ${parity}`;
+                }
+                if (eoBalanceDisplay) {
+                    const info = eoEngine.getBalanceInfo();
+                    if (info.evenPct && info.oddPct) {
+                        eoBalanceDisplay.textContent = `${info.evenPct.toFixed(1)}% / ${info.oddPct.toFixed(1)}%`;
+                    } else {
+                        eoBalanceDisplay.textContent = '—';
+                    }
                 }
             }
 
@@ -4051,7 +4129,13 @@
                     eoEdgeDisplay.textContent = '—';
                     return;
                 }
-                if (signal.decision === 'TRADE') {
+                if (signal.strictBalanced && TRADE_BOTH_ON_STRICT_50) {
+                    eoPredictionDisplay.textContent = 'BOTH';
+                    eoPredictionDisplay.style.color = 'var(--accent-cyan)';
+                    eoConfidenceDisplay.textContent = signal.confidence + '%';
+                    eoEdgeDisplay.textContent = (signal.edge * 100).toFixed(1) + '%';
+                    eoEdgeDisplay.style.color = 'var(--accent-yellow)';
+                } else if (signal.decision === 'TRADE') {
                     eoPredictionDisplay.textContent = signal.side;
                     eoPredictionDisplay.style.color = signal.side === 'EVEN' ? 'var(--accent-green)' : 'var(--accent-red)';
                     eoConfidenceDisplay.textContent = signal.confidence + '%';
@@ -4063,6 +4147,9 @@
                     eoConfidenceDisplay.textContent = signal.confidence ? signal.confidence + '%' : '—';
                     eoEdgeDisplay.textContent = signal.edge ? (signal.edge * 100).toFixed(1) + '%' : '—';
                     eoEdgeDisplay.style.color = 'var(--text-muted)';
+                }
+                if (signal.balanceInfo && eoBalanceDisplay) {
+                    eoBalanceDisplay.textContent = `${signal.balanceInfo.evenPct.toFixed(1)}% / ${signal.balanceInfo.oddPct.toFixed(1)}%`;
                 }
             }
 
@@ -4097,6 +4184,7 @@
                     if (isEmronBuy) {
                         isEmronBuy = false;
                         isTradeInProgress = false;
+                        pendingTradeCount--;
                         handleTradeResult(false, -currentStake);
                     }
                     if (isFsBuy) { isFsBuy = false;
@@ -4109,6 +4197,7 @@
                         isEmronBuy = false;
                         activeContractId = contract.contract_id;
                         openContracts++;
+                        pendingTradeCount--;
                         toast(`📈 Even/Odd trade placed! ID: ${contract.contract_id}`, 'success');
                         armWatchdog();
                         sendWsRequest({ proposal_open_contract: 1, contract_id: contract.contract_id, subscribe: 1 });
@@ -4147,6 +4236,7 @@
                     if (isTradeInProgress) { unjamTradeEngine(); }
                     if (isEmronBuy) { isEmronBuy = false; }
                     if (isFsBuy) { isFsBuy = false; }
+                    pendingTradeCount = 0;
                 }
             }
 
@@ -4156,6 +4246,7 @@
                 isTradeInProgress = false;
                 activeContractId = null;
                 openContracts = Math.max(0, openContracts - 1);
+                pendingTradeCount = 0;
                 if (isActive && wsConnected) {
                     setTimeout(() => { if (isActive && !isTradeInProgress) placeTrade(); }, 2000);
                 }
@@ -4169,6 +4260,7 @@
                     isTradeInProgress = false;
                     activeContractId = null;
                     openContracts = Math.max(0, openContracts - 1);
+                    pendingTradeCount = 0;
                     if (isActive && wsConnected) placeTrade();
                 }, TRADE_TIMEOUT_MS);
             }
@@ -4196,8 +4288,11 @@
             // 💡 FLOWSTATE SIGNAL GENERATION (legacy)
             // =============================================
             function generateFlowStateSignal() {
-                // Simple parity-based signal for FlowState
-                const signal = eoEngine.generateSignal(55, 1.0, 95);
+                const signal = eoEngine.generateSignal(
+                    55, 1.0, 95,
+                    false,
+                    BALANCE_TOLERANCE
+                );
                 if (signal && signal.decision === 'TRADE') {
                     return {
                         side: signal.side,
@@ -4230,7 +4325,7 @@
                     currency: 'USD',
                     duration: 1,
                     duration_unit: 't',
-                    underlying_symbol: getSymbol(fsMarket)  // FIXED: symbol -> underlying_symbol
+                    underlying_symbol: getSymbol(fsMarket)
                 };
                 isFsProposal = true;
                 sendWsRequest({ proposal: 1, ...params });
@@ -4277,7 +4372,7 @@
                     currency: 'USD',
                     duration: parseInt(emronSignalConfig.duration) || 1,
                     duration_unit: 't',
-                    underlying_symbol: getSymbol(emronSignalConfig.market || currentMarket)  // FIXED: symbol -> underlying_symbol
+                    underlying_symbol: getSymbol(emronSignalConfig.market || currentMarket)
                 };
 
                 isEmronProposal = true;
@@ -4292,11 +4387,168 @@
                         if (isActive) setTimeout(() => placeTrade(eoEngine.generateSignal(
                             emronSignalConfig.minConfidence || MIN_CONFIDENCE,
                             emronSignalConfig.minEdge || MIN_EDGE,
-                            emronSignalConfig.payoutRatio || PAYOUT_RATIO
+                            emronSignalConfig.payoutRatio || PAYOUT_RATIO,
+                            false,
+                            emronSignalConfig.balanceTolerance || BALANCE_TOLERANCE
                         )), 2000);
                     }
                 }, 5000);
             }
+
+            // New function: trade both sides (EVEN and ODD) simultaneously, only on strict 50/50
+            function placeTradeBoth(signal) {
+                if (!isActive || isTradeInProgress) return;
+                if (!accessToken) { toast('No access token. Please connect.', 'error'); return; }
+                if (!signal || !signal.strictBalanced) return;
+
+                // We will place two trades: one EVEN, one ODD
+                const stake = currentStake;
+                const marketSymbol = getSymbol(emronSignalConfig.market || currentMarket);
+                const duration = parseInt(emronSignalConfig.duration) || 1;
+                const currency = 'USD';
+
+                // First trade: EVEN
+                const paramsEven = {
+                    amount: stake,
+                    basis: 'stake',
+                    contract_type: 'DIGITEVEN',
+                    currency: currency,
+                    duration: duration,
+                    duration_unit: 't',
+                    underlying_symbol: marketSymbol
+                };
+                // Second trade: ODD
+                const paramsOdd = {
+                    amount: stake,
+                    basis: 'stake',
+                    contract_type: 'DIGITODD',
+                    currency: currency,
+                    duration: duration,
+                    duration_unit: 't',
+                    underlying_symbol: marketSymbol
+                };
+
+                pendingTradeCount = 2;
+                isTradeInProgress = true;
+                if (!window._bothTradeQueue) window._bothTradeQueue = [];
+                window._bothTradeQueue.push(paramsEven, paramsOdd);
+                processBothTradeQueue();
+            }
+
+            function processBothTradeQueue() {
+                if (!window._bothTradeQueue || window._bothTradeQueue.length === 0) {
+                    if (pendingTradeCount === 0) {
+                        isTradeInProgress = false;
+                    }
+                    return;
+                }
+                if (isEmronProposal) return;
+                if (openContracts >= MAX_OPEN_CONTRACTS) return;
+
+                const params = window._bothTradeQueue.shift();
+                isEmronProposal = true;
+                sendWsRequest({ proposal: 1, ...params });
+            }
+
+            // Override handleProposal to also handle both-trade queue
+            const origHandleProposal = handleProposal;
+            handleProposal = function(data) {
+                if (data.error) {
+                    toast('❌ Proposal error: ' + data.error.message, 'error');
+                    if (isEmronProposal) {
+                        isEmronProposal = false;
+                        if (window._bothTradeQueue) {
+                            pendingTradeCount--;
+                            if (pendingTradeCount <= 0) {
+                                pendingTradeCount = 0;
+                                isTradeInProgress = false;
+                            }
+                            processBothTradeQueue();
+                        }
+                    }
+                    if (isFsProposal) { isFsProposal = false; }
+                    return;
+                }
+                if (data.proposal) {
+                    const proposalId = data.proposal.id;
+                    const askPrice = data.proposal.ask_price;
+                    if (isEmronProposal) {
+                        isEmronProposal = false;
+                        isEmronBuy = true;
+                        sendWsRequest({ buy: proposalId, price: askPrice });
+                    } else if (isFsProposal) {
+                        isFsProposal = false;
+                        isFsBuy = true;
+                        sendWsRequest({ buy: proposalId, price: askPrice });
+                    }
+                }
+            };
+
+            // Override handleBuy to continue both-trade queue
+            const origHandleBuy = handleBuy;
+            handleBuy = function(data) {
+                if (data.error) {
+                    toast('❌ Buy error: ' + data.error.message, 'error');
+                    if (isEmronBuy) {
+                        isEmronBuy = false;
+                        isTradeInProgress = false;
+                        pendingTradeCount--;
+                        if (window._bothTradeQueue) {
+                            processBothTradeQueue();
+                        }
+                        handleTradeResult(false, -currentStake);
+                    }
+                    if (isFsBuy) { isFsBuy = false;
+                        handleFsTradeResult(false, -fsStakeAmount); }
+                    return;
+                }
+                if (data.buy) {
+                    const contract = data.buy;
+                    if (isEmronBuy) {
+                        isEmronBuy = false;
+                        activeContractId = contract.contract_id;
+                        openContracts++;
+                        pendingTradeCount--;
+                        toast(`📈 Even/Odd trade placed! ID: ${contract.contract_id}`, 'success');
+                        armWatchdog();
+                        sendWsRequest({ proposal_open_contract: 1, contract_id: contract.contract_id, subscribe: 1 });
+                        if (window._bothTradeQueue && window._bothTradeQueue.length > 0) {
+                            setTimeout(processBothTradeQueue, 100);
+                        } else {
+                            if (pendingTradeCount <= 0) {
+                                pendingTradeCount = 0;
+                                isTradeInProgress = false;
+                            }
+                        }
+                    } else if (isFsBuy) {
+                        isFsBuy = false;
+                        toast(`📈 FlowState trade placed! ID: ${contract.contract_id}`, 'success');
+                        sendWsRequest({ proposal_open_contract: 1, contract_id: contract.contract_id, subscribe: 1 });
+                    }
+                }
+            };
+
+            // Override handleContractUpdate to handle both trades result
+            const origHandleContractUpdate = handleContractUpdate;
+            handleContractUpdate = function(data) {
+                if (data.error) return;
+                const contract = data.proposal_open_contract;
+                if (!contract) return;
+                if (contract.is_sold) {
+                    const profit = parseFloat(contract.profit) || 0;
+                    const won = profit > 0;
+                    if (data.subscription) { sendWsRequest({ forget: data.subscription.id }); }
+                    if (activeContractId === contract.contract_id) {
+                        activeContractId = null;
+                        openContracts = Math.max(0, openContracts - 1);
+                        isTradeInProgress = false;
+                        clearWatchdog();
+                        handleTradeResult(won, profit);
+                    } else {
+                        handleFsTradeResult(won, profit);
+                    }
+                }
+            };
 
             // =============================================
             // 🧮 EMRON AI TRADE RESULT HANDLER
@@ -4357,12 +4609,21 @@
                 if (isActive && !isTradeInProgress && openContracts < MAX_OPEN_CONTRACTS) {
                     setTimeout(() => {
                         if (isActive && !isTradeInProgress && openContracts < MAX_OPEN_CONTRACTS) {
+                            // Generate new signal and trade
                             const sig = eoEngine.generateSignal(
                                 emronSignalConfig.minConfidence || MIN_CONFIDENCE,
                                 emronSignalConfig.minEdge || MIN_EDGE,
-                                emronSignalConfig.payoutRatio || PAYOUT_RATIO
+                                emronSignalConfig.payoutRatio || PAYOUT_RATIO,
+                                false,
+                                emronSignalConfig.balanceTolerance || BALANCE_TOLERANCE
                             );
-                            if (sig && sig.decision === 'TRADE') placeTrade(sig);
+                            if (sig) {
+                                if (TRADE_BOTH_ON_STRICT_50 && sig.strictBalanced) {
+                                    placeTradeBoth(sig);
+                                } else if (sig.decision === 'TRADE') {
+                                    placeTrade(sig);
+                                }
+                            }
                         }
                     }, TRADE_COOLDOWN_MS);
                 }
@@ -4382,6 +4643,7 @@
                 windowTime.textContent = new Date().toLocaleTimeString();
                 sessionTradeCount = 0;
                 openContracts = 0;
+                pendingTradeCount = 0;
                 if (currentRound) {
                     currentRound.textContent = `0 / ${MAX_RUNS_PER_SESSION} (min ${MIN_RUNS_BEFORE_TP_SL})`;
                 }
@@ -4406,12 +4668,24 @@
                             const sig = eoEngine.generateSignal(
                                 emronSignalConfig.minConfidence || MIN_CONFIDENCE,
                                 emronSignalConfig.minEdge || MIN_EDGE,
-                                emronSignalConfig.payoutRatio || PAYOUT_RATIO
+                                emronSignalConfig.payoutRatio || PAYOUT_RATIO,
+                                false,
+                                emronSignalConfig.balanceTolerance || BALANCE_TOLERANCE
                             );
-                            if (sig && sig.decision === 'TRADE') {
-                                const win = Math.random() < 0.52;
-                                const pl = win ? currentStake * 0.85 : -currentStake;
-                                handleTradeResult(win, pl);
+                            if (sig) {
+                                if (TRADE_BOTH_ON_STRICT_50 && sig.strictBalanced) {
+                                    // Simulate both trades
+                                    const win1 = Math.random() < 0.5;
+                                    const win2 = Math.random() < 0.5;
+                                    const pl1 = win1 ? currentStake * 0.85 : -currentStake;
+                                    const pl2 = win2 ? currentStake * 0.85 : -currentStake;
+                                    handleTradeResult(win1, pl1);
+                                    handleTradeResult(win2, pl2);
+                                } else if (sig.decision === 'TRADE') {
+                                    const win = Math.random() < 0.52;
+                                    const pl = win ? currentStake * 0.85 : -currentStake;
+                                    handleTradeResult(win, pl);
+                                }
                             }
                         }
                     }, 1800);
@@ -4436,6 +4710,8 @@
                 }
                 activeContractId = null;
                 openContracts = 0;
+                pendingTradeCount = 0;
+                window._bothTradeQueue = [];
                 toast('⏸ EMRON AI Even/Odd bot deactivated', 'error');
             }
 
@@ -4826,13 +5102,18 @@
                 const minRuns = parseInt(qsMinRuns.value) || 5;
                 const maxRuns = parseInt(qsMaxRuns.value) || 200;
                 const cooldown = parseInt(qsCooldown.value) || 150;
+                const balanceTolerance = parseFloat(qsBalanceTolerance.value) || 5;
+                const tradeBoth = qsTradeBoth.value === 'true';
 
                 MIN_RUNS_BEFORE_TP_SL = minRuns;
                 MAX_RUNS_PER_SESSION = maxRuns;
                 MIN_CONFIDENCE = minConf;
                 MIN_EDGE = minEdge;
-                MAX_OPEN_CONTRACTS = maxOpen;
+                MAX_OPEN_CONTRACTS = tradeBoth ? 2 : 1;
                 TRADE_COOLDOWN_MS = cooldown;
+                BALANCE_TOLERANCE = balanceTolerance;
+                TRADE_BOTH_ON_STRICT_50 = tradeBoth;
+
                 baseStake = stake;
                 currentStake = stake;
                 profitTargetValue = tp;
@@ -4841,6 +5122,8 @@
                 emronSignalConfig.minConfidence = minConf;
                 emronSignalConfig.minEdge = minEdge;
                 emronSignalConfig.payoutRatio = PAYOUT_RATIO;
+                emronSignalConfig.balanceTolerance = balanceTolerance;
+                emronSignalConfig.tradeBothOnStrict50 = tradeBoth;
 
                 liveStakeDisplay.textContent = '$' + stake.toFixed(2);
                 updateProfitDisplay();
@@ -4855,20 +5138,22 @@
                 // Update break-even display
                 const be = 1 / (1 + PAYOUT_RATIO / 100);
                 rmBreakEvenDisplay.textContent = Math.round(be * 100) + '%';
+                // Update max open contracts in risk modal
+                rmMaxOpen.value = MAX_OPEN_CONTRACTS;
 
                 toast('✅ Quick settings applied', 'success');
             }
 
             function applyPreset(preset) {
                 const presets = {
-                    'eo1': { market: 'Volatility 50', stake: 1.00, minConf: 60, minEdge: 2.0, maxOpen: 1, tp: 20, sl: 20,
-                        cooldown: 150 },
-                    'eo2': { market: 'Volatility 75', stake: 1.00, minConf: 62, minEdge: 2.5, maxOpen: 1, tp: 25, sl: 25,
-                        cooldown: 180 },
-                    'eo3': { market: 'Volatility 100', stake: 0.50, minConf: 65, minEdge: 3.0, maxOpen: 1, tp: 30, sl: 30,
-                        cooldown: 200 },
-                    'eo4': { market: 'Volatility 50 (1s)', stake: 1.00, minConf: 58, minEdge: 1.8, maxOpen: 1, tp: 20,
-                        sl: 20, cooldown: 100 }
+                    'eo1': { market: 'Volatility 50', stake: 1.00, minConf: 60, minEdge: 2.0, maxOpen: 2, tp: 20, sl: 20,
+                        cooldown: 150, balanceTolerance: 5, tradeBoth: true },
+                    'eo2': { market: 'Volatility 75', stake: 1.00, minConf: 62, minEdge: 2.5, maxOpen: 2, tp: 25, sl: 25,
+                        cooldown: 180, balanceTolerance: 5, tradeBoth: true },
+                    'eo3': { market: 'Volatility 100', stake: 0.50, minConf: 65, minEdge: 3.0, maxOpen: 2, tp: 30, sl: 30,
+                        cooldown: 200, balanceTolerance: 5, tradeBoth: true },
+                    'eo4': { market: 'Volatility 50 (1s)', stake: 1.00, minConf: 58, minEdge: 1.8, maxOpen: 2, tp: 20,
+                        sl: 20, cooldown: 100, balanceTolerance: 5, tradeBoth: true }
                 };
                 const p = presets[preset];
                 if (!p) return;
@@ -4880,6 +5165,8 @@
                 qsTP.value = p.tp;
                 qsSL.value = p.sl;
                 qsCooldown.value = p.cooldown;
+                qsBalanceTolerance.value = p.balanceTolerance;
+                qsTradeBoth.value = p.tradeBoth ? 'true' : 'false';
                 applyQuickSettings();
                 toast(`Loaded preset: ${preset}`, 'success');
             }
@@ -5071,6 +5358,9 @@
                 ssMinConfidence.value = emronSignalConfig.minConfidence || MIN_CONFIDENCE;
                 ssMinEdge.value = emronSignalConfig.minEdge || MIN_EDGE;
                 ssPayout.value = emronSignalConfig.payoutRatio || PAYOUT_RATIO;
+                ssBalanceTolerance.value = emronSignalConfig.balanceTolerance || BALANCE_TOLERANCE;
+                ssTradeBoth.value = (emronSignalConfig.tradeBothOnStrict50 !== undefined) ? (emronSignalConfig
+                    .tradeBothOnStrict50 ? 'true' : 'false') : (TRADE_BOTH_ON_STRICT_50 ? 'true' : 'false');
                 for (let opt of ssMarketSelect.options) {
                     if (opt.value === (emronSignalConfig.market || currentMarket)) {
                         ssMarketSelect.value = opt.value;
@@ -5086,7 +5376,9 @@
                 const market = ssMarketSelect.value;
                 const minConf = ssMinConfidence.value || 60;
                 const minEdge = ssMinEdge.value || 2.0;
-                const preview = `Even/Odd on ${market} · min conf ${minConf}% · edge ${minEdge}%`;
+                const balanceTol = ssBalanceTolerance.value || 5;
+                const tradeBoth = ssTradeBoth.value === 'true';
+                const preview = `Even/Odd on ${market} · conf ${minConf}% · edge ${minEdge}% · both ${tradeBoth ? 'on (strict 50/50)' : 'off'} (tol ${balanceTol}%)`;
                 ssPreviewText.textContent = preview;
             }
 
@@ -5094,6 +5386,8 @@
                 const minConf = parseFloat(ssMinConfidence.value) || 60;
                 const minEdge = parseFloat(ssMinEdge.value) || 2.0;
                 const payout = parseFloat(ssPayout.value) || 95.0;
+                const balanceTol = parseFloat(ssBalanceTolerance.value) || 5;
+                const tradeBoth = ssTradeBoth.value === 'true';
                 const market = ssMarketSelect.value !== 'Signal market (recommended)' ? ssMarketSelect.value :
                 currentMarket;
 
@@ -5102,13 +5396,21 @@
                 emronSignalConfig.payoutRatio = payout;
                 emronSignalConfig.market = market;
                 emronSignalConfig.strategy = ssStrategy.value;
+                emronSignalConfig.balanceTolerance = balanceTol;
+                emronSignalConfig.tradeBothOnStrict50 = tradeBoth;
 
                 MIN_CONFIDENCE = minConf;
                 MIN_EDGE = minEdge;
                 PAYOUT_RATIO = payout;
+                BALANCE_TOLERANCE = balanceTol;
+                TRADE_BOTH_ON_STRICT_50 = tradeBoth;
+                MAX_OPEN_CONTRACTS = tradeBoth ? 2 : 1;
 
                 qsMinConfidence.value = minConf;
                 qsMinEdge.value = minEdge;
+                qsBalanceTolerance.value = balanceTol;
+                qsTradeBoth.value = tradeBoth ? 'true' : 'false';
+                qsMaxOpen.value = MAX_OPEN_CONTRACTS;
 
                 if (emronSignalConfig.market !== currentMarket) {
                     updateMarketDisplay(emronSignalConfig.market);
@@ -5117,6 +5419,7 @@
                 // Update break-even display
                 const be = 1 / (1 + payout / 100);
                 rmBreakEvenDisplay.textContent = Math.round(be * 100) + '%';
+                rmMaxOpen.value = MAX_OPEN_CONTRACTS;
 
                 signalStrategyModal.classList.remove('active');
                 toast('📡 Even/Odd signal strategy applied', 'success');
@@ -5207,6 +5510,8 @@
             ssMinEdge.addEventListener('change', updateSignalPreview);
             ssPayout.addEventListener('change', updateSignalPreview);
             ssMarketSelect.addEventListener('change', updateSignalPreview);
+            ssBalanceTolerance.addEventListener('change', updateSignalPreview);
+            ssTradeBoth.addEventListener('change', updateSignalPreview);
             ssSaveBtn.addEventListener('click', saveSignalStrategy);
 
             riskMgmtBtn.addEventListener('click', openRiskMgmt);
@@ -5510,11 +5815,14 @@
             qsMinRuns.value = MIN_RUNS_BEFORE_TP_SL;
             qsMaxRuns.value = MAX_RUNS_PER_SESSION;
             qsCooldown.value = TRADE_COOLDOWN_MS;
+            qsBalanceTolerance.value = BALANCE_TOLERANCE;
+            qsTradeBoth.value = TRADE_BOTH_ON_STRICT_50 ? 'true' : 'false';
 
             // Default Even/Odd prediction display
             eoPredictionDisplay.textContent = '—';
             eoConfidenceDisplay.textContent = '—';
             eoEdgeDisplay.textContent = '—';
+            eoBalanceDisplay.textContent = '—';
 
             // Set default FlowState UI
             updateFsDashboardStats();
@@ -5523,6 +5831,7 @@
             // Break-even display
             const be = 1 / (1 + PAYOUT_RATIO / 100);
             rmBreakEvenDisplay.textContent = Math.round(be * 100) + '%';
+            rmMaxOpen.value = MAX_OPEN_CONTRACTS;
 
             setTimeout(updateMonitor, 500);
             setInterval(() => { if (!isActive) { generateChartData();
@@ -5530,9 +5839,10 @@
             window.addEventListener('resize', initChart);
 
             console.log('🔷 EMRON AI — DigitEdge Even/Odd FREE & UNLOCKED');
-            console.log('📊 Even/Odd engine active — trading only on positive edge.');
+            console.log('📊 Even/Odd engine active — trading on edge or both sides on strict 50/50.');
             console.log('📈 Break-even at ' + (be * 100).toFixed(1) + '% with ' + PAYOUT_RATIO + '% payout.');
             console.log('✅ PROPOSAL FIX APPLIED: parameters now use underlying_symbol.');
+            console.log('✅ Strict 50/50 both-side trading enabled.');
 
         })();
     </script>
