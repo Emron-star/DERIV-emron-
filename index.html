@@ -1030,6 +1030,21 @@
             color: var(--text-muted);
             margin-top: 4px;
         }
+        .fs-signal-details {
+            margin-top: 6px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2px 8px;
+            font-size: clamp(9px, 0.5vw, 11px);
+        }
+        .fs-signal-details .detail-label {
+            color: var(--text-muted);
+        }
+        .fs-signal-details .detail-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 500;
+            text-align: right;
+        }
         .fs-stats-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -2790,6 +2805,17 @@
                             </div>
                             <div class="reason" id="fsReason">—</div>
                             <div style="margin-top:6px;font-size:clamp(10px,0.6vw,12px);color:var(--text-muted);">Last Trade: <span id="fsLastTradeResult">—</span></div>
+                            <!-- Detailed signal info -->
+                            <div class="fs-signal-details" id="fsSignalDetails">
+                                <span class="detail-label">Market</span>
+                                <span class="detail-value" id="fsDetailMarket">—</span>
+                                <span class="detail-label">Contract</span>
+                                <span class="detail-value" id="fsDetailContract">—</span>
+                                <span class="detail-label">Entry</span>
+                                <span class="detail-value" id="fsDetailEntry">—</span>
+                                <span class="detail-label">Recovery</span>
+                                <span class="detail-value" id="fsDetailRecovery">—</span>
+                            </div>
                         </div>
                     </div>
                     <div class="fs-signal-card">
@@ -2849,9 +2875,9 @@
                         <div class="card-header"><div class="card-title">📜 Trade History</div></div>
                         <div class="table-wrapper">
                             <table>
-                                <thead><tr><th>Time</th><th>Signal</th><th>Result</th><th>Profit</th></tr></thead>
+                                <thead><tr><th>Time</th><th>Market</th><th>Signal</th><th>Result</th><th>Profit</th></tr></thead>
                                 <tbody id="fsTradeHistoryBody">
-                                    <tr><td colspan="4" class="empty-state"><span class="emoji">📜</span>No trades yet</td></tr>
+                                    <tr><td colspan="5" class="empty-state"><span class="emoji">📜</span>No trades yet</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -3891,6 +3917,10 @@
             const fsConfidence = document.getElementById('fsConfidence');
             const fsReason = document.getElementById('fsReason');
             const fsLastTradeResult = document.getElementById('fsLastTradeResult');
+            const fsDetailMarket = document.getElementById('fsDetailMarket');
+            const fsDetailContract = document.getElementById('fsDetailContract');
+            const fsDetailEntry = document.getElementById('fsDetailEntry');
+            const fsDetailRecovery = document.getElementById('fsDetailRecovery');
             const fsStakeInput = document.getElementById('fsStakeInput');
             const fsStrategySelect = document.getElementById('fsStrategySelect');
             const fsApplySettingsBtn = document.getElementById('fsApplySettingsBtn');
@@ -4370,59 +4400,66 @@
             }
 
             // =============================================
-            // 💡 FLOWSTATE SIGNAL GENERATION
+            // 💡 FLOWSTATE SIGNAL GENERATION (ENHANCED)
             // =============================================
             function generateFlowStateSignal() {
+                let signalObj = null;
                 if (fsStrategyMode === 'evenodd') {
                     const signal = eoEngine.generateSignal(55, 1.0, 95, false, BALANCE_TOLERANCE);
                     if (signal && signal.decision === 'TRADE') {
-                        return {
-                            side: signal.side,
+                        signalObj = {
+                            market: fsMarket,
+                            strategy: 'evenodd',
+                            prediction: signal.side,
+                            entry: 'N/A',
+                            recovery: 'N/A',
                             confidence: signal.confidence,
                             reason: signal.reason,
-                            strategy: 'evenodd'
+                            contractType: signal.side === 'EVEN' ? 'DIGITEVEN' : 'DIGITODD',
+                            barrier: null,
+                            side: signal.side
                         };
                     }
-                    return null;
                 } else {
                     const minConf = 55;
                     const sig = digitEngine.generateSignal(minConf);
                     if (sig) {
-                        return {
-                            side: `Digit ${sig.predictedDigit}`,
+                        const contractType = fsStrategyMode === 'matches' ? 'DIGITMATCH' : 'DIGITDIFF';
+                        const entry = sig.predictedDigit;
+                        const recovery = sig.recoveryDigit;
+                        signalObj = {
+                            market: fsMarket,
+                            strategy: fsStrategyMode,
+                            prediction: `Digit ${sig.predictedDigit}`,
+                            entry: entry,
+                            recovery: recovery,
                             confidence: sig.confidence,
                             reason: sig.reason,
-                            strategy: fsStrategyMode,
-                            predictedDigit: sig.predictedDigit
+                            contractType: contractType,
+                            barrier: entry,
+                            side: `Digit ${entry}`
                         };
                     }
-                    return null;
                 }
+                return signalObj;
             }
 
             // =============================================
-            // 📈 FLOWSTATE BOT TRADING
+            // 📈 FLOWSTATE BOT TRADING (UPDATED)
             // =============================================
             let isFsProposal = false;
             let isFsBuy = false;
 
             function fsPlaceTrade(signal) {
+                if (!signal) return;
                 if (!wsConnected) {
                     const win = Math.random() < 0.5;
                     const pl = win ? fsStakeAmount * 0.85 : -fsStakeAmount;
                     setTimeout(() => { handleFsTradeResult(win, pl); }, 1500);
                     return;
                 }
-                let contractType, barrier;
-                if (signal.strategy === 'evenodd') {
-                    contractType = signal.side === 'EVEN' ? 'DIGITEVEN' : 'DIGITODD';
-                } else if (signal.strategy === 'matches') {
-                    contractType = 'DIGITMATCH';
-                    barrier = signal.predictedDigit;
-                } else if (signal.strategy === 'differs') {
-                    contractType = 'DIGITDIFF';
-                    barrier = signal.predictedDigit;
-                }
+                const contractType = signal.contractType;
+                const barrier = signal.barrier;
                 const params = {
                     amount: fsStakeAmount,
                     basis: 'stake',
@@ -4430,9 +4467,9 @@
                     currency: 'USD',
                     duration: 1,
                     duration_unit: 't',
-                    underlying_symbol: getSymbol(fsMarket)
+                    underlying_symbol: getSymbol(signal.market)
                 };
-                if (barrier !== undefined && barrier !== null) {
+                if (barrier !== null && barrier !== undefined) {
                     params.barrier = String(barrier);
                 }
                 isFsProposal = true;
@@ -4444,8 +4481,10 @@
                 if (won) fsWinCount++;
                 else fsLoseCount++;
                 const signalStr = fsLastSignal ? fsLastSignal.side : '—';
+                const marketStr = fsLastSignal ? fsLastSignal.market : '—';
                 fsTrades.push({
                     time: new Date().toLocaleTimeString(),
+                    market: marketStr,
                     signal: signalStr,
                     result: won ? 'Won' : 'Lost',
                     profit: profit,
@@ -4721,15 +4760,28 @@
             // 📊 FLOWSTATE UI UPDATES
             // =============================================
             function updateFsDashboard(signal) {
-                if (!signal) return;
-                fsPrediction.textContent = signal.side || '—';
+                if (!signal) {
+                    fsPrediction.textContent = '—';
+                    fsConfidence.textContent = '0%';
+                    fsReason.textContent = '—';
+                    fsDetailMarket.textContent = '—';
+                    fsDetailContract.textContent = '—';
+                    fsDetailEntry.textContent = '—';
+                    fsDetailRecovery.textContent = '—';
+                    return;
+                }
+                fsPrediction.textContent = signal.prediction || signal.side || '—';
                 fsConfidence.textContent = signal.confidence + '%';
                 fsReason.textContent = signal.reason || '—';
+                fsDetailMarket.textContent = signal.market || '—';
+                fsDetailContract.textContent = signal.contractType || '—';
+                fsDetailEntry.textContent = signal.entry !== undefined ? signal.entry : 'N/A';
+                fsDetailRecovery.textContent = signal.recovery !== undefined ? signal.recovery : 'N/A';
                 fsStatusBadge.className = 'status-badge active';
                 fsStatusText.textContent = 'SIGNAL READY';
                 fsOutput.innerHTML = `
                     <span style="color:var(--accent-cyan);font-weight:700;">
-                        ${signal.side}
+                        ${signal.prediction || signal.side}
                     </span>
                     <span style="color:var(--text-muted);margin-left:8px;">Confidence: ${signal.confidence}%</span>
                     <span style="color:var(--text-dim);margin-left:8px;font-size:clamp(9px,0.5vw,11px);">${signal.reason}</span>
@@ -4747,7 +4799,7 @@
             function renderFsTradeHistory() {
                 if (fsTrades.length === 0) {
                     fsTradeHistoryBody.innerHTML =
-                        `<tr><td colspan="4" class="empty-state"><span class="emoji">📜</span>No trades yet</td></tr>`;
+                        `<tr><td colspan="5" class="empty-state"><span class="emoji">📜</span>No trades yet</td></tr>`;
                     return;
                 }
                 let html = '';
@@ -4756,6 +4808,7 @@
                     const sign = t.profit >= 0 ? '+' : '';
                     html += `<tr>
                         <td>${t.time}</td>
+                        <td>${t.market}</td>
                         <td>${t.signal}</td>
                         <td><span class="status-pill ${t.result === 'Won' ? 'won' : 'lost'}">${t.result}</span></td>
                         <td class="${cls}">${sign}$${t.profit.toFixed(2)}</td>
@@ -5824,6 +5877,7 @@
             eoEdgeDisplay.textContent = '—';
             eoBalanceDisplay.textContent = '—';
 
+            updateFsDashboard(null);
             updateFsDashboardStats();
             renderFsTradeHistory();
 
@@ -5839,6 +5893,7 @@
             console.log('🔷 EMRON AI — DigitEdge Even/Odd FREE & UNLOCKED');
             console.log('📊 FlowState now includes MATCHES, DIFFERS, and EVEN/ODD.');
             console.log('✅ Strict 50/50 both-side trading enabled.');
+            console.log('✅ FlowState signals now include market, contract, entry, recovery.');
 
         })();
     </script>
