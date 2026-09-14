@@ -1231,6 +1231,11 @@
             padding-right: clamp(28px, 2.2vw, 38px);
             cursor: pointer;
         }
+        textarea.form-control {
+            resize: vertical;
+            min-height: 90px;
+            line-height: 1.5;
+        }
         .signal-badge {
             display: inline-flex;
             align-items: center;
@@ -2028,67 +2033,72 @@
             font-weight: 600;
         }
 
-        /* ===== EVEN/ODD SPECIFIC ===== */
-        .eo-prediction {
-            display: flex;
-            align-items: center;
-            gap: clamp(6px, 0.5vw, 12px);
-            padding: clamp(6px, 0.4vw, 10px) clamp(10px, 0.6vw, 16px);
-            background: var(--bg-surface);
-            border-radius: var(--radius-md);
+        /* ===== BULK PURCHASE ===== */
+        .bulk-section {
+            background: var(--bg-card);
             border: 1px solid var(--border);
-            margin-top: clamp(4px, 0.3vw, 8px);
+            border-radius: var(--radius-lg);
+            padding: clamp(12px, 1vw, 18px);
+            display: flex;
+            flex-direction: column;
+            gap: clamp(6px, 0.4vw, 10px);
+            margin-top: clamp(10px, 1vw, 16px);
         }
-        .eo-prediction .label {
-            color: var(--text-muted);
-            font-size: clamp(9px, 0.5vw, 11px);
-        }
-        .eo-prediction .side {
+        .bulk-section textarea {
             font-family: 'JetBrains Mono', monospace;
-            font-weight: 700;
-            font-size: clamp(16px, 1.2vw, 20px);
+            font-size: clamp(11px, 0.7vw, 13px);
+            line-height: 1.6;
+            resize: vertical;
+            min-height: 96px;
         }
-        .eo-prediction .side.even {
-            color: var(--accent-green);
-        }
-        .eo-prediction .side.odd {
-            color: var(--accent-red);
-        }
-        .eo-prediction .side.both {
+        .bulk-section code {
             color: var(--accent-cyan);
-        }
-        .eo-prediction .side.no-trade {
-            color: var(--text-muted);
-        }
-        .eo-confidence {
             font-family: 'JetBrains Mono', monospace;
-            font-size: clamp(12px, 0.8vw, 14px);
-            font-weight: 600;
+            background: var(--bg-surface);
+            padding: 1px 5px;
+            border-radius: var(--radius-sm);
         }
-        .eo-edge {
+        .bulk-results {
+            margin-top: clamp(6px, 0.4vw, 10px);
+            display: flex;
+            flex-direction: column;
+            gap: clamp(3px, 0.2vw, 6px);
+            max-height: clamp(180px, 22vh, 260px);
+            overflow-y: auto;
             font-family: 'JetBrains Mono', monospace;
             font-size: clamp(10px, 0.6vw, 12px);
+        }
+        .bulk-results .bulk-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: clamp(6px, 0.4vw, 10px);
+            padding: clamp(4px, 0.3vw, 6px) clamp(6px, 0.4vw, 10px);
+            background: var(--bg-surface);
+            border-radius: var(--radius-sm);
+            border-left: 3px solid var(--border);
+        }
+        .bulk-results .bulk-row.ok {
+            border-left-color: var(--accent-green);
+        }
+        .bulk-results .bulk-row.fail {
+            border-left-color: var(--accent-red);
+        }
+        .bulk-results .bulk-row .acct {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+        .bulk-results .bulk-row .meta {
             color: var(--text-muted);
-        }
-        .eo-edge.positive {
-            color: var(--accent-green);
-        }
-        .eo-edge.negative {
-            color: var(--accent-red);
-        }
-        .eo-latency {
-            font-family: 'JetBrains Mono', monospace;
             font-size: clamp(9px, 0.5vw, 11px);
-            color: var(--text-dim);
         }
-        .eo-latency .good {
+        .bulk-results .bulk-row .amt {
             color: var(--accent-green);
+            font-weight: 600;
         }
-        .eo-latency .warn {
-            color: var(--accent-yellow);
-        }
-        .eo-latency .bad {
+        .bulk-results .bulk-row .err {
             color: var(--accent-red);
+            font-size: clamp(9px, 0.5vw, 11px);
         }
 
         /* ============================================================ */
@@ -3142,6 +3152,44 @@
                         <span style="color:var(--text-muted);font-size:clamp(9px,0.5vw,11px);">Balance: <span id="patBalance" style="font-family:'JetBrains Mono',monospace;color:var(--accent-green);">—</span></span>
                     </div>
                 </div>
+
+                <!-- ============ BULK PURCHASE ============ -->
+                <div class="bulk-section" id="bulkSection">
+                    <div style="display:flex;align-items:center;gap:clamp(6px,0.4vw,10px);flex-wrap:wrap;">
+                        <span style="font-weight:600;font-size:clamp(12px,0.8vw,14px);">📦 Bulk Purchase</span>
+                        <span class="free-badge" style="font-size:clamp(7px,0.4vw,9px);">UP TO 100 ACCOUNTS</span>
+                        <span id="bulkModeTag" style="font-size:clamp(9px,0.5vw,11px);color:var(--text-muted);font-family:'JetBrains Mono',monospace;">→ /bulk-purchase/demo</span>
+                    </div>
+                    <div style="font-size:clamp(10px,0.6vw,12px);color:var(--text-muted);line-height:1.6;">
+                        Buy the same <strong>Even/Odd</strong> contract for many accounts in a single call.
+                        One account per line: <code>&lt;PAT&gt;,&lt;account_id&gt;</code>.
+                        Uses your <code>Deriv-App-ID</code> header — no OAuth token required for this call.
+                    </div>
+                    <textarea class="form-control" id="bulkAccountsInput" rows="4"
+                        placeholder="END_USER_PAT_1,DOT90004580&#10;END_USER_PAT_2,DOT90004581"></textarea>
+                    <div class="form-row" style="margin-bottom:0;">
+                        <div class="form-group">
+                            <label>Contract Type Override</label>
+                            <select class="form-control" id="bulkContractOverride">
+                                <option value="auto" selected>Auto (from last signal)</option>
+                                <option value="DIGITEVEN">Force DIGITEVEN</option>
+                                <option value="DIGITODD">Force DIGITODD</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Stake Override ($)</label>
+                            <input class="form-control" id="bulkStakeOverride" type="number" step="0.01" placeholder="Use live stake" value="">
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:clamp(6px,0.4vw,10px);flex-wrap:wrap;">
+                        <button class="btn btn-primary" id="bulkBuyBtn" style="flex:1;min-height:clamp(38px,3vw,46px);">📦 Buy for all accounts</button>
+                        <button class="btn btn-ghost" id="bulkClearBtn" style="flex-shrink:0;">Clear</button>
+                    </div>
+                    <div class="playground-status">
+                        <span class="status-text" id="bulkStatus">Idle — paste accounts and submit</span>
+                    </div>
+                    <div class="bulk-results" id="bulkResults"></div>
+                </div>
             </div>
 
             <!-- ===================== TAB 6: HELP ===================== -->
@@ -3174,6 +3222,25 @@
                     <div class="faq-item">
                         <div class="faq-question">What markets are supported? <span class="faq-toggle">+</span></div>
                         <div class="faq-answer">All Deriv synthetic volatility indices: Volatility 10/25/50/75/100 (2-second and 1-second ticks), plus Crash, Boom, and Range Break indices.</div>
+                    </div>
+                </div>
+                <div class="faq-category">
+                    <h3>📦 Bulk Purchase</h3>
+                    <div class="faq-item">
+                        <div class="faq-question">What is Bulk Purchase? <span class="faq-toggle">+</span></div>
+                        <div class="faq-answer">Bulk Purchase lets you buy the same options contract for up to 100 end-user accounts in a single call. It is the V2 successor to the legacy buy_contract_for_multiple_accounts flow used by copy-trading platforms. Authentication is per-account: each entry pairs an end-user Personal Access Token (with the trade scope) with the account it owns.</div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">Do I need OAuth for Bulk Purchase? <span class="faq-toggle">+</span></div>
+                        <div class="faq-answer">No. The endpoint authenticates with your application's Deriv-App-ID header plus the per-account PATs in the request body. No OAuth access token is required for the call itself.</div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">What happens if one account fails? <span class="faq-toggle">+</span></div>
+                        <div class="faq-answer">Each entry in the transactions array is reported independently. A single failed token, ownership check, or account-type mismatch does not affect the other entries. The request is only rejected if none of the pairs pass validation.</div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">Real vs Demo endpoint? <span class="faq-toggle">+</span></div>
+                        <div class="faq-answer">The path ends in /real or /demo. Passing a demo account to the /real path (or vice versa) is reported as a per-account failure, not a request-level error. Our UI switches the path automatically based on the top-bar MODE toggle.</div>
                     </div>
                 </div>
                 <div class="faq-category">
@@ -3765,6 +3832,8 @@
             // CONFIGURATION
             // =============================================
             const DERIV_APP_ID = "34c3rTXvfnC6XKk5nbzJM";
+            const BULK_BASE = 'https://api.derivws.com';
+            const BULK_PATH = '/trading/v1/options/contracts/bulk-purchase';
             const REAL_ACCOUNT_ID = "ROT90355563";
             const DEMO_ACCOUNT_ID = "DOT90737951";
             let MODE = "DEMO";
@@ -3892,6 +3961,16 @@
             const modeCurrent = document.getElementById('modeCurrent');
             const modeTarget = document.getElementById('modeTarget');
             const modeConfirmBtn = document.getElementById('modeConfirmBtn');
+
+            // Bulk Purchase DOM refs
+            const bulkAccountsInput = document.getElementById('bulkAccountsInput');
+            const bulkBuyBtn = document.getElementById('bulkBuyBtn');
+            const bulkClearBtn = document.getElementById('bulkClearBtn');
+            const bulkStatus = document.getElementById('bulkStatus');
+            const bulkResults = document.getElementById('bulkResults');
+            const bulkModeTag = document.getElementById('bulkModeTag');
+            const bulkContractOverride = document.getElementById('bulkContractOverride');
+            const bulkStakeOverride = document.getElementById('bulkStakeOverride');
 
             // Signal Strategy fields
             const ssMaster = document.getElementById('ssMaster');
@@ -4397,6 +4476,195 @@
                 if (tickSubscriptionId) { sendWsRequest({ forget: tickSubscriptionId });
                     tickSubscriptionId = null; }
                 sendWsRequest({ ticks: symbol, subscribe: 1 });
+            }
+
+            // =============================================
+            // 📦 BULK PURCHASE (Deriv REST v1)
+            // =============================================
+            function buildContractParameters(signal, stakeOverride) {
+                const side = (signal && signal.side) || emronSignalConfig.side || 'EVEN';
+                const override = bulkContractOverride ? bulkContractOverride.value : 'auto';
+                let contractType;
+                if (override === 'DIGITEVEN' || override === 'DIGITODD') {
+                    contractType = override;
+                } else {
+                    contractType = side === 'EVEN' ? 'DIGITEVEN' : 'DIGITODD';
+                }
+                const amount = (stakeOverride !== undefined && stakeOverride !== null && stakeOverride !== '')
+                    ? parseFloat(stakeOverride)
+                    : currentStake;
+                return {
+                    contract_type: contractType,
+                    underlying_symbol: getSymbol(emronSignalConfig.market || currentMarket),
+                    currency: 'USD',
+                    amount: amount,
+                    basis: 'stake',
+                    duration: parseInt(emronSignalConfig.duration, 10) || 1,
+                    duration_unit: 't'
+                };
+            }
+
+            function parseBulkAccounts(raw) {
+                return String(raw || '')
+                    .split('\n')
+                    .map(l => l.trim())
+                    .filter(Boolean)
+                    .map(line => {
+                        const idx = line.indexOf(',');
+                        if (idx === -1) return null;
+                        const token = line.slice(0, idx).trim();
+                        const account_id = line.slice(idx + 1).trim();
+                        if (!token || !account_id) return null;
+                        return { token, account_id };
+                    })
+                    .filter(Boolean);
+            }
+
+            async function bulkPurchase({ contractParameters, accounts, accountType }) {
+                if (accountType !== 'real' && accountType !== 'demo') {
+                    throw new Error("accountType must be 'real' or 'demo'");
+                }
+                if (!Array.isArray(accounts) || accounts.length === 0) {
+                    throw new Error('At least one { token, account_id } pair is required');
+                }
+                if (accounts.length > 100) {
+                    throw new Error('Maximum 100 accounts per request');
+                }
+                for (let i = 0; i < accounts.length; i++) {
+                    const a = accounts[i];
+                    if (!a.token || a.token.length > 512) throw new Error(`accounts[${i}].token invalid`);
+                    if (!a.account_id || a.account_id.length > 64) throw new Error(`accounts[${i}].account_id invalid`);
+                }
+
+                const url = `${BULK_BASE}${BULK_PATH}/${accountType}`;
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Deriv-App-ID': DERIV_APP_ID,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        contract_parameters: contractParameters,
+                        accounts
+                    })
+                });
+
+                let json = null;
+                try { json = await res.json(); } catch (e) { json = null; }
+
+                if (!res.ok) {
+                    const detail = (json && json.errors && json.errors.length)
+                        ? json.errors.map(e => `${e.code}: ${e.message}`).join('; ')
+                        : `HTTP ${res.status} ${res.statusText || ''}`.trim();
+                    throw new Error(detail);
+                }
+                return (json && json.data && json.data.transactions) ? json.data.transactions : [];
+            }
+
+            function renderBulkResults(results) {
+                if (!results || results.length === 0) {
+                    bulkResults.innerHTML = '';
+                    return;
+                }
+                let html = '';
+                results.forEach(r => {
+                    if (r && r.error) {
+                        html += `<div class="bulk-row fail">
+                            <span class="acct">${r.account_id || '—'}</span>
+                            <span class="err">✕ ${r.error.code}: ${r.error.message}</span>
+                        </div>`;
+                    } else {
+                        html += `<div class="bulk-row ok">
+                            <span class="acct">${r.account_id || '—'}</span>
+                            <span class="meta">ID ${r.contract_id || '—'} · tx ${r.transaction_id || '—'}</span>
+                            <span class="amt">$${parseFloat(r.buy_price || 0).toFixed(2)}</span>
+                        </div>`;
+                    }
+                });
+                bulkResults.innerHTML = html;
+            }
+
+            async function runBulkPurchase() {
+                const accounts = parseBulkAccounts(bulkAccountsInput.value);
+                if (!accounts.length) {
+                    toast('No valid "token,account_id" lines found', 'error');
+                    return;
+                }
+                if (accounts.length > 100) {
+                    toast('Maximum 100 accounts per request', 'error');
+                    return;
+                }
+
+                const accountType = MODE === 'REAL' ? 'real' : 'demo';
+                if (accountType === 'real') {
+                    const ok = confirm(`Buy for ${accounts.length} REAL account(s) at ` +
+                        `$${parseFloat(bulkStakeOverride.value || currentStake).toFixed(2)} each?`);
+                    if (!ok) return;
+                }
+
+                const stakeOverride = bulkStakeOverride.value.trim();
+                const params = buildContractParameters(lastSignal, stakeOverride);
+
+                bulkBuyBtn.disabled = true;
+                const origText = bulkBuyBtn.textContent;
+                bulkBuyBtn.textContent = 'Submitting…';
+                bulkStatus.textContent = `Sending ${accounts.length} account(s) to /bulk-purchase/${accountType}…`;
+                bulkStatus.className = 'status-text';
+
+                try {
+                    const results = await bulkPurchase({
+                        contractParameters: params,
+                        accounts,
+                        accountType
+                    });
+
+                    let okCount = 0;
+                    let failCount = 0;
+                    results.forEach(r => {
+                        if (r && r.error) {
+                            failCount++;
+                        } else {
+                            okCount++;
+                            trades.push({
+                                time: new Date().toLocaleTimeString(),
+                                type: `BULK ${params.contract_type}`,
+                                symbol: r.account_id || '—',
+                                stake: parseFloat(r.buy_price) || params.amount,
+                                pl: 0
+                            });
+                        }
+                    });
+                    renderTrades();
+                    renderBulkResults(results);
+
+                    bulkStatus.textContent = `📦 ${okCount} succeeded · ${failCount} failed`;
+                    bulkStatus.className = 'status-text connected';
+
+                    toast(`📦 Bulk purchase: ${okCount} succeeded, ${failCount} failed`,
+                        failCount ? 'error' : 'success');
+
+                    if (okCount > 0 && wsConnected) {
+                        sendWsRequest({ balance: 1 });
+                    }
+                } catch (err) {
+                    console.error('Bulk purchase error:', err);
+                    bulkStatus.textContent = `❌ ${err.message}`;
+                    bulkStatus.className = 'status-text';
+                    renderBulkResults([]);
+                    toast('❌ ' + err.message, 'error');
+                } finally {
+                    bulkBuyBtn.disabled = false;
+                    bulkBuyBtn.textContent = origText;
+                }
+            }
+
+            function clearBulkForm() {
+                bulkAccountsInput.value = '';
+                bulkResults.innerHTML = '';
+                bulkStakeOverride.value = '';
+                bulkContractOverride.value = 'auto';
+                bulkStatus.textContent = 'Idle — paste accounts and submit';
+                bulkStatus.className = 'status-text';
             }
 
             // =============================================
@@ -5718,6 +5986,19 @@
             });
 
             // =============================================
+            // Bulk Purchase listeners
+            // =============================================
+            bulkBuyBtn.addEventListener('click', runBulkPurchase);
+            bulkClearBtn.addEventListener('click', clearBulkForm);
+            bulkAccountsInput.addEventListener('keydown', (e) => {
+                // Ctrl/Cmd+Enter to submit
+                if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                    e.preventDefault();
+                    runBulkPurchase();
+                }
+            });
+
+            // =============================================
             // Countdown
             // =============================================
             setInterval(() => {
@@ -5735,6 +6016,9 @@
                 topModeToggleBtn.style.color = (MODE === 'REAL') ? 'var(--accent-red)' : 'var(--accent-yellow)';
                 const playgroundLabel = document.getElementById('modeLabel');
                 if (playgroundLabel) playgroundLabel.textContent = MODE;
+                if (bulkModeTag) {
+                    bulkModeTag.textContent = `→ /bulk-purchase/${MODE === 'REAL' ? 'real' : 'demo'}`;
+                }
             }
 
             topModeToggleBtn.addEventListener('click', () => {
@@ -5885,6 +6169,15 @@
             rmBreakEvenDisplay.textContent = Math.round(be * 100) + '%';
             rmMaxOpen.value = MAX_OPEN_CONTRACTS;
 
+            // Init bulk mode tag + status
+            if (bulkModeTag) {
+                bulkModeTag.textContent = `→ /bulk-purchase/${MODE === 'REAL' ? 'real' : 'demo'}`;
+            }
+            if (bulkStatus) {
+                bulkStatus.textContent = 'Idle — paste accounts and submit';
+                bulkStatus.className = 'status-text';
+            }
+
             setTimeout(updateMonitor, 500);
             setInterval(() => { if (!isActive) { generateChartData();
                     drawChart(); } }, 7000);
@@ -5894,6 +6187,7 @@
             console.log('📊 FlowState now includes MATCHES, DIFFERS, and EVEN/ODD.');
             console.log('✅ Strict 50/50 both-side trading enabled.');
             console.log('✅ FlowState signals now include market, contract, entry, recovery.');
+            console.log('📦 Bulk Purchase endpoint wired (up to 100 accounts/request).');
 
         })();
     </script>
