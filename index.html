@@ -1732,7 +1732,7 @@
                         <!-- Software Status -->
                         <div class="card">
                             <div class="card-header">
-                                <div class="card-title">🤖 EMRON AI — Dual-Contract Engine</div>
+                                <div class="card-title">🤖 EMRON AI — Instant Fill Engine</div>
                             </div>
                             <div class="status-badge inactive" id="statusBadge">
                                 <div class="status-dot-inline"></div>
@@ -1754,13 +1754,13 @@
                                 <div class="setting-row"><span class="label">Bot state</span><span class="value" id="botState">IDLE</span></div>
                                 <div class="setting-row">
                                     <span class="label">Session Round</span>
-                                    <span class="value live" id="currentRound">0 / 200 (min 5)</span>
+                                    <span class="value live" id="currentRound">0 / 30 rounds · 0 contracts</span>
                                 </div>
-                                <div class="setting-row"><span class="label">Active Strategy</span><span class="value" id="activeStrategyDisplay" style="color:var(--accent-cyan);">Even/Odd Ultra-Fast</span></div>
+                                <div class="setting-row"><span class="label">Active Strategy</span><span class="value" id="activeStrategyDisplay" style="color:var(--accent-cyan);">Instant Fill · Separate Ups + Downs · Concurrent</span></div>
                                 <div class="progress-container">
                                     <div class="progress-label">
                                         <span class="current">$<span id="windowProfit">0.00</span></span>
-                                        <span class="target">/ $<span id="profitTargetDisplay">20.00</span></span>
+                                        <span class="target">/ $<span id="profitTargetDisplay">OFF</span></span>
                                     </div>
                                     <div class="progress-bar"><div class="progress-fill" id="profitFill" style="width:0%"></div></div>
                                 </div>
@@ -1769,37 +1769,39 @@
                         <!-- Current Settings -->
                         <div class="card" id="settingsCard">
                             <div class="card-header">
-                                <div class="card-title">⚙️ Engine Settings</div>
+                                <div class="card-title">⚙️ Video Instant-Fill Settings</div>
                                 <div class="card-actions">
                                     <button class="icon-btn" id="editSettingsBtn" title="Edit All">✏️</button>
-                                    <button class="icon-btn" id="signalStrategyBtn" title="Signal Strategy" style="color:var(--accent-cyan);">📡</button>
-                                    <button class="icon-btn" id="riskMgmtBtn" title="Risk Management" style="color:var(--accent-yellow);">🛡</button>
+                                    <button class="icon-btn" id="signalStrategyBtn" title="Video Execution Profile" style="color:var(--accent-cyan);">📡</button>
+                                    <button class="icon-btn" id="riskMgmtBtn" title="Video Execution Settings" style="color:var(--accent-yellow);">🛡</button>
                                     <button class="icon-btn" data-collapse="settingsCard">—</button>
                                 </div>
                             </div>
                             <div class="card-body">
                                 <div class="settings-list">
-                                    <div class="setting-row"><span class="label">Market (live)</span><span class="value live" id="liveMarketDisplay">Volatility 50</span></div>
-                                    <div class="setting-row"><span class="label">Stake (live)</span><span class="value live" id="liveStakeDisplay">$1.00</span></div>
+                                    <div class="setting-row"><span class="label">Market (live)</span><span class="value live" id="liveMarketDisplay">Volatility 10</span></div>
+                                    <div class="setting-row"><span class="label">Stake (live total)</span><span class="value live" id="liveStakeDisplay">$1.00</span></div>
+                                    <div class="setting-row"><span class="label">Only Ups Stake</span><span class="value live" id="liveUpStakeDisplay">$0.50</span></div>
+                                    <div class="setting-row"><span class="label">Only Downs Stake</span><span class="value live" id="liveDownStakeDisplay">$0.50</span></div>
+                                    <div class="setting-row"><span class="label">Total per round</span><span class="value" id="livePairStakeDisplay">$1.00</span></div>
                                     <div class="settings-divider"><span class="settings-divider-label">Strategy Engine</span></div>
                                     <div class="setting-row">
                                         <span class="label">Active Strategy</span>
                                         <span class="value">
-                                            <select id="activeStrategySelect" style="background:var(--bg-surface);border:1px solid var(--border);color:var(--text-primary);border-radius:4px;padding:2px 6px;font-size:11px;font-family:'JetBrains Mono',monospace;min-height:26px;">
-                                                <option value="evenodd" selected>Even/Odd Ultra-Fast</option>
-                                                <option value="upsdowns">Only Ups / Only Downs</option>
-                                            </select>
+                                            <select id="activeStrategySelect" style="background:var(--bg-surface);border:1px solid var(--border);color:var(--text-primary);border-radius:4px;padding:2px 6px;font-size:11px;font-family:'JetBrains Mono',monospace;min-height:26px;"><option value="instantfill" selected>Instant Fill · Separate Ups + Downs · Concurrent</option></select>
                                         </span>
                                     </div>
-                                    <div class="setting-row"><span class="label">E/O Prediction</span><span class="value" data-field="strategyMode" id="eoPredictionDisplay">—</span></div>
-                                    <div class="setting-row"><span class="label">E/O Confidence</span><span class="value" data-field="eoConfidence" id="eoConfidenceDisplay">—</span></div>
-                                    <div class="setting-row"><span class="label">E/O Edge</span><span class="value" data-field="eoEdge" id="eoEdgeDisplay">—</span></div>
-                                    <div class="setting-row"><span class="label">E/O Duration</span><span class="value" data-field="duration">1 tick</span></div>
-                                    <div class="setting-row"><span class="label">E/O Balance</span><span class="value" data-field="eoBalance" id="eoBalanceDisplay">—</span></div>
-                                    <div class="settings-divider"><span class="settings-divider-label">Only Ups / Downs</span></div>
-                                    <div class="setting-row"><span class="label">U/D Prediction</span><span class="value" id="udPredictionDisplay">—</span></div>
-                                    <div class="setting-row"><span class="label">U/D Confidence</span><span class="value" id="udConfidenceDisplay">—</span></div>
-                                    <div class="setting-row"><span class="label">U/D Duration</span><span class="value" id="udDurationDisplay">2 ticks</span></div>
+                                    <div class="setting-row"><span class="label">Execution Trigger</span><span class="value" data-field="strategyMode" id="eoPredictionDisplay">NEXT TICK</span></div>
+                                    <div class="setting-row"><span class="label">Contracts</span><span class="value" data-field="eoConfidence" id="eoConfidenceDisplay">2 separate contracts</span></div>
+                                    <div class="setting-row"><span class="label">Entry Filter</span><span class="value" data-field="eoEdge" id="eoEdgeDisplay">NONE</span></div>
+                                    <div class="setting-row"><span class="label">Ticks</span><span class="value" data-field="duration" id="mainTicksDisplay">1 tick</span></div>
+                                    <div class="setting-row"><span class="label">Execution</span><span class="value" data-field="eoBalance" id="eoBalanceDisplay">Turbo · concurrent legs</span></div>
+                                    <div class="settings-divider"><span class="settings-divider-label">Video Trading Engine</span></div>
+                                    <div class="setting-row"><span class="label">Active Strategy</span><span class="value" id="udPredictionDisplay">Only Ups + Only Downs</span></div>
+                                    <div class="setting-row"><span class="label">Contracts</span><span class="value" id="udConfidenceDisplay">2 simultaneous</span></div>
+                                    <div class="setting-row"><span class="label">Ticks</span><span class="value" id="udDurationDisplay">1 tick</span></div>
+                                    <div class="setting-row"><span class="label">Delay after Settlement</span><span class="value" id="udDirectionDisplay">2 s</span></div>
+                                    <div class="setting-row"><span class="label">Turbo</span><span class="value live" id="turboDisplay">ON</span></div>
                                     <div class="settings-divider"><span class="settings-divider-label">Live Status</span></div>
                                     <div class="setting-row"><span class="label">Balance</span><span class="value" data-field="eoBalance" id="eoBalanceDisplayMain">—</span></div>
                                 </div>
@@ -1807,54 +1809,72 @@
                                 <div class="quick-settings">
                                     <div style="font-size:clamp(8px,0.5vw,10px);font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">📌 Presets</div>
                                     <div class="preset-grid">
-                                        <button class="btn btn-ghost preset-btn" data-preset="eo1">⚡ E/O V50</button>
-                                        <button class="btn btn-ghost preset-btn" data-preset="eo2">🎯 E/O V75</button>
-                                        <button class="btn btn-ghost preset-btn" data-preset="eo3">🚀 E/O V100</button>
-                                        <button class="btn btn-ghost preset-btn" data-preset="eo4">🛡️ E/O V50 1s</button>
-                                        <button class="btn btn-ghost preset-btn" data-preset="ud1">⬆️ U/D V50 2t</button>
-                                        <button class="btn btn-ghost preset-btn" data-preset="ud2">⬇️ U/D V100 2t</button>
+                                        <button class="btn btn-ghost preset-btn" data-preset="video">🎥 Video Profile</button>
                                     </div>
-                                    <div style="font-size:clamp(8px,0.5vw,10px);font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;">Quick Adjust</div>
+                                    <div style="font-size:clamp(8px,0.5vw,10px);font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;">Video Quick Controls</div>
                                     <div class="form-row">
                                         <div class="form-group">
-                                            <label>Stake ($)</label>
-                                            <input class="form-control" id="qsStake" type="number" step="0.01" value="1.00">
+                                            <label>Only Ups Stake ($)</label>
+                                            <input class="form-control" id="qsUpStake" type="number" min="0.01" step="0.01" value="0.50">
                                         </div>
                                         <div class="form-group">
-                                            <label>E/O Min Confidence (%)</label>
-                                            <input class="form-control" id="qsMinConfidence" type="number" step="1" value="60">
+                                            <label>Only Downs Stake ($)</label>
+                                            <input class="form-control" id="qsDownStake" type="number" min="0.01" step="0.01" value="0.50">
                                         </div>
                                     </div>
                                     <div class="form-row">
                                         <div class="form-group">
-                                            <label>E/O Min Edge (%)</label>
-                                            <input class="form-control" id="qsMinEdge" type="number" step="0.1" value="2.0">
+                                            <label>Total Pair Stake ($)</label>
+                                            <input class="form-control" id="qsPairStake" type="text" value="$1.00" readonly>
                                         </div>
                                         <div class="form-group">
-                                            <label>Max Open Contracts</label>
-                                            <input class="form-control" id="qsMaxOpen" type="number" value="2">
-                                        </div>
-                                    </div>
-                                    <div class="form-row">
-                                        <div class="form-group">
-                                            <label>U/D Duration (ticks)</label>
-                                            <input class="form-control" id="qsUDDuration" type="number" value="2" min="1" max="10">
-                                        </div>
-                                        <div class="form-group">
-                                            <label>U/D Min Confidence (%)</label>
-                                            <input class="form-control" id="qsUDMinConf" type="number" value="55" min="40" max="95">
+                                            <label>Execution</label>
+                                            <input class="form-control" value="Only Ups + Only Downs · concurrent" readonly>
                                         </div>
                                     </div>
                                     <div class="form-row">
                                         <div class="form-group">
-                                            <label>Balance Tolerance (%)</label>
-                                            <input class="form-control" id="qsBalanceTolerance" type="number" step="1" value="5">
+                                            <label>Ticks</label>
+                                            <input class="form-control" id="qsUDDuration" type="number" value="1" min="1" max="20" step="1">
                                         </div>
                                         <div class="form-group">
-                                            <label>Trade Both on Strict 50/50</label>
+                                            <label>Martingale ×</label>
+                                            <input class="form-control" id="qsUDMinConf" type="number" value="1.25" min="1" max="10" step="0.01">
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>Contracts</label>
+                                            <select class="form-control" id="qsUDDirection"><option value="BOTH" selected>2 — RUNHIGH + RUNLOW</option></select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Turbo Execution</label>
+                                            <select class="form-control" id="qsTurbo">
+                                                <option value="true" selected>Turbo ON</option>
+                                                <option value="false">Turbo OFF</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>Losses to Switch</label>
+                                            <input class="form-control" id="qsUDLossesSwitch" type="number" value="1" min="0" max="20">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>U/D Rounds</label>
+                                            <input class="form-control" id="qsUDRounds" type="number" value="30" min="1" max="1000">
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>Delay after Settlement (s)</label>
+                                            <input class="form-control" id="qsBalanceTolerance" type="number" step="0.1" value="2">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Switch on Loss</label>
                                             <select class="form-control" id="qsTradeBoth">
-                                                <option value="true" selected>Yes</option>
-                                                <option value="false">No</option>
+                                                <option value="true" selected>ON</option>
+                                                <option value="false">OFF</option>
                                             </select>
                                         </div>
                                     </div>
@@ -1867,6 +1887,51 @@
                                             <label>Stop Loss ($)</label>
                                             <input class="form-control" id="qsSL" type="number" step="0.01" value="20.00">
                                         </div>
+                                    </div>
+                                    <div style="margin:10px 0 6px;padding:8px;border:1px solid var(--accent-cyan);border-radius:var(--radius-md);background:rgba(0,229,255,0.04);">
+                                        <div style="font-size:11px;font-weight:700;color:var(--accent-cyan);margin-bottom:7px;">🎥 VIDEO-FAITHFUL U/D BATCH PROFILE</div>
+                                        <div class="form-row">
+                                            <div class="form-group"><label>Execution Legs</label><select class="form-control" id="videoBatchMode"><option value="true" selected>2 separate · RUNHIGH + RUNLOW</option></select></div>
+                                            <div class="form-group"><label>Ticks</label><input class="form-control" id="videoTicks" type="number" value="1" min="1" max="20" step="1"></div>
+                                        </div>
+                                        <div class="form-row">
+                                            <div class="form-group"><label>Default Stake ($)</label><input class="form-control" id="videoDefaultStake" type="number" value="0.35" min="0.01" step="0.01"></div>
+                                            <div class="form-group"><label>Martingale ×</label><input class="form-control" id="videoMartingale" type="number" value="1.25" min="1" step="0.01"></div>
+                                        </div>
+                                        <div class="form-row">
+                                            <div class="form-group"><label>Only Ups Stake ($)</label><input class="form-control" id="videoUpStake" type="number" value="0.50" min="0.01" step="0.01"></div>
+                                            <div class="form-group"><label>Only Downs Stake ($)</label><input class="form-control" id="videoDownStake" type="number" value="0.50" min="0.01" step="0.01"></div>
+                                        </div>
+                                        <div class="form-row">
+                                            <div class="form-group"><label>Entry Point Digit</label><input class="form-control" id="videoEntryDigit" type="number" min="0" max="9" placeholder="blank"></div>
+                                            <div class="form-group"><label>Default Digit</label><input class="form-control" id="videoDefaultDigit" type="number" value="2" min="0" max="9"></div>
+                                        </div>
+                                        <div class="form-row">
+                                            <div class="form-group"><label>Switch Market</label><select class="form-control" id="videoSwitchMarket"><option value="false" selected>OFF</option><option value="true">ON</option></select></div>
+                                            <div class="form-group"><label>Switch on Loss</label><select class="form-control" id="videoSwitchOnLoss"><option value="true" selected>ON</option><option value="false">OFF</option></select></div>
+                                        </div>
+                                        <div class="form-row">
+                                            <div class="form-group"><label>Main Mode</label><select class="form-control" id="videoMainMode"><option value="false" selected>OFF</option><option value="true">ON</option></select></div>
+                                            <div class="form-group"><label>Losses to Switch</label><input class="form-control" id="videoLossesToSwitch" type="number" value="1" min="1" max="20"></div>
+                                        </div>
+                                        <div class="form-row">
+                                            <div class="form-group"><label>Turbo</label><select class="form-control" id="videoTurbo"><option value="true" selected>ON</option><option value="false">OFF</option></select></div>
+                                            <div class="form-group"><label>Rounds</label><input class="form-control" id="videoRounds" type="number" value="30" min="1" max="1000"></div>
+                                        </div>
+                                        <div class="form-row">
+                                            <div class="form-group"><label>Delay</label><select class="form-control" id="videoDelay"><option value="true" selected>ON</option><option value="false">OFF</option></select></div>
+                                            <div class="form-group"><label>Delay After Settle (ms)</label><input class="form-control" id="videoDelayAfterSettle" type="number" value="2000" min="0" max="10000" step="100"></div>
+                                        </div>
+                                        <div class="form-row">
+                                            <div class="form-group"><label>Take Profit ($)</label><input class="form-control" id="videoTakeProfit" type="number" value="0" min="0" step="0.01" placeholder="OFF"></div>
+                                            <div class="form-group"><label>Stop Loss ($)</label><input class="form-control" id="videoStopLoss" type="number" value="0" min="0" step="0.01" placeholder="OFF"></div>
+                                        </div>
+                                        <div id="videoExecutionStatus" style="margin:8px 0;padding:7px;border:1px solid var(--accent-green);border-radius:6px;color:var(--accent-green);font-size:10px;font-weight:700;">Ready — Run → immediate separate RUNHIGH + RUNLOW contracts</div>
+                                        <div class="form-row">
+                                            <div class="form-group"><label>Single Buy Gap (ms)</label><input class="form-control" id="videoSingleBuyGap" type="number" value="500" min="0" max="5000" step="50"></div>
+                                            <div class="form-group"><label>Execution</label><input class="form-control" value="Turbo · 2 separate contracts" readonly></div>
+                                        </div>
+                                        <button class="btn btn-primary" id="applyVideoProfileBtn" style="width:100%;margin-top:5px;">Apply Video Profile</button>
                                     </div>
                                     <div class="form-row">
                                         <div class="form-group" style="grid-column:1/2;">
@@ -1907,6 +1972,12 @@
                                             <label>Cooldown (ms)</label>
                                             <input class="form-control" id="qsCooldown" type="number" value="150" min="20">
                                         </div>
+                                    </div>
+                                    <div style="display:none" aria-hidden="true">
+                                        <input id="qsStake" value="1.00">
+                                        <input id="qsMinConfidence" value="60">
+                                        <input id="qsMinEdge" value="2">
+                                        <input id="qsMaxOpen" value="2">
                                     </div>
                                     <button class="btn-apply" id="qsApplyBtn">Apply Quick Settings</button>
                                 </div>
@@ -1963,7 +2034,7 @@
                                 <div class="chart-header">
                                     <div class="chart-symbol">
                                         <span>📊</span>
-                                        <span id="chartSymbol">Volatility 50</span>
+                                        <span id="chartSymbol">Volatility 10</span>
                                         <span class="chart-price" id="chartPrice">9,732.91</span>
                                     </div>
                                     <div class="chart-timeframes">
@@ -2285,10 +2356,10 @@
                             <span class="accordion-chevron">▼</span>
                         </div>
                         <div class="accordion-body">
-                            <p>This dashboard aggregates real-time <strong>Even/Odd</strong> and <strong>Only Ups / Only Downs</strong> signals from the DigitEdge feed — now <strong>free and unlocked</strong> for all users. Signals are generated using parity-focused and direction-focused AI models.</p>
+                            <p>This dashboard uses the <strong>Video Instant Fill</strong> execution model: Run triggers two independent contracts: <strong>RUNHIGH (Only Ups)</strong> and <strong>RUNLOW (Only Downs)</strong>. The legacy confidence/edge trading gate is not used by the main bot.</p>
                             <p style="margin-top:clamp(2px,0.2vw,6px);color:var(--accent-cyan);">✅ No subscription required. All features included.</p>
                             <p style="margin-top:clamp(2px,0.2vw,6px);font-size:clamp(9px,0.5vw,11px);color:var(--text-dim);">📊 Available markets: Volatility 10–100 (2s &amp; 1s ticks), Crash, Boom, Range Break</p>
-                            <p style="margin-top:clamp(2px,0.2vw,6px);font-size:clamp(9px,0.5vw,11px);color:var(--text-dim);">🎯 Only Ups/Downs default duration: <strong>2 ticks</strong> · Even/Odd default duration: <strong>1 tick</strong></p>
+                            <p style="margin-top:clamp(2px,0.2vw,6px);font-size:clamp(9px,0.5vw,11px);color:var(--text-dim);">🎥 Video ticks: <strong>user selectable (1–20 ticks)</strong> · separate contracts · concurrent Turbo execution · post-settlement delay</p>
                         </div>
                     </div>
                 </div>
@@ -2393,14 +2464,14 @@
                     <input type="text" id="helpSearch" placeholder="Search for help articles…">
                 </div>
                 <div class="faq-category">
-                    <h3>🚀 Dual-Engine Strategy</h3>
+                    <h3>🚀 Video Concurrent Execution Strategy</h3>
                     <div class="faq-item">
                         <div class="faq-question">What is the Even/Odd strategy? <span class="faq-toggle">+</span></div>
                         <div class="faq-answer">Predicts whether the last digit of the next tick will be even (0,2,4,6,8) or odd (1,3,5,7,9). It uses AI to detect parity patterns and trades only when the model has a statistical edge.</div>
                     </div>
                     <div class="faq-item">
                         <div class="faq-question">What is Only Ups / Only Downs? <span class="faq-toggle">+</span></div>
-                        <div class="faq-answer">Only Ups (RUNHIGH) pays if the exit price is higher than entry. Only Downs (RUNLOW) pays if the exit price is lower. The engine tracks tick direction transitions and run lengths, and by default uses <strong>2 ticks</strong> duration for a better signal-to-noise ratio.</div>
+                        <div class="faq-answer">Only Ups (RUNHIGH) pays if the exit price is higher than entry. Only Downs (RUNLOW) pays if the exit price is lower. The video engine submits <strong>RUNHIGH</strong> (Only Ups) and <strong>RUNLOW</strong> (Only Downs) as two separate contracts concurrently. Each uses its own stake. Tick duration is user selectable.</div>
                     </div>
                     <div class="faq-item">
                         <div class="faq-question">Why does the bot place both sides at once? <span class="faq-toggle">+</span></div>
@@ -2449,7 +2520,7 @@
         </main>
         <!-- ============ FOOTER ============ -->
         <footer class="footer">
-            <div>© 2026 EMRON AI — Dual-Engine · Even/Odd + Only Ups/Downs · Free &amp; Unlocked</div>
+            <div>© 2026 EMRON AI — Video Instant Fill · Separate Ups + Downs · Concurrent · Free &amp; Unlocked</div>
             <div class="footer-credit">All trading involves risk. Past performance is not indicative of future results. Demo-trade first.</div>
         </footer>
     </div>
@@ -2465,7 +2536,7 @@
             </div>
             <div class="modal-body">
                 <div class="warning-box">
-                    <strong>🧠 Dual-Engine Strategy:</strong> The bot places both contracts <span class="highlight">simultaneously</span> — DIGITEVEN+DIGITODD for Even/Odd, or RUNHIGH+RUNLOW for Only Ups/Downs.
+                    <strong>🧠 Video Paired Execution Strategy:</strong> The bot places <span class="highlight">two separate contracts concurrently</span>: RUNHIGH (Only Ups) with its own stake and RUNLOW (Only Downs) with its own stake.
                 </div>
                 <div class="signal-strategy-grid">
                     <div class="form-group full">
@@ -2478,7 +2549,7 @@
                     <div class="form-group full">
                         <label>Strategy Mode</label>
                         <select class="form-control" id="ssStrategy">
-                            <option selected>Even/Odd Ultra-Fast</option>
+                            <option selected>Instant Fill · Separate Ups + Downs · Concurrent</option>
                             <option>Only Ups / Only Downs</option>
                         </select>
                     </div>
@@ -2498,11 +2569,11 @@
                         <input class="form-control" id="ssMinEdge" type="number" step="0.1" value="2.0" min="0.5" max="10">
                     </div>
                     <div class="form-group">
-                        <label>Balance Tolerance (%)</label>
+                        <label>Delay after Settlement (s)</label>
                         <input class="form-control" id="ssBalanceTolerance" type="number" value="5" min="1" max="20">
                     </div>
                     <div class="form-group">
-                        <label>Trade Both on Strict 50/50</label>
+                        <label>Switch on Loss</label>
                         <select class="form-control" id="ssTradeBoth">
                             <option value="true" selected>Yes</option>
                             <option value="false">No</option>
@@ -2547,7 +2618,7 @@
                     </div>
                 </div>
                 <div style="margin-top:clamp(8px,0.6vw,12px);padding:clamp(4px,0.3vw,8px) clamp(8px,0.5vw,12px);background:rgba(0,230,118,0.06);border-radius:var(--radius-md);border:1px solid var(--accent-green);font-size:clamp(9px,0.5vw,11px);color:var(--text-muted);">
-                    <span style="color:var(--accent-green);">✅</span> Next Trade Preview: <strong style="color:var(--text-primary);" id="ssPreviewText">EVEN+ODD on V50 · 1t</strong> — <span style="color:var(--accent-cyan);">Dual-contract engine active</span>
+                    <span style="color:var(--accent-green);">✅</span> Next Trade Preview: <strong style="color:var(--text-primary);" id="ssPreviewText">EVEN+ODD on V50 · 1t</strong> — <span style="color:var(--accent-cyan);">Separate RUNHIGH + RUNLOW contracts active</span>
                 </div>
                 <div class="modal-actions">
                     <button class="btn btn-ghost" data-modal="signalStrategyModal">Close</button>
@@ -2559,7 +2630,7 @@
     <div class="modal-overlay" id="riskMgmtModal">
         <div class="modal">
             <div class="modal-header">
-                <div class="modal-title">🛡 Risk Management — Dual-Engine</div>
+                <div class="modal-title">🛡 Risk Management — Video Concurrent Execution</div>
                 <span class="modal-close" data-modal="riskMgmtModal">✕</span>
             </div>
             <div class="modal-body">
@@ -2578,7 +2649,7 @@
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Max Open Contracts</label>
+                        <label>Only Downs Stake ($)</label>
                         <input class="form-control" id="rmMaxOpen" type="number" value="2" min="1" max="5">
                     </div>
                     <div class="form-group">
@@ -2609,28 +2680,35 @@
     <div class="modal-overlay" id="settingsModal">
         <div class="modal">
             <div class="modal-header">
-                <div class="modal-title">⚙️ Edit Engine Settings</div>
+                <div class="modal-title">⚙️ Edit Instant Fill Settings</div>
                 <span class="modal-close" data-modal="settingsModal">✕</span>
             </div>
             <div class="modal-body">
-                <div class="form-group" style="margin-bottom:clamp(6px,0.4vw,10px);">
-                    <label>Stake ($)</label>
-                    <input class="form-control" id="editStake" type="number" step="0.01" value="1.00">
+                <div class="form-row">
+                    <div class="form-group" style="margin-bottom:clamp(6px,0.4vw,10px);">
+                        <label>Only Ups Stake ($)</label>
+                        <input class="form-control" id="editUpStake" type="number" min="0.01" step="0.01" value="0.50">
+                    </div>
+                    <div class="form-group" style="margin-bottom:clamp(6px,0.4vw,10px);">
+                        <label>Only Downs Stake ($)</label>
+                        <input class="form-control" id="editDownStake" type="number" min="0.01" step="0.01" value="0.50">
+                    </div>
                 </div>
-                <div class="form-group" style="margin-bottom:clamp(6px,0.4vw,10px);">
-                    <label>E/O Duration (ticks)</label>
-                    <input class="form-control" id="editDuration" type="number" value="1">
+                <div class="form-row">
+                    <div class="form-group" style="margin-bottom:clamp(6px,0.4vw,10px);">
+                        <label>Ticks (both contracts)</label>
+                        <input class="form-control" id="editDuration" type="number" value="1" min="1" max="20">
+                    </div>
+                    <div class="form-group" style="margin-bottom:clamp(6px,0.4vw,10px);">
+                        <label>Total Stake / Round</label>
+                        <input class="form-control" id="editStake" type="text" value="$1.00" readonly>
+                    </div>
                 </div>
+                <input id="editUDDuration" type="hidden" value="1">
                 <div class="form-group" style="margin-bottom:clamp(6px,0.4vw,10px);">
-                    <label>U/D Duration (ticks)</label>
-                    <input class="form-control" id="editUDDuration" type="number" value="2">
-                </div>
-                <div class="form-group" style="margin-bottom:clamp(6px,0.4vw,10px);">
-                    <label>Contract Type</label>
+                    <label>Contract Types</label>
                     <select class="form-control" id="editContractType">
-                        <option selected>Auto (paired)</option>
-                        <option>DIGITEVEN + DIGITODD only</option>
-                        <option>RUNHIGH + RUNLOW only</option>
+                        <option selected>RUNHIGH (Only Ups) + RUNLOW (Only Downs) · separate</option>
                     </select>
                 </div>
                 <div class="form-group" style="margin-bottom:clamp(6px,0.4vw,10px);">
@@ -2658,15 +2736,20 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>Execution Speed</label>
+                    <label>Execution</label>
                     <select class="form-control" id="editExecution">
-                        <option selected>Ultra Fast</option>
-                        <option>Fast</option>
-                        <option>Normal</option>
+                        <option selected>Turbo · concurrent independent contracts</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Turbo Execution</label>
+                    <select class="form-control" id="editTurbo">
+                        <option value="true" selected>Turbo ON</option>
+                        <option value="false">Turbo OFF</option>
                     </select>
                 </div>
                 <div style="margin-top:clamp(6px,0.4vw,10px);padding:clamp(4px,0.3vw,8px) clamp(8px,0.5vw,12px);background:rgba(0,230,118,0.06);border-radius:var(--radius-md);border:1px solid var(--accent-green);font-size:clamp(9px,0.5vw,11px);color:var(--text-muted);">
-                    <span style="color:var(--accent-green);">🔓</span> Dual-Engine: <strong style="color:var(--accent-cyan);">FREE · UNLOCKED</strong>
+                    <span style="color:var(--accent-green);">🎥</span> Video Instant Fill: <strong style="color:var(--accent-cyan);">RUNHIGH + RUNLOW · 2 separate contracts</strong>
                 </div>
             </div>
             <div class="modal-actions">
@@ -2970,6 +3053,34 @@
             }
 
             // =============================================
+            // 🎥 VIDEO INSTANT-FILL ENGINE
+            // =============================================
+            class VideoInstantFillEngine {
+                constructor() { this.reset(); }
+                reset() {
+                    this.ticks = [];
+                    this.lastPrice = null;
+                    this.lastTickTime = 0;
+                }
+                addTick(price, epochMs = Date.now()) {
+                    const previous = this.lastPrice;
+                    this.lastPrice = Number(price);
+                    this.lastTickTime = epochMs;
+                    const lastDigit = Math.abs(Math.floor(Math.round(this.lastPrice * 100) + 1e-9)) % 10;
+                    this.ticks.push({ price: this.lastPrice, time: epochMs, lastDigit });
+                    if (this.ticks.length > 2000) this.ticks.shift();
+                    return { price: this.lastPrice, previous, lastDigit, count: this.ticks.length };
+                }
+                eligible(entryDigit) {
+                    if (!this.ticks.length) return false;
+                    if (entryDigit === '' || entryDigit === null || entryDigit === undefined) return true;
+                    return Number(this.ticks[this.ticks.length - 1].lastDigit) === Number(entryDigit);
+                }
+                getLastTick() { return this.ticks[this.ticks.length - 1] || null; }
+                getCount() { return this.ticks.length; }
+            }
+
+            // =============================================
             // 🧠 ONLY UPS / ONLY DOWNS ENGINE
             // =============================================
             class OnlyUpsDownsEngine {
@@ -3078,22 +3189,56 @@
             let BALANCE_TOLERANCE = 5;
             let TRADE_BOTH_ON_STRICT_50 = true;
 
+            // 🎥 VIDEO INSTANT-FILL CONCURRENT ENGINE — the only main live trading dispatch
+            // The video workflow is run-driven: start immediately and submit
+            // two independent Rise/Fall contracts concurrently, with no confidence/edge gate.
+            let TURBO_ENABLED = true;
+            let VIDEO_ENGINE_ENABLED = true;
+            let VIDEO_BATCH_MODE = true;
+            let VIDEO_DEFAULT_STAKE = 0.35;
+            let VIDEO_UP_STAKE = 0.50;
+            let VIDEO_DOWN_STAKE = 0.50;
+            let VIDEO_MARTINGALE = 1.25;
+            let VIDEO_TICKS = 1;
+            let VIDEO_ENTRY_DIGIT = '';
+            let VIDEO_DEFAULT_DIGIT = 2;
+            let VIDEO_SWITCH_MARKET = false;
+            let VIDEO_SWITCH_ON_LOSS = true;
+            let VIDEO_MAIN_MODE = false;
+            let VIDEO_LOSSES_TO_SWITCH = 1;
+            let VIDEO_DELAY_ENABLED = true;
+            let VIDEO_TAKE_PROFIT = 0;
+            let VIDEO_STOP_LOSS = 0;
+            let VIDEO_SINGLE_BUY_GAP_MS = 500;
+            let VIDEO_DELAY_AFTER_SETTLE_MS = 2000;
+            let VIDEO_ROUNDS_LIMIT = 30;
+            let VIDEO_ROUND_COUNT = 0;
+            let VIDEO_RUN_COUNT = 0;
+            let VIDEO_CONSECUTIVE_LOSSES = 0;
+            let VIDEO_ACTIVE_STRATEGY = 'BOTH';
+            let VIDEO_PAIR_COOLDOWN_UNTIL = 0;
+            let VIDEO_PAIR_PROFIT = 0;
+            let VIDEO_PAIR_STATE = null;
+            let LATEST_VIDEO_PRICE = NaN;
+
             // Engines
             const digitEngine = new DigitEngine();
             const eoEngine = new EvenOddEngine();
-            const udEngine = new OnlyUpsDownsEngine();
+            const udEngine = new OnlyUpsDownsEngine(); // auxiliary analytics only
+            const videoEngine = new VideoInstantFillEngine();
 
             // 🔥 Active strategy + parallel proposal/buy tracking
-            let activeStrategy = 'evenodd'; // 'evenodd' | 'upsdowns'
+            let activeStrategy = 'instantfill'; // single main execution path: video concurrent engine only
             const upsDownsConfig = {
-                duration: 2,
+                duration: 1,
                 minConfidence: 55,
                 minEdge: 1.0,
                 payoutRatio: 95.0
             };
             const pendingProposalMap = new Map(); // req_id -> { purpose, contractType }
             const pendingBuyMap = new Map();      // req_id -> { purpose, contractType }
-            const activeEmronContracts = new Set();
+            const activeEmronContracts = new Map();
+            const videoTradeMap = new Map();
             let pendingEmronTrades = 0;
             let roundContractsPending = 0;
 
@@ -3160,6 +3305,9 @@
             const tpProceedBtn = document.getElementById('tpProceedBtn');
             const liveMarketDisplay = document.getElementById('liveMarketDisplay');
             const liveStakeDisplay = document.getElementById('liveStakeDisplay');
+            const liveUpStakeDisplay = document.getElementById('liveUpStakeDisplay');
+            const liveDownStakeDisplay = document.getElementById('liveDownStakeDisplay');
+            const livePairStakeDisplay = document.getElementById('livePairStakeDisplay');
             const eoPredictionDisplay = document.getElementById('eoPredictionDisplay');
             const eoConfidenceDisplay = document.getElementById('eoConfidenceDisplay');
             const eoEdgeDisplay = document.getElementById('eoEdgeDisplay');
@@ -3170,6 +3318,9 @@
             const qsMinConfidence = document.getElementById('qsMinConfidence');
             const qsMinEdge = document.getElementById('qsMinEdge');
             const qsMaxOpen = document.getElementById('qsMaxOpen');
+            const qsUpStake = document.getElementById('qsUpStake');
+            const qsDownStake = document.getElementById('qsDownStake');
+            const qsPairStake = document.getElementById('qsPairStake');
             const qsTP = document.getElementById('qsTP');
             const qsSL = document.getElementById('qsSL');
             const qsMarket = document.getElementById('qsMarket');
@@ -3215,6 +3366,33 @@
             const activeStrategyDisplay = document.getElementById('activeStrategyDisplay');
             const udPredictionDisplay = document.getElementById('udPredictionDisplay');
             const udConfidenceDisplay = document.getElementById('udConfidenceDisplay');
+            const udDirectionDisplay = document.getElementById('udDirectionDisplay');
+            const mainTicksDisplay = document.getElementById('mainTicksDisplay');
+            const turboDisplay = document.getElementById('turboDisplay');
+            const qsUDDirection = document.getElementById('qsUDDirection');
+            const qsTurbo = document.getElementById('qsTurbo');
+            const qsUDLossesSwitch = document.getElementById('qsUDLossesSwitch');
+            const qsUDRounds = document.getElementById('qsUDRounds');
+            const videoBatchMode = document.getElementById('videoBatchMode');
+            const videoTicks = document.getElementById('videoTicks');
+            const videoDefaultStake = document.getElementById('videoDefaultStake');
+            const videoMartingale = document.getElementById('videoMartingale');
+            const videoUpStake = document.getElementById('videoUpStake');
+            const videoDownStake = document.getElementById('videoDownStake');
+            const videoEntryDigit = document.getElementById('videoEntryDigit');
+            const videoDefaultDigit = document.getElementById('videoDefaultDigit');
+            const videoSwitchMarket = document.getElementById('videoSwitchMarket');
+            const videoSwitchOnLoss = document.getElementById('videoSwitchOnLoss');
+            const videoMainMode = document.getElementById('videoMainMode');
+            const videoLossesToSwitch = document.getElementById('videoLossesToSwitch');
+            const videoTurbo = document.getElementById('videoTurbo');
+            const videoRounds = document.getElementById('videoRounds');
+            const videoDelay = document.getElementById('videoDelay');
+            const videoDelayAfterSettle = document.getElementById('videoDelayAfterSettle');
+            const videoTakeProfit = document.getElementById('videoTakeProfit');
+            const videoStopLoss = document.getElementById('videoStopLoss');
+            const videoSingleBuyGap = document.getElementById('videoSingleBuyGap');
+            const applyVideoProfileBtn = document.getElementById('applyVideoProfileBtn');
             const udDurationDisplay = document.getElementById('udDurationDisplay');
 
             // Bulk Purchase DOM refs
@@ -3314,9 +3492,9 @@
             let countdown = 5;
             let chartData = [];
             let chartCtx = null;
-            let baseStake = 1.00;
-            let currentStake = 1.00;
-            let currentMarket = 'Volatility 50';
+            let baseStake = 0.35;
+            let currentStake = 0.35;
+            let currentMarket = 'Volatility 10';
             let accessToken = null;
             let ws = null;
             let wsConnected = false;
@@ -3338,7 +3516,7 @@
                 decision: 'NO_TRADE',
                 duration: '1',
                 market: 'Volatility 50',
-                strategy: 'Even/Odd Ultra-Fast',
+                strategy: 'Instant Fill · Separate Ups + Downs · Concurrent',
                 minConfidence: 60,
                 minEdge: 2.0,
                 payoutRatio: 95.0,
@@ -3357,8 +3535,6 @@
             let fsLastSignal = null;
             let fsTickHistory = [];
             let fsMarket = 'Volatility 50';
-            let isFsProposal = false;
-            let isFsBuy = false;
 
             // =============================================
             // WEBSOCKET MANAGER
@@ -3401,10 +3577,8 @@
                         }
                         sendWsRequest({ balance: 1, subscribe: 1 });
                         subscribeTicks();
-                        if (isActive) { setTimeout(() => {
-                            if (activeStrategy === 'upsdowns') placeTradeUpsDownsBoth(null);
-                            else placeTradeBoth(eoEngine.generateSignal(MIN_CONFIDENCE, MIN_EDGE, PAYOUT_RATIO, false, BALANCE_TOLERANCE));
-                        }, 1000); }
+                        // Video engine waits for the next eligible market tick; no startup trade.
+                        if (isActive) toast('🎥 Instant Fill ready — Run starts two separate contracts immediately', 'info');
                         if (window.wsPingInterval) clearInterval(window.wsPingInterval);
                         window.wsPingInterval = setInterval(() => {
                             if (ws && ws.readyState === WebSocket.OPEN) { ws.send(JSON.stringify({ ping: 1 })); }
@@ -3487,52 +3661,30 @@
                 if (tick && tick.quote) {
                     if (data.subscription && data.subscription.id) tickSubscriptionId = data.subscription.id;
                     const price = parseFloat(tick.quote);
-                    const result = eoEngine.addTick(price, 3);
-                    digitEngine.addTick(price, 3);
-                    udEngine.addTick(price);
+                    LATEST_VIDEO_PRICE = price;
+                    const videoTick = videoEngine.addTick(price, tick.epoch ? Number(tick.epoch) * 1000 : Date.now());
                     updateChartWithTick(price);
-                    updateEoDisplay(result);
-                    updateUdDisplay();
 
-                    // --- EMRON AI Bot Logic (strategy-dispatched) ---
-                    if (isActive && wsConnected && !isTradeInProgress
-                        && openContracts < MAX_OPEN_CONTRACTS
-                        && (Date.now() - lastTradeTime) > TRADE_COOLDOWN_MS) {
-
-                        if (activeStrategy === 'upsdowns') {
-                            const udSig = udEngine.generateSignal(
-                                upsDownsConfig.minConfidence,
-                                upsDownsConfig.minEdge,
-                                upsDownsConfig.payoutRatio
-                            );
-                            if (udSig) {
-                                updateUdPredictionDisplay(udSig);
-                                if (udSig.decision === 'TRADE') {
-                                    // Hedge both directions simultaneously
-                                    placeTradeUpsDownsBoth(udSig);
-                                }
-                            }
-                        } else {
-                            const signal = eoEngine.generateSignal(
-                                emronSignalConfig.minConfidence || MIN_CONFIDENCE,
-                                emronSignalConfig.minEdge || MIN_EDGE,
-                                emronSignalConfig.payoutRatio || PAYOUT_RATIO,
-                                false,
-                                emronSignalConfig.balanceTolerance || BALANCE_TOLERANCE
-                            );
-                            if (signal) {
-                                lastSignal = signal;
-                                updateEoPredictionDisplay(signal);
-                                // 🔥 Whenever we trade, place BOTH sides at once
-                                if (signal.decision === 'TRADE' || signal.strictBalanced) {
-                                    placeTradeBoth(signal);
-                                }
-                            }
+                    // --- VIDEO CONCURRENT EXECUTION ENGINE ---
+                    // RUNHIGH (Only Ups) and RUNLOW (Only Downs) are independent contracts.
+                    // One RUN click starts the engine; the first available/latest tick starts the next round.
+                    // There is no AI confidence/edge gate and no direction-selection gate.
+                    if (isActive && VIDEO_ENGINE_ENABLED && wsConnected
+                        && !isTradeInProgress
+                        && Date.now() >= VIDEO_PAIR_COOLDOWN_UNTIL) {
+                        if (VIDEO_ROUND_COUNT >= VIDEO_ROUNDS_LIMIT) {
+                            toast(`🛑 Video rounds complete: ${VIDEO_ROUNDS_LIMIT}`, 'info');
+                            stopTrading();
+                            return;
                         }
+                        startVideoPair(price);
                     }
 
-                    // --- FlowState Bot Logic ---
+                    // FlowState remains analytics-only; it cannot place the main EMRON trades.
                     if (fsEngineRunning) {
+                        eoEngine.addTick(price, 3);
+                        digitEngine.addTick(price, 3);
+                        udEngine.addTick(price);
                         const fsSignal = generateFlowStateSignal();
                         if (fsSignal) {
                             fsLastSignal = fsSignal;
@@ -3601,20 +3753,7 @@
             }
 
             function updateUdPredictionDisplay(signal) {
-                if (!signal) {
-                    udPredictionDisplay.textContent = '—';
-                    udConfidenceDisplay.textContent = '—';
-                    return;
-                }
-                if (signal.decision === 'TRADE') {
-                    udPredictionDisplay.textContent = 'UP+DOWNS';
-                    udPredictionDisplay.style.color = 'var(--accent-cyan)';
-                } else {
-                    udPredictionDisplay.textContent = signal.side + ' (wait)';
-                    udPredictionDisplay.style.color = signal.side === 'UP' ? 'var(--accent-green)' : 'var(--accent-red)';
-                }
-                udConfidenceDisplay.textContent = signal.confidence + '%';
-                udDurationDisplay.textContent = (upsDownsConfig.duration || 2) + ' ticks';
+                updateVideoExecutionStatus('Ready — Run → immediate separate RUNHIGH + RUNLOW contracts');
             }
 
             // =============================================
@@ -3636,10 +3775,9 @@
                     const tracking = pendingProposalMap.get(data.req_id);
                     if (tracking) {
                         pendingProposalMap.delete(data.req_id);
-                        if (tracking.purpose === 'emron') {
+                        if (tracking.purpose === 'video') {
                             pendingEmronTrades = Math.max(0, pendingEmronTrades - 1);
-                            settleRoundContract(0);
-                            if (pendingEmronTrades === 0) isTradeInProgress = false;
+                            settleVideoLeg(tracking.contractType, 0, true);
                         }
                     }
                     toast('❌ Proposal error: ' + data.error.message, 'error');
@@ -3664,10 +3802,9 @@
                     const tracking = pendingBuyMap.get(data.req_id);
                     if (tracking) {
                         pendingBuyMap.delete(data.req_id);
-                        if (tracking.purpose === 'emron') {
+                        if (tracking.purpose === 'video') {
                             pendingEmronTrades = Math.max(0, pendingEmronTrades - 1);
-                            settleRoundContract(0);
-                            if (pendingEmronTrades === 0) isTradeInProgress = false;
+                            settleVideoLeg(tracking.contractType, 0, true);
                         }
                     }
                     toast('❌ Buy error: ' + data.error.message, 'error');
@@ -3681,17 +3818,28 @@
                 const contract = data.buy;
                 const contractId = contract.contract_id;
 
-                if (tracking.purpose === 'emron') {
-                    activeEmronContracts.add(contractId);
+                if (tracking.purpose === 'video') {
+                    activeEmronContracts.set(contractId, tracking);
+                    if (tracking.purpose === 'video' && VIDEO_PAIR_STATE && VIDEO_PAIR_STATE.id === tracking.pairId) {
+                        const leg = VIDEO_PAIR_STATE.legs[tracking.contractType];
+                        if (leg) leg.contractId = contractId;
+                        const tradeRow = {
+                            time: new Date().toLocaleTimeString(),
+                            type: tracking.contractType,
+                            symbol: currentMarket,
+                            stake: leg ? leg.stake : currentStake,
+                            pl: 0,
+                            contractId,
+                            status: 'OPEN'
+                        };
+                        trades.push(tradeRow);
+                        videoTradeMap.set(contractId, tradeRow);
+                        renderTrades();
+                    }
                     openContracts++;
                     pendingEmronTrades = Math.max(0, pendingEmronTrades - 1);
-                    if (pendingEmronTrades === 0) isTradeInProgress = false;
                     toast(`📈 ${tracking.contractType} placed · ID ${contractId}`, 'success');
                     armWatchdog();
-                    sendWsRequest({ proposal_open_contract: 1, contract_id: contractId, subscribe: 1 });
-                } else if (tracking.purpose === 'fs') {
-                    isFsBuy = false;
-                    toast(`📈 FlowState trade placed! ID: ${contractId}`, 'success');
                     sendWsRequest({ proposal_open_contract: 1, contract_id: contractId, subscribe: 1 });
                 }
             }
@@ -3706,9 +3854,19 @@
                     if (data.subscription) sendWsRequest({ forget: data.subscription.id });
 
                     if (activeEmronContracts.has(contract.contract_id)) {
+                        const tracking = activeEmronContracts.get(contract.contract_id);
                         activeEmronContracts.delete(contract.contract_id);
                         openContracts = Math.max(0, openContracts - 1);
-                        handleTradeResult(won, profit);
+                        if (tracking && tracking.purpose === 'video' && VIDEO_PAIR_STATE) {
+                            const row = videoTradeMap.get(contract.contract_id);
+                            if (row) {
+                                row.pl = profit;
+                                row.status = won ? 'WON' : 'LOST';
+                                row.exit = contract.exit_tick || contract.exit_spot || '';
+                                renderTrades();
+                            }
+                            settleVideoLeg(tracking.contractType, profit, false);
+                        }
                     } else {
                         handleFsTradeResult(won, profit);
                     }
@@ -3720,8 +3878,6 @@
                     console.error('❌ API error object:', data.error);
                     toast('❌ API Error: ' + data.error.message, 'error');
                     if (isTradeInProgress) unjamTradeEngine();
-                    isFsProposal = false;
-                    isFsBuy = false;
                 }
             }
 
@@ -3734,19 +3890,23 @@
                 pendingProposalMap.clear();
                 pendingBuyMap.clear();
                 if (isActive && wsConnected) {
-                    setTimeout(() => { if (isActive && !isTradeInProgress) placeTradeBoth(null); }, 2000);
+                    VIDEO_PAIR_COOLDOWN_UNTIL = Date.now() + Math.max(250, VIDEO_DELAY_AFTER_SETTLE_MS);
                 }
             }
 
             function armWatchdog() {
                 clearWatchdog();
                 proposalWatchdog = setTimeout(() => {
-                    console.warn('⏱ Watchdog: trade not settled — resetting');
-                    toast('⏱ Trade timeout — retrying…', 'info');
+                    console.warn('⏱ Watchdog: concurrent U/D round timed out');
+                    toast('⏱ Trade round timed out — resetting safely', 'error');
+                    if (VIDEO_PAIR_STATE) VIDEO_PAIR_STATE = null;
                     isTradeInProgress = false;
                     pendingEmronTrades = 0;
                     roundContractsPending = 0;
-                }, TRADE_TIMEOUT_MS);
+                    pendingProposalMap.forEach((tracking, id) => { if (tracking && tracking.purpose === 'video') pendingProposalMap.delete(id); });
+                    pendingBuyMap.forEach((tracking, id) => { if (tracking && tracking.purpose === 'video') pendingBuyMap.delete(id); });
+                    VIDEO_PAIR_COOLDOWN_UNTIL = Date.now() + (TURBO_ENABLED ? 250 : VIDEO_SINGLE_BUY_GAP_MS);
+                }, Math.max(TRADE_TIMEOUT_MS, 15000));
             }
 
             function clearWatchdog() {
@@ -3770,28 +3930,15 @@
             // 📦 BULK PURCHASE
             // =============================================
             function buildContractParameters(signal, stakeOverride) {
-                const side = (signal && signal.side) || emronSignalConfig.side || 'EVEN';
-                const override = bulkContractOverride ? bulkContractOverride.value : 'auto';
-                let contractType;
-                if (override && override !== 'auto') {
-                    contractType = override;
-                } else if (activeStrategy === 'upsdowns') {
-                    contractType = side === 'UP' ? 'RUNHIGH' : 'RUNLOW';
-                } else {
-                    contractType = side === 'EVEN' ? 'DIGITEVEN' : 'DIGITODD';
-                }
                 const amount = (stakeOverride !== undefined && stakeOverride !== null && stakeOverride !== '')
                     ? parseFloat(stakeOverride) : currentStake;
-                const duration = activeStrategy === 'upsdowns'
-                    ? (upsDownsConfig.duration || 2)
-                    : (parseInt(emronSignalConfig.duration, 10) || 1);
                 return {
-                    contract_type: contractType,
-                    underlying_symbol: getSymbol(emronSignalConfig.market || currentMarket),
+                    contract_type: 'RUNHIGH',
+                    underlying_symbol: getSymbol(currentMarket),
                     currency: 'USD',
                     amount: amount,
                     basis: 'stake',
-                    duration: duration,
+                    duration: Math.max(1, Math.min(20, parseInt(VIDEO_TICKS, 10) || 1)),
                     duration_unit: 't'
                 };
             }
@@ -3944,24 +4091,11 @@
             }
 
             function fsPlaceTrade(signal) {
+                // Legacy FlowState is analysis-only now. The video concurrent engine is the
+                // only live trading path on EMRON, so FlowState cannot submit contracts.
                 if (!signal) return;
-                if (!wsConnected) {
-                    const win = Math.random() < 0.5;
-                    const pl = win ? fsStakeAmount * 0.85 : -fsStakeAmount;
-                    setTimeout(() => { handleFsTradeResult(win, pl); }, 1500);
-                    return;
-                }
-                const contractType = signal.contractType;
-                const barrier = signal.barrier;
-                const params = {
-                    amount: fsStakeAmount, basis: 'stake',
-                    contract_type: contractType, currency: 'USD',
-                    duration: 1, duration_unit: 't',
-                    underlying_symbol: getSymbol(signal.market)
-                };
-                if (barrier !== null && barrier !== undefined) params.barrier = String(barrier);
-                isFsProposal = true;
-                trackedProposal(params, { purpose: 'fs', contractType });
+                fsOutput.innerHTML = '<span style="color:var(--accent-cyan);font-weight:700;">ANALYSIS ONLY</span>' +
+                    '<span style="color:var(--text-muted);margin-left:8px;">Live execution is owned by Instant Fill · RUNHIGH + RUNLOW.</span>';
             }
 
             function handleFsTradeResult(won, profit) {
@@ -3990,140 +4124,158 @@
             }
 
             // =============================================
-            // 🔥 DUAL-CONTRACT PLACEMENT
+            // 🎥 VIDEO CONCURRENT EXECUTION
             // =============================================
-            function placeTradeBoth(signal) {
-                if (!isActive || isTradeInProgress) return;
-                if (!accessToken || !wsConnected) {
-                    // Simulation fallback
-                    roundContractsPending = 2;
-                    isTradeInProgress = true;
-                    lastSignal = { side: 'EVEN+ODD', confidence: signal ? signal.confidence : 0, edge: signal ? signal.edge : 0 };
-                    setTimeout(() => {
-                        const winA = Math.random() < 0.5;
-                        handleTradeResult(winA, winA ? currentStake * 0.85 : -currentStake);
-                        const winB = Math.random() < 0.5;
-                        handleTradeResult(winB, winB ? currentStake * 0.85 : -currentStake);
-                    }, 800);
-                    return;
-                }
+            function startVideoPair(triggerPrice) {
+                if (!isActive || isTradeInProgress || !wsConnected || !VIDEO_ENGINE_ENABLED) return;
+                if (VIDEO_ROUND_COUNT >= VIDEO_ROUNDS_LIMIT) { stopTrading(); return; }
+                const marketSymbol = getSymbol(currentMarket);
+                const duration = Math.max(1, Math.min(20, parseInt(VIDEO_TICKS, 10) || 1));
+                const upStake = Math.max(0.01, parseFloat(VIDEO_UP_STAKE) || 0.01);
+                const downStake = Math.max(0.01, parseFloat(VIDEO_DOWN_STAKE) || 0.01);
+                const pairId = `VF-${Date.now()}-${Math.random().toString(36).slice(2,7)}`;
 
-                const marketSymbol = getSymbol(emronSignalConfig.market || currentMarket);
-                const duration = parseInt(emronSignalConfig.duration, 10) || 1;
-                const stake = currentStake;
-                const currency = 'USD';
-
-                const paramsA = { amount: stake, basis: 'stake', contract_type: 'DIGITEVEN', currency,
-                                  duration, duration_unit: 't', underlying_symbol: marketSymbol };
-                const paramsB = { amount: stake, basis: 'stake', contract_type: 'DIGITODD', currency,
-                                  duration, duration_unit: 't', underlying_symbol: marketSymbol };
-
-                roundContractsPending = 2;
-                pendingEmronTrades = 2;
+                // Internal grouping only. These are NOT a combined contract.
+                VIDEO_PAIR_STATE = {
+                    id: pairId, triggerPrice, duration,
+                    legs: {
+                        RUNHIGH: { resolved:false, stake:upStake, contractId:null, status:'PENDING' },
+                        RUNLOW: { resolved:false, stake:downStake, contractId:null, status:'PENDING' }
+                    },
+                    settled: 0, total: 2, pnl: 0, failed: 0
+                };
+                VIDEO_PAIR_PROFIT = 0;
+                videoTradeMap.clear();
                 isTradeInProgress = true;
                 lastTradeTime = Date.now();
-                lastSignal = { side: 'EVEN+ODD', confidence: signal ? signal.confidence : 0, edge: signal ? signal.edge : 0 };
-
-                // ⚡ Both fire back-to-back — no queue
-                trackedProposal(paramsA, { purpose: 'emron', contractType: 'DIGITEVEN' });
-                trackedProposal(paramsB, { purpose: 'emron', contractType: 'DIGITODD' });
-            }
-
-            function placeTradeUpsDownsBoth(signal) {
-                if (!isActive || isTradeInProgress) return;
-                if (!accessToken || !wsConnected) {
-                    roundContractsPending = 2;
-                    isTradeInProgress = true;
-                    lastSignal = { side: 'UP+DOWNS', confidence: signal ? signal.confidence : 0, edge: signal ? signal.edge : 0 };
-                    setTimeout(() => {
-                        const winA = Math.random() < 0.5;
-                        handleTradeResult(winA, winA ? currentStake * 0.85 : -currentStake);
-                        const winB = Math.random() < 0.5;
-                        handleTradeResult(winB, winB ? currentStake * 0.85 : -currentStake);
-                    }, 800);
-                    return;
-                }
-
-                const marketSymbol = getSymbol(emronSignalConfig.market || currentMarket);
-                const duration = parseInt(upsDownsConfig.duration, 10) || 2;
-                const stake = currentStake;
-                const currency = 'USD';
-
-                const paramsUp = { amount: stake, basis: 'stake', contract_type: 'RUNHIGH', currency,
-                                   duration, duration_unit: 't', underlying_symbol: marketSymbol };
-                const paramsDown = { amount: stake, basis: 'stake', contract_type: 'RUNLOW', currency,
-                                     duration, duration_unit: 't', underlying_symbol: marketSymbol };
-
                 roundContractsPending = 2;
                 pendingEmronTrades = 2;
-                isTradeInProgress = true;
-                lastTradeTime = Date.now();
-                lastSignal = { side: 'UP+DOWNS', confidence: signal ? signal.confidence : 0, edge: signal ? signal.edge : 0 };
+                currentStake = upStake + downStake;
+                liveStakeDisplay.textContent = '$' + currentStake.toFixed(2);
+                if (liveUpStakeDisplay) liveUpStakeDisplay.textContent = '$' + upStake.toFixed(2);
+                if (liveDownStakeDisplay) liveDownStakeDisplay.textContent = '$' + downStake.toFixed(2);
+                if (livePairStakeDisplay) livePairStakeDisplay.textContent = '$' + (upStake + downStake).toFixed(2);
+                lastSignal = { side: 'ONLY UPS + ONLY DOWNS', confidence: 100, edge: 0 };
 
-                // ⚡ Both fire back-to-back
-                trackedProposal(paramsUp, { purpose: 'emron', contractType: 'RUNHIGH' });
-                trackedProposal(paramsDown, { purpose: 'emron', contractType: 'RUNLOW' });
+                const common = { basis:'stake', currency:'USD', duration, duration_unit:'t', underlying_symbol:marketSymbol };
+                const upParams = { amount: upStake, contract_type:'RUNHIGH', ...common };
+                const downParams = { amount: downStake, contract_type:'RUNLOW', ...common };
+
+                // Concurrent dispatch: both independent proposals are queued in the same event-loop turn.
+                trackedProposal(upParams, { purpose:'video', contractType:'RUNHIGH', pairId });
+                trackedProposal(downParams, { purpose:'video', contractType:'RUNLOW', pairId });
+                updateVideoExecutionStatus(`Trade placed — Only Ups $${upStake.toFixed(2)} + Only Downs $${downStake.toFixed(2)} · ${duration} tick${duration === 1 ? '' : 's'}`);
+                armWatchdog();
             }
 
-            // =============================================
-            // 🧮 TRADE RESULT HANDLERS
-            // =============================================
-            function handleTradeResult(win, profit) {
-                const side = lastSignal ? lastSignal.side : '—';
-                trades.push({
-                    time: new Date().toLocaleTimeString(),
-                    type: `${side} (${lastSignal ? lastSignal.confidence + '%' : '—'})`,
-                    symbol: emronSignalConfig.market || currentMarket,
-                    stake: currentStake,
-                    pl: profit
-                });
-                renderTrades();
-                settleRoundContract(profit);
-            }
-
-            function settleRoundContract(pl) {
-                balance += pl;
-                windowProfitValue += pl;
+            function settleVideoLeg(contractType, pnl, failed=false) {
+                const pair = VIDEO_PAIR_STATE;
+                if (!pair || !pair.legs[contractType] || pair.legs[contractType].resolved) return;
+                pair.legs[contractType].resolved = true;
+                pair.settled++;
+                pair.pnl += Number(pnl) || 0;
+                if (failed) pair.failed++;
+                roundContractsPending = Math.max(0, 2 - pair.settled);
+                pendingEmronTrades = Math.max(0, pendingEmronTrades - 1);
+                balance += Number(pnl) || 0;
+                windowProfitValue += Number(pnl) || 0;
+                VIDEO_RUN_COUNT++;
                 updateBalanceDisplay();
                 updateProfitDisplay();
+                if (pair.settled < pair.total) return;
+                finalizeVideoPair(pair);
+            }
 
-                roundContractsPending = Math.max(0, roundContractsPending - 1);
-                if (roundContractsPending > 0) return;
+            function finalizeVideoPair(pair) {
+                const net = pair.pnl;
+                VIDEO_PAIR_PROFIT = net;
+                VIDEO_ROUND_COUNT++;
+                sessionTradeCount = VIDEO_ROUND_COUNT;
 
-                sessionTradeCount++;
-                if (currentRound) {
-                    currentRound.textContent = `${sessionTradeCount} / ${MAX_RUNS_PER_SESSION} (min ${MIN_RUNS_BEFORE_TP_SL})`;
+
+                // Both legs remain enabled on every round. Losses-to-switch never disables either contract.
+                if (net < 0) {
+                    VIDEO_CONSECUTIVE_LOSSES++;
+                } else {
+                    VIDEO_CONSECUTIVE_LOSSES = 0;
                 }
 
-                currentStake = baseStake;
-                liveStakeDisplay.textContent = '$' + currentStake.toFixed(2);
+                if (VIDEO_MARTINGALE > 1 && net < 0) {
+                    const nextUp = +(pair.legs.RUNHIGH.stake * VIDEO_MARTINGALE).toFixed(2);
+                    const nextDown = +(pair.legs.RUNLOW.stake * VIDEO_MARTINGALE).toFixed(2);
+                    VIDEO_UP_STAKE = nextUp;
+                    VIDEO_DOWN_STAKE = nextDown;
+                } else {
+                    VIDEO_UP_STAKE = Math.max(0.01, parseFloat(videoUpStake?.value) || 0.50);
+                    VIDEO_DOWN_STAKE = Math.max(0.01, parseFloat(videoDownStake?.value) || 0.50);
+                }
+                currentStake = VIDEO_UP_STAKE + VIDEO_DOWN_STAKE;
+                liveStakeDisplay.textContent = '$' + (VIDEO_UP_STAKE + VIDEO_DOWN_STAKE).toFixed(2);
+                if (liveUpStakeDisplay) liveUpStakeDisplay.textContent = '$' + VIDEO_UP_STAKE.toFixed(2);
+                if (liveDownStakeDisplay) liveDownStakeDisplay.textContent = '$' + VIDEO_DOWN_STAKE.toFixed(2);
+                if (livePairStakeDisplay) livePairStakeDisplay.textContent = '$' + (VIDEO_UP_STAKE + VIDEO_DOWN_STAKE).toFixed(2);
 
-                if (sessionTradeCount >= MAX_RUNS_PER_SESSION) {
-                    toast(`🛑 Maximum ${MAX_RUNS_PER_SESSION} runs reached. Session complete.`, 'info');
+                if (currentRound) currentRound.textContent = `${VIDEO_ROUND_COUNT} / ${VIDEO_ROUNDS_LIMIT} rounds · ${VIDEO_RUN_COUNT} contracts`;
+                updateVideoExecutionStatus(`${net >= 0 ? '✅' : '❌'} Pair settled · net ${net >= 0 ? '+' : ''}$${net.toFixed(2)}`);
+
+                // Video profile risk exits are optional; 0 means OFF.
+                if (VIDEO_TAKE_PROFIT > 0 && windowProfitValue >= VIDEO_TAKE_PROFIT) {
+                    toast(`🎯 Take Profit reached · $${windowProfitValue.toFixed(2)}`, 'success');
+                    VIDEO_PAIR_STATE = null;
+                    isTradeInProgress = false;
+                    roundContractsPending = 0;
+                    pendingEmronTrades = 0;
+                    clearWatchdog();
+                    stopTrading();
+                    return;
+                }
+                if (VIDEO_STOP_LOSS > 0 && windowProfitValue <= -VIDEO_STOP_LOSS) {
+                    toast(`🛑 Stop Loss reached · $${Math.abs(windowProfitValue).toFixed(2)}`, 'error');
+                    VIDEO_PAIR_STATE = null;
+                    isTradeInProgress = false;
+                    roundContractsPending = 0;
+                    pendingEmronTrades = 0;
+                    clearWatchdog();
                     stopTrading();
                     return;
                 }
 
-                if (sessionTradeCount >= MIN_RUNS_BEFORE_TP_SL) {
-                    if (windowProfitValue >= profitTargetValue) {
-                        const profitAmt = windowProfitValue;
-                        sessions.push({ window: `Window ${++sessionCount}`, profit: profitAmt });
-                        renderSessions();
-                        tpAmount.textContent = profitAmt.toFixed(2);
-                        tpModal.classList.add('active');
-                        toast(`🎉 Take Profit hit! $${profitAmt.toFixed(2)}`, 'success');
-                        windowProfitValue = 0;
-                        updateProfitDisplay();
-                        currentStake = baseStake;
-                        liveStakeDisplay.textContent = '$' + currentStake.toFixed(2);
-                        return;
-                    }
-                    if (windowProfitValue <= -stopLossValue) {
-                        toast(`🛑 Stop Loss triggered at $${stopLossValue.toFixed(2)}`, 'error');
-                        stopTrading();
-                        return;
-                    }
+                VIDEO_PAIR_STATE = null;
+                isTradeInProgress = false;
+                roundContractsPending = 0;
+                pendingEmronTrades = 0;
+                clearWatchdog();
+                VIDEO_PAIR_COOLDOWN_UNTIL = VIDEO_DELAY_ENABLED ? Date.now() + VIDEO_DELAY_AFTER_SETTLE_MS : Date.now();
+
+                if (VIDEO_ROUND_COUNT >= VIDEO_ROUNDS_LIMIT) {
+                    toast(`🛑 ${VIDEO_ROUNDS_LIMIT} video rounds completed`, 'info');
+                    stopTrading();
                 }
+            }
+
+            function updateVideoExecutionStatus(message) {
+                if (udPredictionDisplay) udPredictionDisplay.textContent = 'Only Ups + Only Downs';
+                if (udConfidenceDisplay) udConfidenceDisplay.textContent = '2 separate contracts · concurrent';
+                if (udDurationDisplay) udDurationDisplay.textContent = `${VIDEO_TICKS} tick${VIDEO_TICKS === 1 ? '' : 's'}`;
+                if (udDirectionDisplay) udDirectionDisplay.textContent = VIDEO_DELAY_ENABLED ? `${VIDEO_DELAY_AFTER_SETTLE_MS/1000}s` : 'OFF';
+                if (mainTicksDisplay) mainTicksDisplay.textContent = `${VIDEO_TICKS} tick${VIDEO_TICKS === 1 ? '' : 's'}`;
+                if (liveUpStakeDisplay) liveUpStakeDisplay.textContent = '$' + Number(VIDEO_UP_STAKE).toFixed(2);
+                if (liveDownStakeDisplay) liveDownStakeDisplay.textContent = '$' + Number(VIDEO_DOWN_STAKE).toFixed(2);
+                if (livePairStakeDisplay) livePairStakeDisplay.textContent = '$' + (Number(VIDEO_UP_STAKE) + Number(VIDEO_DOWN_STAKE)).toFixed(2);
+                if (qsUpStake) qsUpStake.value = Number(VIDEO_UP_STAKE).toFixed(2);
+                if (qsDownStake) qsDownStake.value = Number(VIDEO_DOWN_STAKE).toFixed(2);
+                if (qsPairStake) qsPairStake.value = '$' + (Number(VIDEO_UP_STAKE) + Number(VIDEO_DOWN_STAKE)).toFixed(2);
+                const status = document.getElementById('videoExecutionStatus');
+                if (status) status.textContent = message;
+            }
+
+            // =============================================
+            // 🧮 TRADE RESULT COMPATIBILITY
+            // =============================================
+            function handleTradeResult(win, profit) {
+                // Kept as a compatibility shim for auxiliary UI; the live video engine
+                // resolves contracts through settleVideoLeg().
+                return { win, profit };
             }
 
             // =============================================
@@ -4138,45 +4290,77 @@
                 deactivateBtn.disabled = false;
                 botState.textContent = 'RUNNING';
                 windowTime.textContent = new Date().toLocaleTimeString();
-                sessionTradeCount = 0;
+                VIDEO_ROUND_COUNT = 0;
+                VIDEO_RUN_COUNT = 0;
+                VIDEO_CONSECUTIVE_LOSSES = 0;
+                VIDEO_ACTIVE_STRATEGY = 'BOTH';
+                VIDEO_PAIR_COOLDOWN_UNTIL = 0;
+                VIDEO_PAIR_STATE = null;
+                pendingProposalMap.clear();
+                pendingBuyMap.clear();
                 openContracts = 0;
                 pendingEmronTrades = 0;
                 roundContractsPending = 0;
                 activeEmronContracts.clear();
-                if (currentRound) currentRound.textContent = `0 / ${MAX_RUNS_PER_SESSION} (min ${MIN_RUNS_BEFORE_TP_SL})`;
-                currentStake = baseStake;
+                isTradeInProgress = false;
+                currentStake = Number(VIDEO_UP_STAKE) + Number(VIDEO_DOWN_STAKE);
                 liveStakeDisplay.textContent = '$' + currentStake.toFixed(2);
-                const mode = accessToken && wsConnected ? 'LIVE' : 'SIMULATION';
-                toast(`🚀 EMRON AI ${activeStrategy === 'upsdowns' ? 'Ups/Downs' : 'Even/Odd'} bot activated (${mode})`, 'success');
+                updateVideoExecutionStatus('RUN pressed — starting separate Only Ups + Only Downs contracts');
+                if (currentRound) currentRound.textContent = `0 / ${VIDEO_ROUNDS_LIMIT} rounds · 0 contracts`;
                 windowProfitValue = 0;
                 updateProfitDisplay();
+                if (videoEngine) videoEngine.reset();
+
                 if (accessToken && wsConnected) {
                     isRealTrading = true;
                     subscribeTicks();
+                    // Start immediately from the latest quote already known; if none exists, the first tick starts the run.
+                    if (Number.isFinite(LATEST_VIDEO_PRICE)) {
+                        setTimeout(() => { if (isActive && !isTradeInProgress) startVideoPair(LATEST_VIDEO_PRICE); }, 0);
+                    }
+                    toast('⚡ Ultra-fast engine ACTIVE · two separate contracts start immediately', 'success');
                 } else {
                     isRealTrading = false;
                     if (updateInterval) clearInterval(updateInterval);
                     updateInterval = setInterval(() => {
-                        if (!isActive) return;
-                        if (!wsConnected) {
-                            const price = 9732 + Math.random() * 20;
-                            eoEngine.addTick(price, 3);
-                            digitEngine.addTick(price, 3);
-                            udEngine.addTick(price);
-                            if (activeStrategy === 'upsdowns') {
-                                const udSig = udEngine.generateSignal(upsDownsConfig.minConfidence, upsDownsConfig.minEdge, upsDownsConfig.payoutRatio);
-                                if (udSig) updateUdPredictionDisplay(udSig);
-                                if (udSig && udSig.decision === 'TRADE') {
-                                    if (!isTradeInProgress) placeTradeUpsDownsBoth(udSig);
-                                }
-                            } else {
-                                const sig = eoEngine.generateSignal(MIN_CONFIDENCE, MIN_EDGE, PAYOUT_RATIO, false, BALANCE_TOLERANCE);
-                                if (sig) updateEoPredictionDisplay(sig);
-                                if (sig && !isTradeInProgress) placeTradeBoth(sig);
-                            }
+                        if (!isActive || isTradeInProgress) return;
+                        const price = 9732 + Math.random() * 20;
+                        LATEST_VIDEO_PRICE = price;
+                        const info = videoEngine.addTick(price);
+                        updateChartWithTick(price);
+                        if (Date.now() >= VIDEO_PAIR_COOLDOWN_UNTIL) {
+                            if (VIDEO_ROUND_COUNT < VIDEO_ROUNDS_LIMIT) simulateVideoPair(info.price);
+                            else stopTrading();
                         }
-                    }, 1800);
+                    }, TURBO_ENABLED ? 50 : 1800);
+                    // Simulation also starts without waiting for a signal gate.
+                    setTimeout(() => { if (isActive && !isTradeInProgress) simulateVideoPair(LATEST_VIDEO_PRICE || (9732 + Math.random() * 20)); }, 0);
+                    toast('⚡ Ultra-fast engine ACTIVE · SIMULATION mode', 'success');
                 }
+            }
+
+            function simulateVideoPair(triggerPrice) {
+                if (!isActive || isTradeInProgress) return;
+                const upStake = Math.max(0.01, parseFloat(VIDEO_UP_STAKE || VIDEO_DEFAULT_STAKE) || VIDEO_DEFAULT_STAKE);
+                const downStake = Math.max(0.01, parseFloat(VIDEO_DOWN_STAKE || VIDEO_DEFAULT_STAKE) || VIDEO_DEFAULT_STAKE);
+                isTradeInProgress = true;
+                const delay = TURBO_ENABLED ? 0 : VIDEO_SINGLE_BUY_GAP_MS;
+                VIDEO_PAIR_STATE = { id:`SIM-${Date.now()}`, triggerPrice, duration:VIDEO_TICKS, legs:{ RUNHIGH:{resolved:false,stake:upStake}, RUNLOW:{resolved:false,stake:downStake}}, settled:0,total:2,pnl:0,failed:0 };
+                roundContractsPending = 2;
+                pendingEmronTrades = 0;
+                setTimeout(() => {
+                    if (!isActive || !VIDEO_PAIR_STATE) return;
+                    const payout = 0.85;
+                    const winHigh = Math.random() < 0.5;
+                    const winLow = !winHigh;
+                    const plHigh = winHigh ? upStake * payout : -upStake;
+                    const plLow = winLow ? downStake * payout : -downStake;
+                    trades.push({time:new Date().toLocaleTimeString(), type:'RUNHIGH', symbol:currentMarket, stake:upStake, pl:plHigh});
+                    trades.push({time:new Date().toLocaleTimeString(), type:'RUNLOW', symbol:currentMarket, stake:downStake, pl:plLow});
+                    renderTrades();
+                    settleVideoLeg('RUNHIGH', plHigh, false);
+                    settleVideoLeg('RUNLOW', plLow, false);
+                }, delay);
             }
 
             function stopTrading() {
@@ -4184,6 +4368,9 @@
                 isActive = false;
                 clearWatchdog();
                 isTradeInProgress = false;
+                VIDEO_PAIR_STATE = null;
+                pendingEmronTrades = 0;
+                roundContractsPending = 0;
                 statusBadge.className = 'status-badge inactive';
                 statusText.textContent = 'INACTIVE';
                 activateBtn.disabled = false;
@@ -4275,7 +4462,7 @@
                 fsStopEngineBtn.disabled = false;
                 fsStatusBadge.className = 'status-badge active';
                 fsStatusText.textContent = 'ENGINE RUNNING';
-                toast('🧠 FlowState engine started', 'success');
+                toast('🧠 FlowState analytics started', 'success');
                 fsTickFeed.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:12px 0;">Waiting for ticks...</div>';
                 fsTickHistory = [];
             }
@@ -4287,7 +4474,7 @@
                 fsStopEngineBtn.disabled = true;
                 fsStatusBadge.className = 'status-badge inactive';
                 fsStatusText.textContent = 'INACTIVE';
-                toast('⏹ FlowState engine stopped', 'error');
+                toast('⏹ FlowState analytics stopped', 'error');
             }
 
             // =============================================
@@ -4575,219 +4762,252 @@
                 toast('Disconnected', 'info');
             }
 
-            function applyQuickSettings() {
-                const stake = parseFloat(qsStake.value) || 1;
-                const minConf = parseFloat(qsMinConfidence.value) || 60;
-                const minEdge = parseFloat(qsMinEdge.value) || 2.0;
-                const maxOpen = parseInt(qsMaxOpen.value) || 2;
-                const tp = parseFloat(qsTP.value) || 20;
-                const sl = parseFloat(qsSL.value) || 20;
-                const market = qsMarket.value;
-                const minRuns = parseInt(qsMinRuns.value) || 5;
-                const maxRuns = parseInt(qsMaxRuns.value) || 200;
-                const cooldown = parseInt(qsCooldown.value) || 150;
-                const balanceTolerance = parseFloat(qsBalanceTolerance.value) || 5;
-                const tradeBoth = qsTradeBoth.value === 'true';
-                const udDur = parseInt(qsUDDuration.value, 10) || 2;
-                const udConf = parseFloat(qsUDMinConf.value) || 55;
+            function applyVideoProfile() {
+                VIDEO_ENGINE_ENABLED = true;
+                // Video execution always uses two independent contracts: RUNHIGH + RUNLOW.
+                VIDEO_BATCH_MODE = true;
+                VIDEO_UP_STAKE = Math.max(0.01, parseFloat(videoUpStake?.value) || 0.50);
+                VIDEO_DOWN_STAKE = Math.max(0.01, parseFloat(videoDownStake?.value) || 0.50);
+                VIDEO_TICKS = Math.max(1, Math.min(20, parseInt(videoTicks.value, 10) || 1));
+                VIDEO_DEFAULT_STAKE = Math.max(0.01, parseFloat(videoDefaultStake.value) || 0.35);
+                VIDEO_MARTINGALE = Math.max(1, parseFloat(videoMartingale.value) || 1.25);
+                VIDEO_ENTRY_DIGIT = videoEntryDigit.value === '' ? '' : String(Math.max(0, Math.min(9, parseInt(videoEntryDigit.value, 10))));
+                VIDEO_DEFAULT_DIGIT = Math.max(0, Math.min(9, parseInt(videoDefaultDigit.value, 10) || 0));
+                VIDEO_SWITCH_MARKET = videoSwitchMarket.value === 'true';
+                VIDEO_SWITCH_ON_LOSS = videoSwitchOnLoss.value === 'true';
+                VIDEO_MAIN_MODE = videoMainMode.value === 'true';
+                VIDEO_LOSSES_TO_SWITCH = Math.max(1, parseInt(videoLossesToSwitch.value, 10) || 1);
+                TURBO_ENABLED = videoTurbo.value === 'true';
+                VIDEO_ROUNDS_LIMIT = Math.max(1, parseInt(videoRounds.value, 10) || 30);
+                VIDEO_DELAY_ENABLED = videoDelay.value === 'true';
+                VIDEO_DELAY_AFTER_SETTLE_MS = Math.max(0, parseInt(videoDelayAfterSettle.value, 10) || 2000);
+                VIDEO_TAKE_PROFIT = Math.max(0, parseFloat(videoTakeProfit.value) || 0);
+                VIDEO_STOP_LOSS = Math.max(0, parseFloat(videoStopLoss.value) || 0);
+                VIDEO_SINGLE_BUY_GAP_MS = Math.max(0, parseInt(videoSingleBuyGap.value, 10) || 500);
+                VIDEO_ACTIVE_STRATEGY = 'BOTH';
 
-                MIN_RUNS_BEFORE_TP_SL = minRuns;
-                MAX_RUNS_PER_SESSION = maxRuns;
-                MIN_CONFIDENCE = minConf;
-                MIN_EDGE = minEdge;
-                MAX_OPEN_CONTRACTS = tradeBoth ? 2 : 1;
-                TRADE_COOLDOWN_MS = cooldown;
-                BALANCE_TOLERANCE = balanceTolerance;
-                TRADE_BOTH_ON_STRICT_50 = tradeBoth;
+                MAX_OPEN_CONTRACTS = 2;
+                TRADE_COOLDOWN_MS = TURBO_ENABLED ? 0 : VIDEO_SINGLE_BUY_GAP_MS;
+                baseStake = VIDEO_DEFAULT_STAKE;
+                currentStake = VIDEO_UP_STAKE + VIDEO_DOWN_STAKE;
+                profitTargetValue = VIDEO_TAKE_PROFIT > 0 ? VIDEO_TAKE_PROFIT : Number.POSITIVE_INFINITY;
+                stopLossValue = VIDEO_STOP_LOSS > 0 ? VIDEO_STOP_LOSS : Number.POSITIVE_INFINITY;
 
-                baseStake = stake;
-                currentStake = stake;
-                profitTargetValue = tp;
-                stopLossValue = sl;
-
-                emronSignalConfig.minConfidence = minConf;
-                emronSignalConfig.minEdge = minEdge;
-                emronSignalConfig.payoutRatio = PAYOUT_RATIO;
-                emronSignalConfig.balanceTolerance = balanceTolerance;
-                emronSignalConfig.tradeBothOnStrict50 = tradeBoth;
-
-                upsDownsConfig.duration = udDur;
-                upsDownsConfig.minConfidence = udConf;
-                upsDownsConfig.payoutRatio = PAYOUT_RATIO;
-
-                liveStakeDisplay.textContent = '$' + stake.toFixed(2);
-                updateProfitDisplay();
-                updateMarketDisplay(market);
-
+                updateMarketDisplay('Volatility 10');
+                qsMarket.value = 'Volatility 10';
+                if (videoBatchMode) { videoBatchMode.value = 'true'; videoBatchMode.disabled = true; }
+                if (videoUpStake) videoUpStake.value = VIDEO_UP_STAKE.toFixed(2);
+                if (videoDownStake) videoDownStake.value = VIDEO_DOWN_STAKE.toFixed(2);
+                videoTicks.value = String(VIDEO_TICKS);
+                videoDefaultStake.value = VIDEO_DEFAULT_STAKE.toFixed(2);
+                videoMartingale.value = VIDEO_MARTINGALE.toFixed(2);
+                videoEntryDigit.value = VIDEO_ENTRY_DIGIT;
+                videoDefaultDigit.value = String(VIDEO_DEFAULT_DIGIT);
+                videoLossesToSwitch.value = String(VIDEO_LOSSES_TO_SWITCH);
+                videoRounds.value = String(VIDEO_ROUNDS_LIMIT);
+                videoDelayAfterSettle.value = String(VIDEO_DELAY_AFTER_SETTLE_MS);
+                videoTurbo.value = String(TURBO_ENABLED);
+                qsTurbo.value = TURBO_ENABLED ? 'true' : 'false';
+                qsUDDuration.value = VIDEO_TICKS;
+                if (qsUDDirection) qsUDDirection.value = 'BOTH';
+                qsUDLossesSwitch.value = VIDEO_LOSSES_TO_SWITCH;
+                qsUDRounds.value = VIDEO_ROUNDS_LIMIT;
+                qsStake.value = VIDEO_DEFAULT_STAKE.toFixed(2);
+                activeStrategy = 'instantfill';
+                activeStrategySelect.value = 'instantfill';
+                activeStrategyDisplay.textContent = 'Instant Fill · Separate Ups + Downs · Concurrent';
+                liveStakeDisplay.textContent = '$' + currentStake.toFixed(2);
+                if (videoUpStake) videoUpStake.value = VIDEO_UP_STAKE.toFixed(2);
+                if (videoDownStake) videoDownStake.value = VIDEO_DOWN_STAKE.toFixed(2);
+                if (turboDisplay) turboDisplay.textContent = TURBO_ENABLED ? 'ON' : 'OFF';
+                updateVideoExecutionStatus('Ready — Run → immediate separate RUNHIGH + RUNLOW contracts');
                 if (wsConnected) subscribeTicks();
+                toast(`🎥 Video engine applied · Ups $${VIDEO_UP_STAKE.toFixed(2)} + Downs $${VIDEO_DOWN_STAKE.toFixed(2)} · ${VIDEO_TICKS} tick${VIDEO_TICKS === 1 ? '' : 's'} · Turbo ${TURBO_ENABLED ? 'ON' : 'OFF'} · ${VIDEO_ROUNDS_LIMIT} rounds`, 'success');
+            }
 
-                if (currentRound) currentRound.textContent = `0 / ${MAX_RUNS_PER_SESSION} (min ${MIN_RUNS_BEFORE_TP_SL})`;
-
-                const be = 1 / (1 + PAYOUT_RATIO / 100);
-                rmBreakEvenDisplay.textContent = Math.round(be * 100) + '%';
-                rmMaxOpen.value = MAX_OPEN_CONTRACTS;
-                udDurationDisplay.textContent = udDur + ' ticks';
-
-                toast('✅ Quick settings applied', 'success');
+            function applyQuickSettings() {
+                VIDEO_ENGINE_ENABLED = true;
+                VIDEO_BATCH_MODE = true;
+                VIDEO_UP_STAKE = Math.max(0.01, parseFloat(qsUpStake?.value) || VIDEO_UP_STAKE);
+                VIDEO_DOWN_STAKE = Math.max(0.01, parseFloat(qsDownStake?.value) || VIDEO_DOWN_STAKE);
+                VIDEO_DEFAULT_STAKE = VIDEO_UP_STAKE + VIDEO_DOWN_STAKE;
+                VIDEO_TICKS = Math.max(1, Math.min(20, parseInt(qsUDDuration.value, 10) || 1));
+                VIDEO_MARTINGALE = Math.max(1, parseFloat(qsUDMinConf.value) || 1.25);
+                TURBO_ENABLED = qsTurbo.value === 'true';
+                VIDEO_LOSSES_TO_SWITCH = Math.max(1, parseInt(qsUDLossesSwitch.value, 10) || 1);
+                VIDEO_ROUNDS_LIMIT = Math.max(1, parseInt(qsUDRounds.value, 10) || 30);
+                VIDEO_DELAY_AFTER_SETTLE_MS = Math.max(0, Math.round((parseFloat(qsBalanceTolerance.value) || 2) * 1000));
+                VIDEO_SWITCH_ON_LOSS = qsTradeBoth.value === 'true';
+                VIDEO_ACTIVE_STRATEGY = 'BOTH';
+                baseStake = VIDEO_DEFAULT_STAKE;
+                currentStake = VIDEO_UP_STAKE + VIDEO_DOWN_STAKE;
+                MAX_OPEN_CONTRACTS = 2;
+                activeStrategy = 'instantfill';
+                activeStrategySelect.value = 'instantfill';
+                activeStrategyDisplay.textContent = 'Instant Fill · Separate Ups + Downs · Concurrent';
+                if (qsStake) qsStake.value = VIDEO_DEFAULT_STAKE.toFixed(2);
+                if (qsUpStake) qsUpStake.value = VIDEO_UP_STAKE.toFixed(2);
+                if (qsDownStake) qsDownStake.value = VIDEO_DOWN_STAKE.toFixed(2);
+                if (qsPairStake) qsPairStake.value = '$' + (VIDEO_UP_STAKE + VIDEO_DOWN_STAKE).toFixed(2);
+                if (videoDefaultStake) videoDefaultStake.value = VIDEO_DEFAULT_STAKE.toFixed(2);
+                if (videoUpStake) videoUpStake.value = VIDEO_UP_STAKE.toFixed(2);
+                if (videoDownStake) videoDownStake.value = VIDEO_DOWN_STAKE.toFixed(2);
+                if (videoTicks) videoTicks.value = String(VIDEO_TICKS);
+                if (videoMartingale) videoMartingale.value = VIDEO_MARTINGALE.toFixed(2);
+                if (videoTurbo) videoTurbo.value = TURBO_ENABLED ? 'true' : 'false';
+                if (videoLossesToSwitch) videoLossesToSwitch.value = String(VIDEO_LOSSES_TO_SWITCH);
+                if (videoRounds) videoRounds.value = String(VIDEO_ROUNDS_LIMIT);
+                if (videoDelayAfterSettle) videoDelayAfterSettle.value = String(VIDEO_DELAY_AFTER_SETTLE_MS);
+                liveStakeDisplay.textContent = '$' + currentStake.toFixed(2);
+                updateVideoExecutionStatus('Settings applied — Run starts separate Only Ups + Only Downs immediately');
+                updateMarketDisplay(qsMarket.value);
+                if (wsConnected) subscribeTicks();
+                if (currentRound) currentRound.textContent = `0 / ${VIDEO_ROUNDS_LIMIT} rounds · 0 contracts`;
+                toast(`✅ Settings applied · Ups $${VIDEO_UP_STAKE.toFixed(2)} + Downs $${VIDEO_DOWN_STAKE.toFixed(2)} · ${VIDEO_TICKS} tick${VIDEO_TICKS === 1 ? '' : 's'} · Turbo ${TURBO_ENABLED ? 'ON' : 'OFF'} · ${VIDEO_ROUNDS_LIMIT} rounds`, 'success');
             }
 
             function applyPreset(preset) {
-                const presets = {
-                    'eo1': { strategy: 'evenodd', market: 'Volatility 50', stake: 1.00, minConf: 60, minEdge: 2.0, maxOpen: 2, tp: 20, sl: 20, cooldown: 150, balanceTolerance: 5, tradeBoth: true, udDur: 2, udConf: 55 },
-                    'eo2': { strategy: 'evenodd', market: 'Volatility 75', stake: 1.00, minConf: 62, minEdge: 2.5, maxOpen: 2, tp: 25, sl: 25, cooldown: 180, balanceTolerance: 5, tradeBoth: true, udDur: 2, udConf: 55 },
-                    'eo3': { strategy: 'evenodd', market: 'Volatility 100', stake: 0.50, minConf: 65, minEdge: 3.0, maxOpen: 2, tp: 30, sl: 30, cooldown: 200, balanceTolerance: 5, tradeBoth: true, udDur: 2, udConf: 55 },
-                    'eo4': { strategy: 'evenodd', market: 'Volatility 50 (1s)', stake: 1.00, minConf: 58, minEdge: 1.8, maxOpen: 2, tp: 20, sl: 20, cooldown: 100, balanceTolerance: 5, tradeBoth: true, udDur: 2, udConf: 55 },
-                    'ud1': { strategy: 'upsdowns', market: 'Volatility 50', stake: 1.00, minConf: 55, minEdge: 1.0, maxOpen: 2, tp: 20, sl: 20, cooldown: 120, balanceTolerance: 5, tradeBoth: true, udDur: 2, udConf: 55 },
-                    'ud2': { strategy: 'upsdowns', market: 'Volatility 100', stake: 0.50, minConf: 58, minEdge: 1.5, maxOpen: 2, tp: 25, sl: 25, cooldown: 120, balanceTolerance: 5, tradeBoth: true, udDur: 2, udConf: 58 }
-                };
-                const p = presets[preset];
-                if (!p) return;
-                activeStrategy = p.strategy;
-                activeStrategySelect.value = p.strategy;
-                activeStrategyDisplay.textContent = p.strategy === 'upsdowns' ? 'Only Ups / Only Downs' : 'Even/Odd Ultra-Fast';
-                qsMarket.value = p.market;
-                qsStake.value = p.stake;
-                qsMinConfidence.value = p.minConf;
-                qsMinEdge.value = p.minEdge;
-                qsMaxOpen.value = p.maxOpen;
-                qsTP.value = p.tp;
-                qsSL.value = p.sl;
-                qsCooldown.value = p.cooldown;
-                qsBalanceTolerance.value = p.balanceTolerance;
-                qsTradeBoth.value = p.tradeBoth ? 'true' : 'false';
-                qsUDDuration.value = p.udDur;
-                qsUDMinConf.value = p.udConf;
-                applyQuickSettings();
-                toast(`Loaded preset: ${preset}`, 'success');
+                if (preset !== 'video') return;
+                if (qsMarket) qsMarket.value = 'Volatility 10';
+                if (qsStake) qsStake.value = VIDEO_DEFAULT_STAKE.toFixed(2);
+                if (qsUpStake) qsUpStake.value = VIDEO_UP_STAKE.toFixed(2);
+                if (qsDownStake) qsDownStake.value = VIDEO_DOWN_STAKE.toFixed(2);
+                if (qsPairStake) qsPairStake.value = '$' + (VIDEO_UP_STAKE + VIDEO_DOWN_STAKE).toFixed(2);
+                if (qsUDDuration) qsUDDuration.value = String(VIDEO_TICKS);
+                if (qsTurbo) qsTurbo.value = 'true';
+                if (qsUDLossesSwitch) qsUDLossesSwitch.value = String(VIDEO_LOSSES_TO_SWITCH);
+                if (qsUDRounds) qsUDRounds.value = String(VIDEO_ROUNDS_LIMIT);
+                applyVideoProfile();
             }
 
             function toast(message, type = 'info') {
-                const el = document.createElement('div');
-                el.className = `toast ${type}`;
-                el.textContent = message;
-                toastContainer.appendChild(el);
-                setTimeout(() => {
-                    el.classList.add('out');
-                    setTimeout(() => el.remove(), 300);
-                }, 3000);
-            }
+                            const el = document.createElement('div');
+                            el.className = `toast ${type}`;
+                            el.textContent = message;
+                            toastContainer.appendChild(el);
+                            setTimeout(() => {
+                                el.classList.add('out');
+                                setTimeout(() => el.remove(), 300);
+                            }, 3000);
+                        }
 
             function updateBalanceDisplay() { balanceValue.textContent = balance.toFixed(2); }
 
             function updateProfitDisplay() {
                 windowProfit.textContent = windowProfitValue.toFixed(2);
-                const pct = Math.min(Math.max((windowProfitValue / profitTargetValue) * 100, 0), 100);
+                const finiteTarget = Number.isFinite(profitTargetValue) && profitTargetValue > 0;
+                const pct = finiteTarget ? Math.min(Math.max((windowProfitValue / profitTargetValue) * 100, 0), 100) : 0;
                 profitFill.style.width = pct + '%';
-                profitTargetDisplay.textContent = profitTargetValue.toFixed(2);
+                profitTargetDisplay.textContent = finiteTarget ? profitTargetValue.toFixed(2) : 'OFF';
             }
 
             function renderSessions() {
-                if (sessions.length === 0) {
-                    sessionsBody.innerHTML = `<tr><td colspan="3" class="empty-state"><span class="emoji">📋</span>No entries yet. Activate the strategy to start.</td></tr>`;
-                    return;
-                }
-                let html = '';
-                sessions.slice().reverse().forEach(s => {
-                    const cls = s.profit >= 0 ? 'profit' : 'loss';
-                    const status = s.profit >= 0 ? 'Won' : 'Lost';
-                    html += `<tr><td>${s.window}</td><td class="${cls}">$${s.profit.toFixed(2)}</td><td><span class="status-pill ${s.profit>=0?'won':'lost'}">${status}</span></td></tr>`;
-                });
-                sessionsBody.innerHTML = html;
-            }
+                            if (sessions.length === 0) {
+                                sessionsBody.innerHTML = `<tr><td colspan="3" class="empty-state"><span class="emoji">📋</span>No entries yet. Activate the strategy to start.</td></tr>`;
+                                return;
+                            }
+                            let html = '';
+                            sessions.slice().reverse().forEach(s => {
+                                const cls = s.profit >= 0 ? 'profit' : 'loss';
+                                const status = s.profit >= 0 ? 'Won' : 'Lost';
+                                html += `<tr><td>${s.window}</td><td class="${cls}">$${s.profit.toFixed(2)}</td><td><span class="status-pill ${s.profit>=0?'won':'lost'}">${status}</span></td></tr>`;
+                            });
+                            sessionsBody.innerHTML = html;
+                        }
 
             function renderTrades() {
-                if (trades.length === 0) {
-                    tradesBody.innerHTML = `<tr><td colspan="5" class="empty-state"><span class="emoji">📊</span>No trades yet.</td></tr>`;
-                    return;
-                }
-                let html = '';
-                trades.slice().reverse().slice(0, 25).forEach(t => {
-                    const pl = t.pl;
-                    const cls = pl >= 0 ? 'profit' : 'loss';
-                    const sign = pl >= 0 ? '+' : '';
-                    html += `<tr><td>${t.time}</td><td>${t.type}</td><td>${t.symbol}</td><td>$${t.stake.toFixed(2)}</td><td class="${cls}">${sign}$${pl.toFixed(2)}</td></tr>`;
-                });
-                tradesBody.innerHTML = html;
-            }
+                            if (trades.length === 0) {
+                                tradesBody.innerHTML = `<tr><td colspan="5" class="empty-state"><span class="emoji">📊</span>No trades yet.</td></tr>`;
+                                return;
+                            }
+                            let html = '';
+                            trades.slice().reverse().slice(0, 25).forEach(t => {
+                                const pl = t.pl;
+                                const cls = pl >= 0 ? 'profit' : 'loss';
+                                const sign = pl >= 0 ? '+' : '';
+                                html += `<tr><td>${t.time}</td><td>${t.type}</td><td>${t.symbol}</td><td>$${t.stake.toFixed(2)}</td><td class="${cls}">${sign}$${pl.toFixed(2)}</td></tr>`;
+                            });
+                            tradesBody.innerHTML = html;
+                        }
 
             function updateMarketDisplay(market) {
-                currentMarket = market;
-                liveMarketDisplay.textContent = market;
-                chartSymbol.textContent = market;
-                for (let opt of qsMarket.options) { if (opt.value === market) { qsMarket.value = market; break; } }
-                if (editMarket) { for (let opt of editMarket.options) { if (opt.value === market) { editMarket.value = market; break; } } }
-                if (aiMarket) { for (let opt of aiMarket.options) { if (opt.value === market) { aiMarket.value = market; break; } } }
-                if (ssMarket) { for (let opt of ssMarket.options) { if (opt.value === market) { ssMarket.value = market; break; } } }
-                const shortMap = {
-                    'Volatility 10': 'VOL10', 'Volatility 25': 'VOL25',
-                    'Volatility 50': 'VOL50', 'Volatility 75': 'VOL75',
-                    'Volatility 100': 'VOL100',
-                    'Volatility 10 (1s)': 'VOL10_1s', 'Volatility 25 (1s)': 'VOL25_1s',
-                    'Volatility 50 (1s)': 'VOL50_1s', 'Volatility 75 (1s)': 'VOL75_1s',
-                    'Volatility 100 (1s)': 'VOL100_1s',
-                    'Crash 500': 'CRASH', 'Boom 500': 'BOOM', 'Range Break': 'RANGE'
-                };
-                const short = shortMap[market] || 'VOL50';
-                symbolOptions.forEach(el => el.classList.toggle('active', el.dataset.symbol === short));
-                eoEngine.reset();
-                digitEngine.reset();
-                udEngine.reset();
-                toast(`📊 Switched to ${market} — engines reset`, 'info');
-            }
+                            currentMarket = market;
+                            liveMarketDisplay.textContent = market;
+                            chartSymbol.textContent = market;
+                            for (let opt of qsMarket.options) { if (opt.value === market) { qsMarket.value = market; break; } }
+                            if (editMarket) { for (let opt of editMarket.options) { if (opt.value === market) { editMarket.value = market; break; } } }
+                            if (aiMarket) { for (let opt of aiMarket.options) { if (opt.value === market) { aiMarket.value = market; break; } } }
+                            if (ssMarket) { for (let opt of ssMarket.options) { if (opt.value === market) { ssMarket.value = market; break; } } }
+                            const shortMap = {
+                                'Volatility 10': 'VOL10', 'Volatility 25': 'VOL25',
+                                'Volatility 50': 'VOL50', 'Volatility 75': 'VOL75',
+                                'Volatility 100': 'VOL100',
+                                'Volatility 10 (1s)': 'VOL10_1s', 'Volatility 25 (1s)': 'VOL25_1s',
+                                'Volatility 50 (1s)': 'VOL50_1s', 'Volatility 75 (1s)': 'VOL75_1s',
+                                'Volatility 100 (1s)': 'VOL100_1s',
+                                'Crash 500': 'CRASH', 'Boom 500': 'BOOM', 'Range Break': 'RANGE'
+                            };
+                            const short = shortMap[market] || 'VOL50';
+                            symbolOptions.forEach(el => el.classList.toggle('active', el.dataset.symbol === short));
+                            eoEngine.reset();
+                            digitEngine.reset();
+                            udEngine.reset();
+                            toast(`📊 Switched to ${market} — engines reset`, 'info');
+                        }
 
             function generateAISignal() {
-                const market = document.getElementById('aiMarket').value;
-                const timeframe = document.getElementById('aiTimeframe').value;
-                const signalType = document.getElementById('aiSignalType').value;
-                const conf = Math.floor(50 + Math.random() * 45);
-                let direction, badgeClass;
-                if (signalType === 'even') { direction = 'EVEN'; badgeClass = 'even'; }
-                else if (signalType === 'odd') { direction = 'ODD'; badgeClass = 'odd'; }
-                else if (signalType === 'up') { direction = 'UP'; badgeClass = 'up'; }
-                else if (signalType === 'down') { direction = 'DOWN'; badgeClass = 'down'; }
-                else { direction = 'NEUTRAL'; badgeClass = 'no-trade'; }
-                const edge = ((conf / 100) - 0.5128) * 100;
-                const reasons = ['Parity run detected', 'Directional transition favorable', 'Frequency above baseline',
-                    'Transition probability favorable', 'Low entropy regime', 'Recent sequence pattern',
-                    'DigitEdge model', 'Calibrated edge positive'];
-                const selectedReasons = reasons.sort(() => Math.random() - 0.5).slice(0, 3);
-                let html = `
-                <div class="analysis-result">
-                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
-                        <span class="signal-badge ${badgeClass}">${direction}</span>
-                        <span style="color:var(--text-muted);font-size:clamp(10px,0.5vw,12px);">${market} · ${timeframe}</span>
-                        <span style="color:var(--accent-cyan);font-size:clamp(8px,0.4vw,10px);font-family:'JetBrains Mono',monospace;">DigitEdge · FREE</span>
-                    </div>
-                    <div class="metric-grid">
-                        <div class="metric-box"><div class="metric-label">Confidence</div><div class="metric-value">${conf}%</div></div>
-                        <div class="metric-box"><div class="metric-label">Edge</div><div class="metric-value" style="color:${edge > 0 ? 'var(--accent-green)' : 'var(--accent-red)'}">${edge.toFixed(1)}%</div></div>
-                        <div class="metric-box"><div class="metric-label">Payout</div><div class="metric-value">${PAYOUT_RATIO}%</div></div>
-                    </div>
-                    <div class="confidence-bar"><div class="confidence-fill" style="width:${conf}%;"></div></div>
-                    <div style="margin-top:6px;font-weight:600;font-size:clamp(10px,0.5vw,12px);">Key Factors</div>
-                    <ul class="reasoning-list">${selectedReasons.map(r => `<li>${r}</li>`).join('')}</ul>
-                    <div style="margin-top:6px;font-size:clamp(8px,0.4vw,10px);color:var(--accent-cyan);font-family:'JetBrains Mono',monospace;padding:4px 8px;background:var(--bg-surface);border-radius:var(--radius-sm);">
-                        🔓 DigitEdge · ${market} · ${signalType === 'up' || signalType === 'down' ? '2 ticks' : '1 tick'}
-                    </div>
-                </div>`;
-                signalOutput.innerHTML = html;
-                const recent = document.getElementById('recentSignals');
-                const card = document.createElement('div');
-                card.className = 'analysis-card';
-                card.innerHTML = `
-                    <div class="analysis-card-header">
-                        <span class="symbol-pill">${market}</span>
-                        <span class="time-ago">just now</span>
-                    </div>
-                    <div><span class="signal-badge ${badgeClass}">${direction}</span> <span style="color:var(--text-muted);font-size:clamp(10px,0.5vw,12px);">Confidence ${conf}%</span></div>
-                    <div style="margin-top:4px;font-size:clamp(9px,0.4vw,11px);color:var(--text-dim);">Edge: ${edge.toFixed(1)}% · Payout ${PAYOUT_RATIO}%</div>
-                    <div style="font-size:clamp(7px,0.4vw,9px);color:var(--accent-cyan);margin-top:3px;">DigitEdge</div>`;
-                recent.prepend(card);
-                if (recent.children.length > 6) recent.removeChild(recent.lastChild);
-                signalCount++;
-                totalSignalsToday.textContent = signalCount;
-                toast(`📡 DigitEdge signal on ${market}`, 'info');
-            }
+                            const market = document.getElementById('aiMarket').value;
+                            const timeframe = document.getElementById('aiTimeframe').value;
+                            const signalType = document.getElementById('aiSignalType').value;
+                            const conf = Math.floor(50 + Math.random() * 45);
+                            let direction, badgeClass;
+                            if (signalType === 'even') { direction = 'EVEN'; badgeClass = 'even'; }
+                            else if (signalType === 'odd') { direction = 'ODD'; badgeClass = 'odd'; }
+                            else if (signalType === 'up') { direction = 'UP'; badgeClass = 'up'; }
+                            else if (signalType === 'down') { direction = 'DOWN'; badgeClass = 'down'; }
+                            else { direction = 'NEUTRAL'; badgeClass = 'no-trade'; }
+                            const edge = ((conf / 100) - 0.5128) * 100;
+                            const reasons = ['Parity run detected', 'Directional transition favorable', 'Frequency above baseline',
+                                'Transition probability favorable', 'Low entropy regime', 'Recent sequence pattern',
+                                'DigitEdge model', 'Calibrated edge positive'];
+                            const selectedReasons = reasons.sort(() => Math.random() - 0.5).slice(0, 3);
+                            let html = `
+                            <div class="analysis-result">
+                                <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
+                                    <span class="signal-badge ${badgeClass}">${direction}</span>
+                                    <span style="color:var(--text-muted);font-size:clamp(10px,0.5vw,12px);">${market} · ${timeframe}</span>
+                                    <span style="color:var(--accent-cyan);font-size:clamp(8px,0.4vw,10px);font-family:'JetBrains Mono',monospace;">DigitEdge · FREE</span>
+                                </div>
+                                <div class="metric-grid">
+                                    <div class="metric-box"><div class="metric-label">Confidence</div><div class="metric-value">${conf}%</div></div>
+                                    <div class="metric-box"><div class="metric-label">Edge</div><div class="metric-value" style="color:${edge > 0 ? 'var(--accent-green)' : 'var(--accent-red)'}">${edge.toFixed(1)}%</div></div>
+                                    <div class="metric-box"><div class="metric-label">Payout</div><div class="metric-value">${PAYOUT_RATIO}%</div></div>
+                                </div>
+                                <div class="confidence-bar"><div class="confidence-fill" style="width:${conf}%;"></div></div>
+                                <div style="margin-top:6px;font-weight:600;font-size:clamp(10px,0.5vw,12px);">Key Factors</div>
+                                <ul class="reasoning-list">${selectedReasons.map(r => `<li>${r}</li>`).join('')}</ul>
+                                <div style="margin-top:6px;font-size:clamp(8px,0.4vw,10px);color:var(--accent-cyan);font-family:'JetBrains Mono',monospace;padding:4px 8px;background:var(--bg-surface);border-radius:var(--radius-sm);">
+                                    🔓 DigitEdge · ${market} · ${signalType === 'up' || signalType === 'down' ? '2 ticks' : '1 tick'}
+                                </div>
+                            </div>`;
+                            signalOutput.innerHTML = html;
+                            const recent = document.getElementById('recentSignals');
+                            const card = document.createElement('div');
+                            card.className = 'analysis-card';
+                            card.innerHTML = `
+                                <div class="analysis-card-header">
+                                    <span class="symbol-pill">${market}</span>
+                                    <span class="time-ago">just now</span>
+                                </div>
+                                <div><span class="signal-badge ${badgeClass}">${direction}</span> <span style="color:var(--text-muted);font-size:clamp(10px,0.5vw,12px);">Confidence ${conf}%</span></div>
+                                <div style="margin-top:4px;font-size:clamp(9px,0.4vw,11px);color:var(--text-dim);">Edge: ${edge.toFixed(1)}% · Payout ${PAYOUT_RATIO}%</div>
+                                <div style="font-size:clamp(7px,0.4vw,9px);color:var(--accent-cyan);margin-top:3px;">DigitEdge</div>`;
+                            recent.prepend(card);
+                            if (recent.children.length > 6) recent.removeChild(recent.lastChild);
+                            signalCount++;
+                            totalSignalsToday.textContent = signalCount;
+                            toast(`📡 DigitEdge signal on ${market}`, 'info');
+                        }
 
             function updateMonitor() {
                 const even = Math.floor(Math.random() * 5);
@@ -4818,7 +5038,7 @@
 
             function openSignalStrategy() {
                 ssMaster.value = 'on';
-                ssStrategy.value = activeStrategy === 'upsdowns' ? 'Only Ups / Only Downs' : 'Even/Odd Ultra-Fast';
+                ssStrategy.value = 'Instant Fill · Separate Ups + Downs · Concurrent';
                 ssSource.value = 'DigitEdge AI (FREE — unlocked)';
                 ssMinConfidence.value = emronSignalConfig.minConfidence || MIN_CONFIDENCE;
                 ssMinEdge.value = emronSignalConfig.minEdge || MIN_EDGE;
@@ -4841,9 +5061,7 @@
                 const minEdge = ssMinEdge.value || 2.0;
                 const balanceTol = ssBalanceTolerance.value || 5;
                 const tradeBoth = ssTradeBoth.value === 'true';
-                const preview = activeStrategy === 'upsdowns'
-                    ? `UP+DOWNS on ${market} · ${upsDownsConfig.duration}t · conf ${minConf}% · edge ${minEdge}% (tol ${balanceTol}%)`
-                    : `EVEN+ODD on ${market} · 1t · conf ${minConf}% · edge ${minEdge}% · both ${tradeBoth ? 'on' : 'off'} (tol ${balanceTol}%)`;
+                const preview = `RUNHIGH (Only Ups) + RUNLOW (Only Downs) on ${market} · ${VIDEO_TICKS}t · immediate Run · Turbo ${TURBO_ENABLED ? 'ON' : 'OFF'}`;
                 ssPreviewText.textContent = preview;
             }
 
@@ -4868,15 +5086,11 @@
                 PAYOUT_RATIO = payout;
                 BALANCE_TOLERANCE = balanceTol;
                 TRADE_BOTH_ON_STRICT_50 = tradeBoth;
-                MAX_OPEN_CONTRACTS = tradeBoth ? 2 : 1;
-
-                if (ssStrategy.value === 'Only Ups / Only Downs') {
-                    activeStrategy = 'upsdowns';
-                } else {
-                    activeStrategy = 'evenodd';
-                }
-                activeStrategySelect.value = activeStrategy;
-                activeStrategyDisplay.textContent = activeStrategy === 'upsdowns' ? 'Only Ups / Only Downs' : 'Even/Odd Ultra-Fast';
+                MAX_OPEN_CONTRACTS = 2;
+                activeStrategy = 'instantfill';
+                VIDEO_ENGINE_ENABLED = true;
+                activeStrategySelect.value = 'instantfill';
+                activeStrategyDisplay.textContent = 'Instant Fill · Separate Ups + Downs · Concurrent';
 
                 qsMinConfidence.value = minConf;
                 qsMinEdge.value = minEdge;
@@ -4923,29 +5137,58 @@
             }
 
             function openSettingsModal() {
-                document.getElementById('editStake').value = baseStake.toFixed(2);
-                document.getElementById('editDuration').value = '1';
-                document.getElementById('editUDDuration').value = String(upsDownsConfig.duration || 2);
-                document.getElementById('editContractType').value = 'Auto (paired)';
-                document.getElementById('editExecution').value = 'Ultra Fast';
+                const editUpStake = document.getElementById('editUpStake');
+                const editDownStake = document.getElementById('editDownStake');
+                const editStake = document.getElementById('editStake');
+                editUpStake.value = Number(VIDEO_UP_STAKE).toFixed(2);
+                editDownStake.value = Number(VIDEO_DOWN_STAKE).toFixed(2);
+                editStake.value = '$' + (Number(VIDEO_UP_STAKE) + Number(VIDEO_DOWN_STAKE)).toFixed(2);
+                document.getElementById('editDuration').value = String(VIDEO_TICKS);
+                document.getElementById('editUDDuration').value = String(VIDEO_TICKS);
+                document.getElementById('editContractType').selectedIndex = 0;
+                document.getElementById('editExecution').selectedIndex = 0;
+                document.getElementById('editTurbo').value = TURBO_ENABLED ? 'true' : 'false';
                 for (let opt of editMarket.options) { if (opt.value === currentMarket) { editMarket.value = currentMarket; break; } }
                 settingsModal.classList.add('active');
             }
 
             function saveSettingsModal() {
-                const stake = parseFloat(document.getElementById('editStake').value) || 1;
-                const market = document.getElementById('editMarket').value;
-                const udDur = parseInt(document.getElementById('editUDDuration').value, 10) || 2;
-                baseStake = stake;
-                currentStake = stake;
-                upsDownsConfig.duration = udDur;
-                liveStakeDisplay.textContent = '$' + stake.toFixed(2);
-                qsStake.value = stake.toFixed(2);
-                qsUDDuration.value = udDur;
-                udDurationDisplay.textContent = udDur + ' ticks';
-                updateMarketDisplay(market);
+                VIDEO_ENGINE_ENABLED = true;
+                VIDEO_BATCH_MODE = true;
+                const up = parseFloat(document.getElementById('editUpStake').value);
+                const down = parseFloat(document.getElementById('editDownStake').value);
+                VIDEO_UP_STAKE = Math.max(0.01, Number.isFinite(up) ? up : VIDEO_UP_STAKE);
+                VIDEO_DOWN_STAKE = Math.max(0.01, Number.isFinite(down) ? down : VIDEO_DOWN_STAKE);
+                VIDEO_DEFAULT_STAKE = VIDEO_UP_STAKE + VIDEO_DOWN_STAKE;
+                VIDEO_TICKS = Math.max(1, Math.min(20, parseInt(document.getElementById('editDuration').value, 10) || VIDEO_TICKS));
+                VIDEO_ACTIVE_STRATEGY = 'BOTH';
+                TURBO_ENABLED = document.getElementById('editTurbo').value === 'true';
+                MAX_OPEN_CONTRACTS = 2;
+                baseStake = VIDEO_DEFAULT_STAKE;
+                currentStake = VIDEO_UP_STAKE + VIDEO_DOWN_STAKE;
+                TRADE_COOLDOWN_MS = TURBO_ENABLED ? 0 : VIDEO_SINGLE_BUY_GAP_MS;
+                qsTurbo.value = TURBO_ENABLED ? 'true' : 'false';
+                videoTurbo.value = TURBO_ENABLED ? 'true' : 'false';
+                qsStake.value = VIDEO_DEFAULT_STAKE.toFixed(2);
+                if (qsUpStake) qsUpStake.value = VIDEO_UP_STAKE.toFixed(2);
+                if (qsDownStake) qsDownStake.value = VIDEO_DOWN_STAKE.toFixed(2);
+                if (qsPairStake) qsPairStake.value = '$' + VIDEO_DEFAULT_STAKE.toFixed(2);
+                videoDefaultStake.value = VIDEO_DEFAULT_STAKE.toFixed(2);
+                videoUpStake.value = VIDEO_UP_STAKE.toFixed(2);
+                videoDownStake.value = VIDEO_DOWN_STAKE.toFixed(2);
+                videoTicks.value = String(VIDEO_TICKS);
+                qsUDDuration.value = VIDEO_TICKS;
+                if (liveStakeDisplay) liveStakeDisplay.textContent = '$' + currentStake.toFixed(2);
+                if (liveUpStakeDisplay) liveUpStakeDisplay.textContent = '$' + VIDEO_UP_STAKE.toFixed(2);
+                if (liveDownStakeDisplay) liveDownStakeDisplay.textContent = '$' + VIDEO_DOWN_STAKE.toFixed(2);
+                if (livePairStakeDisplay) livePairStakeDisplay.textContent = '$' + currentStake.toFixed(2);
+                if (udDurationDisplay) udDurationDisplay.textContent = VIDEO_TICKS + ' tick' + (VIDEO_TICKS === 1 ? '' : 's');
+                if (mainTicksDisplay) mainTicksDisplay.textContent = `${VIDEO_TICKS} tick${VIDEO_TICKS === 1 ? '' : 's'}`;
+                if (turboDisplay) turboDisplay.textContent = TURBO_ENABLED ? 'ON' : 'OFF';
+                updateMarketDisplay(document.getElementById('editMarket').value);
                 settingsModal.classList.remove('active');
-                toast('⚙️ Settings saved', 'success');
+                updateVideoExecutionStatus('Settings saved — Run starts two separate contracts immediately');
+                toast(`⚙️ Saved · Ups $${VIDEO_UP_STAKE.toFixed(2)} + Downs $${VIDEO_DOWN_STAKE.toFixed(2)} · ${VIDEO_TICKS} tick${VIDEO_TICKS === 1 ? '' : 's'} · Turbo ${TURBO_ENABLED ? 'ON' : 'OFF'}`, 'success');
             }
 
             // =============================================
@@ -4972,26 +5215,34 @@
 
             activateBtn.addEventListener('click', startTrading);
             deactivateBtn.addEventListener('click', stopTrading);
+            if (qsUpStake && qsDownStake && qsPairStake) {
+                const refreshPairStake = () => {
+                    const up = Math.max(0, parseFloat(qsUpStake.value) || 0);
+                    const down = Math.max(0, parseFloat(qsDownStake.value) || 0);
+                    qsPairStake.value = '$' + (up + down).toFixed(2);
+                };
+                qsUpStake.addEventListener('input', refreshPairStake);
+                qsDownStake.addEventListener('input', refreshPairStake);
+            }
             qsApplyBtn.addEventListener('click', applyQuickSettings);
+
+            if (applyVideoProfileBtn) applyVideoProfileBtn.addEventListener('click', applyVideoProfile);
 
             document.querySelectorAll('.preset-btn').forEach(btn => {
                 btn.addEventListener('click', function() { applyPreset(this.dataset.preset); });
             });
 
-            // 🔥 Strategy selector
+            // 🎥 Strategy selector — the main bot uses only the video engine.
             activeStrategySelect.addEventListener('change', function() {
-                activeStrategy = this.value;
-                activeStrategyDisplay.textContent = activeStrategy === 'upsdowns' ? 'Only Ups / Only Downs' : 'Even/Odd Ultra-Fast';
-                if (activeStrategy === 'upsdowns') {
-                    toast(`🚀 Strategy → Only Ups / Only Downs · ${upsDownsConfig.duration} ticks`, 'info');
-                } else {
-                    toast('🚀 Strategy → Even/Odd Ultra-Fast · 1 tick', 'info');
-                }
-                eoEngine.reset();
-                udEngine.reset();
+                this.value = 'instantfill';
+                activeStrategy = 'instantfill';
+                VIDEO_ENGINE_ENABLED = true;
+                activeStrategyDisplay.textContent = 'Instant Fill · Separate Ups + Downs · Concurrent';
+                toast('🎥 Instant Fill · Separate Ups + Downs · Concurrent engine active', 'info');
             });
 
-            signalStrategyBtn.addEventListener('click', openSignalStrategy);
+
+            signalStrategyBtn.addEventListener('click', openSettingsModal);
             ssMinConfidence.addEventListener('change', updateSignalPreview);
             ssMinEdge.addEventListener('change', updateSignalPreview);
             ssPayout.addEventListener('change', updateSignalPreview);
@@ -5000,7 +5251,7 @@
             ssTradeBoth.addEventListener('change', updateSignalPreview);
             ssSaveBtn.addEventListener('click', saveSignalStrategy);
 
-            riskMgmtBtn.addEventListener('click', openRiskMgmt);
+            riskMgmtBtn.addEventListener('click', openSettingsModal);
             rmSaveBtn.addEventListener('click', saveRiskMgmt);
             editSettingsBtn.addEventListener('click', openSettingsModal);
             saveSettingsBtn.addEventListener('click', saveSettingsModal);
@@ -5305,6 +5556,9 @@
             qsMinConfidence.value = MIN_CONFIDENCE;
             qsMinEdge.value = MIN_EDGE;
             qsMaxOpen.value = MAX_OPEN_CONTRACTS;
+            if (qsUpStake) qsUpStake.value = VIDEO_UP_STAKE.toFixed(2);
+            if (qsDownStake) qsDownStake.value = VIDEO_DOWN_STAKE.toFixed(2);
+            if (qsPairStake) qsPairStake.value = '$' + (VIDEO_UP_STAKE + VIDEO_DOWN_STAKE).toFixed(2);
             qsTP.value = profitTargetValue.toFixed(2);
             qsSL.value = stopLossValue.toFixed(2);
             qsMinRuns.value = MIN_RUNS_BEFORE_TP_SL;
@@ -5314,17 +5568,45 @@
             qsTradeBoth.value = TRADE_BOTH_ON_STRICT_50 ? 'true' : 'false';
             qsUDDuration.value = upsDownsConfig.duration;
             qsUDMinConf.value = upsDownsConfig.minConfidence;
+            if (qsUDDirection) qsUDDirection.value = 'BOTH';
+            videoBatchMode.value = 'true';
+            videoBatchMode.disabled = true;
+            videoTicks.value = String(VIDEO_TICKS);
+            videoDefaultStake.value = VIDEO_DEFAULT_STAKE.toFixed(2);
+            if (videoUpStake) videoUpStake.value = VIDEO_UP_STAKE.toFixed(2);
+            if (videoDownStake) videoDownStake.value = VIDEO_DOWN_STAKE.toFixed(2);
+            videoMartingale.value = VIDEO_MARTINGALE.toFixed(2);
+            videoEntryDigit.value = VIDEO_ENTRY_DIGIT;
+            videoDefaultDigit.value = String(VIDEO_DEFAULT_DIGIT);
+            videoSwitchMarket.value = String(VIDEO_SWITCH_MARKET);
+            videoSwitchOnLoss.value = String(VIDEO_SWITCH_ON_LOSS);
+            videoMainMode.value = String(VIDEO_MAIN_MODE);
+            videoLossesToSwitch.value = String(VIDEO_LOSSES_TO_SWITCH);
+            videoTurbo.value = String(TURBO_ENABLED);
+            videoRounds.value = String(VIDEO_ROUNDS_LIMIT);
+            videoDelay.value = String(VIDEO_DELAY_ENABLED);
+            videoDelayAfterSettle.value = String(VIDEO_DELAY_AFTER_SETTLE_MS);
+            videoTakeProfit.value = String(VIDEO_TAKE_PROFIT);
+            videoStopLoss.value = String(VIDEO_STOP_LOSS);
+            videoSingleBuyGap.value = String(VIDEO_SINGLE_BUY_GAP_MS);
+            qsTurbo.value = TURBO_ENABLED ? 'true' : 'false';
+            qsUDLossesSwitch.value = VIDEO_LOSSES_TO_SWITCH;
+            qsUDRounds.value = VIDEO_ROUNDS_LIMIT;
+            if (udDirectionDisplay) udDirectionDisplay.textContent = VIDEO_DELAY_ENABLED ? `${VIDEO_DELAY_AFTER_SETTLE_MS/1000}s` : 'OFF';
+            if (turboDisplay) turboDisplay.textContent = TURBO_ENABLED ? 'ON' : 'OFF';
 
-            activeStrategySelect.value = activeStrategy;
-            activeStrategyDisplay.textContent = activeStrategy === 'upsdowns' ? 'Only Ups / Only Downs' : 'Even/Odd Ultra-Fast';
-            udDurationDisplay.textContent = upsDownsConfig.duration + ' ticks';
+            activeStrategy = 'instantfill';
+            activeStrategySelect.value = 'instantfill';
+            activeStrategyDisplay.textContent = 'Instant Fill · Separate Ups + Downs · Concurrent';
+            udDurationDisplay.textContent = VIDEO_TICKS + ' tick' + (VIDEO_TICKS === 1 ? '' : 's');
 
-            eoPredictionDisplay.textContent = '—';
-            eoConfidenceDisplay.textContent = '—';
-            eoEdgeDisplay.textContent = '—';
-            eoBalanceDisplay.textContent = '—';
-            udPredictionDisplay.textContent = '—';
-            udConfidenceDisplay.textContent = '—';
+            eoPredictionDisplay.textContent = 'NEXT TICK';
+            if (mainTicksDisplay) mainTicksDisplay.textContent = `${VIDEO_TICKS} tick${VIDEO_TICKS === 1 ? '' : 's'}`;
+            eoConfidenceDisplay.textContent = 'RUNHIGH + RUNLOW';
+            eoEdgeDisplay.textContent = VIDEO_ENTRY_DIGIT === '' ? 'NONE' : `DIGIT ${VIDEO_ENTRY_DIGIT}`;
+            eoBalanceDisplay.textContent = 'Turbo · concurrent legs';
+            udPredictionDisplay.textContent = 'Only Ups + Only Downs';
+            udConfidenceDisplay.textContent = '2 separate contracts · concurrent';
 
             updateFsDashboard(null);
             updateFsDashboardStats();
@@ -5344,9 +5626,9 @@
             setInterval(() => { if (!isActive) { generateChartData(); drawChart(); } }, 7000);
             window.addEventListener('resize', initChart);
 
-            console.log('🔷 EMRON AI — Dual-Engine: Even/Odd + Only Ups/Downs');
+            console.log('🔷 EMRON AI — Video Instant Fill: RUNHIGH + RUNLOW concurrent engine');
             console.log('⚡ Dual-contract placement: both sides fire in the same microtask.');
-            console.log('📊 Even/Odd default: 1 tick · Only Ups/Downs default: 2 ticks.');
+            console.log('🎥 Video default: Volatility 10 · 1 tick · 0.35 default stake · Turbo ON · 30 rounds.');
             console.log('✅ Ultra-fast proposal→buy pipeline (no queue).');
 
         })();
