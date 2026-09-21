@@ -448,19 +448,61 @@ tr:hover td{background:rgba(255,255,255,.02)}
   z-index:98;display:none;opacity:0;transition:opacity .3s;pointer-events:none}
 .sidebar-backdrop.show{display:block;opacity:1;pointer-events:auto}
 button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+
+/* ===== EMRON VIDEO-DERIVED HUNTER ===== */
+.hunter-toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.hunter-threshold{display:flex;gap:5px;flex-wrap:wrap}
+.hunter-threshold button{padding:5px 9px;border:1px solid var(--border);border-radius:7px;background:var(--bg-surface);color:var(--text-muted);font:11px 'JetBrains Mono',monospace}
+.hunter-threshold button.active{border-color:var(--primary);color:#fff;background:rgba(68,85,238,.16)}
+.hunter-status{margin-left:auto;font:10px 'JetBrains Mono',monospace;color:var(--text-muted)}
+.hunter-status strong{color:var(--accent-green)}
+.hunter-best{border:1px solid rgba(68,85,238,.45);background:linear-gradient(135deg,rgba(68,85,238,.12),rgba(0,230,118,.04));border-radius:10px;padding:14px;margin-bottom:12px}
+.hunter-best .eyebrow{font:9px 'JetBrains Mono',monospace;color:var(--accent-cyan);text-transform:uppercase;letter-spacing:.08em}
+.hunter-best .title{font-size:21px;font-weight:800;margin:4px 0}
+.hunter-best .sub{font-size:11px;color:var(--text-muted)}
+.hunter-best .score{font:700 18px 'JetBrains Mono',monospace;color:var(--accent-green)}
+.hunter-execbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 7px;padding:11px 12px;border:1px solid rgba(0,230,118,.28);border-radius:10px;background:linear-gradient(90deg,rgba(0,230,118,.08),rgba(68,85,238,.07))}
+.hunter-exec-copy{min-width:0}
+.hunter-exec-title{font:700 11px 'JetBrains Mono',monospace;color:var(--accent-green);letter-spacing:.04em}
+.hunter-exec-sub{font-size:10px;color:var(--text-muted);margin-top:3px}
+.hunter-primary-exec{min-width:255px;font-weight:800;letter-spacing:.02em;white-space:nowrap}
+.hunter-primary-exec:disabled{opacity:.45;cursor:not-allowed;filter:grayscale(.25)}
+.hunter-primary-exec span{display:inline-block;min-width:18px;margin-left:5px;padding:1px 5px;border-radius:9px;background:rgba(255,255,255,.12);font:700 10px 'JetBrains Mono',monospace}
+.hunter-exec-status{font:10px 'JetBrains Mono',monospace;color:var(--text-dim);margin:0 0 10px;min-height:14px}
+.hunter-exec-status.live{color:var(--accent-cyan)}
+.hunter-exec-status.ok{color:var(--accent-green)}
+.hunter-exec-status.warn{color:var(--accent-yellow)}
+.hunter-tabs{display:flex;gap:5px;overflow-x:auto;padding-bottom:7px}
+.hunter-tab{flex:none;padding:7px 11px;border:1px solid var(--border);border-radius:7px;color:var(--text-muted);font-size:11px}
+.hunter-tab.active{border-color:var(--primary);color:#fff;background:rgba(68,85,238,.14)}
+.hunter-board{display:grid;grid-template-columns:1fr;gap:7px}
+.hunter-row{display:grid;grid-template-columns:80px 1fr 70px 78px;gap:8px;align-items:center;padding:9px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg-surface)}
+.hunter-row.ready{border-color:rgba(0,230,118,.35);box-shadow:0 0 0 1px rgba(0,230,118,.06) inset}
+.hunter-market{font:600 11px 'JetBrains Mono',monospace}
+.hunter-signal{font-size:12px;font-weight:700}
+.hunter-signal.up{color:var(--accent-green)} .hunter-signal.down{color:var(--accent-red)}
+.hunter-detail{font:10px 'JetBrains Mono',monospace;color:var(--text-muted)}
+.hunter-pct{font:700 12px 'JetBrains Mono',monospace;text-align:right}
+.hunter-pct.ready{color:var(--accent-green)}
+.hunter-action{font-size:10px!important;min-height:28px!important;padding:4px 7px!important}
+.hunter-note{font-size:10px;color:var(--text-dim);line-height:1.5;margin-top:10px}
+.hunter-chipline{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
+.hunter-chipline span{font:9px 'JetBrains Mono',monospace;padding:3px 6px;border:1px solid var(--border);border-radius:8px;color:var(--text-muted)}
+@media(max-width:700px){.hunter-row{grid-template-columns:68px 1fr 58px;}.hunter-row .hunter-action{grid-column:1/-1;width:100%}}
+
 </style>
 </head>
 <body>
 <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 <div class="app">
 
-<!-- TOPBAR -->
 <header class="topbar">
   <button class="hamburger" id="hamburger" aria-label="Toggle menu">☰</button>
   <div class="logo"><div class="logo-icon">🔷</div><div class="logo-text">EMRON AI</div></div>
   <nav class="tabs" role="tablist">
     <button class="tab active" data-tab="trading-hub" role="tab">Trading Hub</button>
     <button class="tab" data-tab="pulse" role="tab">📡 EMRON Pulse</button>
+    <button class="tab" data-tab="hunter" role="tab">🎯 AI Hunter</button>
     <button class="tab" data-tab="api-playground" role="tab">API Playground</button>
     <button class="tab" data-tab="help" role="tab">Help</button>
   </nav>
@@ -475,7 +517,6 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
   </div>
 </header>
 
-<!-- SIDEBAR -->
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-section">
     <div class="sidebar-title">Views</div>
@@ -488,16 +529,15 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
     <div class="nav-item"><span class="nav-icon">🏠</span><span>Home</span></div>
     <div class="nav-item"><span class="nav-icon">🤖</span><span>Strategy Engine</span></div>
     <div class="nav-item"><span class="nav-icon">📈</span><span>Pulse Scanner</span></div>
+    <div class="nav-item"><span class="nav-icon">🎯</span><span>AI Hunter</span></div>
     <div class="nav-item"><span class="nav-icon">❓</span><span>Help Center</span></div>
   </div>
 </aside>
 
 <main class="main">
 
-<!-- ============ TRADING HUB ============ -->
 <div class="tab-content active" id="trading-hub">
 
-  <!-- ==== CARD 1: STRATEGY SELECTOR (TOP) ==== -->
   <div class="card">
     <div class="card-header">
       <div class="card-title">🎯 Strategy Selection <span class="free-badge">TAP TO TOGGLE</span></div>
@@ -508,7 +548,6 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
     </div>
   </div>
 
-  <!-- ==== CARD 2: ACTIVE STRATEGIES ==== -->
   <div class="card">
     <div class="active-strategies-header">
       <div class="as-title">📋 Active Strategies</div>
@@ -517,7 +556,6 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
     <div class="active-list" id="activeList"></div>
   </div>
 
-  <!-- ==== CARD 3: ALIGNED SETTINGS ROW ==== -->
   <div class="card">
     <div class="card-header">
       <div class="card-title">⚙️ Bot Settings</div>
@@ -593,7 +631,6 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
     </div>
   </div>
 
-  <!-- ==== CARD 4: CONTROLS ==== -->
   <div class="card">
     <div class="card-header"><div class="card-title">▶ Run Controls</div></div>
     <div class="status-badge inactive" id="statusBadge">
@@ -615,7 +652,6 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 
   <div class="trading-layout">
     <div class="left-panel">
-      <!-- Live engine status -->
       <div class="card">
         <div class="card-header"><div class="card-title">🛰 Live Engine Status</div></div>
         <div class="engine-status-grid">
@@ -636,7 +672,6 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
     </div>
 
     <div class="right-panel">
-      <!-- Transactions -->
       <div class="card">
         <div class="card-header">
           <div class="card-title">📜 Transactions</div>
@@ -652,7 +687,6 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
         </div>
       </div>
 
-      <!-- Session stats -->
       <div class="card">
         <div class="card-header"><div class="card-title">📊 Session Statistics</div></div>
         <div class="metric-grid">
@@ -667,7 +701,6 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
         </div>
       </div>
 
-      <!-- Pulse feed -->
       <div class="card">
         <div class="card-header"><div class="card-title">📡 Pulse Signal Feed</div>
           <button class="icon-btn" id="gotoPulseBtn" title="Open Pulse">↗</button>
@@ -680,7 +713,6 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
   </div>
 </div>
 
-<!-- ============ EMRON PULSE ============ -->
 <div class="tab-content" id="pulse">
   <div class="pulse-header">
     <h2>📡 EMRON PULSE — Multi-Strategy Signal Scanner</h2>
@@ -784,7 +816,74 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
   </div>
 </div>
 
-<!-- ============ API PLAYGROUND ============ -->
+
+<div class="tab-content" id="hunter">
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-title">🎯 EMRON AI HUNTER — Video-derived scanner</div>
+        <div style="font-size:10px;color:var(--text-dim);margin-top:3px">
+          Reconstructs the observable workflow from the supplied Even/Odd AI + Sniper Volatility Hunter videos.
+        </div>
+      </div>
+      <div class="hunter-status" id="hunterStatus">Waiting for ticks</div>
+    </div>
+
+    <div class="hunter-toolbar">
+      <div class="hunter-tabs" id="hunterModeTabs">
+        <button class="hunter-tab active" data-hmode="evenodd">⚡ Even / Odd AI</button>
+        <button class="hunter-tab" data-hmode="sniper">🎯 Sniper Hunter</button>
+      </div>
+      <div class="hunter-threshold" id="hunterThresholds">
+        <button data-th="0.65">≥65%</button>
+        <button data-th="0.70" class="active">≥70%</button>
+        <button data-th="0.75">≥75%</button>
+        <button data-th="0.80">≥80%</button>
+      </div>
+    </div>
+
+    <div class="hunter-best" id="hunterBest">
+      <div class="eyebrow">BEST SIGNAL</div>
+      <div class="title">Collecting market data…</div>
+      <div class="sub">The board needs at least 25 digit observations before ranking.</div>
+    </div>
+
+    <div class="hunter-execbar">
+      <div class="hunter-exec-copy">
+        <div class="hunter-exec-title" id="hunterExecTitle">⚡ EVEN/ODD AI — MULTI-MARKET EXECUTION</div>
+        <div class="hunter-exec-sub" id="hunterExecSub">Executes every displayed READY Even/Odd signal at once using the current stake.</div>
+      </div>
+      <button class="btn btn-primary hunter-primary-exec" id="hunterExecuteAllBtn" disabled>
+        ⚡ EXECUTE ALL READY SIGNALS <span id="hunterExecuteCount">0</span>
+      </button>
+    </div>
+    <div class="hunter-exec-status" id="hunterExecStatus">No executable signals yet.</div>
+
+    <div class="hunter-tabs" id="hunterSignalTabs">
+      <button class="hunter-tab active" data-htab="evenodd">Even / Odd</button>
+      <button class="hunter-tab" data-htab="o1u8">O1 / U8</button>
+      <button class="hunter-tab" data-htab="o2u7">O2 / U7</button>
+      <button class="hunter-tab" data-htab="o3u6">O3 / U6</button>
+      <button class="hunter-tab" data-htab="jumble">Jumble</button>
+    </div>
+
+    <div class="hunter-board" id="hunterBoard"></div>
+
+    <div class="hunter-chipline">
+      <span id="hunterMarketCount">0 markets</span>
+      <span id="hunterTickCount">0 ticks</span>
+      <span>rolling window: 100</span>
+      <span>rank: strongest edge first</span>
+    </div>
+
+    <div class="hunter-note">
+      <strong>Important:</strong> the videos show the interface, thresholds and displayed outcomes, but not the original source/model.
+      EMRON therefore reproduces the observable decision workflow: rolling digit statistics → threshold test → cross-market ranking → best-signal selection.
+      “Jumble” is marked as an experimental concentration heuristic because its exact formula is not visible in the video.
+    </div>
+  </div>
+</div>
+
 <div class="tab-content" id="api-playground">
   <div class="playground-grid">
     <div class="account-card">
@@ -840,6 +939,8 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
           <option value="DIGITODD">DIGITODD</option>
           <option value="RUNHIGH">RUNHIGH</option>
           <option value="RUNLOW">RUNLOW</option>
+          <option value="TICKHIGH">TICKHIGH</option>
+          <option value="TICKLOW">TICKLOW</option>
         </select>
       </div>
       <div class="form-group"><label>Stake Override ($)</label>
@@ -854,7 +955,6 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
   </div>
 </div>
 
-<!-- ============ HELP ============ -->
 <div class="tab-content" id="help">
   <div class="search-bar"><span class="search-icon">🔍</span><input type="text" id="helpSearch" placeholder="Search help articles…"></div>
   <div class="card">
@@ -862,15 +962,19 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
       <h3>🎯 Strategy Selection</h3>
       <div class="faq-item">
         <div class="faq-question">How do I select strategies?<span>+</span></div>
-        <div class="faq-answer">At the top of the Trading Hub you'll find a horizontal row of strategy chips (Even, Odd, Matches, Differs, Over, Under, Rise, Fall, Only Ups, Only Downs). Tap a chip to add it to the active list. Tap again to remove it. The order you add them is the order the bot will cycle through them.</div>
+        <div class="faq-answer">At the top of the Trading Hub you'll find a horizontal row of strategy chips (Even, Odd, Matches, Differs, Over, Under, Rise, Fall, Only Ups, Only Downs, High Tick, Low Tick). Tap a chip to add it to the active list. Tap again to remove it. The order you add them is the order the bot will cycle through them.</div>
       </div>
       <div class="faq-item">
         <div class="faq-question">What does each strategy need?<span>+</span></div>
-        <div class="faq-answer">Most strategies only need a stake and ticks. Over/Under, Matches, and Differs also use a "prediction" field (a digit 0–9). The prediction fields appear inline in the active list when you add those strategies.</div>
+        <div class="faq-answer">Most strategies only need a stake and ticks. Over, Under, Matches, Differs, High Tick and Low Tick also use a "prediction" field (a digit 0–9). For High Tick and Low Tick that digit is the barrier — the next tick's last digit must land above it (High Tick) or below it (Low Tick).</div>
       </div>
       <div class="faq-item">
         <div class="faq-question">How does switch-on-loss work?<span>+</span></div>
         <div class="faq-answer">The bot trades strategy #1. If it wins, it stays on strategy #1. If it loses, it moves to strategy #2, then #3, and so on. The pending loss is tracked in the Recovery field. When wins accumulate enough to recover the pending loss, the engine resets back to strategy #1.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question">What are High Tick and Low Tick?<span>+</span></div>
+        <div class="faq-answer">High Tick (TICKHIGH) pays when the last digit of the next tick is higher than your barrier digit. Low Tick (TICKLOW) pays when it's lower. Both are single-tick contracts and use the same Pulse "highlow" engine — a Wilson-adjusted proportion test comparing the observed above/below distribution against the fair baseline for your barrier.</div>
       </div>
     </div>
     <div class="faq-category">
@@ -972,8 +1076,8 @@ const MARKET_SYMBOLS = {
 };
 const getSymbol = m => MARKET_SYMBOLS[m] || 'R_50';
 
-/* Strategy definitions used by the picker. Each entry knows its contract type,
-   category (mapped to a Pulse engine), direction, and whether it needs a digit. */
+/* Strategy definitions used by the picker.
+   NOTE: HIGH_TICK / LOW_TICK map to the same Pulse 'highlow' engine. */
 const STRATEGY_DEFS = {
   EVEN:       { label:'Even',       icon:'🟢', contract:'DIGITEVEN', category:'evenodd',    dir:'EVEN',  duration:1, needsDigit:false },
   ODD:        { label:'Odd',        icon:'🔴', contract:'DIGITODD',  category:'evenodd',    dir:'ODD',   duration:1, needsDigit:false },
@@ -984,7 +1088,9 @@ const STRATEGY_DEFS = {
   RISE:       { label:'Rise',       icon:'📈', contract:'CALL',      category:'risefall',   dir:'RISE',  duration:1, needsDigit:false },
   FALL:       { label:'Fall',       icon:'📉', contract:'PUT',       category:'risefall',   dir:'FALL',  duration:1, needsDigit:false },
   ONLY_UPS:   { label:'Only Ups',   icon:'⇈',  contract:'RUNHIGH',   category:'onlyupdown', dir:'UP',    duration:2, needsDigit:false },
-  ONLY_DOWNS: { label:'Only Downs', icon:'⇊',  contract:'RUNLOW',    category:'onlyupdown', dir:'DOWN',  duration:2, needsDigit:false }
+  ONLY_DOWNS: { label:'Only Downs', icon:'⇊',  contract:'RUNLOW',    category:'onlyupdown', dir:'DOWN',  duration:2, needsDigit:false },
+  HIGH_TICK:  { label:'High Tick',  icon:'🔺', contract:'TICKHIGH',  category:'highlow',    dir:'HIGH',  duration:1, needsDigit:true,  defaultDigit:5 },
+  LOW_TICK:   { label:'Low Tick',   icon:'🔻', contract:'TICKLOW',   category:'highlow',    dir:'LOW',   duration:1, needsDigit:true,  defaultDigit:5 }
 };
 
 /* ============================================================
@@ -997,10 +1103,8 @@ let accountInfo = null;
 let ws = null, wsConnected = false, wsReqId = 1, tickSubId = null;
 let manualDisconnect = false;
 
-/* --- Selected strategies (ordered) --- */
-let selectedStrategies = []; // [{ type, stake, duration, prediction, wins, losses, pl, label }]
+let selectedStrategies = [];
 
-/* --- Bot config (from aligned settings row) --- */
 let botConfig = {
   market:'Volatility 50',
   defaultTicks:1,
@@ -1019,7 +1123,6 @@ let botConfig = {
   maxOpen:3
 };
 
-/* --- Bot runtime --- */
 let botRunning = false;
 let sessionPL = 0;
 let sessionStake = 0;
@@ -1031,26 +1134,23 @@ let lastBuyTime = 0;
 let lastAction = '—';
 let rlBackoff = 'idle';
 
-let currentStrategyIndex = 0;   // pointer into selectedStrategies
-let lossAccumulator = 0;        // amount still to be recovered
-let lossesInARow = 0;           // consecutive losses counter (for lossesToSwitch)
+let currentStrategyIndex = 0;
+let lossAccumulator = 0;
+let lossesInARow = 0;
 
-/* Trades log */
 let trades = [];
 
-/* Pending proposal/buy maps */
 const pendingProposalMap = new Map();
 const pendingBuyMap = new Map();
-const activeContracts = new Map(); // contract_id -> { slotIdx, contractType, label, stake }
+const activeContracts = new Map();
 
 /* ============================================================
-   PULSE ENGINES (from previous build, unchanged)
+   PULSE ENGINES
    ============================================================ */
 const engineState = {
   markets: new Map(),
   activeConfirmations: new Map(),
   confirmTracking: new Map(),
-  lastSignalTick: new Map(),
   rfStats: { signals:0, wins:0, losses:0, run:0, runDir:null, last20:[] },
   history: [],
   historySeq: 0,
@@ -1152,6 +1252,11 @@ function evaluateOverUnder(mkt, w){
   const z=wilsonZ(o,d.length,0.5);
   return { category:'overunder', label:z>=0?'OVER':'UNDER', direction:z>=0?'up':'down', z, absZ:Math.abs(z), n:d.length };
 }
+
+/* ==== HIGH / LOW TICK ENGINE ====
+   Compares last-digit distribution against a barrier digit.
+   Returns HIGH TICK (> barrier) when the above-side has positive z vs baseline,
+   or LOW TICK (< barrier) when the below-side does. Direction 'up' = HIGH, 'down' = LOW. */
 function evaluateHighLow(mkt){
   const win=engineState.highLowWindow;
   const d=mkt.digits.slice(-win); if(d.length<HL.MIN_TICKS) return null;
@@ -1182,6 +1287,7 @@ function evaluateHighLow(mkt){
       p:best.p, base:best.base, above:best.above, below:best.below, counts,
       autoBarrier:engineState.highLowBarrier==='auto' } };
 }
+
 function currentUpDownStreak(q){
   if(q.length<2) return {dir:null,len:0};
   let len=0,dir=null;
@@ -1215,7 +1321,6 @@ function evaluateOnlyUpDown(mkt){
       currentStreakLen:streak.len, currentStreakDir:streak.dir } };
 }
 
-/* --- Matches / Dollar Printer --- */
 function getMatchesDistribution(mkt){
   const all=mkt.digits; if(all.length<MATCHES.MIN_TICKS) return null;
   const win=MATCHES.WINDOW, shift=MATCHES.RISE_SHIFT;
@@ -1322,6 +1427,7 @@ function onPulseTick(symbolCode, quote){
   mkt.digits.push(lastDigit); if(mkt.digits.length>MAX_BUFFER) mkt.digits.shift();
   mkt.quotes.push(num); if(mkt.quotes.length>MAX_BUFFER) mkt.quotes.shift();
   mkt.lastQuote = qStr; mkt.lastDigit = lastDigit; mkt.tickCount++;
+  renderHunter();
 
   const parity = lastDigit%2===0?'even':'odd';
   if(mkt.streak.dir===null) mkt.streak={dir:parity,len:1};
@@ -1360,7 +1466,8 @@ function updateConfirmations(symbolCode, mkt){
     if(track.confirmed && !prev){
       const entry = { key, symbol:symbolCode, marketName:mkt.name, category:cat,
         label:r.label, direction:r.direction, confidence:confidenceOf(r),
-        confirmedAt:Date.now(), confirmTick:mkt.tickCount };
+        confirmedAt:Date.now(), confirmTick:mkt.tickCount,
+        meta: r.meta };
       engineState.activeConfirmations.set(key, entry);
       logSignal({...r, symbol:symbolCode, marketName:mkt.name}, mkt.name);
       addPulseFeed(r.label, mkt.short);
@@ -1440,7 +1547,6 @@ function renderStrategyPicker(){
     row.appendChild(btn);
   });
 }
-
 function addStrategy(type){
   const def = STRATEGY_DEFS[type];
   if(!def) return;
@@ -1464,30 +1570,25 @@ function removeStrategy(type){
   renderStrategyUI();
   toast(`Removed ${def ? def.label : type}`, 'info');
 }
-
 function getStrategyLabel(strat){
   const def = STRATEGY_DEFS[strat.type];
   if(!def) return strat.type;
   if(def.needsDigit && strat.prediction != null) return `${def.label} ${strat.prediction}`;
   return def.label;
 }
-
 function renderStrategyUI(){
   renderStrategyPicker();
   renderActiveList();
   updateEngineStatus();
 }
-
 function renderActiveList(){
   const list = document.getElementById('activeList');
   list.innerHTML = '';
-
   if(selectedStrategies.length === 0){
     list.innerHTML = `<div class="active-empty">No strategies selected yet.<br>Tap a strategy from the row above to add it here.</div>`;
     document.getElementById('activeStrategiesTag').textContent = 'switch on loss • 1 loss';
     return;
   }
-
   document.getElementById('activeStrategiesTag').textContent =
     `switch on loss • ${botConfig.lossesToSwitch} loss${botConfig.lossesToSwitch>1?'es':''}`;
 
@@ -1522,7 +1623,6 @@ function renderActiveList(){
     list.appendChild(item);
   });
 
-  // wire inputs
   list.querySelectorAll('input[data-field]').forEach(inp => {
     inp.addEventListener('change', () => {
       const idx = parseInt(inp.dataset.idx, 10);
@@ -1574,7 +1674,6 @@ function hasSignalForStrategy(strat){
     const key = code + '|matchdiffer';
     const conf = engineState.activeConfirmations.get(key);
     if(!conf) return false;
-    // If prediction digit was set, require that the confirmed label includes it
     if(strat.prediction != null && conf.label && !conf.label.includes(String(strat.prediction))) return false;
     return true;
   }
@@ -1586,7 +1685,6 @@ function hasSignalForStrategy(strat){
   if(strat.type === 'OVER'){
     const r = evaluateOverUnder(mkt, engineState.windowSize);
     if(!r) return false;
-    // OVER fires when last digits skew ≥5
     return r.label === 'OVER';
   }
   if(strat.type === 'UNDER'){
@@ -1595,18 +1693,29 @@ function hasSignalForStrategy(strat){
     return r.label === 'UNDER';
   }
 
+  /* ==== HIGH TICK / LOW TICK ====
+     Both map to the Pulse 'highlow' engine. HIGH_TICK fires on direction 'up'
+     (last digit above barrier). LOW_TICK fires on direction 'down' (below barrier). */
+  if(strat.type === 'HIGH_TICK' || strat.type === 'LOW_TICK'){
+    const key = code + '|highlow';
+    const conf = engineState.activeConfirmations.get(key);
+    if(!conf) return false;
+    const wantUp = strat.type === 'HIGH_TICK';
+    return (conf.direction === 'up') === wantUp;
+  }
+
   const key = code + '|' + def.category;
   const conf = engineState.activeConfirmations.get(key);
   if(!conf) return false;
-  const wantUp = ['UP','RISE','EVEN','OVER'].includes(def.dir);
+  const wantUp = ['UP','RISE','EVEN'].includes(def.dir);
   const isUp = conf.direction === 'up';
   return wantUp === isUp;
 }
 
-function placeStrategyContract(strat){
+function placeStrategyContract(strat, marketOverride=null){
   const def = STRATEGY_DEFS[strat.type];
   if(!def) return;
-  const marketSymbol = getSymbol(botConfig.market);
+  const marketSymbol = marketOverride || getSymbol(botConfig.market);
   const stake = strat.stake;
   const duration = strat.duration || def.duration;
 
@@ -1618,10 +1727,10 @@ function placeStrategyContract(strat){
     amount: stake, basis:'stake', contract_type: def.contract,
     currency:'USD', duration, duration_unit:'t', underlying_symbol: marketSymbol
   };
+  // For digit-barrier contracts (Over/Under/Matches/Differs/High/Low Tick) pass the digit as barrier.
   if(def.needsDigit && strat.prediction != null) params.barrier = String(strat.prediction);
 
   if(!wsConnected){
-    // Simulation
     setTimeout(() => {
       const win = Math.random() < 0.5;
       const pl = win ? stake * 0.95 : -stake;
@@ -1632,7 +1741,7 @@ function placeStrategyContract(strat){
 
   const id = wsReqId++;
   const slotIdx = selectedStrategies.indexOf(strat);
-  pendingProposalMap.set(id, { purpose:'bot', slotIdx, contractType: def.contract, label: getStrategyLabel(strat), stake });
+  pendingProposalMap.set(id, { purpose:'bot', slotIdx, strategyRef:strat, marketSymbol, contractType: def.contract, label: getStrategyLabel(strat), stake });
   ws.send(JSON.stringify({ proposal:1, ...params, req_id: id }));
 }
 
@@ -1645,20 +1754,18 @@ function onProposalReceived(data){
   pendingBuyMap.set(buyId, t);
   ws.send(JSON.stringify({ buy: data.proposal.id, price: data.proposal.ask_price, req_id: buyId }));
 }
-
 function onBuyReceived(data){
   const t = pendingBuyMap.get(data.req_id);
   if(!t) return;
   pendingBuyMap.delete(data.req_id);
   if(!data.buy) return;
   const cid = data.buy.contract_id;
-  activeContracts.set(cid, { slotIdx: t.slotIdx, contractType:t.contractType, label:t.label, stake:t.stake });
+  activeContracts.set(cid, { slotIdx: t.slotIdx, strategyRef:t.strategyRef || null, marketSymbol:t.marketSymbol || null, contractType:t.contractType, label:t.label, stake:t.stake });
   lastAction = `Opened ${t.label} · ${cid}`;
   toast(`📈 ${t.label} placed`, 'success');
   updateEngineStatus();
   ws.send(JSON.stringify({ proposal_open_contract:1, contract_id:cid, subscribe:1 }));
 }
-
 function onContractUpdate(data){
   const c = data.proposal_open_contract;
   if(!c || !c.is_sold) return;
@@ -1668,13 +1775,11 @@ function onContractUpdate(data){
   activeContracts.delete(cid);
   const profit = parseFloat(c.profit) || 0;
   const won = profit > 0;
-  const strat = selectedStrategies[rec.slotIdx];
+  const strat = rec.strategyRef || selectedStrategies[rec.slotIdx];
   if(strat) onStrategyResult(strat, won, profit, rec.stake, c.entry_tick, c.exit_tick);
-  // Delay after settle before next cycle
   setTimeout(() => { if(botRunning) evaluateBotOnTick(); }, (botConfig.delayOn ? botConfig.delayAfterSettle : 0) * 1000);
 }
 
-/* ===== Core switch-on-loss + recovery result handler ===== */
 function onStrategyResult(strat, won, profit, stake, entrySpot, exitSpot){
   sessionStake += stake;
   sessionPayout += won ? (stake + profit) : 0;
@@ -1694,29 +1799,23 @@ function onStrategyResult(strat, won, profit, stake, entrySpot, exitSpot){
 
   roundsRemaining = Math.max(0, roundsRemaining - 1);
 
-  /* ---- SWITCH-ON-LOSS LOGIC ---- */
   if(won){
-    // Reduce pending loss if any
     if(lossAccumulator > 0){
       lossAccumulator -= profit;
       if(lossAccumulator <= 0){
-        // Fully recovered → reset to first strategy
         lossAccumulator = 0;
         lossesInARow = 0;
         currentStrategyIndex = 0;
         lastAction = `✅ Loss recovered → back to #1 (${getStrategyLabel(selectedStrategies[0])})`;
         toast(`✅ Loss recovered — back to #1 ${getStrategyLabel(selectedStrategies[0])}`, 'success');
       } else {
-        // Still recovering — stay on same strategy
         lastAction = `Win — recovering · $${lossAccumulator.toFixed(2)} left`;
       }
     } else {
-      // No loss to recover, stay on same strategy
       lossesInARow = 0;
       lastAction = `Win — repeat ${getStrategyLabel(strat)}`;
     }
   } else {
-    // Loss — add to pending and advance to next strategy
     lossAccumulator += Math.abs(profit);
     lossesInARow++;
     if(lossesInARow >= botConfig.lossesToSwitch){
@@ -1736,7 +1835,6 @@ function onStrategyResult(strat, won, profit, stake, entrySpot, exitSpot){
   updateEngineStatus();
   if(wsConnected) ws.send(JSON.stringify({ balance:1, req_id: wsReqId++ }));
 
-  // TP / SL
   if(sessionPL >= botConfig.takeProfit){
     document.getElementById('tpAmount').textContent = sessionPL.toFixed(2);
     document.getElementById('tpModal').classList.add('active');
@@ -1754,9 +1852,6 @@ function onStrategyResult(strat, won, profit, stake, entrySpot, exitSpot){
   }
 }
 
-/* ============================================================
-   BOT START / STOP
-   ============================================================ */
 function startBot(){
   if(botRunning) return;
   if(selectedStrategies.length === 0){
@@ -1784,7 +1879,6 @@ function startBot(){
   updateEngineStatus();
   toast(`🚀 Bot started · ${selectedStrategies.length} strategies · ${botConfig.rounds} rounds`, 'success');
 }
-
 function stopBot(reason){
   if(!botRunning) return;
   botRunning = false;
@@ -2271,7 +2365,6 @@ document.getElementById('tpProceedBtn').addEventListener('click', () => {
   toast('✅ Ready for next cycle.', 'info');
 });
 
-// Aligned settings → live update of botConfig
 const marketSel = document.getElementById('botMarket');
 marketSel.addEventListener('change', () => {
   botConfig.market = marketSel.value;
@@ -2283,6 +2376,7 @@ document.getElementById('botTicks').addEventListener('change', e => {
 });
 document.getElementById('botStake').addEventListener('change', e => {
   botConfig.defaultStake = Math.max(0.35, parseFloat(e.target.value)||0.35);
+  updateHunterExecuteButton();
 });
 document.getElementById('botDigit').addEventListener('change', e => {
   botConfig.defaultDigit = Math.max(0, Math.min(9, parseInt(e.target.value,10)||0));
@@ -2304,7 +2398,6 @@ document.getElementById('botSL').addEventListener('change', e => {
   updateProfitDisplay();
 });
 
-// Toggles
 document.querySelectorAll('[data-toggle]').forEach(inp => {
   inp.addEventListener('change', () => {
     const key = inp.dataset.toggle;
@@ -2318,7 +2411,6 @@ document.querySelectorAll('[data-toggle]').forEach(inp => {
   });
 });
 
-// Pulse controls
 document.getElementById('categoryTabs').addEventListener('click', e => {
   const t = e.target.closest('.pulse-tab');
   if(!t) return;
@@ -2357,7 +2449,6 @@ document.getElementById('clearTradesBtn').addEventListener('click', () => {
   toast('🗑 Cleared', 'info');
 });
 
-// Connect flow
 connectBtn.addEventListener('click', () => {
   document.getElementById('oauthRedirectUri').value = window.location.origin;
   document.getElementById('connectModal').classList.add('active');
@@ -2384,7 +2475,6 @@ document.getElementById('patConnectBtn').addEventListener('click', () => {
 });
 document.getElementById('patDisconnectBtn').addEventListener('click', () => setAccessToken(null));
 
-// Mode toggle
 document.getElementById('topModeToggleBtn').addEventListener('click', () => {
   document.getElementById('modeCurrent').textContent = MODE;
   document.getElementById('modeTarget').textContent = MODE === 'DEMO' ? 'REAL' : 'DEMO';
@@ -2409,7 +2499,6 @@ document.getElementById('modeConfirmBtn').addEventListener('click', () => {
 });
 document.getElementById('modeToggleBtn').addEventListener('click', () => document.getElementById('topModeToggleBtn').click());
 
-// Bulk purchase
 document.getElementById('bulkBuyBtn').addEventListener('click', async () => {
   const lines = document.getElementById('bulkAccountsInput').value.split('\n').map(l => l.trim()).filter(Boolean);
   const accounts = lines.map(line => {
@@ -2450,14 +2539,11 @@ document.getElementById('bulkClearBtn').addEventListener('click', () => {
   document.getElementById('bulkStatus').textContent = 'Idle';
 });
 
-// Copy buttons
 document.querySelectorAll('.copy-btn').forEach(b => {
   b.addEventListener('click', () => {
     navigator.clipboard.writeText(b.dataset.copy).then(() => toast(`Copied`, 'success'));
   });
 });
-
-// FAQ
 document.querySelectorAll('.faq-question').forEach(q => {
   q.addEventListener('click', () => q.closest('.faq-item').classList.toggle('open'));
 });
@@ -2467,8 +2553,6 @@ document.getElementById('helpSearch').addEventListener('input', e => {
     i.style.display = i.textContent.toLowerCase().includes(q) ? '' : 'none';
   });
 });
-
-// Hamburger
 document.getElementById('hamburger').addEventListener('click', () => {
   document.getElementById('sidebar').classList.toggle('open');
   document.getElementById('sidebarBackdrop').classList.toggle('show');
@@ -2478,18 +2562,261 @@ document.getElementById('sidebarBackdrop').addEventListener('click', () => {
   document.getElementById('sidebarBackdrop').classList.remove('show');
 });
 
+
+/* ============================================================
+   EMRON VIDEO-DERIVED HUNTER ENGINE
+   ============================================================ */
+const HUNTER = {
+  window: 100,
+  minTicks: 25,
+  threshold: 0.65,
+  mode: 'evenodd',
+  tab: 'evenodd',
+  best: null,
+  lastRender: 0,
+  extraSymbols: [
+    { code:"JD10", short:"JD10", name:"Jump 10 Index", decimals:3 },
+    { code:"JD25", short:"JD25", name:"Jump 25 Index", decimals:3 },
+    { code:"JD50", short:"JD50", name:"Jump 50 Index", decimals:3 },
+    { code:"JD75", short:"JD75", name:"Jump 75 Index", decimals:3 },
+    { code:"JD100", short:"JD100", name:"Jump 100 Index", decimals:3 }
+  ]
+};
+HUNTER.extraSymbols.forEach(s => {
+  if(!engineState.markets.has(s.code)){
+    engineState.markets.set(s.code,{...s,digits:[],quotes:[],tickCount:0,lastQuote:null,lastDigit:null,
+      streak:{dir:null,len:0},matches:{stage:"watching",oppositeRun:0,stageTicks:0,setup:null,lastSignal:null,lastSignalTick:-Infinity}});
+  }
+});
+function hunterWindow(mkt){
+  return mkt.digits.slice(-HUNTER.window);
+}
+function hunterPct(count,n){ return n ? count/n : 0; }
+function hunterWilsonPct(count,n,p0=.5){
+  if(!n) return 0;
+  return Math.max(0,Math.min(1,(count+0.5)/(n+1)));
+}
+function hunterEvenOdd(mkt){
+  const d=hunterWindow(mkt), n=d.length;
+  if(n<HUNTER.minTicks) return null;
+  const even=d.reduce((a,x)=>a+(x%2===0?1:0),0), odd=n-even;
+  const e=hunterWilsonPct(even,n), o=hunterWilsonPct(odd,n);
+  const evenZ=wilsonZ(even,n,.5), oddZ=wilsonZ(odd,n,.5);
+  const isEven=even>=odd;
+  return {market:mkt,kind:'EVEN/ODD',label:isEven?'EVEN':'ODD',direction:isEven?'up':'down',
+    pct:Math.max(e,o), raw: isEven?even/n:odd/n, count:isEven?even:odd, n,
+    score:Math.abs(isEven?evenZ:oddZ), detail:`Even ${Math.round(e*100)}% · Odd ${Math.round(o*100)}%`};
+}
+function hunterBarrier(mkt,b){
+  const d=hunterWindow(mkt), n=d.length;
+  if(n<HUNTER.minTicks) return null;
+  const over=d.reduce((a,x)=>a+(x>b?1:0),0), under=d.reduce((a,x)=>a+(x<b?1:0),0);
+  const po=hunterWilsonPct(over,n,(9-b)/10), pu=hunterWilsonPct(under,n,b/10);
+  const zo=wilsonZ(over,n,(9-b)/10), zu=wilsonZ(under,n,b/10);
+  const isOver=po>=pu;
+  return {market:mkt,kind:`O${b}/U${9-b}`,label:isOver?`OVER ${b}`:`UNDER ${9-b}`,
+    direction:isOver?'up':'down',pct:Math.max(po,pu),raw:isOver?over/n:under/n,
+    count:isOver?over:under,n,score:Math.max(zo,zu),
+    detail:`O${b} ${Math.round(po*100)}% · U${9-b} ${Math.round(pu*100)}%`};
+}
+function hunterJumble(mkt){
+  const d=hunterWindow(mkt), n=d.length;
+  if(n<HUNTER.minTicks) return null;
+  const counts=new Array(10).fill(0); d.forEach(x=>counts[x]++);
+  const top=counts.map((c,digit)=>({digit,count:c,pct:c/n})).sort((a,b)=>b.count-a.count);
+  const trio=top.slice(0,3), combined=trio.reduce((a,x)=>a+x.pct,0);
+  return {market:mkt,kind:'JUMBLE',label:`${trio.map(x=>x.digit).join(' · ')}`,
+    direction:'up',pct:combined,raw:combined,count:trio.reduce((a,x)=>a+x.count,0),n,
+    score:combined,detail:`Top 3 digits cover ${Math.round(combined*100)}% · lead ${top[0].digit}`};
+}
+function hunterEval(mkt,tab){
+  if(tab==='evenodd') return hunterEvenOdd(mkt);
+  if(tab==='o1u8') return hunterBarrier(mkt,1);
+  if(tab==='o2u7') return hunterBarrier(mkt,2);
+  if(tab==='o3u6') return hunterBarrier(mkt,3);
+  if(tab==='jumble') return hunterJumble(mkt);
+  return null;
+}
+function hunterRank(tab){
+  const out=[];
+  engineState.markets.forEach(mkt=>{
+    const r=hunterEval(mkt,tab);
+    if(r) out.push(r);
+  });
+  return out.sort((a,b)=>b.pct-a.pct || b.score-a.score);
+}
+function hunterContractFor(r){
+  if(!r) return null;
+  if(r.kind==='EVEN/ODD') return {type:r.label==='EVEN'?'EVEN':'ODD',prediction:null};
+  if(r.kind==='O1/U8') return {type:r.label.startsWith('OVER')?'OVER':'UNDER',prediction:r.label.startsWith('OVER')?1:8};
+  if(r.kind==='O2/U7') return {type:r.label.startsWith('OVER')?'OVER':'UNDER',prediction:r.label.startsWith('OVER')?2:7};
+  if(r.kind==='O3/U6') return {type:r.label.startsWith('OVER')?'OVER':'UNDER',prediction:r.label.startsWith('OVER')?3:6};
+  return null;
+}
+function hunterExecutableRows(){
+  const rows=hunterRank(HUNTER.tab);
+  return rows.filter(r => r.pct >= HUNTER.threshold && !!hunterContractFor(r));
+}
+function hunterModeLabel(){
+  return HUNTER.mode === 'evenodd' ? 'EVEN/ODD AI' : 'SNIPER HUNTER';
+}
+function updateHunterExecuteButton(rowsOverride=null){
+  const rows=rowsOverride || hunterExecutableRows();
+  const btn=document.getElementById('hunterExecuteAllBtn');
+  const count=document.getElementById('hunterExecuteCount');
+  const title=document.getElementById('hunterExecTitle');
+  const sub=document.getElementById('hunterExecSub');
+  if(!btn||!count||!title||!sub) return;
+  const executable=rows.length;
+  const connected=wsConnected;
+  const isJumble=HUNTER.tab==='jumble';
+  title.textContent=`⚡ ${hunterModeLabel()} — MULTI-MARKET EXECUTION`;
+  sub.textContent=isJumble
+    ? 'Jumble remains scanner-only because the source video does not reveal a contract mapping.'
+    : `Executes all ${hunterModeLabel()} READY signals together using $${Number(botConfig.defaultStake||0).toFixed(2)} per market.`;
+  count.textContent=String(executable);
+  btn.disabled=!connected || executable===0 || isJumble;
+  btn.innerHTML=isJumble
+    ? '🔎 JUMBLE SCANNER ONLY'
+    : `⚡ EXECUTE ALL READY SIGNALS <span id="hunterExecuteCount">${executable}</span>`;
+}
+function hunterExecuteAll(){
+  const rows=hunterExecutableRows();
+  const status=document.getElementById('hunterExecStatus');
+  if(!wsConnected){
+    toast('Connect the Deriv account before executing Hunter signals.','error');
+    if(status){ status.className='hunter-exec-status warn'; status.textContent='Account not connected — no trades submitted.'; }
+    return;
+  }
+  if(!rows.length){
+    if(status){ status.className='hunter-exec-status warn'; status.textContent='No READY signals meet the active threshold.'; }
+    return;
+  }
+  if(HUNTER.tab==='jumble'){
+    if(status){ status.className='hunter-exec-status warn'; status.textContent='Jumble has no verified contract mapping and was not executed.'; }
+    return;
+  }
+
+  // Every proposal is sent in the same JavaScript turn. The Deriv socket
+  // processes the requests independently, so qualifying markets are submitted
+  // together rather than waiting for one contract to settle before submitting the next.
+  const submitted=[];
+  rows.forEach(r=>{
+    const c=hunterContractFor(r);
+    if(!c) return;
+    const strat={
+      type:c.type, stake:botConfig.defaultStake, duration:1, prediction:c.prediction,
+      wins:0, losses:0, pl:0, hunter:true, hunterMarket:r.market.short, hunterSignal:r.label, hunterPct:r.pct
+    };
+    placeStrategyContract(strat, r.market.code);
+    submitted.push(`${r.market.short} ${r.label}`);
+  });
+
+  lastAction=`${hunterModeLabel()} → ${submitted.length} markets submitted together`;
+  updateEngineStatus();
+  if(status){
+    status.className='hunter-exec-status live';
+    status.textContent=`⚡ Submitted ${submitted.length} market signals together: ${submitted.join(' · ')}`;
+  }
+  toast(`⚡ ${submitted.length} ${hunterModeLabel()} signals submitted together`, 'success');
+}
+function hunterExecute(r){
+  const c=hunterContractFor(r);
+  if(!c){ toast('Jumble is scanner-only in this reconstruction.','info'); return; }
+  if(!wsConnected){ toast('Connect the Deriv account before executing a Hunter signal.','error'); return; }
+  const strat={
+    type:c.type, stake:botConfig.defaultStake, duration:1, prediction:c.prediction, wins:0, losses:0, pl:0,
+    hunter:true, hunterMarket:r.market.short, hunterSignal:r.label, hunterPct:r.pct
+  };
+  placeStrategyContract(strat, r.market.code);
+  lastAction=`Hunter → ${r.market.short} ${r.label} (${Math.round(r.pct*100)}%)`;
+  updateEngineStatus();
+}
+function renderHunter(){
+  const now=Date.now();
+  if(now-HUNTER.lastRender<180) return;
+  HUNTER.lastRender=now;
+  const rows=hunterRank(HUNTER.tab);
+  const ready=rows.filter(r=>r.pct>=HUNTER.threshold);
+  HUNTER.best=ready[0] || rows[0] || null;
+  const bestEl=document.getElementById('hunterBest');
+  const status=document.getElementById('hunterStatus');
+  if(!bestEl||!status) return;
+  const totalTicks=Array.from(engineState.markets.values()).reduce((a,m)=>a+m.tickCount,0);
+  status.innerHTML=ready.length?`<strong>${ready.length}</strong> ready · ${rows.length} scanned`:`${rows.length} scanned · waiting for threshold`;
+  document.getElementById('hunterMarketCount').textContent=`${rows.length} markets`;
+  document.getElementById('hunterTickCount').textContent=`${totalTicks} ticks`;
+  if(!HUNTER.best){
+    bestEl.innerHTML='<div class="eyebrow">BEST SIGNAL</div><div class="title">Collecting market data…</div><div class="sub">Waiting for enough observations.</div>';
+  } else {
+    const b=HUNTER.best, pct=Math.round(b.pct*100);
+    bestEl.innerHTML=`<div class="eyebrow">BEST SIGNAL · ${b.pct>=HUNTER.threshold?'READY':'WATCHING'}</div>
+      <div class="title">${b.market.short} · ${b.label} <span class="score">${pct}%</span></div>
+      <div class="sub">${b.detail} · ${b.n} observations · ${b.pct>=HUNTER.threshold?'meets':'below'} ${Math.round(HUNTER.threshold*100)}% threshold</div>`;
+  }
+  const board=document.getElementById('hunterBoard');
+  board.innerHTML=rows.slice(0,12).map((r,i)=>{
+    const pct=Math.round(r.pct*100), isReady=r.pct>=HUNTER.threshold;
+    return `<div class="hunter-row ${isReady?'ready':''}">
+      <div class="hunter-market">${r.market.short}</div>
+      <div><div class="hunter-signal ${r.direction}">${r.label}</div><div class="hunter-detail">${r.detail}</div></div>
+      <div class="hunter-pct ${isReady?'ready':''}">${pct}%</div>
+      <button class="btn btn-primary hunter-action" data-hunter-index="${i}" ${(!isReady||!hunterContractFor(r))?'disabled':''}>${isReady?'Execute':'Watch'}</button>
+    </div>`;
+  }).join('');
+  board.querySelectorAll('[data-hunter-index]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const r=rows[Number(btn.dataset.hunterIndex)];
+      if(r) hunterExecute(r);
+    });
+  });
+  updateHunterExecuteButton(ready.filter(r => !!hunterContractFor(r)));
+}
+function setupHunterUI(){
+  document.querySelectorAll('[data-hmode]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('[data-hmode]').forEach(x=>x.classList.remove('active'));
+      btn.classList.add('active');
+      HUNTER.mode=btn.dataset.hmode;
+      HUNTER.tab=HUNTER.mode==='evenodd'?'evenodd':'o2u7';
+      HUNTER.threshold=HUNTER.mode==='evenodd'?0.65:0.70;
+      document.querySelectorAll('[data-htab]').forEach(x=>x.classList.toggle('active',x.dataset.htab===HUNTER.tab));
+      document.querySelectorAll('[data-th]').forEach(x=>x.classList.toggle('active',Number(x.dataset.th)===HUNTER.threshold));
+      renderHunter();
+    });
+  });
+  document.querySelectorAll('[data-htab]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('[data-htab]').forEach(x=>x.classList.remove('active'));
+      btn.classList.add('active');
+      HUNTER.tab=btn.dataset.htab;
+      renderHunter();
+    });
+  });
+  document.querySelectorAll('[data-th]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('[data-th]').forEach(x=>x.classList.remove('active'));
+      btn.classList.add('active');
+      HUNTER.threshold=Number(btn.dataset.th);
+      renderHunter();
+    });
+  });
+  document.getElementById('hunterExecuteAllBtn').addEventListener('click', hunterExecuteAll);
+}
+
 /* ============================================================
    BOOT
    ============================================================ */
 setupTabs();
 setupModals();
+setupHunterUI();
 loadStoredToken();
 document.getElementById('oauthRedirectUri').value = window.location.origin;
 document.getElementById('modeLabel').textContent = MODE;
 document.getElementById('topModeLabel').textContent = MODE;
 document.getElementById('bulkModeTag').textContent = `→ /bulk-purchase/${MODE === 'REAL' ? 'real' : 'demo'}`;
 
-// Seed a couple of default strategies to show the flow
+// Seed defaults (only-ups / only-downs / high-tick to showcase the new entry)
 addStrategy('ONLY_UPS');
 addStrategy('ONLY_DOWNS');
 
@@ -2499,12 +2826,11 @@ updateStatsDisplay();
 updateProfitDisplay();
 updateEngineStatus();
 
-// Public WS for pulse
 setTimeout(() => {
   try {
     const pubWs = new WebSocket(WS_PUBLIC);
     pubWs.onopen = () => {
-      PULSE_SYMBOLS.forEach(s => pubWs.send(JSON.stringify({ ticks: s.code, subscribe: 1 })));
+      PULSE_SYMBOLS.concat(HUNTER.extraSymbols).forEach(s => pubWs.send(JSON.stringify({ ticks: s.code, subscribe: 1 })));
     };
     pubWs.onmessage = ev => {
       try {
@@ -2522,10 +2848,11 @@ setTimeout(() => {
   renderMarketStrip();
   renderPulsePanel();
   renderAIScan();
+  renderHunter();
 }, 800);
 
 console.log('%c🔷 EMRON AI — Strategy Row + Pulse Engine', 'color:#6677ff;font-weight:bold;font-size:14px');
-console.log('Switch-on-loss with recovery · trades the current strategy, advances on loss, resets on recovery.');
+console.log('Now including High Tick / Low Tick (TICKHIGH / TICKLOW).');
 
 })();
 </script>
