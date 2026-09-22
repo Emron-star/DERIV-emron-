@@ -870,6 +870,8 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
     <div class="hunter-tabs" id="hunterSignalTabs">
       <button class="hunter-tab active" data-htab="evenodd">Even / Odd</button>
       <button class="hunter-tab" data-htab="risefall">📈 Rise / Fall</button>
+      <button class="hunter-tab" data-htab="onlyupdown">⇈ Only Ups / Downs</button>
+      <button class="hunter-tab" data-htab="highlow">🔺 High / Low Tick</button>
       <button class="hunter-tab" data-htab="o1u8">O1 / U8</button>
       <button class="hunter-tab" data-htab="o2u7">O2 / U7</button>
       <button class="hunter-tab" data-htab="o3u6">O3 / U6</button>
@@ -1001,7 +1003,11 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
       <h3>🎯 AI Hunter</h3>
       <div class="faq-item">
         <div class="faq-question">What does the Sniper Hunter scan?<span>+</span></div>
-        <div class="faq-answer">Sniper Hunter now scans all 15 markets (10 Volatility + 5 Jump) with the Pulse Rise/Fall engine. It looks for trending conditions — momentum, structure, trend slope and efficiency ratio — and only shows markets that meet the active confidence threshold (65–80%). Choppy regimes are automatically capped at 60% so they never appear as READY.</div>
+        <div class="faq-answer">Sniper Hunter scans all 15 markets (10 Volatility + 5 Jump) across four signal families: Rise/Fall (momentum + structure + trend + efficiency ratio), Only Ups / Only Downs (run-length probability over the last 50 ticks), High/Low Tick (barrier-digit z-test against the fair baseline), and Over/Under (barrier z-test). Each tab re-ranks every market and only shows the strongest edges at or above the active threshold.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question">How does the High / Low Tick tab pick a barrier?<span>+</span></div>
+        <div class="faq-answer">The High/Low Tick engine tests every barrier from 1 to 8 on each market and returns the strongest above/below deviation. The winning barrier is carried into the contract, so the trades fire with the exact barrier the AI selected, not a hardcoded default.</div>
       </div>
       <div class="faq-item">
         <div class="faq-question">Can I still trade Over/Under and Even/Odd from the Hunter?<span>+</span></div>
@@ -1106,8 +1112,6 @@ const MARKET_SYMBOLS = {
 };
 const getSymbol = m => MARKET_SYMBOLS[m] || 'R_50';
 
-/* Strategy definitions used by the picker.
-   NOTE: HIGH_TICK / LOW_TICK map to the same Pulse 'highlow' engine. */
 const STRATEGY_DEFS = {
   EVEN:       { label:'Even',       icon:'🟢', contract:'DIGITEVEN', category:'evenodd',    dir:'EVEN',  duration:1, needsDigit:false },
   ODD:        { label:'Odd',        icon:'🔴', contract:'DIGITODD',  category:'evenodd',    dir:'ODD',   duration:1, needsDigit:false },
@@ -2356,7 +2360,6 @@ function toast(msg, type='info'){
   setTimeout(() => el.remove(), 3200);
 }
 
-/* ---- NAV DROPDOWN (replaces sidebar) ---- */
 function syncNavActive(tabName){
   document.querySelectorAll('#navMenu [data-nav-tab]').forEach(el => {
     el.classList.toggle('active', el.dataset.navTab === tabName);
@@ -2672,10 +2675,7 @@ function hunterEvenOdd(mkt){
     score:Math.abs(isEven?evenZ:oddZ), detail:`Even ${Math.round(e*100)}% · Odd ${Math.round(o*100)}%`};
 }
 
-/* ==== NEW: RISE / FALL HUNTER ====
-   Re-uses the Pulse Rise/Fall engine (momentum + structure + trend + regime)
-   and scans every market. Choppy regimes are auto-capped at 60% confidence
-   by the engine, so they will naturally fall below the 65–80% hunter threshold. */
+/* ==== RISE / FALL HUNTER ==== */
 function hunterRiseFall(mkt){
   const r = evaluateRiseFall(mkt, HUNTER.window);
   if(!r) return null;
@@ -2691,6 +2691,56 @@ function hunterRiseFall(mkt){
     n: r.n,
     score: r.absScore,
     detail: `${r.meta.regime} · mom ${r.meta.momentumGlyph} · ER ${r.meta.er.toFixed(2)} · ${confidence}%`
+  };
+}
+
+/* ==== ONLY UPS / ONLY DOWNS HUNTER ====
+   Uses the Pulse run-length engine over the last 50 ticks. Confidence is
+   scaled by both the probability of N consecutive same-direction moves and
+   the strength of the directional bias (Wilson z on up/down counts). */
+function hunterOnlyUpDown(mkt){
+  const r = evaluateOnlyUpDown(mkt);
+  if(!r) return null;
+  const confidence = r.confidence;
+  const streakWord = r.meta.currentStreakDir
+    ? `${r.meta.currentStreakLen}${r.meta.currentStreakDir === 'up' ? '↑' : '↓'}`
+    : '—';
+  return {
+    market: mkt,
+    kind: 'ONLY/UP/DOWN',
+    label: r.label,
+    direction: r.direction,
+    pct: confidence / 100,
+    raw: r.absScore,
+    count: r.n,
+    n: r.n,
+    score: r.absScore,
+    duration: r.meta.duration,
+    detail: `${r.meta.duration}t · adv ${r.meta.advantage.toFixed(2)}x · streak ${streakWord} · ${confidence}%`
+  };
+}
+
+/* ==== HIGH / LOW TICK HUNTER ====
+   Uses the Pulse high/low engine, which tests every barrier 1–8 on each
+   market and returns the strongest above/below deviation. The winning
+   barrier is carried into the contract so trades fire with the exact
+   barrier the AI picked. */
+function hunterHighLow(mkt){
+  const r = evaluateHighLow(mkt);
+  if(!r) return null;
+  const confidence = r.confidence;
+  return {
+    market: mkt,
+    kind: 'HIGH/LOW',
+    label: r.label,
+    direction: r.direction,
+    pct: confidence / 100,
+    raw: r.absScore,
+    count: r.n,
+    n: r.n,
+    score: r.absScore,
+    barrier: r.meta.barrier,
+    detail: `${r.meta.sideLabel} · z ${r.absZ.toFixed(2)} · ${confidence}%`
   };
 }
 
@@ -2719,6 +2769,8 @@ function hunterJumble(mkt){
 function hunterEval(mkt,tab){
   if(tab==='evenodd') return hunterEvenOdd(mkt);
   if(tab==='risefall') return hunterRiseFall(mkt);
+  if(tab==='onlyupdown') return hunterOnlyUpDown(mkt);
+  if(tab==='highlow') return hunterHighLow(mkt);
   if(tab==='o1u8') return hunterBarrier(mkt,1);
   if(tab==='o2u7') return hunterBarrier(mkt,2);
   if(tab==='o3u6') return hunterBarrier(mkt,3);
@@ -2735,11 +2787,13 @@ function hunterRank(tab){
 }
 function hunterContractFor(r){
   if(!r) return null;
-  if(r.kind==='EVEN/ODD') return {type:r.label==='EVEN'?'EVEN':'ODD',prediction:null};
-  if(r.kind==='RISE/FALL') return {type:r.label==='RISE'?'RISE':'FALL',prediction:null};
-  if(r.kind==='O1/U8') return {type:r.label.startsWith('OVER')?'OVER':'UNDER',prediction:r.label.startsWith('OVER')?1:8};
-  if(r.kind==='O2/U7') return {type:r.label.startsWith('OVER')?'OVER':'UNDER',prediction:r.label.startsWith('OVER')?2:7};
-  if(r.kind==='O3/U6') return {type:r.label.startsWith('OVER')?'OVER':'UNDER',prediction:r.label.startsWith('OVER')?3:6};
+  if(r.kind==='EVEN/ODD') return {type:r.label==='EVEN'?'EVEN':'ODD',prediction:null,duration:1};
+  if(r.kind==='RISE/FALL') return {type:r.label==='RISE'?'RISE':'FALL',prediction:null,duration:1};
+  if(r.kind==='ONLY/UP/DOWN') return {type:r.label==='ONLY UPS'?'ONLY_UPS':'ONLY_DOWNS',prediction:null,duration:r.duration||2};
+  if(r.kind==='HIGH/LOW') return {type:r.label.startsWith('HIGH TICK')?'HIGH_TICK':'LOW_TICK',prediction:r.barrier,duration:1};
+  if(r.kind==='O1/U8') return {type:r.label.startsWith('OVER')?'OVER':'UNDER',prediction:r.label.startsWith('OVER')?1:8,duration:1};
+  if(r.kind==='O2/U7') return {type:r.label.startsWith('OVER')?'OVER':'UNDER',prediction:r.label.startsWith('OVER')?2:7,duration:1};
+  if(r.kind==='O3/U6') return {type:r.label.startsWith('OVER')?'OVER':'UNDER',prediction:r.label.startsWith('OVER')?3:6,duration:1};
   return null;
 }
 function hunterExecutableRows(){
@@ -2794,7 +2848,7 @@ function hunterExecuteAll(){
     const c=hunterContractFor(r);
     if(!c) return;
     const strat={
-      type:c.type, stake:botConfig.defaultStake, duration:1, prediction:c.prediction,
+      type:c.type, stake:botConfig.defaultStake, duration:c.duration||1, prediction:c.prediction,
       wins:0, losses:0, pl:0, hunter:true, hunterMarket:r.market.short, hunterSignal:r.label, hunterPct:r.pct
     };
     placeStrategyContract(strat, r.market.code);
@@ -2814,7 +2868,8 @@ function hunterExecute(r){
   if(!c){ toast('Jumble is scanner-only in this reconstruction.','info'); return; }
   if(!wsConnected){ toast('Connect the Deriv account before executing a Hunter signal.','error'); return; }
   const strat={
-    type:c.type, stake:botConfig.defaultStake, duration:1, prediction:c.prediction, wins:0, losses:0, pl:0,
+    type:c.type, stake:botConfig.defaultStake, duration:c.duration||1, prediction:c.prediction,
+    wins:0, losses:0, pl:0,
     hunter:true, hunterMarket:r.market.short, hunterSignal:r.label, hunterPct:r.pct
   };
   placeStrategyContract(strat, r.market.code);
@@ -2946,7 +3001,7 @@ setTimeout(() => {
 
 console.log('%c🔷 EMRON AI — Strategy Row + Pulse Engine', 'color:#6677ff;font-weight:bold;font-size:14px');
 console.log('Sidebar removed — hamburger dropdown nav is active on all screen sizes.');
-console.log('Sniper Hunter now scans Rise/Fall across all markets.');
+console.log('Sniper Hunter now scans Rise/Fall, Only Ups/Downs, High/Low Tick across all markets.');
 
 })();
 </script>
