@@ -245,6 +245,11 @@ tr:hover td{background:rgba(255,255,255,.02)}
 .settings-row-aligned{
   display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:10px;
 }
+.execution-mode-row{display:grid;grid-template-columns:minmax(240px,1.2fr) minmax(180px,1fr) 1fr;gap:10px;margin-bottom:10px}
+.execution-mode-help{font-size:10px;color:var(--text-dim);line-height:1.5;margin-top:3px}
+.bot-mode-readout{font:10px 'JetBrains Mono',monospace;color:var(--text-muted);padding:9px 10px;background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius-md);min-height:36px;display:flex;align-items:center}
+@media(max-width:900px){.execution-mode-row{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.execution-mode-row{grid-template-columns:1fr}}
 @media (max-width:700px){.settings-row-aligned{grid-template-columns:repeat(2,1fr)}}
 .toggles-row{display:flex;gap:8px;flex-wrap:wrap;padding-top:10px;border-top:1px solid var(--border);margin-top:10px}
 .toggle-item{
@@ -552,7 +557,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
     </div>
     <div class="strategy-picker-row" id="strategyPicker"></div>
     <div style="font-size:10px;color:var(--text-dim);margin-top:2px;">
-      Select one or more strategies. They will appear below as an ordered active list. The bot trades them one at a time and switches on loss.
+      Select one or more strategies. Choose Sequential Recovery, All Selected Together, or AI Best Confidence to control how the engine enters trades.
     </div>
   </div>
 
@@ -601,6 +606,30 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
       <div class="form-group">
         <label>Default Digit</label>
         <input class="form-control" id="botDigit" type="number" min="0" max="9" value="2">
+      </div>
+    </div>
+
+    <div class="execution-mode-row">
+      <div class="form-group">
+        <label>Execution Mode</label>
+        <select class="form-control" id="botExecutionMode">
+          <option value="SEQUENTIAL_RECOVERY" selected>Sequential Recovery</option>
+          <option value="ALL_SELECTED">All Selected Together</option>
+          <option value="BEST_CONFIDENCE">AI Best Confidence</option>
+        </select>
+        <div class="execution-mode-help" id="executionModeHelp">One strategy at a time. After a loss, move through the selected strategy list for recovery.</div>
+      </div>
+      <div class="form-group">
+        <label>Recovery Selection</label>
+        <select class="form-control" id="botRecoverySelection">
+          <option value="NEXT_STRATEGY" selected>Next Strategy</option>
+          <option value="BEST_LIVE">Best Live Signal</option>
+        </select>
+        <div class="execution-mode-help">Best Live Signal may move to another selected strategy/market during recovery.</div>
+      </div>
+      <div class="form-group">
+        <label>Confidence Floor</label>
+        <input class="form-control" id="botConfidenceFloor" type="number" min="50" max="99" step="1" value="65">
       </div>
     </div>
 
@@ -974,7 +1003,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
       <h3>🎯 Strategy Selection</h3>
       <div class="faq-item">
         <div class="faq-question">How do I select strategies?<span>+</span></div>
-        <div class="faq-answer">At the top of the Trading Hub you'll find a horizontal row of strategy chips (Even, Odd, Matches, Differs, Over, Under, Rise, Fall, Only Ups, Only Downs, High Tick, Low Tick). Tap a chip to add it to the active list. Tap again to remove it. The order you add them is the order the bot will cycle through them.</div>
+        <div class="faq-answer">At the top of the Trading Hub you'll find a horizontal row of strategy chips (Even, Odd, Matches, Differs, Over, Under, Rise, Fall, Only Ups, Only Downs, High Tick, Low Tick). Tap a chip to add it to the active list. Tap again to remove it. The order you add them is used by Sequential Recovery. All Selected Together evaluates every selected strategy on the active market, while AI Best Confidence ranks the selected strategies across the live markets.</div>
       </div>
       <div class="faq-item">
         <div class="faq-question">What does each strategy need?<span>+</span></div>
@@ -982,7 +1011,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
       </div>
       <div class="faq-item">
         <div class="faq-question">How does switch-on-loss work?<span>+</span></div>
-        <div class="faq-answer">The bot trades strategy #1. If it wins, it stays on strategy #1. If it loses, it moves to strategy #2, then #3, and so on. The pending loss is tracked in the Recovery field. When wins accumulate enough to recover the pending loss, the engine resets back to strategy #1.</div>
+        <div class="faq-answer">In Sequential Recovery mode, a loss increments the recovery state and, once the configured loss threshold is reached, the bot immediately changes the current strategy. Next Strategy follows the selected order; Best Live Signal searches the selected strategies across live markets and can move to the strongest confirmed opportunity. When accumulated wins recover the pending loss, the engine resets to strategy #1.</div>
       </div>
       <div class="faq-item">
         <div class="faq-question">What are High Tick and Low Tick?<span>+</span></div>
@@ -1143,7 +1172,7 @@ let accessToken = null;
 let balance = 0;
 let accountInfo = null;
 let accountSessions = { demo:null, real:null };
-let ws = null, wsConnected = false, wsReqId = 1, tickSubId = null;
+let ws = null, wsConnected = false, wsReqId = 1, tickSubIds = new Set();
 let manualDisconnect = false;
 let authBusy = false;
 
@@ -1164,7 +1193,10 @@ let botConfig = {
   delayOn:true,
   delayAfterSettle:2,
   minBuyGap:500,
-  maxOpen:3
+  maxOpen:3,
+  executionMode:'SEQUENTIAL_RECOVERY',
+  recoverySelection:'NEXT_STRATEGY',
+  confidenceFloor:65
 };
 
 let botRunning = false;
@@ -1181,6 +1213,9 @@ let rlBackoff = 'idle';
 let currentStrategyIndex = 0;
 let lossAccumulator = 0;
 let lossesInARow = 0;
+let recoveryActive = false;
+let lastLossRoute = null;
+const botFiredSignalKeys = new Map();
 
 let trades = [];
 
@@ -1629,11 +1664,10 @@ function renderActiveList(){
   list.innerHTML = '';
   if(selectedStrategies.length === 0){
     list.innerHTML = `<div class="active-empty">No strategies selected yet.<br>Tap a strategy from the row above to add it here.</div>`;
-    document.getElementById('activeStrategiesTag').textContent = 'switch on loss • 1 loss';
+    document.getElementById('activeStrategiesTag').textContent = executionModeTag ? executionModeTag() : 'switch on loss • 1 loss';
     return;
   }
-  document.getElementById('activeStrategiesTag').textContent =
-    `switch on loss • ${botConfig.lossesToSwitch} loss${botConfig.lossesToSwitch>1?'es':''}`;
+  document.getElementById('activeStrategiesTag').textContent = executionModeTag();
 
   selectedStrategies.forEach((s, i) => {
     const def = STRATEGY_DEFS[s.type];
@@ -1692,18 +1726,144 @@ function renderActiveList(){
 /* ============================================================
    BOT ENGINE — switch-on-loss with recovery
    ============================================================ */
+function executionModeLabel(){
+  if(botConfig.executionMode==='ALL_SELECTED') return 'ALL SELECTED';
+  if(botConfig.executionMode==='BEST_CONFIDENCE') return 'AI BEST CONFIDENCE';
+  return 'SEQUENTIAL RECOVERY';
+}
+function executionModeTag(){
+  if(selectedStrategies.length===0) return 'no strategies selected';
+  if(botConfig.executionMode==='SEQUENTIAL_RECOVERY'){
+    return `RECOVERY · ${botConfig.recoverySelection==='BEST_LIVE'?'best live':`switch ${botConfig.lossesToSwitch} loss${botConfig.lossesToSwitch>1?'es':''}`}`;
+  }
+  return executionModeLabel();
+}
+function updateExecutionModeUI(){
+  const help=document.getElementById('executionModeHelp');
+  const readout=document.getElementById('activeStrategiesTag');
+  const recoverySel=document.getElementById('botRecoverySelection');
+  const floor=document.getElementById('botConfidenceFloor');
+  if(help){
+    help.textContent=botConfig.executionMode==='ALL_SELECTED'
+      ? 'Every selected strategy with a live confirmed signal is submitted together on the active market.'
+      : botConfig.executionMode==='BEST_CONFIDENCE'
+        ? 'Ranks confirmed signals across the live markets and trades the strongest selected strategy/market.'
+        : 'One strategy at a time. After a loss, recovery switches strategy; Best Live can change market too.';
+  }
+  if(recoverySel) recoverySel.disabled=botConfig.executionMode==='ALL_SELECTED';
+  if(floor) floor.value=botConfig.confidenceFloor;
+  if(readout) readout.textContent=executionModeTag();
+  const modeReadout=document.getElementById('botModeReadout');
+  if(modeReadout) modeReadout.textContent=botConfig.executionMode==='ALL_SELECTED'
+    ? `ALL SELECTED · UP TO ${Math.max(1,selectedStrategies.length)} OPEN`
+    : botConfig.executionMode==='BEST_CONFIDENCE'
+      ? `AI RANKING · FLOOR ${botConfig.confidenceFloor}%`
+      : `RECOVERY · ${botConfig.recoverySelection==='BEST_LIVE'?'BEST LIVE':'NEXT STRATEGY'}`;
+  updateEngineStatus();
+}
+function getBotOpenLimit(){
+  return botConfig.executionMode==='ALL_SELECTED' ? Math.max(1,selectedStrategies.length) : Math.max(1,botConfig.maxOpen);
+}
+function botPendingCount(){
+  let n=0;
+  pendingProposalMap.forEach(v=>{if(v&&v.purpose==='bot')n++;});
+  pendingBuyMap.forEach(v=>{if(v&&v.purpose==='bot')n++;});
+  return n;
+}
+function botOpenCount(){return activeContracts.size+botPendingCount();}
+function signalKey(strat,symbolCode,candidate){
+  const digit=strat.prediction!=null?`:${strat.prediction}`:'';
+  return `${symbolCode}|${strat.type}${digit}|${candidate&&candidate.label?candidate.label:''}`;
+}
+function candidateIsFresh(candidate){
+  const tick=engineState.markets.get(candidate.symbol)?.tickCount||0;
+  return botFiredSignalKeys.get(candidate.key)!==tick;
+}
+function markCandidateFired(candidate){
+  const tick=engineState.markets.get(candidate.symbol)?.tickCount||0;
+  botFiredSignalKeys.set(candidate.key,tick);
+  if(botFiredSignalKeys.size>250){const first=botFiredSignalKeys.keys().next().value;if(first)botFiredSignalKeys.delete(first);}
+}
+function strategyMatchesCandidate(strat,conf){
+  if(!conf) return false;
+  const type=strat.type,label=String(conf.label||'').toUpperCase();
+  if(type==='MATCHES')return !!(conf.meta&&conf.meta.readyToSignal)&&(strat.prediction==null||label.includes(String(strat.prediction)));
+  if(type==='DIFFERS')return !!(conf.meta&&conf.meta.readyToSignal);
+  if(type==='EVEN')return label==='EVEN';
+  if(type==='ODD')return label==='ODD';
+  if(type==='OVER')return label==='OVER';
+  if(type==='UNDER')return label==='UNDER';
+  if(type==='RISE')return label==='RISE';
+  if(type==='FALL')return label==='FALL';
+  if(type==='ONLY_UPS')return label==='ONLY UPS';
+  if(type==='ONLY_DOWNS')return label==='ONLY DOWNS';
+  if(type==='HIGH_TICK')return label.startsWith('HIGH TICK');
+  if(type==='LOW_TICK')return label.startsWith('LOW TICK');
+  return false;
+}
+function getStrategyCandidate(strat,market){
+  if(!strat||!market)return null;
+  const def=STRATEGY_DEFS[strat.type];if(!def)return null;
+  const conf=engineState.activeConfirmations.get(`${market.code}|${def.category}`);
+  if(!strategyMatchesCandidate(strat,conf))return null;
+  const confidence=Number(conf.confidence||confidenceOf(conf)||0);
+  if(confidence<botConfig.confidenceFloor)return null;
+  return {strat,symbol:market.code,marketName:market.name,marketShort:market.short,label:getStrategyLabel(strat),signalLabel:conf.label,confidence,key:signalKey(strat,market.code,conf)};
+}
+function getCandidatesForMarket(market){return selectedStrategies.map(s=>getStrategyCandidate(s,market)).filter(Boolean).sort((a,b)=>b.confidence-a.confidence);}
+function getBestLiveCandidate(excludeStrat=null,excludeSymbol=null){
+  const rows=[];engineState.markets.forEach(m=>rows.push(...getCandidatesForMarket(m)));
+  const alternatives=rows.filter(r=>!(excludeStrat&&r.strat===excludeStrat&&r.symbol===excludeSymbol));
+  return alternatives.sort((a,b)=>b.confidence-a.confidence||a.marketName.localeCompare(b.marketName))[0]||null;
+}
 function evaluateBotOnTick(){
-  if(!botRunning) return;
-  if(selectedStrategies.length === 0) return;
-  if(roundsRemaining <= 0){ stopBot('rounds'); return; }
-  if(activeContracts.size >= botConfig.maxOpen) return;
-  const now = Date.now();
-  if(now - lastBuyTime < botConfig.minBuyGap) return;
+  if(!botRunning||selectedStrategies.length===0)return;
+  if(roundsRemaining<=0){stopBot('rounds');return;}
+  if(botOpenCount()>=getBotOpenLimit())return;
 
-  const strat = selectedStrategies[currentStrategyIndex % selectedStrategies.length];
-  if(!strat) return;
-  if(!hasSignalForStrategy(strat)) return;
-  placeStrategyContract(strat);
+  if(botConfig.executionMode==='ALL_SELECTED'){
+    const market=engineState.markets.get(getSymbol(botConfig.market));
+    if(!market)return;
+    const candidates=getCandidatesForMarket(market);
+    let submitted=0;
+    for(const candidate of candidates){
+      if(botOpenCount()>=getBotOpenLimit())break;
+      if(!candidateIsFresh(candidate))continue;
+      if(placeStrategyContract(candidate.strat,candidate.symbol,{bypassGap:true})){
+        markCandidateFired(candidate);submitted++;
+      }
+    }
+    if(submitted){lastAction=`All selected → ${submitted} contract${submitted===1?'':'s'} submitted`;updateEngineStatus();}
+    return;
+  }
+
+  if(botConfig.executionMode==='BEST_CONFIDENCE'){
+    const best=getBestLiveCandidate();
+    if(!best||!candidateIsFresh(best))return;
+    if(placeStrategyContract(best.strat,best.symbol)){
+      currentStrategyIndex=selectedStrategies.indexOf(best.strat);
+      markCandidateFired(best);
+      lastAction=`AI best → ${best.marketShort} · ${best.label} · ${Math.round(best.confidence)}%`;
+      updateEngineStatus();
+    }
+    return;
+  }
+
+  const market=engineState.markets.get(getSymbol(botConfig.market));
+  if(!market)return;
+  let strat=selectedStrategies[currentStrategyIndex%selectedStrategies.length];
+  if(!strat)return;
+  let candidate=null;
+  if(recoveryActive&&botConfig.recoverySelection==='BEST_LIVE') candidate=getBestLiveCandidate(lastLossRoute?.strat||null,lastLossRoute?.symbol||null);
+  if(candidate){
+    currentStrategyIndex=selectedStrategies.indexOf(candidate.strat);strat=candidate.strat;
+  }else candidate=getStrategyCandidate(strat,market);
+  if(!candidate||!candidateIsFresh(candidate))return;
+  if(placeStrategyContract(strat,candidate.symbol)){
+    markCandidateFired(candidate);
+    lastAction=`${recoveryActive?'Recovery':'Strategy'} → #${currentStrategyIndex+1} ${candidate.label}`;
+    updateEngineStatus();
+  }
 }
 
 function hasSignalForStrategy(strat){
@@ -1752,7 +1912,7 @@ function hasSignalForStrategy(strat){
   return wantUp === isUp;
 }
 
-function placeStrategyContract(strat, marketOverride=null){
+function placeStrategyContract(strat, marketOverride=null, options={}){
   const def = STRATEGY_DEFS[strat.type];
   if(!def) return;
   const marketSymbol = marketOverride || getSymbol(botConfig.market);
@@ -1811,58 +1971,57 @@ function onContractUpdate(data){
   const profit = parseFloat(c.profit) || 0;
   const won = profit > 0;
   const strat = rec.strategyRef || selectedStrategies[rec.slotIdx];
-  if(strat) onStrategyResult(strat, won, profit, rec.stake, c.entry_tick, c.exit_tick);
+  if(strat) onStrategyResult(strat, won, profit, rec.stake, c.entry_tick, c.exit_tick, rec.marketSymbol);
   setTimeout(() => { if(botRunning) evaluateBotOnTick(); }, (botConfig.delayOn ? botConfig.delayAfterSettle : 0) * 1000);
 }
 
-function onStrategyResult(strat, won, profit, stake, entrySpot, exitSpot){
+function onStrategyResult(strat, won, profit, stake, entrySpot, exitSpot, marketSymbol=null){
   sessionStake += stake;
   sessionPayout += won ? (stake + profit) : 0;
   sessionPL += profit;
-  if(won){ sessionWins++; strat.wins++; }
-  else { sessionLosses++; strat.losses++; }
-  strat.pl += profit;
-
-  trades.unshift({
-    time: new Date().toLocaleTimeString(),
-    strategy: getStrategyLabel(strat),
-    entry: entrySpot != null ? Number(entrySpot).toFixed(3) : '—',
-    exit: exitSpot != null ? Number(exitSpot).toFixed(3) : '—',
-    stake, pl: profit, won
-  });
-  if(trades.length > 100) trades.pop();
-
-  roundsRemaining = Math.max(0, roundsRemaining - 1);
-
   if(won){
-    if(lossAccumulator > 0){
-      lossAccumulator -= profit;
-      if(lossAccumulator <= 0){
-        lossAccumulator = 0;
-        lossesInARow = 0;
-        currentStrategyIndex = 0;
-        lastAction = `✅ Loss recovered → back to #1 (${getStrategyLabel(selectedStrategies[0])})`;
-        toast(`✅ Loss recovered — back to #1 ${getStrategyLabel(selectedStrategies[0])}`, 'success');
-      } else {
-        lastAction = `Win — recovering · $${lossAccumulator.toFixed(2)} left`;
+    if(lossAccumulator>0){
+      lossAccumulator=Math.max(0,lossAccumulator-profit);
+      if(lossAccumulator<=0){
+        lossesInARow=0;recoveryActive=false;lastLossRoute=null;currentStrategyIndex=0;
+        const first=selectedStrategies[0];
+        lastAction=first?`✅ Recovery complete → #1 ${getStrategyLabel(first)}`:'✅ Recovery complete';
+        if(first)toast(`✅ Loss recovered — back to #1 ${getStrategyLabel(first)}`,'success');
+      }else{
+        lastAction=`Win — recovering · $${lossAccumulator.toFixed(2)} left`;
       }
-    } else {
-      lossesInARow = 0;
-      lastAction = `Win — repeat ${getStrategyLabel(strat)}`;
+    }else{
+      lossesInARow=0;
+      lastAction=`Win — ${executionModeLabel().toLowerCase()} continues`;
     }
-  } else {
-    lossAccumulator += Math.abs(profit);
+  }else{
+    lastLossRoute={strat,symbol:marketSymbol||getSymbol(botConfig.market)};
+    lossAccumulator+=Math.abs(profit);
     lossesInARow++;
-    if(lossesInARow >= botConfig.lossesToSwitch){
-      lossesInARow = 0;
-      currentStrategyIndex = (currentStrategyIndex + 1) % selectedStrategies.length;
-      const next = selectedStrategies[currentStrategyIndex];
-      lastAction = `Loss — switch → #${currentStrategyIndex+1} ${next ? getStrategyLabel(next) : '—'}`;
-    } else {
-      lastAction = `Loss — wait (${lossesInARow}/${botConfig.lossesToSwitch})`;
+    if(botConfig.executionMode==='SEQUENTIAL_RECOVERY'&&lossesInARow>=botConfig.lossesToSwitch){
+      lossesInARow=0;recoveryActive=true;
+      currentStrategyIndex=(currentStrategyIndex+1)%selectedStrategies.length;
+      const next=selectedStrategies[currentStrategyIndex];
+      if(botConfig.recoverySelection==='BEST_LIVE'){
+        const best=getBestLiveCandidate(strat,marketSymbol||getSymbol(botConfig.market));
+        if(best){
+          currentStrategyIndex=selectedStrategies.indexOf(best.strat);
+          lastAction=`❌ Loss → recovery selects ${best.marketShort} · ${best.label} · ${Math.round(best.confidence)}%`;
+          toast(`🔁 Recovery → ${best.marketShort} ${best.label} (${Math.round(best.confidence)}%)`,'info');
+        }else{
+          lastAction=`❌ Loss → recovery ready · next #${currentStrategyIndex+1} ${next?getStrategyLabel(next):'—'}`;
+          toast(`🔁 Loss → switched to #${currentStrategyIndex+1} ${next?getStrategyLabel(next):'next strategy'}`,'info');
+        }
+      }else{
+        lastAction=`❌ Loss → switch to #${currentStrategyIndex+1} ${next?getStrategyLabel(next):'—'} for recovery`;
+        toast(`🔁 Loss → switched to #${currentStrategyIndex+1} ${next?getStrategyLabel(next):'next strategy'}`,'info');
+      }
+    }else{
+      lastAction=botConfig.executionMode==='SEQUENTIAL_RECOVERY'
+        ? `Loss — preparing recovery (${lossesInARow}/${botConfig.lossesToSwitch})`
+        : `Loss — ${executionModeLabel().toLowerCase()} remains active`;
     }
   }
-
   updateStatsDisplay();
   updateProfitDisplay();
   renderTrades();
@@ -1907,9 +2066,12 @@ function startBot(){
   sessionStake = 0; sessionPayout = 0; sessionWins = 0; sessionLosses = 0; sessionPL = 0;
   selectedStrategies.forEach(s => { s.wins = 0; s.losses = 0; s.pl = 0; });
   activeContracts.clear();
+  botFiredSignalKeys.clear();
   currentStrategyIndex = 0;
   lossAccumulator = 0;
   lossesInARow = 0;
+  recoveryActive = false;
+  lastLossRoute = null;
   lastBuyTime = 0;
   rlBackoff = 'idle';
 
@@ -1921,7 +2083,7 @@ function startBot(){
   updateProfitDisplay();
   renderActiveList();
   updateEngineStatus();
-  toast(`🚀 Bot started · ${selectedStrategies.length} strategies · ${botConfig.rounds} rounds`, 'success');
+  toast(`🚀 Bot started · ${executionModeLabel()} · ${selectedStrategies.length} strategies · ${botConfig.rounds} rounds`, 'success');
 }
 function stopBot(reason){
   if(!botRunning) return;
@@ -1957,7 +2119,7 @@ function updateProfitDisplay(){
   document.getElementById('profitFill').style.width = pct + '%';
 }
 function updateEngineStatus(){
-  document.getElementById('engMode').textContent = botConfig.turbo ? 'Turbo' : 'Normal';
+  document.getElementById('engMode').textContent = executionModeLabel();
   document.getElementById('engRoundRemaining').textContent = botRunning ? roundsRemaining : 0;
   const spl = document.getElementById('engSessionPL');
   spl.textContent = `${sessionPL>=0?'+':''}$${sessionPL.toFixed(2)}`;
@@ -1968,7 +2130,7 @@ function updateEngineStatus(){
     ? `$${lossAccumulator.toFixed(2)}`
     : 'clear';
   document.getElementById('engRecovery').style.color = lossAccumulator > 0 ? 'var(--accent-yellow)' : 'var(--accent-green)';
-  document.getElementById('engOpen').textContent = `${activeContracts.size} / ${botConfig.maxOpen}`;
+  document.getElementById('engOpen').textContent = `${botOpenCount()} / ${getBotOpenLimit()}`;
   document.getElementById('engRLBackoff').textContent = rlBackoff;
   document.getElementById('engLastAction').textContent = lastAction;
   document.getElementById('engWatching').textContent = selectedStrategies.length === 0
@@ -2449,6 +2611,7 @@ function disconnectPAT(){
   if(window.wsPing) clearInterval(window.wsPing);
   if(ws){ try{ ws.onclose = null; ws.close(); }catch(e){} ws = null; }
   wsConnected = false;
+  tickSubIds = new Set();
   accessToken = null;
   accountInfo = null;
   balance = 0;
@@ -2473,12 +2636,11 @@ async function loadStoredToken(){
 
 function subscribeTicks(){
   if(!ws || ws.readyState !== WebSocket.OPEN) return;
-  const symbol = getSymbol(botConfig.market);
-  if(tickSubId){
-    ws.send(JSON.stringify({ forget: tickSubId, req_id: wsReqId++ }));
-    tickSubId = null;
-  }
-  ws.send(JSON.stringify({ ticks: symbol, subscribe: 1, req_id: wsReqId++ }));
+  tickSubIds.forEach(id=>{try{ws.send(JSON.stringify({forget:id,req_id:wsReqId++}));}catch(e){}});
+  tickSubIds=new Set();
+  const scanAllMarkets=botConfig.executionMode==='BEST_CONFIDENCE'||(botConfig.executionMode==='SEQUENTIAL_RECOVERY'&&botConfig.recoverySelection==='BEST_LIVE');
+  const symbols=scanAllMarkets?PULSE_SYMBOLS.map(s=>s.code):[getSymbol(botConfig.market)];
+  symbols.forEach(symbol=>{try{ws.send(JSON.stringify({ticks:symbol,subscribe:1,req_id:wsReqId++}));}catch(e){}});
 }
 function handleWsMessage(ev){
   let data;
@@ -2495,7 +2657,7 @@ function handleWsMessage(ev){
       break;
     case 'tick':
       if(data.tick && data.tick.quote){
-        if(data.subscription) tickSubId = data.subscription.id;
+        if(data.subscription) tickSubIds.add(data.subscription.id);
         onPulseTick(data.tick.symbol, parseFloat(data.tick.quote));
       }
       break;
@@ -2647,8 +2809,24 @@ document.getElementById('botRounds').addEventListener('change', e => {
 });
 document.getElementById('botLossesToSwitch').addEventListener('change', e => {
   botConfig.lossesToSwitch = Math.max(1, parseInt(e.target.value,10)||1);
-  document.getElementById('activeStrategiesTag').textContent =
-    `switch on loss • ${botConfig.lossesToSwitch} loss${botConfig.lossesToSwitch>1?'es':''}`;
+  updateExecutionModeUI();
+});
+document.getElementById('botExecutionMode').addEventListener('change', e => {
+  botConfig.executionMode = e.target.value;
+  botFiredSignalKeys.clear();
+  if(wsConnected) subscribeTicks();
+  updateExecutionModeUI();
+  toast(`⚙️ Execution mode → ${executionModeLabel()}`,'info');
+});
+document.getElementById('botRecoverySelection').addEventListener('change', e => {
+  botConfig.recoverySelection = e.target.value;
+  botFiredSignalKeys.clear();
+  if(wsConnected) subscribeTicks();
+  updateExecutionModeUI();
+});
+document.getElementById('botConfidenceFloor').addEventListener('change', e => {
+  botConfig.confidenceFloor = Math.max(50, Math.min(99, parseInt(e.target.value,10)||65));
+  updateExecutionModeUI();
 });
 document.getElementById('botTP').addEventListener('change', e => {
   botConfig.takeProfit = parseFloat(e.target.value)||20;
