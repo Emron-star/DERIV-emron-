@@ -17,7 +17,7 @@
   --radius-sm:4px;--radius-md:8px;--radius-lg:12px;
   --shadow:0 4px 24px rgba(0,0,0,.6);--shadow-lg:0 12px 48px rgba(0,0,0,.8);
   --glass-bg:rgba(20,22,30,.92);--glass-border:rgba(42,47,61,.8);
-  --sidebar-width:220px;--topbar-height:56px;--footer-height:44px;
+  --topbar-height:56px;--footer-height:44px;
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{font-size:14px}
@@ -33,10 +33,13 @@ body::before{content:'';position:fixed;inset:0;background:
 button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 input,select,textarea{font-family:inherit;font-size:16px;touch-action:manipulation}
 a{color:inherit;text-decoration:none}
+
+/* ===== APP SHELL — no sidebar column anymore ===== */
 .app{display:grid;grid-template-rows:var(--topbar-height) 1fr var(--footer-height);
-  grid-template-columns:var(--sidebar-width) 1fr;
-  grid-template-areas:"topbar topbar" "sidebar main" "footer footer";
+  grid-template-columns:1fr;
+  grid-template-areas:"topbar" "main" "footer";
   min-height:100vh;min-height:100dvh;position:relative;z-index:1;max-width:100vw;overflow:hidden}
+
 .topbar{grid-area:topbar;display:flex;align-items:center;padding:0 16px;background:var(--bg-card);
   border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;gap:10px;
   min-height:var(--topbar-height);height:var(--topbar-height);overflow:hidden}
@@ -74,17 +77,34 @@ a{color:inherit;text-decoration:none}
 .btn-connected{background:rgba(0,230,118,.15);color:var(--accent-green);border:1px solid var(--accent-green)}
 .avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#6677ff,#4455ee);display:flex;
   align-items:center;justify-content:center;font-weight:600;color:#fff;cursor:pointer;border:2px solid var(--border);font-size:12px;flex-shrink:0}
-.hamburger{display:none;padding:8px;font-size:20px;flex-shrink:0}
-.sidebar{grid-area:sidebar;background:var(--bg-card);border-right:1px solid var(--border);padding:14px 10px;
-  overflow-y:auto;position:sticky;top:var(--topbar-height);height:calc(100vh - var(--topbar-height));
-  height:calc(100dvh - var(--topbar-height));z-index:50}
-.sidebar-section{margin-bottom:18px}
-.sidebar-title{font-size:10px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;padding:0 10px 6px}
+
+/* ===== HAMBURGER — now visible on ALL screen sizes ===== */
+.hamburger{display:flex;align-items:center;justify-content:center;padding:8px 10px;font-size:20px;flex-shrink:0;
+  border-radius:var(--radius-md);color:var(--text-muted);transition:all .15s;line-height:1}
+.hamburger:hover{background:var(--bg-surface);color:var(--text-primary)}
+.hamburger.active{background:var(--bg-surface);color:var(--primary)}
+
+/* ===== NAV DROPDOWN (replaces the old sidebar) ===== */
+.nav-menu{
+  position:fixed;top:calc(var(--topbar-height) + 6px);left:10px;width:236px;
+  max-width:calc(100vw - 20px);
+  background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-lg);padding:10px;z-index:150;display:none;
+  max-height:calc(100vh - var(--topbar-height) - 70px);overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+}
+.nav-menu.open{display:block;animation:navIn .16s ease-out}
+@keyframes navIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.nav-section-title{font-size:10px;font-weight:600;color:var(--text-muted);text-transform:uppercase;
+  letter-spacing:.08em;padding:2px 10px 8px}
 .nav-item{display:flex;align-items:center;gap:12px;padding:9px 12px;border-radius:var(--radius-md);
-  color:var(--text-muted);font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;margin-bottom:1px;min-height:36px;user-select:none}
+  color:var(--text-muted);font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;margin-bottom:2px;
+  min-height:38px;user-select:none}
 .nav-item:hover{background:var(--bg-surface);color:var(--text-primary)}
 .nav-item.active{background:var(--bg-surface);color:var(--text-primary)}
+.nav-item.active .nav-icon{color:var(--primary)}
 .nav-icon{font-size:15px;width:20px;text-align:center;flex-shrink:0}
+
 .main{grid-area:main;padding:16px;overflow-x:hidden;overflow-y:auto;
   min-height:calc(100vh - var(--topbar-height) - var(--footer-height))}
 .tab-content{display:none;animation:fadeIn .3s ease}
@@ -425,28 +445,30 @@ tr:hover td{background:rgba(255,255,255,.02)}
 .metric-box{padding:8px 10px;background:var(--bg-surface);border-radius:var(--radius-md);border:1px solid var(--border)}
 .metric-label{font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px}
 .metric-value{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:14px}
-@media (min-width:601px){.hamburger{display:none!important}.status-indicator{display:flex!important}}
+
+/* ===== RESPONSIVE ===== */
+@media (min-width:601px){
+  .status-indicator{display:flex!important}
+}
 @media (max-width:600px){
-  .hamburger{display:flex!important}
-  .sidebar{position:fixed;top:var(--topbar-height);left:0;width:250px;height:calc(100vh - var(--topbar-height));
-    transform:translateX(-110%);transition:transform .3s;z-index:99;padding:14px 12px}
-  .sidebar.open{transform:translateX(0);box-shadow:8px 0 40px rgba(0,0,0,.7)}
-  .app{grid-template-columns:1fr;grid-template-areas:"topbar" "main" "footer"}
-  .sidebar-backdrop{position:fixed;top:var(--topbar-height);left:0;right:0;bottom:0;background:rgba(0,0,0,.5);
-    z-index:98;display:none;opacity:0;transition:opacity .3s}
-  .sidebar-backdrop.show{display:block;opacity:1}
+  .topbar{padding:0 10px;gap:6px}
+  .hamburger{padding:8px 8px;font-size:19px}
+  .logo-text{font-size:12px}
+  .balance{font-size:11px;padding:4px 7px}
+  .avatar{width:28px;height:28px;font-size:11px}
   .status-indicator{display:none!important}
+  .nav-menu{left:8px;width:calc(100vw - 16px);max-width:320px}
   .form-row{grid-template-columns:1fr}
   .settings-row-aligned{grid-template-columns:1fr 1fr}
+  .main{padding:12px}
+  .pulse-header h2{font-size:15px}
+  .ret-label{font-size:22px}
 }
 @media (min-width:1025px){
-  .trading-layout{grid-template-columns:minmax(380px,32vw) 1fr}
+  .trading-layout{grid-template-columns:minmax(400px,30vw) 1fr}
   .pulse-grid{grid-template-columns:1.35fr 1fr}
   .playground-grid{grid-template-columns:1fr 1fr}
 }
-.sidebar-backdrop{position:fixed;top:var(--topbar-height);left:0;right:0;background:rgba(0,0,0,.5);
-  z-index:98;display:none;opacity:0;transition:opacity .3s;pointer-events:none}
-.sidebar-backdrop.show{display:block;opacity:1;pointer-events:auto}
 button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
 
 /* ===== EMRON VIDEO-DERIVED HUNTER ===== */
@@ -488,16 +510,19 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .hunter-note{font-size:10px;color:var(--text-dim);line-height:1.5;margin-top:10px}
 .hunter-chipline{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
 .hunter-chipline span{font:9px 'JetBrains Mono',monospace;padding:3px 6px;border:1px solid var(--border);border-radius:8px;color:var(--text-muted)}
-@media(max-width:700px){.hunter-row{grid-template-columns:68px 1fr 58px;}.hunter-row .hunter-action{grid-column:1/-1;width:100%}}
-
+@media(max-width:700px){
+  .hunter-row{grid-template-columns:68px 1fr 58px;}
+  .hunter-row .hunter-action{grid-column:1/-1;width:100%}
+  .hunter-execbar{flex-direction:column;align-items:stretch}
+  .hunter-primary-exec{min-width:0;width:100%}
+}
 </style>
 </head>
 <body>
-<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 <div class="app">
 
 <header class="topbar">
-  <button class="hamburger" id="hamburger" aria-label="Toggle menu">☰</button>
+  <button class="hamburger" id="hamburger" aria-label="Toggle navigation" aria-expanded="false" aria-controls="navMenu">☰</button>
   <div class="logo"><div class="logo-icon">🔷</div><div class="logo-text">EMRON AI</div></div>
   <nav class="tabs" role="tablist">
     <button class="tab active" data-tab="trading-hub" role="tab">Trading Hub</button>
@@ -516,23 +541,6 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
     <div class="avatar" id="avatar">JD</div>
   </div>
 </header>
-
-<aside class="sidebar" id="sidebar">
-  <div class="sidebar-section">
-    <div class="sidebar-title">Views</div>
-    <div class="nav-item active"><span class="nav-icon">📊</span><span>TradingView</span></div>
-    <div class="nav-item"><span class="nav-icon">📡</span><span>EMRON Pulse</span></div>
-    <div class="nav-item"><span class="nav-icon">💼</span><span>Transactions</span></div>
-  </div>
-  <div class="sidebar-section">
-    <div class="sidebar-title">Menu</div>
-    <div class="nav-item"><span class="nav-icon">🏠</span><span>Home</span></div>
-    <div class="nav-item"><span class="nav-icon">🤖</span><span>Strategy Engine</span></div>
-    <div class="nav-item"><span class="nav-icon">📈</span><span>Pulse Scanner</span></div>
-    <div class="nav-item"><span class="nav-icon">🎯</span><span>AI Hunter</span></div>
-    <div class="nav-item"><span class="nav-icon">❓</span><span>Help Center</span></div>
-  </div>
-</aside>
 
 <main class="main">
 
@@ -1004,6 +1012,16 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
   <div>© 2026 EMRON AI — Strategy Row + Pulse Engine · Free & Unlocked</div>
   <div style="font-size:9px;color:var(--text-dim);">All trading involves risk. Demo-trade first.</div>
 </footer>
+</div>
+
+<!-- ===== NAV DROPDOWN (replaces the old sidebar) ===== -->
+<div class="nav-menu" id="navMenu" role="menu" aria-label="Main navigation">
+  <div class="nav-section-title">Navigate</div>
+  <div class="nav-item active" data-nav-tab="trading-hub" role="menuitem"><span class="nav-icon">📊</span><span>Trading Hub</span></div>
+  <div class="nav-item" data-nav-tab="pulse" role="menuitem"><span class="nav-icon">📡</span><span>EMRON Pulse</span></div>
+  <div class="nav-item" data-nav-tab="hunter" role="menuitem"><span class="nav-icon">🎯</span><span>AI Hunter</span></div>
+  <div class="nav-item" data-nav-tab="api-playground" role="menuitem"><span class="nav-icon">🧪</span><span>API Playground</span></div>
+  <div class="nav-item" data-nav-tab="help" role="menuitem"><span class="nav-icon">❓</span><span>Help Center</span></div>
 </div>
 
 <div class="modal-overlay" id="connectModal">
@@ -2332,6 +2350,13 @@ function toast(msg, type='info'){
   toastContainer.appendChild(el);
   setTimeout(() => el.remove(), 3200);
 }
+
+/* ---- NAV DROPDOWN (replaces sidebar) ---- */
+function syncNavActive(tabName){
+  document.querySelectorAll('#navMenu [data-nav-tab]').forEach(el => {
+    el.classList.toggle('active', el.dataset.navTab === tabName);
+  });
+}
 function setupTabs(){
   document.querySelectorAll('.tab').forEach(tab => {
     tab.addEventListener('click', () => {
@@ -2340,6 +2365,7 @@ function setupTabs(){
       document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
       const t = document.getElementById(tab.dataset.tab);
       if(t) t.classList.add('active');
+      syncNavActive(tab.dataset.tab);
     });
   });
 }
@@ -2353,6 +2379,48 @@ function setupModals(){
   document.querySelectorAll('.modal-overlay').forEach(o => {
     o.addEventListener('click', e => { if(e.target === o) o.classList.remove('active'); });
   });
+}
+function setupNavMenu(){
+  const navMenu = document.getElementById('navMenu');
+  const burger  = document.getElementById('hamburger');
+  if(!navMenu || !burger) return;
+
+  function openNav(){
+    navMenu.classList.add('open');
+    burger.classList.add('active');
+    burger.setAttribute('aria-expanded','true');
+  }
+  function closeNav(){
+    navMenu.classList.remove('open');
+    burger.classList.remove('active');
+    burger.setAttribute('aria-expanded','false');
+  }
+
+  burger.addEventListener('click', e => {
+    e.stopPropagation();
+    navMenu.classList.contains('open') ? closeNav() : openNav();
+  });
+
+  navMenu.querySelectorAll('[data-nav-tab]').forEach(item => {
+    item.addEventListener('click', () => {
+      const tabBtn = document.querySelector(`.tab[data-tab="${item.dataset.navTab}"]`);
+      if(tabBtn) tabBtn.click();
+      closeNav();
+    });
+  });
+
+  /* Close on outside click / Escape / resize to desktop */
+  document.addEventListener('click', e => {
+    if(!navMenu.classList.contains('open')) return;
+    if(navMenu.contains(e.target) || e.target === burger) return;
+    closeNav();
+  });
+  document.addEventListener('keydown', e => {
+    if(e.key === 'Escape') closeNav();
+  });
+  window.addEventListener('resize', () => { if(window.innerWidth > 900) closeNav(); });
+
+  syncNavActive('trading-hub');
 }
 
 /* ============================================================
@@ -2552,14 +2620,6 @@ document.getElementById('helpSearch').addEventListener('input', e => {
   document.querySelectorAll('.faq-item').forEach(i => {
     i.style.display = i.textContent.toLowerCase().includes(q) ? '' : 'none';
   });
-});
-document.getElementById('hamburger').addEventListener('click', () => {
-  document.getElementById('sidebar').classList.toggle('open');
-  document.getElementById('sidebarBackdrop').classList.toggle('show');
-});
-document.getElementById('sidebarBackdrop').addEventListener('click', () => {
-  document.getElementById('sidebar').classList.remove('open');
-  document.getElementById('sidebarBackdrop').classList.remove('show');
 });
 
 
@@ -2809,6 +2869,7 @@ function setupHunterUI(){
    ============================================================ */
 setupTabs();
 setupModals();
+setupNavMenu();
 setupHunterUI();
 loadStoredToken();
 document.getElementById('oauthRedirectUri').value = window.location.origin;
@@ -2852,7 +2913,7 @@ setTimeout(() => {
 }, 800);
 
 console.log('%c🔷 EMRON AI — Strategy Row + Pulse Engine', 'color:#6677ff;font-weight:bold;font-size:14px');
-console.log('Now including High Tick / Low Tick (TICKHIGH / TICKLOW).');
+console.log('Sidebar removed — hamburger dropdown nav is active on all screen sizes.');
 
 })();
 </script>
