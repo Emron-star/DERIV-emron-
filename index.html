@@ -34,6 +34,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 input,select,textarea{font-family:inherit;font-size:16px;touch-action:manipulation}
 a{color:inherit;text-decoration:none}
 
+/* ===== APP SHELL — no sidebar column anymore ===== */
 .app{display:grid;grid-template-rows:var(--topbar-height) 1fr var(--footer-height);
   grid-template-columns:1fr;
   grid-template-areas:"topbar" "main" "footer";
@@ -77,11 +78,13 @@ a{color:inherit;text-decoration:none}
 .avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#6677ff,#4455ee);display:flex;
   align-items:center;justify-content:center;font-weight:600;color:#fff;cursor:pointer;border:2px solid var(--border);font-size:12px;flex-shrink:0}
 
+/* ===== HAMBURGER — visible on ALL screen sizes ===== */
 .hamburger{display:flex;align-items:center;justify-content:center;padding:8px 10px;font-size:20px;flex-shrink:0;
   border-radius:var(--radius-md);color:var(--text-muted);transition:all .15s;line-height:1}
 .hamburger:hover{background:var(--bg-surface);color:var(--text-primary)}
 .hamburger.active{background:var(--bg-surface);color:var(--primary)}
 
+/* ===== NAV DROPDOWN (replaces the old sidebar) ===== */
 .nav-menu{
   position:fixed;top:calc(var(--topbar-height) + 6px);left:10px;width:236px;
   max-width:calc(100vw - 20px);
@@ -166,6 +169,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
 .progress-bar{height:5px;background:var(--bg-surface);border-radius:3px;overflow:hidden}
 .progress-fill{height:100%;background:linear-gradient(90deg,var(--primary),var(--accent-green));transition:width .5s ease;box-shadow:0 0 8px var(--primary-glow)}
 
+/* ===== STRATEGY PICKER ROW (TOP) ===== */
 .strategy-picker-row{
   display:flex;gap:6px;overflow-x:auto;padding:4px 2px 10px;scrollbar-width:thin;
 }
@@ -185,6 +189,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
 .strategy-chip.selected::before{content:'✓';font-size:10px;color:var(--accent-green)}
 .strategy-chip .chip-icon{font-size:14px}
 
+/* ===== ACTIVE STRATEGIES LIST ===== */
 .active-strategies-header{
   display:flex;justify-content:space-between;align-items:center;
   padding:6px 0 10px;border-bottom:1px dashed var(--border);margin-bottom:10px;
@@ -205,10 +210,6 @@ tr:hover td{background:rgba(255,255,255,.02)}
 .active-item.current{
   border-color:var(--accent-green);
   box-shadow:0 0 0 1px rgba(0,230,118,.25) inset,0 0 14px rgba(0,230,118,.1);
-}
-.active-item.in-flight{
-  border-color:var(--accent-cyan);
-  box-shadow:0 0 0 1px rgba(0,188,212,.25) inset,0 0 14px rgba(0,188,212,.12);
 }
 .active-item.loss-bracket{border-color:var(--accent-yellow);background:rgba(255,214,0,.05)}
 .active-item .as-index{
@@ -238,9 +239,9 @@ tr:hover td{background:rgba(255,255,255,.02)}
 }
 .active-item .as-badge.pl-pos{background:rgba(0,230,118,.15);color:var(--accent-green)}
 .active-item .as-badge.pl-neg{background:rgba(255,23,68,.15);color:var(--accent-red)}
-.active-item .as-badge.pl-live{background:rgba(0,188,212,.15);color:var(--accent-cyan);animation:pulse 1.2s infinite}
 .active-empty{text-align:center;padding:22px 12px;color:var(--text-muted);font-size:12px;border:1px dashed var(--border);border-radius:var(--radius-md)}
 
+/* ===== ALIGNED SETTINGS ROW ===== */
 .settings-row-aligned{
   display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:10px;
 }
@@ -256,22 +257,13 @@ tr:hover td{background:rgba(255,255,255,.02)}
 .toggle-item span{color:var(--text-muted)}
 .toggle-item.on span{color:var(--accent-green)}
 
-/* Parallel mode toggle — distinct styling */
-.toggle-item.parallel-toggle{position:relative}
-.toggle-item.parallel-toggle.on{
-  border-color:var(--accent-cyan);color:var(--accent-cyan);
-  background:rgba(0,188,212,.08);
-  box-shadow:0 0 10px rgba(0,188,212,.15);
-}
-.toggle-item.parallel-toggle.on span{color:var(--accent-cyan)}
-.toggle-item.parallel-toggle input[type=checkbox]{accent-color:var(--accent-cyan)}
-
+/* Engine status */
 .engine-status-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 .engine-status-grid .setting-row{min-height:24px;padding:2px 0}
 .engine-status-grid .setting-row .label{font-size:10px}
 .engine-status-grid .setting-row .value{font-size:10px}
-.engine-status-grid .setting-row .value.parallel{color:var(--accent-cyan);font-weight:700}
 
+/* Pulse */
 .pulse-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px}
 .pulse-header h2{font-size:18px;font-weight:700;letter-spacing:-.02em;background:linear-gradient(135deg,#fff,#a8b5ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .pulse-threshold{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px;padding:8px 10px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);font-size:11px;color:var(--text-muted)}
@@ -393,8 +385,6 @@ tr:hover td{background:rgba(255,255,255,.02)}
 .toast.error::before{content:'×';color:var(--accent-red);font-weight:700;font-size:16px}
 .toast.info{border-color:var(--primary)}
 .toast.info::before{content:'ℹ';color:var(--primary);font-weight:700}
-.toast.parallel{border-color:var(--accent-cyan)}
-.toast.parallel::before{content:'⚡';color:var(--accent-cyan);font-weight:700}
 @keyframes toastIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 .footer{grid-area:footer;padding:10px 20px;border-top:1px solid var(--border);text-align:center;
   font-size:10px;color:var(--text-muted);background:var(--bg-card);display:flex;align-items:center;
@@ -456,6 +446,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
 .metric-label{font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px}
 .metric-value{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:14px}
 
+/* ===== RESPONSIVE ===== */
 @media (min-width:601px){
   .status-indicator{display:flex!important}
 }
@@ -480,6 +471,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
 }
 button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
 
+/* ===== EMRON VIDEO-DERIVED HUNTER ===== */
 .hunter-toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
 .hunter-threshold{display:flex;gap:5px;flex-wrap:wrap}
 .hunter-threshold button{padding:5px 9px;border:1px solid var(--border);border-radius:7px;background:var(--bg-surface);color:var(--text-muted);font:11px 'JetBrains Mono',monospace}
@@ -541,7 +533,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
   </nav>
   <div class="topbar-right">
     <div class="status-indicator" id="internetStatus"><div class="status-dot"></div><span>Online</span></div>
-    <div class="balance"><span class="currency">USD</span> <span id="balanceValue">0.00</span></div>
+    <div class="balance"><span class="currency">USD</span> <span id="balanceValue">1000.00</span></div>
     <button class="btn btn-sm" id="topModeToggleBtn" style="border:1px solid var(--accent-yellow);color:var(--accent-yellow);font-weight:600;">
       MODE: <strong id="topModeLabel">DEMO</strong>
     </button>
@@ -560,7 +552,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
     </div>
     <div class="strategy-picker-row" id="strategyPicker"></div>
     <div style="font-size:10px;color:var(--text-dim);margin-top:2px;">
-      Select one or more strategies. They will appear below as an ordered active list. The bot trades them one at a time and switches on loss — or all at once in Parallel Mode.
+      Select one or more strategies. They will appear below as an ordered active list. The bot trades them one at a time and switches on loss.
     </div>
   </div>
 
@@ -631,27 +623,6 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
       </div>
     </div>
 
-    <div class="settings-row-aligned">
-      <div class="form-group">
-        <label>Max Open Contracts</label>
-        <input class="form-control" id="botMaxOpen" type="number" value="3" min="1" max="10">
-      </div>
-      <div class="form-group">
-        <label>Min Buy Gap (ms)</label>
-        <input class="form-control" id="botMinGap" type="number" value="500" min="100" step="100">
-      </div>
-      <div class="form-group">
-        <label>Settle Delay (s)</label>
-        <input class="form-control" id="botSettleDelay" type="number" value="2" min="0" max="10">
-      </div>
-      <div class="form-group">
-        <label>Execution</label>
-        <div style="padding:8px 10px;background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius-sm);
-          font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;text-align:center;min-height:36px;
-          display:flex;align-items:center;justify-content:center;" id="execModeLabel">SEQUENTIAL</div>
-      </div>
-    </div>
-
     <div class="toggles-row">
       <label class="toggle-item on" id="turboToggle">
         <input type="checkbox" checked data-toggle="turbo"> <span>Turbo ON</span>
@@ -665,12 +636,6 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
       <label class="toggle-item on" id="delayToggle">
         <input type="checkbox" checked data-toggle="delay"> <span>Delay</span>
       </label>
-      <label class="toggle-item parallel-toggle" id="parallelToggle">
-        <input type="checkbox" data-toggle="parallel"> <span>⚡ Parallel Mode</span>
-      </label>
-    </div>
-    <div style="font-size:10px;color:var(--text-dim);margin-top:6px;line-height:1.5;">
-      <strong style="color:var(--accent-cyan);">Parallel Mode</strong> trades every selected strategy simultaneously on each qualifying tick (up to Max Open Contracts). Sequential mode cycles through them one at a time and switches on loss for recovery.
     </div>
   </div>
 
@@ -700,15 +665,14 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
         <div class="engine-status-grid">
           <div class="setting-row"><span class="label">Bot</span><span class="value" id="engBotState">IDLE</span></div>
           <div class="setting-row"><span class="label">Mode</span><span class="value" id="engMode">Turbo</span></div>
-          <div class="setting-row"><span class="label">Execution</span><span class="value" id="engExecution">SEQUENTIAL</span></div>
           <div class="setting-row"><span class="label">Round remaining</span><span class="value" id="engRoundRemaining">0</span></div>
           <div class="setting-row"><span class="label">Session P/L</span><span class="value" id="engSessionPL">$0.00</span></div>
           <div class="setting-row"><span class="label">Current strategy</span><span class="value" id="engCurrent" style="color:var(--accent-cyan);">—</span></div>
           <div class="setting-row"><span class="label">Recovery</span><span class="value" id="engRecovery">$0.00</span></div>
           <div class="setting-row"><span class="label">Open contracts</span><span class="value" id="engOpen">0 / 3</span></div>
+          <div class="setting-row"><span class="label">RL backoff</span><span class="value" id="engRLBackoff" style="color:var(--accent-green);">idle</span></div>
         </div>
         <div class="settings-list" style="margin-top:8px;border-top:1px solid var(--border);padding-top:8px;">
-          <div class="setting-row"><span class="label">In-flight</span><span class="value" id="engInFlight">0</span></div>
           <div class="setting-row"><span class="label">Last action</span><span class="value" id="engLastAction">—</span></div>
           <div class="setting-row"><span class="label">Watching</span><span class="value" id="engWatching">—</span></div>
         </div>
@@ -935,7 +899,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
   <div class="playground-grid">
     <div class="account-card">
       <div class="label">Demo account</div>
-      <div class="id"><span id="demoAccountId">—</span><button class="copy-btn" id="demoCopyBtn" data-copy="">📋</button></div>
+      <div class="id"><span id="demoAccountId">—</span><button class="copy-btn" id="copyDemoAccountBtn" data-copy="">📋</button></div>
       <div style="font-size:10px;color:var(--text-muted);display:flex;align-items:center;gap:6px;">
         <span class="status-dot offline" id="demoStatusDot" style="width:7px;height:7px;"></span>
         <span id="demoStatusText">Not connected</span>
@@ -944,7 +908,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
     </div>
     <div class="account-card">
       <div class="label">Real account</div>
-      <div class="id"><span id="realAccountId">—</span><button class="copy-btn" id="realCopyBtn" data-copy="">📋</button></div>
+      <div class="id"><span id="realAccountId">—</span><button class="copy-btn" id="copyRealAccountBtn" data-copy="">📋</button></div>
       <div style="font-size:10px;color:var(--text-muted);display:flex;align-items:center;gap:6px;">
         <span class="status-dot offline" id="realStatusDot" style="width:7px;height:7px;"></span>
         <span id="realStatusText">Not connected</span>
@@ -961,11 +925,9 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
     <div class="input-group">
       <input id="patTokenInput" placeholder="eyJ0eXAiOiJKV1Qi..." type="text">
       <button class="btn btn-primary" id="patConnectBtn">Connect PAT</button>
-      <button class="btn btn-ghost" id="patDisconnectBtn">Disconnect</button>
+      <button class="btn btn-ghost" id="patRefreshBtn">↻ Refresh Accounts</button>
+       <button class="btn btn-ghost" id="patDisconnectBtn">Disconnect</button>
       <button class="btn btn-ghost" id="modeToggleBtn" style="border-color:var(--accent-yellow);color:var(--accent-yellow);">MODE: <strong id="modeLabel">DEMO</strong></button>
-    </div>
-    <div style="font-size:10px;color:var(--text-dim);line-height:1.5;">
-      💡 Paste a <strong>DEMO</strong> PAT — it fills the demo card. Paste a <strong>REAL</strong> PAT — it fills the real card. Both persist locally, and MODE switching uses the right token automatically.
     </div>
     <div class="playground-status">
       <span class="status-text" id="patStatus">🔴 Not connected</span>
@@ -1009,62 +971,59 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
   <div class="search-bar"><span class="search-icon">🔍</span><input type="text" id="helpSearch" placeholder="Search help articles…"></div>
   <div class="card">
     <div class="faq-category">
-      <h3>⚙️ Execution Modes</h3>
-      <div class="faq-item">
-        <div class="faq-question">What's the difference between Sequential and Parallel?<span>+</span></div>
-        <div class="faq-answer"><strong>Sequential</strong> (default) trades one strategy at a time. When it loses, it switches to the next one in the list and remembers the pending loss in the Recovery field. Once wins pay back the recovery pool, the engine resets to strategy #1. <strong>Parallel</strong> trades every selected strategy simultaneously on each qualifying tick, up to Max Open Contracts. Each strategy trades independently — no switching, no recovery pool.</div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-question">Can I change modes mid-session?<span>+</span></div>
-        <div class="faq-answer">Yes. Toggle Parallel Mode on or off at any time. The change takes effect on the next tick. Existing in-flight contracts settle normally.</div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-question">Why does the strategy not fire immediately after a loss?<span>+</span></div>
-        <div class="faq-answer">After a loss, the switch is instant — but the new strategy only trades when it has a signal. If the previous strategy's confirmation is still active (e.g. EVEN confirmed, but we've switched to ODD), the new strategy waits for the opposite signal. This is intentional — it prevents the bot from reversing into a signal that hasn't confirmed yet.</div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-question">What does In-Flight mean?<span>+</span></div>
-        <div class="faq-answer">A strategy is "in-flight" when it has a contract already open and waiting to settle. In Parallel Mode, each strategy can only have one contract in-flight at a time. This prevents the bot from spamming multiple contracts on the same signal.</div>
-      </div>
-    </div>
-    <div class="faq-category">
-      <h3>🔑 PAT & Accounts</h3>
-      <div class="faq-item">
-        <div class="faq-question">How do I connect my Deriv account?<span>+</span></div>
-        <div class="faq-answer">Go to <strong>API Playground → Enter PAT Token</strong>, paste your Personal Access Token and click <strong>Connect PAT</strong>. The app authorizes directly against Deriv's servers, reads the account type, and fills the correct card (Demo or Real) automatically.</div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-question">Do I need two PATs?<span>+</span></div>
-        <div class="faq-answer">If you only want to trade on demo, one demo PAT is enough. To also trade real, paste a second PAT generated for your real account — the app detects which type it is and fills the matching card. Both tokens are stored separately so MODE switching is instant.</div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-question">Where are my tokens stored?<span>+</span></div>
-        <div class="faq-answer">In your browser's <code>localStorage</code> under <code>emron_demo_token</code> and <code>emron_real_token</code>. They never leave your device and are sent only to Deriv's WebSocket endpoint over WSS.</div>
-      </div>
-    </div>
-    <div class="faq-category">
       <h3>🎯 Strategy Selection</h3>
       <div class="faq-item">
         <div class="faq-question">How do I select strategies?<span>+</span></div>
-        <div class="faq-answer">At the top of the Trading Hub you'll find a horizontal row of strategy chips. Tap a chip to add it to the active list. Tap again to remove it.</div>
+        <div class="faq-answer">At the top of the Trading Hub you'll find a horizontal row of strategy chips (Even, Odd, Matches, Differs, Over, Under, Rise, Fall, Only Ups, Only Downs, High Tick, Low Tick). Tap a chip to add it to the active list. Tap again to remove it. The order you add them is the order the bot will cycle through them.</div>
       </div>
       <div class="faq-item">
-        <div class="faq-question">How does switch-on-loss work in detail?<span>+</span></div>
-        <div class="faq-answer">The bot trades strategy #1. If it wins, it stays on #1. If it loses, the loss is added to the Recovery pool and the index advances to #2, then #3, etc. Wins subtract from the pool. When the pool reaches zero, the index resets to #1. The <strong>Losses to Switch</strong> setting controls how many consecutive losses are needed before advancing.</div>
+        <div class="faq-question">What does each strategy need?<span>+</span></div>
+        <div class="faq-answer">Most strategies only need a stake and ticks. Over, Under, Matches, Differs, High Tick and Low Tick also use a "prediction" field (a digit 0–9). For High Tick and Low Tick that digit is the barrier — the next tick's last digit must land above it (High Tick) or below it (Low Tick).</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question">How does switch-on-loss work?<span>+</span></div>
+        <div class="faq-answer">The bot trades strategy #1. If it wins, it stays on strategy #1. If it loses, it moves to strategy #2, then #3, and so on. The pending loss is tracked in the Recovery field. When wins accumulate enough to recover the pending loss, the engine resets back to strategy #1.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question">What are High Tick and Low Tick?<span>+</span></div>
+        <div class="faq-answer">High Tick (TICKHIGH) pays when the last digit of the next tick is higher than your barrier digit. Low Tick (TICKLOW) pays when it's lower. Both are single-tick contracts and use the same Pulse "highlow" engine — a Wilson-adjusted proportion test comparing the observed above/below distribution against the fair baseline for your barrier.</div>
+      </div>
+    </div>
+    <div class="faq-category">
+      <h3>📡 EMRON Pulse</h3>
+      <div class="faq-item">
+        <div class="faq-question">What signals does Pulse produce?<span>+</span></div>
+        <div class="faq-answer">Pulse runs six engines in parallel: Rise/Fall (price momentum + structure + regime), Even/Odd (digit parity), Over/Under (digit threshold), Matches (Dollar Printer staged rules), High/Low Tick (barrier digit), and Only Ups/Downs (run-length probability).</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question">How does the bot pick a signal?<span>+</span></div>
+        <div class="faq-answer">For the current strategy in the cycle, the bot asks Pulse for that strategy's confirmation on the selected market. If the signal is active, it places the contract. Otherwise it waits for the next tick.</div>
       </div>
     </div>
     <div class="faq-category">
       <h3>🎯 AI Hunter</h3>
       <div class="faq-item">
         <div class="faq-question">What does the Sniper Hunter scan?<span>+</span></div>
-        <div class="faq-answer">Sniper Hunter scans all 15 markets (10 Volatility + 5 Jump) across four signal families: Rise/Fall, Only Ups/Downs (2-tick), High/Low Tick, and Over/Under. Each tab re-ranks every market and only shows the strongest edges at or above the active threshold.</div>
+        <div class="faq-answer">Sniper Hunter scans all 15 markets (10 Volatility + 5 Jump) across four signal families: Rise/Fall (momentum + structure + trend + efficiency ratio), Only Ups / Only Downs (2-tick run-length probability over the last 50 ticks), High/Low Tick (barrier-digit z-test against the fair baseline), and Over/Under (barrier z-test). Each tab re-ranks every market and only shows the strongest edges at or above the active threshold.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question">How does the High / Low Tick tab pick a barrier?<span>+</span></div>
+        <div class="faq-answer">The High/Low Tick engine tests every barrier from 1 to 8 on each market and returns the strongest above/below deviation. The winning barrier is carried into the contract, so the trades fire with the exact barrier the AI selected, not a hardcoded default.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question">Why does Only Ups/Downs use 2 ticks?<span>+</span></div>
+        <div class="faq-answer">Only Ups/Downs contracts pay when the market moves in the same direction for N consecutive ticks. EMRON is calibrated for a 2-tick duration — the confidence model uses a baseline of 0.25 (a 2-in-a-row directional bias) rather than the much rarer 5-in-a-row baseline, giving more realistic and actionable confidence scores.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question">Can I still trade Over/Under and Even/Odd from the Hunter?<span>+</span></div>
+        <div class="faq-answer">Yes. The Even/Odd tab carries the parity scan, and the O1/U8, O2/U7 and O3/U6 tabs carry the barrier scans. Use the signal tab row to switch between them at any time.</div>
       </div>
     </div>
     <div class="faq-category">
-      <h3>🔒 Security</h3>
+      <h3>🔒 Account & Security</h3>
       <div class="faq-item">
         <div class="faq-question">Is my data safe?<span>+</span></div>
-        <div class="faq-answer">Tokens are stored locally. All API traffic uses HTTPS/WSS to Deriv endpoints only. No tokens are ever sent to EMRON servers — the connection is direct from your browser to Deriv.</div>
+        <div class="faq-answer">Your PAT is kept in this browser session only. Authenticated REST calls use the PAT plus the EMRON Deriv App ID; trading WebSockets are opened from short-lived Deriv OTP URLs.</div>
       </div>
     </div>
   </div>
@@ -1078,6 +1037,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 </footer>
 </div>
 
+<!-- ===== NAV DROPDOWN (replaces the old sidebar) ===== -->
 <div class="nav-menu" id="navMenu" role="menu" aria-label="Main navigation">
   <div class="nav-section-title">Navigate</div>
   <div class="nav-item active" data-nav-tab="trading-hub" role="menuitem"><span class="nav-icon">📊</span><span>Trading Hub</span></div>
@@ -1089,14 +1049,23 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 
 <div class="modal-overlay" id="connectModal">
   <div class="modal">
-    <div class="modal-header"><div class="modal-title">🔗 Connect Account</div><span class="modal-close" data-modal="connectModal">✕</span></div>
-    <p style="color:var(--text-muted);margin-bottom:12px;font-size:12px;">Paste a Personal Access Token from your Deriv account. Demo and real tokens are both supported — the app detects the type automatically.</p>
-    <div class="form-group" style="margin-bottom:10px;"><label>Manual Access Token</label>
-      <input class="form-control" id="manualToken" placeholder="eyJ0eXAiOiJKV1Qi..."></div>
-    <div class="modal-actions"><button class="btn btn-primary" id="manualTokenBtn">Set Token</button></div>
-    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:1px solid var(--border);">
-      <span style="font-size:11px;color:var(--text-muted);" id="oauthStatus">Not connected</span>
-      <button class="btn btn-ghost btn-sm" id="oauthDisconnectBtn" style="color:var(--accent-red);">🚫 Disconnect</button>
+    <div class="modal-header"><div class="modal-title">🔐 Connect with Deriv PAT</div><span class="modal-close" data-modal="connectModal">✕</span></div>
+    <p style="color:var(--text-muted);margin-bottom:12px;font-size:12px;">
+      Paste your own Deriv Personal Access Token. EMRON will discover the Options demo and real accounts linked to that token.
+    </p>
+    <div class="warning-box">
+      <strong>🔒 Token handling:</strong> the PAT is kept in this browser session and sent to Deriv only for authenticated API calls. Never paste someone else's token.
+    </div>
+    <div class="form-group" style="margin-bottom:10px;">
+      <label>Personal Access Token</label>
+      <input class="form-control" id="patModalTokenInput" placeholder="Paste your Deriv PAT" type="password" autocomplete="off" spellcheck="false">
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn btn-primary" id="patModalConnectBtn" style="flex:1;min-height:42px;">🔗 Connect & Load Accounts</button>
+      <button class="btn btn-ghost" id="patModalDisconnectBtn" style="min-height:42px;color:var(--accent-red);">🚫 Disconnect</button>
+    </div>
+    <div class="playground-status" style="margin-top:10px;">
+      <span class="status-text" id="patModalStatus">Not connected</span>
     </div>
   </div>
 </div>
@@ -1139,8 +1108,9 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 const DERIV_APP_ID = "34c3rTXvfnC6XKk5nbzJM";
 const BULK_BASE = 'https://api.derivws.com';
 const BULK_PATH = '/trading/v1/options/contracts/bulk-purchase';
+const DERIV_API_BASE = "https://api.derivws.com";
 const WS_PUBLIC = "wss://api.derivws.com/trading/v1/options/ws/public";
-const WS_AUTH = `wss://ws.derivws.com/websockets/v3?app_id=${DERIV_APP_ID}&l=EN`;
+const ACCOUNTS_ENDPOINT = "/trading/v1/options/accounts";
 
 const MARKET_SYMBOLS = {
   'Volatility 10':'R_10','Volatility 25':'R_25','Volatility 50':'R_50','Volatility 75':'R_75','Volatility 100':'R_100',
@@ -1169,17 +1139,13 @@ const STRATEGY_DEFS = {
    STATE
    ============================================================ */
 let MODE = "DEMO";
-let demoToken = null, realToken = null;
-let demoAccountId = null, realAccountId = null;
-let demoBalance = 0, realBalance = 0;
-let demoCurrency = 'USD', realCurrency = 'USD';
-let currentAccountId = null;
+let accessToken = null;
 let balance = 0;
 let accountInfo = null;
-
+let accountSessions = { demo:null, real:null };
 let ws = null, wsConnected = false, wsReqId = 1, tickSubId = null;
 let manualDisconnect = false;
-let pendingAuthToken = null;
+let authBusy = false;
 
 let selectedStrategies = [];
 
@@ -1198,8 +1164,7 @@ let botConfig = {
   delayOn:true,
   delayAfterSettle:2,
   minBuyGap:500,
-  maxOpen:3,
-  parallel:false
+  maxOpen:3
 };
 
 let botRunning = false;
@@ -1222,8 +1187,6 @@ let trades = [];
 const pendingProposalMap = new Map();
 const pendingBuyMap = new Map();
 const activeContracts = new Map();
-/* ==== NEW: tracks every strategy that currently has a contract in flight (live or demo). ==== */
-const pendingStrategyRefs = new Set();
 
 /* ============================================================
    PULSE ENGINES
@@ -1333,6 +1296,10 @@ function evaluateOverUnder(mkt, w){
   const z=wilsonZ(o,d.length,0.5);
   return { category:'overunder', label:z>=0?'OVER':'UNDER', direction:z>=0?'up':'down', z, absZ:Math.abs(z), n:d.length };
 }
+
+/* ==== HIGH / LOW TICK ENGINE ====
+   Confidence divisor is 2 so that a genuine barrier-digit skew (z ≈ 1.0+)
+   clears the Sniper threshold instead of sitting just under it. */
 function evaluateHighLow(mkt){
   const win=engineState.highLowWindow;
   const d=mkt.digits.slice(-win); if(d.length<HL.MIN_TICKS) return null;
@@ -1363,6 +1330,7 @@ function evaluateHighLow(mkt){
       p:best.p, base:best.base, above:best.above, below:best.below, counts,
       autoBarrier:engineState.highLowBarrier==='auto' } };
 }
+
 function currentUpDownStreak(q){
   if(q.length<2) return {dir:null,len:0};
   let len=0,dir=null;
@@ -1376,7 +1344,7 @@ function evaluateOnlyUpDown(mkt){
   for(let i=q.length-lb;i<q.length;i++){ const d=q[i]-q[i-1]; if(d>0)ups++; else if(d<0)downs++; }
   const total=ups+downs; if(total<10) return null;
   const pUp=(ups+0.5)/(total+1), pDown=1-pUp;
-  const dur=engineState.onlyUpDownDuration;
+  const dur=engineState.onlyUpDownDuration;   // now 2
   const baseline=Math.pow(0.5,dur);
   const pU=Math.pow(pUp,dur), pD=Math.pow(pDown,dur);
   const isUps=pU>=pD;
@@ -1395,6 +1363,7 @@ function evaluateOnlyUpDown(mkt){
       p, isUps, advantage:adv, ups, downs, total,
       currentStreakLen:streak.len, currentStreakDir:streak.dir } };
 }
+
 function getMatchesDistribution(mkt){
   const all=mkt.digits; if(all.length<MATCHES.MIN_TICKS) return null;
   const win=MATCHES.WINDOW, shift=MATCHES.RISE_SHIFT;
@@ -1522,6 +1491,8 @@ function onPulseTick(symbolCode, quote){
 
 function updateConfirmations(symbolCode, mkt){
   const cats = ['risefall','evenodd','overunder','highlow','onlyupdown'];
+  const ac = lag1Autocorr(mkt.quotes.slice(-30));
+  const regimeOK = Math.abs(ac) >= 0.15;
   cats.forEach(cat => {
     const key = symbolCode + '|' + cat;
     const r = evaluateCategory(mkt, cat);
@@ -1661,24 +1632,16 @@ function renderActiveList(){
     document.getElementById('activeStrategiesTag').textContent = 'switch on loss • 1 loss';
     return;
   }
-  document.getElementById('activeStrategiesTag').textContent = botConfig.parallel
-    ? `parallel • ${selectedStrategies.length} strategies at once`
-    : `switch on loss • ${botConfig.lossesToSwitch} loss${botConfig.lossesToSwitch>1?'es':''}`;
+  document.getElementById('activeStrategiesTag').textContent =
+    `switch on loss • ${botConfig.lossesToSwitch} loss${botConfig.lossesToSwitch>1?'es':''}`;
 
   selectedStrategies.forEach((s, i) => {
     const def = STRATEGY_DEFS[s.type];
-    const isCurrent = botRunning && !botConfig.parallel && i === currentStrategyIndex;
-    const isInFlight = pendingStrategyRefs.has(s);
-    const cls = ['active-item'];
-    if(isCurrent) cls.push('current');
-    if(isInFlight) cls.push('in-flight');
+    const isCurrent = botRunning && i === currentStrategyIndex;
     const item = document.createElement('div');
-    item.className = cls.join(' ');
+    item.className = 'active-item' + (isCurrent ? ' current' : '');
     const plCls = s.pl >= 0 ? 'pl-pos' : 'pl-neg';
     const plSign = s.pl >= 0 ? '+' : '';
-    const badge = isInFlight
-      ? `<span class="as-badge pl-live">IN-FLIGHT</span>`
-      : `<span class="as-badge ${plCls}">${plSign}$${s.pl.toFixed(2)}</span>`;
     item.innerHTML = `
       <span class="as-index">#${i+1}</span>
       <span class="as-name">${def ? def.label : s.type}<small>${def ? def.contract : ''}</small></span>
@@ -1697,7 +1660,7 @@ function renderActiveList(){
           <input type="number" min="0" max="9" data-field="prediction" data-idx="${i}" value="${s.prediction != null ? s.prediction : botConfig.defaultDigit}">
         </div>` : ''}
       </div>
-      ${badge}
+      <span class="as-badge ${plCls}">${plSign}$${s.pl.toFixed(2)}</span>
       <button class="as-remove" data-remove="${i}" title="Remove">×</button>
     `;
     list.appendChild(item);
@@ -1727,46 +1690,18 @@ function renderActiveList(){
 }
 
 /* ============================================================
-   BOT ENGINE — Sequential (switch-on-loss) + Parallel
+   BOT ENGINE — switch-on-loss with recovery
    ============================================================ */
 function evaluateBotOnTick(){
   if(!botRunning) return;
   if(selectedStrategies.length === 0) return;
   if(roundsRemaining <= 0){ stopBot('rounds'); return; }
-
+  if(activeContracts.size >= botConfig.maxOpen) return;
   const now = Date.now();
-
-  /* ==== PARALLEL MODE ====
-     On each tick, check every selected strategy. For each one that:
-       - has a signal on the selected market, AND
-       - doesn't already have a contract in-flight,
-     place a contract — up to botConfig.maxOpen total in-flight. */
-  if(botConfig.parallel){
-    if(pendingStrategyRefs.size >= botConfig.maxOpen) return;
-    if(now - lastBuyTime < botConfig.minBuyGap) return;
-
-    let placed = 0;
-    for(const strat of selectedStrategies){
-      if(pendingStrategyRefs.size >= botConfig.maxOpen) break;
-      if(pendingStrategyRefs.has(strat)) continue;
-      if(!hasSignalForStrategy(strat)) continue;
-      placeStrategyContract(strat);
-      placed++;
-    }
-    if(placed > 0){
-      lastAction = `⚡ Parallel → ${placed} contract${placed>1?'s':''} fired`;
-      updateEngineStatus();
-    }
-    return;
-  }
-
-  /* ==== SEQUENTIAL MODE (switch-on-loss with recovery) ==== */
-  if(pendingStrategyRefs.size >= botConfig.maxOpen) return;
   if(now - lastBuyTime < botConfig.minBuyGap) return;
 
   const strat = selectedStrategies[currentStrategyIndex % selectedStrategies.length];
   if(!strat) return;
-  if(pendingStrategyRefs.has(strat)) return;   // strategy already has a contract in-flight — wait for it to settle
   if(!hasSignalForStrategy(strat)) return;
   placeStrategyContract(strat);
 }
@@ -1800,6 +1735,7 @@ function hasSignalForStrategy(strat){
     if(!r) return false;
     return r.label === 'UNDER';
   }
+
   if(strat.type === 'HIGH_TICK' || strat.type === 'LOW_TICK'){
     const key = code + '|highlow';
     const conf = engineState.activeConfirmations.get(key);
@@ -1807,6 +1743,7 @@ function hasSignalForStrategy(strat){
     const wantUp = strat.type === 'HIGH_TICK';
     return (conf.direction === 'up') === wantUp;
   }
+
   const key = code + '|' + def.category;
   const conf = engineState.activeConfirmations.get(key);
   if(!conf) return false;
@@ -1818,11 +1755,6 @@ function hasSignalForStrategy(strat){
 function placeStrategyContract(strat, marketOverride=null){
   const def = STRATEGY_DEFS[strat.type];
   if(!def) return;
-
-  /* ==== Guard: one contract per strategy in-flight ==== */
-  if(pendingStrategyRefs.has(strat)) return;
-  pendingStrategyRefs.add(strat);
-
   const marketSymbol = marketOverride || getSymbol(botConfig.market);
   const stake = strat.stake;
   const duration = strat.duration || def.duration;
@@ -1830,7 +1762,6 @@ function placeStrategyContract(strat, marketOverride=null){
   lastBuyTime = Date.now();
   lastAction = `Buy ${getStrategyLabel(strat)}`;
   updateEngineStatus();
-  renderActiveList();
 
   const params = {
     amount: stake, basis:'stake', contract_type: def.contract,
@@ -1838,13 +1769,8 @@ function placeStrategyContract(strat, marketOverride=null){
   };
   if(def.needsDigit && strat.prediction != null) params.barrier = String(strat.prediction);
 
-  /* ==== Demo mode: simulated settlement, still tracked in pendingStrategyRefs ==== */
   if(!wsConnected){
-    setTimeout(() => {
-      const win = Math.random() < 0.5;
-      const pl = win ? stake * 0.95 : -stake;
-      onStrategyResult(strat, win, pl, stake);
-    }, 1400);
+    toast('❌ Trading connection is not active. Contract was not sent.', 'error');
     return;
   }
 
@@ -1858,12 +1784,7 @@ function onProposalReceived(data){
   const t = pendingProposalMap.get(data.req_id);
   if(!t) return;
   pendingProposalMap.delete(data.req_id);
-  if(!data.proposal){
-    /* Proposal failed — release the strategy so it can retry */
-    if(t.strategyRef) pendingStrategyRefs.delete(t.strategyRef);
-    renderActiveList(); updateEngineStatus();
-    return;
-  }
+  if(!data.proposal) return;
   const buyId = wsReqId++;
   pendingBuyMap.set(buyId, t);
   ws.send(JSON.stringify({ buy: data.proposal.id, price: data.proposal.ask_price, req_id: buyId }));
@@ -1872,11 +1793,7 @@ function onBuyReceived(data){
   const t = pendingBuyMap.get(data.req_id);
   if(!t) return;
   pendingBuyMap.delete(data.req_id);
-  if(!data.buy){
-    if(t.strategyRef) pendingStrategyRefs.delete(t.strategyRef);
-    renderActiveList(); updateEngineStatus();
-    return;
-  }
+  if(!data.buy) return;
   const cid = data.buy.contract_id;
   activeContracts.set(cid, { slotIdx: t.slotIdx, strategyRef:t.strategyRef || null, marketSymbol:t.marketSymbol || null, contractType:t.contractType, label:t.label, stake:t.stake });
   lastAction = `Opened ${t.label} · ${cid}`;
@@ -1899,9 +1816,6 @@ function onContractUpdate(data){
 }
 
 function onStrategyResult(strat, won, profit, stake, entrySpot, exitSpot){
-  /* ==== Release the strategy from in-flight as soon as its contract settles ==== */
-  pendingStrategyRefs.delete(strat);
-
   sessionStake += stake;
   sessionPayout += won ? (stake + profit) : 0;
   sessionPL += profit;
@@ -1920,42 +1834,33 @@ function onStrategyResult(strat, won, profit, stake, entrySpot, exitSpot){
 
   roundsRemaining = Math.max(0, roundsRemaining - 1);
 
-  /* ==== Switch-on-loss recovery only applies in SEQUENTIAL mode ==== */
-  if(!botConfig.parallel){
-    if(won){
-      if(lossAccumulator > 0){
-        lossAccumulator -= profit;
-        if(lossAccumulator <= 0){
-          lossAccumulator = 0;
-          lossesInARow = 0;
-          currentStrategyIndex = 0;
-          lastAction = `✅ Recovery complete → #1 ${getStrategyLabel(selectedStrategies[0])}`;
-          toast(`✅ Recovery complete — back to #1 ${getStrategyLabel(selectedStrategies[0])}`, 'success');
-        } else {
-          lastAction = `Win — recovering · $${lossAccumulator.toFixed(2)} left`;
-        }
-      } else {
+  if(won){
+    if(lossAccumulator > 0){
+      lossAccumulator -= profit;
+      if(lossAccumulator <= 0){
+        lossAccumulator = 0;
         lossesInARow = 0;
-        lastAction = `Win — repeat ${getStrategyLabel(strat)}`;
+        currentStrategyIndex = 0;
+        lastAction = `✅ Loss recovered → back to #1 (${getStrategyLabel(selectedStrategies[0])})`;
+        toast(`✅ Loss recovered — back to #1 ${getStrategyLabel(selectedStrategies[0])}`, 'success');
+      } else {
+        lastAction = `Win — recovering · $${lossAccumulator.toFixed(2)} left`;
       }
     } else {
-      lossAccumulator += Math.abs(profit);
-      lossesInARow++;
-      if(lossesInARow >= botConfig.lossesToSwitch){
-        lossesInARow = 0;
-        currentStrategyIndex = (currentStrategyIndex + 1) % selectedStrategies.length;
-        const next = selectedStrategies[currentStrategyIndex];
-        lastAction = `Loss — switch → #${currentStrategyIndex+1} ${next ? getStrategyLabel(next) : '—'}`;
-        toast(`🔁 Loss — switching to #${currentStrategyIndex+1} ${next ? getStrategyLabel(next) : ''}`, 'info');
-      } else {
-        lastAction = `Loss — wait (${lossesInARow}/${botConfig.lossesToSwitch})`;
-      }
+      lossesInARow = 0;
+      lastAction = `Win — repeat ${getStrategyLabel(strat)}`;
     }
   } else {
-    /* Parallel mode: just report the result, no recovery pool */
-    lastAction = won
-      ? `⚡ Win ${getStrategyLabel(strat)} · $${profit.toFixed(2)}`
-      : `⚡ Loss ${getStrategyLabel(strat)} · $${profit.toFixed(2)}`;
+    lossAccumulator += Math.abs(profit);
+    lossesInARow++;
+    if(lossesInARow >= botConfig.lossesToSwitch){
+      lossesInARow = 0;
+      currentStrategyIndex = (currentStrategyIndex + 1) % selectedStrategies.length;
+      const next = selectedStrategies[currentStrategyIndex];
+      lastAction = `Loss — switch → #${currentStrategyIndex+1} ${next ? getStrategyLabel(next) : '—'}`;
+    } else {
+      lastAction = `Loss — wait (${lossesInARow}/${botConfig.lossesToSwitch})`;
+    }
   }
 
   updateStatsDisplay();
@@ -1984,6 +1889,15 @@ function onStrategyResult(strat, won, profit, stake, entrySpot, exitSpot){
 
 function startBot(){
   if(botRunning) return;
+  if(!accessToken || !wsConnected){
+    toast('🔐 Connect a valid Deriv PAT before running the bot.', 'error');
+    return;
+  }
+  const activeAccount = MODE === 'REAL' ? accountSessions.real : accountSessions.demo;
+  if(!activeAccount){
+    toast(`⚠️ No ${MODE.toLowerCase()} account is available for this PAT.`, 'error');
+    return;
+  }
   if(selectedStrategies.length === 0){
     toast('⚠️ Add at least one strategy first', 'error');
     return;
@@ -1993,9 +1907,6 @@ function startBot(){
   sessionStake = 0; sessionPayout = 0; sessionWins = 0; sessionLosses = 0; sessionPL = 0;
   selectedStrategies.forEach(s => { s.wins = 0; s.losses = 0; s.pl = 0; });
   activeContracts.clear();
-  pendingProposalMap.clear();
-  pendingBuyMap.clear();
-  pendingStrategyRefs.clear();
   currentStrategyIndex = 0;
   lossAccumulator = 0;
   lossesInARow = 0;
@@ -2010,8 +1921,7 @@ function startBot(){
   updateProfitDisplay();
   renderActiveList();
   updateEngineStatus();
-  const mode = botConfig.parallel ? 'PARALLEL' : 'SEQUENTIAL';
-  toast(`🚀 Bot started · ${mode} · ${selectedStrategies.length} strategies · ${botConfig.rounds} rounds`, botConfig.parallel ? 'parallel' : 'success');
+  toast(`🚀 Bot started · ${selectedStrategies.length} strategies · ${botConfig.rounds} rounds`, 'success');
 }
 function stopBot(reason){
   if(!botRunning) return;
@@ -2048,46 +1958,22 @@ function updateProfitDisplay(){
 }
 function updateEngineStatus(){
   document.getElementById('engMode').textContent = botConfig.turbo ? 'Turbo' : 'Normal';
-  const execEl = document.getElementById('engExecution');
-  execEl.textContent = botConfig.parallel ? 'PARALLEL' : 'SEQUENTIAL';
-  execEl.classList.toggle('parallel', botConfig.parallel);
   document.getElementById('engRoundRemaining').textContent = botRunning ? roundsRemaining : 0;
   const spl = document.getElementById('engSessionPL');
   spl.textContent = `${sessionPL>=0?'+':''}$${sessionPL.toFixed(2)}`;
   spl.style.color = sessionPL>=0 ? 'var(--accent-green)' : 'var(--accent-red)';
-
   const cur = selectedStrategies[currentStrategyIndex];
-  const curEl = document.getElementById('engCurrent');
-  if(botConfig.parallel){
-    curEl.textContent = botRunning ? `⚡ All ${selectedStrategies.length} strategies` : '—';
-    curEl.style.color = 'var(--accent-cyan)';
-  } else {
-    curEl.textContent = cur ? `#${currentStrategyIndex+1} ${getStrategyLabel(cur)}` : '—';
-    curEl.style.color = 'var(--accent-cyan)';
-  }
-
-  const recEl = document.getElementById('engRecovery');
-  if(botConfig.parallel){
-    recEl.textContent = 'n/a (parallel)';
-    recEl.style.color = 'var(--text-muted)';
-  } else {
-    recEl.textContent = lossAccumulator > 0 ? `$${lossAccumulator.toFixed(2)}` : 'clear';
-    recEl.style.color = lossAccumulator > 0 ? 'var(--accent-yellow)' : 'var(--accent-green)';
-  }
-
+  document.getElementById('engCurrent').textContent = cur ? `#${currentStrategyIndex+1} ${getStrategyLabel(cur)}` : '—';
+  document.getElementById('engRecovery').textContent = lossAccumulator > 0
+    ? `$${lossAccumulator.toFixed(2)}`
+    : 'clear';
+  document.getElementById('engRecovery').style.color = lossAccumulator > 0 ? 'var(--accent-yellow)' : 'var(--accent-green)';
   document.getElementById('engOpen').textContent = `${activeContracts.size} / ${botConfig.maxOpen}`;
-  document.getElementById('engInFlight').textContent = `${pendingStrategyRefs.size} strateg${pendingStrategyRefs.size===1?'y':'ies'}`;
+  document.getElementById('engRLBackoff').textContent = rlBackoff;
   document.getElementById('engLastAction').textContent = lastAction;
   document.getElementById('engWatching').textContent = selectedStrategies.length === 0
     ? '—'
     : selectedStrategies.map((s,i) => `#${i+1} ${getStrategyLabel(s)}`).join(', ');
-
-  /* Sync the inline execution label in the settings panel */
-  const inline = document.getElementById('execModeLabel');
-  if(inline){
-    inline.textContent = botConfig.parallel ? 'PARALLEL' : 'SEQUENTIAL';
-    inline.style.color = botConfig.parallel ? 'var(--accent-cyan)' : 'var(--text-primary)';
-  }
 }
 function renderTrades(){
   const tb = document.getElementById('tradesTable');
@@ -2341,185 +2227,252 @@ function renderAIScan(){
 }
 
 /* ============================================================
-   WEBSOCKET & AUTH
+   WEBSOCKET
    ============================================================ */
-function ensureWsOpen(cb){
-  if(ws && ws.readyState === WebSocket.OPEN){ cb(); return; }
-  if(ws){ try { ws.onclose = null; ws.close(); } catch(e){} ws = null; }
-
-  ws = new WebSocket(WS_AUTH);
-
-  ws.onopen = () => {
-    const t = MODE === 'REAL' ? realToken : demoToken;
-    if(t && !wsConnected){
-      pendingAuthToken = t;
-      ws.send(JSON.stringify({ authorize: t, req_id: wsReqId++ }));
-    }
-    cb();
-  };
-
-  ws.onmessage = handleWsMessage;
-  ws.onerror = e => console.error('WS error', e);
-
-  ws.onclose = () => {
-    wsConnected = false;
-    if(window.wsPing) clearInterval(window.wsPing);
-    updateConnectionStatus(false);
-    if(!manualDisconnect){
-      const t = MODE === 'REAL' ? realToken : demoToken;
-      if(t){
-        setTimeout(() => {
-          if(!wsConnected && !manualDisconnect) setAccessToken(t);
-        }, 3000);
-      }
-    }
-  };
-}
-
-function handleAuthorizeResponse(data){
-  const token = pendingAuthToken;
-  pendingAuthToken = null;
-
-  const auth = data.authorize;
-  if(!auth){
-    const msg = (data.error && data.error.message) || 'Authorization failed';
-    toast('❌ ' + msg, 'error');
-    return;
-  }
-
-  const isVirtual = auth.is_virtual === 1;
-  const loginid = auth.loginid;
-  const bal = parseFloat(auth.balance || 0);
-  const currency = auth.currency || 'USD';
-
-  if(isVirtual){
-    demoToken = token;
-    demoAccountId = loginid;
-    demoBalance = bal;
-    demoCurrency = currency;
-    try { localStorage.setItem('emron_demo_token', token); } catch(e){}
-  } else {
-    realToken = token;
-    realAccountId = loginid;
-    realBalance = bal;
-    realCurrency = currency;
-    try { localStorage.setItem('emron_real_token', token); } catch(e){}
-  }
-
-  MODE = isVirtual ? 'DEMO' : 'REAL';
-  currentAccountId = loginid;
-  balance = bal;
-
-  document.getElementById('topModeLabel').textContent = MODE;
-  document.getElementById('modeLabel').textContent = MODE;
-  document.getElementById('bulkModeTag').textContent = `→ /bulk-purchase/${MODE === 'REAL' ? 'real' : 'demo'}`;
-  document.getElementById('balanceValue').textContent = bal.toFixed(2);
-
-  if(isVirtual){
-    document.getElementById('demoAccountId').textContent = loginid;
-    document.getElementById('demoCopyBtn').dataset.copy = loginid;
-    document.getElementById('demoStatusDot').className = 'status-dot';
-    document.getElementById('demoStatusText').textContent = `Connected (${loginid})`;
-    document.getElementById('demoBalance').textContent = `${currency} ${bal.toFixed(2)}`;
-  } else {
-    document.getElementById('realAccountId').textContent = loginid;
-    document.getElementById('realCopyBtn').dataset.copy = loginid;
-    document.getElementById('realStatusDot').className = 'status-dot';
-    document.getElementById('realStatusText').textContent = `Connected (${loginid})`;
-    document.getElementById('realBalance').textContent = `${currency} ${bal.toFixed(2)}`;
-  }
-
-  document.getElementById('patAccountId').textContent = loginid;
-  document.getElementById('patBalance').textContent = `${currency} ${bal.toFixed(2)}`;
-  document.getElementById('patStatus').textContent = '🟢 Connected';
-  document.getElementById('patStatus').className = 'status-text connected';
-  document.getElementById('oauthStatus').textContent = '✅ Connected';
-
-  connectBtn.textContent = '✅ Connected';
-  connectBtn.className = 'btn btn-connected btn-sm';
-
-  wsConnected = true;
-  updateConnectionStatus(true);
-  toast(`✅ Connected to ${isVirtual ? 'Demo' : 'Real'} account ${loginid}`, 'success');
-
-  ws.send(JSON.stringify({ balance:1, subscribe:1, req_id: wsReqId++ }));
-  subscribeTicks();
-
-  if(window.wsPing) clearInterval(window.wsPing);
-  window.wsPing = setInterval(() => {
-    if(ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ ping:1 }));
-  }, 30000);
-
-  if(demoToken && realToken){
-    setTimeout(() => toast('🎉 Both Demo and Real accounts connected — MODE toggle is now live', 'info'), 900);
-  } else if(demoToken && !realToken){
-    setTimeout(() => toast('💡 Paste a REAL PAT to enable live mode', 'info'), 900);
-  } else if(!demoToken && realToken){
-    setTimeout(() => toast('💡 Paste a DEMO PAT to enable demo mode', 'info'), 900);
-  }
-}
-
-function setAccessToken(token){
-  if(!token){
-    manualDisconnect = true;
-    demoToken = null; realToken = null;
-    demoAccountId = null; realAccountId = null;
-    try {
-      localStorage.removeItem('emron_demo_token');
-      localStorage.removeItem('emron_real_token');
-    } catch(e){}
-    if(ws){ try { ws.onclose = null; ws.close(); } catch(e){} ws = null; }
-    wsConnected = false;
-    connectBtn.textContent = 'Connect';
-    connectBtn.className = 'btn btn-primary btn-sm';
-    document.getElementById('oauthStatus').textContent = 'Not connected';
-    document.getElementById('patStatus').textContent = '🔴 Not connected';
-    document.getElementById('patStatus').className = 'status-text';
-    document.getElementById('patAccountId').textContent = '—';
-    document.getElementById('patBalance').textContent = '—';
-    document.getElementById('demoAccountId').textContent = '—';
-    document.getElementById('demoStatusText').textContent = 'Not connected';
-    document.getElementById('demoStatusDot').className = 'status-dot offline';
-    document.getElementById('demoBalance').textContent = '—';
-    document.getElementById('demoCopyBtn').dataset.copy = '';
-    document.getElementById('realAccountId').textContent = '—';
-    document.getElementById('realStatusText').textContent = 'Not connected';
-    document.getElementById('realStatusDot').className = 'status-dot offline';
-    document.getElementById('realBalance').textContent = '—';
-    document.getElementById('realCopyBtn').dataset.copy = '';
-    document.getElementById('balanceValue').textContent = '0.00';
-    updateConnectionStatus(false);
-    toast('🔌 Disconnected', 'info');
-    return;
-  }
-
+async function connectWebSocket(token){
+  const account = MODE === 'REAL' ? accountSessions.real : accountSessions.demo;
+  const accountId = account && account.account_id;
   manualDisconnect = false;
-  pendingAuthToken = token;
 
-  ensureWsOpen(() => {
-    ws.send(JSON.stringify({ authorize: token, req_id: wsReqId++ }));
+  if(!token || !accountId){
+    wsConnected = false;
+    updateConnectionStatus(false);
+    setAuthStatus('⚠️ No ' + MODE.toLowerCase() + ' account available for this PAT', true);
+    return;
+  }
+
+  toast(`🔐 Authorising ${MODE.toLowerCase()} account…`, 'info');
+  try {
+    const res = await fetch(`${DERIV_API_BASE}${ACCOUNTS_ENDPOINT}/${encodeURIComponent(accountId)}/otp`, {
+      method:'POST',
+      headers:{
+        'Authorization': `Bearer ${token}`,
+        'Deriv-App-ID': DERIV_APP_ID,
+        'Content-Type':'application/json'
+      },
+      body:'{}'
+    });
+    const json = await res.json().catch(()=>({}));
+    if(!res.ok){
+      throw new Error(formatDerivError(json, res.statusText || 'Failed to get OTP'));
+    }
+
+    const url = json?.data?.url;
+    if(!url) throw new Error('Deriv did not return an authenticated WebSocket URL.');
+
+    if(ws){
+      try{ ws.onclose = null; ws.close(); }catch(e){}
+      ws = null;
+    }
+    wsConnected = false;
+
+    ws = new WebSocket(url);
+    ws.onopen = () => {
+      wsConnected = true;
+      updateConnectionStatus(true);
+      setAuthStatus(`🟢 Connected · ${accountId}`);
+      toast(`✅ Connected to ${MODE.toLowerCase()} account ${accountId}`, 'success');
+
+      accountInfo = account;
+      balance = Number(account.balance || 0);
+      document.getElementById('patAccountId').textContent = accountId;
+      document.getElementById('patBalance').textContent = `${account.currency || 'USD'} ${balance.toFixed(2)}`;
+
+      const dot = document.getElementById(MODE === 'DEMO' ? 'demoStatusDot' : 'realStatusDot');
+      const status = document.getElementById(MODE === 'DEMO' ? 'demoStatusText' : 'realStatusText');
+      if(dot) dot.className = 'status-dot';
+      if(status) status.textContent = `Connected (${accountId})`;
+
+      ws.send(JSON.stringify({ balance:1, subscribe:1, req_id: wsReqId++ }));
+      subscribeTicks();
+
+      if(window.wsPing) clearInterval(window.wsPing);
+      window.wsPing = setInterval(() => {
+        if(ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ ping:1 }));
+      }, 30000);
+    };
+
+    ws.onmessage = handleWsMessage;
+    ws.onerror = () => setAuthStatus(`⚠️ WebSocket error on ${MODE.toLowerCase()} account`, true);
+    ws.onclose = () => {
+      wsConnected = false;
+      if(window.wsPing) clearInterval(window.wsPing);
+      updateConnectionStatus(false);
+      const status = document.getElementById(MODE === 'DEMO' ? 'demoStatusText' : 'realStatusText');
+      const dot = document.getElementById(MODE === 'DEMO' ? 'demoStatusDot' : 'realStatusDot');
+      if(status && status.textContent.startsWith('Connected')) status.textContent = 'Disconnected';
+      if(dot) dot.className = 'status-dot offline';
+      if(accessToken && !manualDisconnect){
+        setTimeout(() => {
+          if(accessToken && !wsConnected) connectWebSocket(accessToken);
+        }, 2500);
+      }
+    };
+  } catch(err){
+    console.error('PAT WebSocket authentication failed', err);
+    wsConnected = false;
+    updateConnectionStatus(false);
+    setAuthStatus('❌ ' + err.message, true);
+    toast('❌ ' + err.message, 'error');
+  }
+}
+
+function formatDerivError(json, fallback='Deriv request failed'){
+  const list = Array.isArray(json?.errors) ? json.errors : [];
+  return list.length ? list.map(e => `${e.code || 'Error'}: ${e.message || 'Request failed'}`).join('; ') : fallback;
+}
+
+function setAuthStatus(message, error=false){
+  ['patStatus','patModalStatus'].forEach(id => {
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.textContent = message;
+    el.className = 'status-text' + (error ? '' : ' connected');
   });
 }
 
-function loadStoredTokens(){
-  try {
-    const dt = localStorage.getItem('emron_demo_token');
-    const rt = localStorage.getItem('emron_real_token');
-    if(dt) demoToken = dt;
-    if(rt) realToken = rt;
-    const initialToken = MODE === 'REAL' ? realToken : demoToken;
-    if(initialToken){
-      setAccessToken(initialToken);
-    } else if(rt){
-      setAccessToken(rt);
-    } else if(dt){
-      setAccessToken(dt);
+function normalizeAccountsPayload(json){
+  const raw = json?.data ?? json?.accounts ?? [];
+  if(Array.isArray(raw)) return raw;
+  if(raw && typeof raw === 'object'){
+    if(Array.isArray(raw.accounts)) return raw.accounts;
+    return Object.values(raw).filter(v => v && typeof v === 'object' && (v.account_id || v.loginid));
+  }
+  return [];
+}
+
+async function fetchUserAccounts(token){
+  const res = await fetch(`${DERIV_API_BASE}${ACCOUNTS_ENDPOINT}`, {
+    headers:{
+      'Authorization': `Bearer ${token}`,
+      'Deriv-App-ID': DERIV_APP_ID,
+      'Accept':'application/json'
     }
-  } catch(e){}
+  });
+  const json = await res.json().catch(()=>({}));
+  if(!res.ok) throw new Error(formatDerivError(json, `Account lookup failed (${res.status})`));
+
+  const accounts = normalizeAccountsPayload(json).map(a => {
+    const id = a.account_id || a.loginid || '';
+    const explicitType = String(a.account_type || '').toLowerCase();
+    const type = explicitType || ((id.startsWith('DT') || id.startsWith('DO')) ? 'demo' : 'real');
+    return {
+      account_id: id,
+      account_type: type,
+      balance: Number(a.balance ?? 0),
+      currency: a.currency || 'USD',
+      group: a.group || '',
+      status: a.status || 'active'
+    };
+  }).filter(a => a.account_id);
+
+  accountSessions = {
+    demo: accounts.find(a => a.account_type === 'demo' || a.account_id.startsWith('DT') || a.account_id.startsWith('DO')) || null,
+    real: accounts.find(a => a.account_type === 'real' || a.account_id.startsWith('CR') || a.account_id.startsWith('RO')) || null
+  };
+
+  renderAccountCards();
+  return accounts;
+}
+
+function renderAccountCards(){
+  const demo = accountSessions.demo;
+  const real = accountSessions.real;
+
+  document.getElementById('demoAccountId').textContent = demo?.account_id || 'Not available';
+  document.getElementById('realAccountId').textContent = real?.account_id || 'Not available';
+  document.getElementById('copyDemoAccountBtn').dataset.copy = demo?.account_id || '';
+  document.getElementById('copyRealAccountBtn').dataset.copy = real?.account_id || '';
+
+  document.getElementById('demoBalance').textContent = demo ? `${demo.currency} ${Number(demo.balance||0).toFixed(2)}` : '—';
+  document.getElementById('realBalance').textContent = real ? `${real.currency} ${Number(real.balance||0).toFixed(2)}` : '—';
+
+  document.getElementById('demoStatusText').textContent = demo ? 'Available' : 'Not available';
+  document.getElementById('realStatusText').textContent = real ? 'Available' : 'Not available';
+  document.getElementById('demoStatusDot').className = 'status-dot ' + (demo ? '' : 'offline');
+  document.getElementById('realStatusDot').className = 'status-dot ' + (real ? '' : 'offline');
+
+  const active = MODE === 'REAL' ? real : demo;
+  document.getElementById('patAccountId').textContent = active?.account_id || '—';
+  document.getElementById('patBalance').textContent = active ? `${active.currency} ${Number(active.balance||0).toFixed(2)}` : '—';
+}
+
+async function connectWithPAT(token){
+  const clean = String(token || '').trim();
+  if(!clean){ toast('Enter a PAT token', 'error'); return; }
+  if(authBusy) return;
+
+  authBusy = true;
+  setAuthStatus('🔎 Validating PAT and loading your accounts…');
+  try{
+    const accounts = await fetchUserAccounts(clean);
+    if(!accounts.length) throw new Error('The PAT is valid, but no Options accounts were returned.');
+    if(!accountSessions.demo && !accountSessions.real){
+      throw new Error('No supported demo or real Options account was returned for this token.');
+    }
+
+    accessToken = clean;
+    sessionStorage.setItem('emron_pat', clean);
+    manualDisconnect = false;
+
+    connectBtn.textContent = '✅ Connected';
+    connectBtn.className = 'btn btn-connected btn-sm';
+    setAuthStatus(`🟢 PAT verified · ${accounts.length} account${accounts.length===1?'':'s'} loaded`);
+
+    document.getElementById('connectModal').classList.remove('active');
+    document.getElementById('patModalTokenInput').value = '';
+
+    if(ws){ try{ ws.onclose = null; ws.close(); }catch(e){} ws = null; wsConnected = false; }
+    if((MODE === 'REAL' && !accountSessions.real) || (MODE === 'DEMO' && !accountSessions.demo)){
+      MODE = MODE === 'DEMO' && accountSessions.real ? 'REAL' : 'DEMO';
+      document.getElementById('modeLabel').textContent = MODE;
+      document.getElementById('topModeLabel').textContent = MODE;
+      document.getElementById('bulkModeTag').textContent = `→ /bulk-purchase/${MODE === 'REAL' ? 'real' : 'demo'}`;
+    }
+    renderAccountCards();
+    await connectWebSocket(accessToken);
+  } catch(err){
+    accessToken = null;
+    sessionStorage.removeItem('emron_pat');
+    accountSessions = {demo:null,real:null};
+    renderAccountCards();
+    setAuthStatus('❌ ' + err.message, true);
+    toast('❌ ' + err.message, 'error');
+  } finally {
+    authBusy = false;
+  }
+}
+
+function disconnectPAT(){
+  manualDisconnect = true;
+  if(botRunning) stopBot('manual');
+  if(window.wsPing) clearInterval(window.wsPing);
+  if(ws){ try{ ws.onclose = null; ws.close(); }catch(e){} ws = null; }
+  wsConnected = false;
+  accessToken = null;
+  accountInfo = null;
+  balance = 0;
+  accountSessions = {demo:null,real:null};
+  sessionStorage.removeItem('emron_pat');
+
+  connectBtn.textContent = 'Connect';
+  connectBtn.className = 'btn btn-primary btn-sm';
+  setAuthStatus('🔴 Not connected');
+
+  document.getElementById('patAccountId').textContent = '—';
+  document.getElementById('patBalance').textContent = '—';
+  renderAccountCards();
+  updateConnectionStatus(false);
+}
+
+async function loadStoredToken(){
+  const t = sessionStorage.getItem('emron_pat');
+  if(!t) return;
+  try{ await connectWithPAT(t); }catch(e){ sessionStorage.removeItem('emron_pat'); }
 }
 
 function subscribeTicks(){
-  if(!ws || ws.readyState !== WebSocket.OPEN || !wsConnected) return;
+  if(!ws || ws.readyState !== WebSocket.OPEN) return;
   const symbol = getSymbol(botConfig.market);
   if(tickSubId){
     ws.send(JSON.stringify({ forget: tickSubId, req_id: wsReqId++ }));
@@ -2527,38 +2480,17 @@ function subscribeTicks(){
   }
   ws.send(JSON.stringify({ ticks: symbol, subscribe: 1, req_id: wsReqId++ }));
 }
-
 function handleWsMessage(ev){
   let data;
   try { data = JSON.parse(ev.data); } catch(e){ return; }
-
-  if(data.msg_type === 'authorize'){
-    handleAuthorizeResponse(data);
-    return;
-  }
-
-  if(data.error && !wsConnected){
-    if(data.error.code === 'AuthorizationRequired' || data.error.code === 'InvalidToken'){
-      toast('❌ ' + (data.error.message || 'Authorization failed'), 'error');
-      pendingAuthToken = null;
-      return;
-    }
-  }
-
   switch(data.msg_type){
     case 'balance':
       if(data.balance){
-        const b = parseFloat(data.balance.balance);
-        balance = b;
-        document.getElementById('balanceValue').textContent = b.toFixed(2);
-        document.getElementById('patBalance').textContent = `${data.balance.currency || 'USD'} ${b.toFixed(2)}`;
-        if(MODE === 'DEMO'){
-          demoBalance = b;
-          document.getElementById('demoBalance').textContent = `$${b.toFixed(2)}`;
-        } else {
-          realBalance = b;
-          document.getElementById('realBalance').textContent = `$${b.toFixed(2)}`;
-        }
+        balance = parseFloat(data.balance.balance);
+        document.getElementById('balanceValue').textContent = balance.toFixed(2);
+        document.getElementById('patBalance').textContent = `${data.balance.currency || 'USD'} ${balance.toFixed(2)}`;
+        if(MODE === 'DEMO') document.getElementById('demoBalance').textContent = `$${balance.toFixed(2)}`;
+        else document.getElementById('realBalance').textContent = `$${balance.toFixed(2)}`;
       }
       break;
     case 'tick':
@@ -2576,7 +2508,6 @@ function handleWsMessage(ev){
       break;
   }
 }
-
 function updateConnectionStatus(connected){
   const dot = document.querySelector('#internetStatus .status-dot');
   const lbl = document.querySelector('#internetStatus span');
@@ -2584,6 +2515,17 @@ function updateConnectionStatus(connected){
     dot.className = 'status-dot' + (connected ? '' : ' offline');
     lbl.textContent = connected ? 'Online' : 'Offline';
   }
+  const pat = document.getElementById('patStatus');
+  pat.textContent = connected ? '🟢 Connected' : '🔴 Not connected';
+  pat.className = 'status-text' + (connected ? ' connected' : '');
+}
+
+/* ============================================================
+   AUTH
+   ============================================================ */
+function setAccessToken(token){
+  if(token) return connectWithPAT(token);
+  disconnectPAT();
 }
 
 /* ============================================================
@@ -2601,7 +2543,7 @@ function toast(msg, type='info'){
   el.className = `toast ${type}`;
   el.textContent = msg;
   toastContainer.appendChild(el);
-  setTimeout(() => el.remove(), 3400);
+  setTimeout(() => el.remove(), 3200);
 }
 
 function syncNavActive(tabName){
@@ -2637,10 +2579,22 @@ function setupNavMenu(){
   const burger  = document.getElementById('hamburger');
   if(!navMenu || !burger) return;
 
-  function openNav(){ navMenu.classList.add('open'); burger.classList.add('active'); burger.setAttribute('aria-expanded','true'); }
-  function closeNav(){ navMenu.classList.remove('open'); burger.classList.remove('active'); burger.setAttribute('aria-expanded','false'); }
+  function openNav(){
+    navMenu.classList.add('open');
+    burger.classList.add('active');
+    burger.setAttribute('aria-expanded','true');
+  }
+  function closeNav(){
+    navMenu.classList.remove('open');
+    burger.classList.remove('active');
+    burger.setAttribute('aria-expanded','false');
+  }
 
-  burger.addEventListener('click', e => { e.stopPropagation(); navMenu.classList.contains('open') ? closeNav() : openNav(); });
+  burger.addEventListener('click', e => {
+    e.stopPropagation();
+    navMenu.classList.contains('open') ? closeNav() : openNav();
+  });
+
   navMenu.querySelectorAll('[data-nav-tab]').forEach(item => {
     item.addEventListener('click', () => {
       const tabBtn = document.querySelector(`.tab[data-tab="${item.dataset.navTab}"]`);
@@ -2648,13 +2602,17 @@ function setupNavMenu(){
       closeNav();
     });
   });
+
   document.addEventListener('click', e => {
     if(!navMenu.classList.contains('open')) return;
     if(navMenu.contains(e.target) || e.target === burger) return;
     closeNav();
   });
-  document.addEventListener('keydown', e => { if(e.key === 'Escape') closeNav(); });
+  document.addEventListener('keydown', e => {
+    if(e.key === 'Escape') closeNav();
+  });
   window.addEventListener('resize', () => { if(window.innerWidth > 900) closeNav(); });
+
   syncNavActive('trading-hub');
 }
 
@@ -2689,9 +2647,8 @@ document.getElementById('botRounds').addEventListener('change', e => {
 });
 document.getElementById('botLossesToSwitch').addEventListener('change', e => {
   botConfig.lossesToSwitch = Math.max(1, parseInt(e.target.value,10)||1);
-  document.getElementById('activeStrategiesTag').textContent = botConfig.parallel
-    ? `parallel • ${selectedStrategies.length} strategies at once`
-    : `switch on loss • ${botConfig.lossesToSwitch} loss${botConfig.lossesToSwitch>1?'es':''}`;
+  document.getElementById('activeStrategiesTag').textContent =
+    `switch on loss • ${botConfig.lossesToSwitch} loss${botConfig.lossesToSwitch>1?'es':''}`;
 });
 document.getElementById('botTP').addEventListener('change', e => {
   botConfig.takeProfit = parseFloat(e.target.value)||20;
@@ -2700,16 +2657,6 @@ document.getElementById('botTP').addEventListener('change', e => {
 document.getElementById('botSL').addEventListener('change', e => {
   botConfig.stopLoss = parseFloat(e.target.value)||20;
   updateProfitDisplay();
-});
-document.getElementById('botMaxOpen').addEventListener('change', e => {
-  botConfig.maxOpen = Math.max(1, Math.min(10, parseInt(e.target.value,10)||3));
-  updateEngineStatus();
-});
-document.getElementById('botMinGap').addEventListener('change', e => {
-  botConfig.minBuyGap = Math.max(100, parseInt(e.target.value,10)||500);
-});
-document.getElementById('botSettleDelay').addEventListener('change', e => {
-  botConfig.delayAfterSettle = Math.max(0, Math.min(10, parseFloat(e.target.value)||2));
 });
 
 document.querySelectorAll('[data-toggle]').forEach(inp => {
@@ -2720,21 +2667,8 @@ document.querySelectorAll('[data-toggle]').forEach(inp => {
     else if(key === 'mainMode') botConfig.mainMode = on;
     else if(key === 'volSwitch') botConfig.volSwitch = on;
     else if(key === 'delay') botConfig.delayOn = on;
-    else if(key === 'parallel'){
-      botConfig.parallel = on;
-      /* Clear recovery state when switching to parallel; clear in-flight guard doesn't need reset */
-      if(on){
-        lossAccumulator = 0;
-        lossesInARow = 0;
-        currentStrategyIndex = 0;
-        toast('⚡ Parallel Mode ON — all strategies will trade together', 'parallel');
-      } else {
-        toast('🔁 Sequential Mode ON — switch-on-loss recovery active', 'info');
-      }
-    }
     inp.closest('.toggle-item').classList.toggle('on', on);
     updateEngineStatus();
-    renderActiveList();
   });
 });
 
@@ -2777,67 +2711,70 @@ document.getElementById('clearTradesBtn').addEventListener('click', () => {
 });
 
 connectBtn.addEventListener('click', () => {
+  const existing = accessToken || sessionStorage.getItem('emron_pat') || '';
+  document.getElementById('patModalTokenInput').value = existing;
   document.getElementById('connectModal').classList.add('active');
 });
 
-document.getElementById('manualTokenBtn').addEventListener('click', () => {
-  const t = document.getElementById('manualToken').value.trim();
-  if(!t){ toast('Paste a token first', 'error'); return; }
-  setAccessToken(t);
-  document.getElementById('manualToken').value = '';
-  document.getElementById('connectModal').classList.remove('active');
+document.getElementById('patModalConnectBtn').addEventListener('click', () => {
+  connectWithPAT(document.getElementById('patModalTokenInput').value);
 });
+
+document.getElementById('patModalTokenInput').addEventListener('keydown', e => {
+  if(e.key === 'Enter') connectWithPAT(e.target.value);
+});
+
+document.getElementById('patModalDisconnectBtn').addEventListener('click', disconnectPAT);
 
 document.getElementById('patConnectBtn').addEventListener('click', () => {
-  const t = document.getElementById('patTokenInput').value.trim();
-  if(!t){ toast('Enter a PAT token', 'error'); return; }
-  setAccessToken(t);
-  document.getElementById('patTokenInput').value = '';
+  connectWithPAT(document.getElementById('patTokenInput').value);
 });
 
-document.getElementById('patDisconnectBtn').addEventListener('click', () => setAccessToken(null));
-document.getElementById('oauthDisconnectBtn').addEventListener('click', () => setAccessToken(null));
+document.getElementById('patDisconnectBtn').addEventListener('click', disconnectPAT);
+document.getElementById('patRefreshBtn').addEventListener('click', async () => {
+  if(!accessToken) return toast('Connect a PAT first', 'error');
+  try {
+    await fetchUserAccounts(accessToken);
+    renderAccountCards();
+    toast('✅ Account details refreshed', 'success');
+  } catch(err) {
+    toast('❌ ' + err.message, 'error');
+  }
+});
 
 document.getElementById('topModeToggleBtn').addEventListener('click', () => {
-  const target = MODE === 'DEMO' ? 'REAL' : 'DEMO';
-  const targetToken = target === 'REAL' ? realToken : demoToken;
-
-  if(!targetToken){
-    toast(`⚠️ Paste a PAT for a ${target} account first`, 'error');
-    document.querySelector('.tab[data-tab="api-playground"]').click();
-    setTimeout(() => document.getElementById('patTokenInput').focus(), 200);
-    return;
-  }
-
   document.getElementById('modeCurrent').textContent = MODE;
-  document.getElementById('modeTarget').textContent = target;
-  document.getElementById('modeConfirmTitle').textContent = target === 'REAL' ? 'Switch to REAL' : 'Switch to DEMO';
-  document.getElementById('modeConfirmWarning').innerHTML = target === 'REAL'
+  document.getElementById('modeTarget').textContent = MODE === 'DEMO' ? 'REAL' : 'DEMO';
+  document.getElementById('modeConfirmTitle').textContent = MODE === 'DEMO' ? 'Switch to REAL' : 'Switch to DEMO';
+  document.getElementById('modeConfirmWarning').innerHTML = MODE === 'DEMO'
     ? '<strong>⚠️ You are about to trade with REAL money.</strong>'
     : '<strong>🛡️ Switch back to demo virtual funds.</strong>';
   document.getElementById('modeConfirmModal').classList.add('active');
 });
-
 document.getElementById('modeConfirmBtn').addEventListener('click', () => {
-  const target = MODE === 'DEMO' ? 'REAL' : 'DEMO';
-  const targetToken = target === 'REAL' ? realToken : demoToken;
-
-  if(!targetToken){
-    toast(`⚠️ Paste a PAT for a ${target} account first`, 'error');
-    document.getElementById('modeConfirmModal').classList.remove('active');
-    return;
-  }
-
-  MODE = target;
+  MODE = MODE === 'DEMO' ? 'REAL' : 'DEMO';
   document.getElementById('topModeLabel').textContent = MODE;
   document.getElementById('modeLabel').textContent = MODE;
   document.getElementById('bulkModeTag').textContent = `→ /bulk-purchase/${MODE === 'REAL' ? 'real' : 'demo'}`;
   document.getElementById('modeConfirmModal').classList.remove('active');
   toast(`🔄 Switched to ${MODE}`, 'info');
-
-  setAccessToken(targetToken);
+  if(accessToken){
+    const targetAccount = MODE === 'REAL' ? accountSessions.real : accountSessions.demo;
+    if(!targetAccount){
+      toast(`⚠️ No ${MODE.toLowerCase()} account is available for this PAT.`, 'error');
+      MODE = MODE === 'REAL' ? 'DEMO' : 'REAL';
+      document.getElementById('topModeLabel').textContent = MODE;
+      document.getElementById('modeLabel').textContent = MODE;
+      document.getElementById('bulkModeTag').textContent = `→ /bulk-purchase/${MODE === 'REAL' ? 'real' : 'demo'}`;
+      renderAccountCards();
+      return;
+    }
+    if(ws){ ws.onclose = null; ws.close(); }
+    wsConnected = false;
+    renderAccountCards();
+    setTimeout(() => connectWebSocket(accessToken), 250);
+  }
 });
-
 document.getElementById('modeToggleBtn').addEventListener('click', () => document.getElementById('topModeToggleBtn').click());
 
 document.getElementById('bulkBuyBtn').addEventListener('click', async () => {
@@ -2882,9 +2819,11 @@ document.getElementById('bulkClearBtn').addEventListener('click', () => {
 
 document.querySelectorAll('.copy-btn').forEach(b => {
   b.addEventListener('click', () => {
-    const txt = b.dataset.copy || '';
-    if(!txt){ return; }
-    navigator.clipboard.writeText(txt).then(() => toast(`Copied ${txt}`, 'success'));
+    const value = b.dataset.copy || '';
+    if(!value) return toast('No account ID available', 'error');
+    navigator.clipboard.writeText(value)
+      .then(() => toast(`Copied`, 'success'))
+      .catch(() => toast('Copy failed', 'error'));
   });
 });
 document.querySelectorAll('.faq-question').forEach(q => {
@@ -2923,9 +2862,14 @@ HUNTER.extraSymbols.forEach(s => {
       streak:{dir:null,len:0},matches:{stage:"watching",oppositeRun:0,stageTicks:0,setup:null,lastSignal:null,lastSignalTick:-Infinity}});
   }
 });
-function hunterWindow(mkt){ return mkt.digits.slice(-HUNTER.window); }
+function hunterWindow(mkt){
+  return mkt.digits.slice(-HUNTER.window);
+}
 function hunterPct(count,n){ return n ? count/n : 0; }
-function hunterWilsonPct(count,n,p0=.5){ if(!n) return 0; return Math.max(0,Math.min(1,(count+0.5)/(n+1))); }
+function hunterWilsonPct(count,n,p0=.5){
+  if(!n) return 0;
+  return Math.max(0,Math.min(1,(count+0.5)/(n+1)));
+}
 function hunterEvenOdd(mkt){
   const d=hunterWindow(mkt), n=d.length;
   if(n<HUNTER.minTicks) return null;
@@ -2937,14 +2881,28 @@ function hunterEvenOdd(mkt){
     pct:Math.max(e,o), raw: isEven?even/n:odd/n, count:isEven?even:odd, n,
     score:Math.abs(isEven?evenZ:oddZ), detail:`Even ${Math.round(e*100)}% · Odd ${Math.round(o*100)}%`};
 }
+
+/* ==== RISE / FALL HUNTER ==== */
 function hunterRiseFall(mkt){
   const r = evaluateRiseFall(mkt, HUNTER.window);
   if(!r) return null;
   const confidence = r.confidence;
-  return { market: mkt, kind: 'RISE/FALL', label: r.label, direction: r.direction,
-    pct: confidence / 100, raw: r.absScore, count: r.n, n: r.n, score: r.absScore,
-    detail: `${r.meta.regime} · mom ${r.meta.momentumGlyph} · ER ${r.meta.er.toFixed(2)} · ${confidence}%` };
+  return {
+    market: mkt,
+    kind: 'RISE/FALL',
+    label: r.label,
+    direction: r.direction,
+    pct: confidence / 100,
+    raw: r.absScore,
+    count: r.n,
+    n: r.n,
+    score: r.absScore,
+    detail: `${r.meta.regime} · mom ${r.meta.momentumGlyph} · ER ${r.meta.er.toFixed(2)} · ${confidence}%`
+  };
 }
+
+/* ==== ONLY UPS / ONLY DOWNS HUNTER ====
+   2-tick run-length probability over the last 50 ticks. */
 function hunterOnlyUpDown(mkt){
   const r = evaluateOnlyUpDown(mkt);
   if(!r) return null;
@@ -2952,20 +2910,41 @@ function hunterOnlyUpDown(mkt){
   const streakWord = r.meta.currentStreakDir
     ? `${r.meta.currentStreakLen}${r.meta.currentStreakDir === 'up' ? '↑' : '↓'}`
     : '—';
-  return { market: mkt, kind: 'ONLY/UP/DOWN', label: r.label, direction: r.direction,
-    pct: confidence / 100, raw: r.absScore, count: r.n, n: r.n, score: r.absScore,
+  return {
+    market: mkt,
+    kind: 'ONLY/UP/DOWN',
+    label: r.label,
+    direction: r.direction,
+    pct: confidence / 100,
+    raw: r.absScore,
+    count: r.n,
+    n: r.n,
+    score: r.absScore,
     duration: r.meta.duration,
-    detail: `${r.meta.duration}t · adv ${r.meta.advantage.toFixed(2)}x · streak ${streakWord} · ${confidence}%` };
+    detail: `${r.meta.duration}t · adv ${r.meta.advantage.toFixed(2)}x · streak ${streakWord} · ${confidence}%`
+  };
 }
+
+/* ==== HIGH / LOW TICK HUNTER ==== */
 function hunterHighLow(mkt){
   const r = evaluateHighLow(mkt);
   if(!r) return null;
   const confidence = r.confidence;
-  return { market: mkt, kind: 'HIGH/LOW', label: r.label, direction: r.direction,
-    pct: confidence / 100, raw: r.absScore, count: r.n, n: r.n, score: r.absScore,
+  return {
+    market: mkt,
+    kind: 'HIGH/LOW',
+    label: r.label,
+    direction: r.direction,
+    pct: confidence / 100,
+    raw: r.absScore,
+    count: r.n,
+    n: r.n,
+    score: r.absScore,
     barrier: r.meta.barrier,
-    detail: `${r.meta.sideLabel} · z ${r.absZ.toFixed(2)} · ${confidence}%` };
+    detail: `${r.meta.sideLabel} · z ${r.absZ.toFixed(2)} · ${confidence}%`
+  };
 }
+
 function hunterBarrier(mkt,b){
   const d=hunterWindow(mkt), n=d.length;
   if(n<HUNTER.minTicks) return null;
@@ -3001,7 +2980,10 @@ function hunterEval(mkt,tab){
 }
 function hunterRank(tab){
   const out=[];
-  engineState.markets.forEach(mkt=>{ const r=hunterEval(mkt,tab); if(r) out.push(r); });
+  engineState.markets.forEach(mkt=>{
+    const r=hunterEval(mkt,tab);
+    if(r) out.push(r);
+  });
   return out.sort((a,b)=>b.pct-a.pct || b.score-a.score);
 }
 function hunterContractFor(r){
@@ -3019,7 +3001,9 @@ function hunterExecutableRows(){
   const rows=hunterRank(HUNTER.tab);
   return rows.filter(r => r.pct >= HUNTER.threshold && !!hunterContractFor(r));
 }
-function hunterModeLabel(){ return HUNTER.mode === 'evenodd' ? 'EVEN/ODD AI' : 'SNIPER HUNTER'; }
+function hunterModeLabel(){
+  return HUNTER.mode === 'evenodd' ? 'EVEN/ODD AI' : 'SNIPER HUNTER';
+}
 function updateHunterExecuteButton(rowsOverride=null){
   const rows=rowsOverride || hunterExecutableRows();
   const btn=document.getElementById('hunterExecuteAllBtn');
@@ -3044,7 +3028,7 @@ function hunterExecuteAll(){
   const rows=hunterExecutableRows();
   const status=document.getElementById('hunterExecStatus');
   if(!wsConnected){
-    toast('Connect a Deriv account before executing Hunter signals.','error');
+    toast('Connect the Deriv account before executing Hunter signals.','error');
     if(status){ status.className='hunter-exec-status warn'; status.textContent='Account not connected — no trades submitted.'; }
     return;
   }
@@ -3056,6 +3040,7 @@ function hunterExecuteAll(){
     if(status){ status.className='hunter-exec-status warn'; status.textContent='Jumble has no verified contract mapping and was not executed.'; }
     return;
   }
+
   const submitted=[];
   rows.forEach(r=>{
     const c=hunterContractFor(r);
@@ -3067,6 +3052,7 @@ function hunterExecuteAll(){
     placeStrategyContract(strat, r.market.code);
     submitted.push(`${r.market.short} ${r.label}`);
   });
+
   lastAction=`${hunterModeLabel()} → ${submitted.length} markets submitted together`;
   updateEngineStatus();
   if(status){
@@ -3078,7 +3064,7 @@ function hunterExecuteAll(){
 function hunterExecute(r){
   const c=hunterContractFor(r);
   if(!c){ toast('Jumble is scanner-only in this reconstruction.','info'); return; }
-  if(!wsConnected){ toast('Connect a Deriv account before executing a Hunter signal.','error'); return; }
+  if(!wsConnected){ toast('Connect the Deriv account before executing a Hunter signal.','error'); return; }
   const strat={
     type:c.type, stake:botConfig.defaultStake, duration:c.duration||1, prediction:c.prediction,
     wins:0, losses:0, pl:0,
@@ -3134,8 +3120,10 @@ function setupHunterUI(){
       document.querySelectorAll('[data-hmode]').forEach(x=>x.classList.remove('active'));
       btn.classList.add('active');
       HUNTER.mode=btn.dataset.hmode;
+
       HUNTER.tab = HUNTER.mode === 'evenodd' ? 'evenodd' : 'risefall';
       HUNTER.threshold = HUNTER.mode === 'evenodd' ? 0.65 : 0.70;
+
       document.querySelectorAll('[data-htab]').forEach(x=>x.classList.toggle('active',x.dataset.htab===HUNTER.tab));
       document.querySelectorAll('[data-th]').forEach(x=>x.classList.toggle('active',Number(x.dataset.th)===HUNTER.threshold));
       renderHunter();
@@ -3167,11 +3155,12 @@ setupTabs();
 setupModals();
 setupNavMenu();
 setupHunterUI();
-loadStoredTokens();
+loadStoredToken();
 document.getElementById('modeLabel').textContent = MODE;
 document.getElementById('topModeLabel').textContent = MODE;
 document.getElementById('bulkModeTag').textContent = `→ /bulk-purchase/${MODE === 'REAL' ? 'real' : 'demo'}`;
 
+// Seed defaults (only-ups / only-downs to showcase the multi-tick strategies)
 addStrategy('ONLY_UPS');
 addStrategy('ONLY_DOWNS');
 
@@ -3207,7 +3196,8 @@ setTimeout(() => {
 }, 800);
 
 console.log('%c🔷 EMRON AI — Strategy Row + Pulse Engine', 'color:#6677ff;font-weight:bold;font-size:14px');
-console.log('Two execution modes: Sequential (switch-on-loss recovery) and Parallel (all strategies at once).');
+console.log('Sidebar removed — hamburger dropdown nav is active on all screen sizes.');
+console.log('Sniper Hunter scans Rise/Fall, Only Ups/Downs (2-tick), High/Low Tick, Over/Under across all markets.');
 
 })();
 </script>
