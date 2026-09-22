@@ -78,7 +78,7 @@ a{color:inherit;text-decoration:none}
 .avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#6677ff,#4455ee);display:flex;
   align-items:center;justify-content:center;font-weight:600;color:#fff;cursor:pointer;border:2px solid var(--border);font-size:12px;flex-shrink:0}
 
-/* ===== HAMBURGER — now visible on ALL screen sizes ===== */
+/* ===== HAMBURGER — visible on ALL screen sizes ===== */
 .hamburger{display:flex;align-items:center;justify-content:center;padding:8px 10px;font-size:20px;flex-shrink:0;
   border-radius:var(--radius-md);color:var(--text-muted);transition:all .15s;line-height:1}
 .hamburger:hover{background:var(--bg-surface);color:var(--text-primary)}
@@ -869,6 +869,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 
     <div class="hunter-tabs" id="hunterSignalTabs">
       <button class="hunter-tab active" data-htab="evenodd">Even / Odd</button>
+      <button class="hunter-tab" data-htab="risefall">📈 Rise / Fall</button>
       <button class="hunter-tab" data-htab="o1u8">O1 / U8</button>
       <button class="hunter-tab" data-htab="o2u7">O2 / U7</button>
       <button class="hunter-tab" data-htab="o3u6">O3 / U6</button>
@@ -994,6 +995,17 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
       <div class="faq-item">
         <div class="faq-question">How does the bot pick a signal?<span>+</span></div>
         <div class="faq-answer">For the current strategy in the cycle, the bot asks Pulse for that strategy's confirmation on the selected market. If the signal is active, it places the contract. Otherwise it waits for the next tick.</div>
+      </div>
+    </div>
+    <div class="faq-category">
+      <h3>🎯 AI Hunter</h3>
+      <div class="faq-item">
+        <div class="faq-question">What does the Sniper Hunter scan?<span>+</span></div>
+        <div class="faq-answer">Sniper Hunter now scans all 15 markets (10 Volatility + 5 Jump) with the Pulse Rise/Fall engine. It looks for trending conditions — momentum, structure, trend slope and efficiency ratio — and only shows markets that meet the active confidence threshold (65–80%). Choppy regimes are automatically capped at 60% so they never appear as READY.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question">Can I still trade Over/Under and Even/Odd from the Hunter?<span>+</span></div>
+        <div class="faq-answer">Yes. The Even/Odd tab carries the parity scan, and the O1/U8, O2/U7 and O3/U6 tabs carry the barrier scans. Use the signal tab row to switch between them at any time.</div>
       </div>
     </div>
     <div class="faq-category">
@@ -1271,10 +1283,7 @@ function evaluateOverUnder(mkt, w){
   return { category:'overunder', label:z>=0?'OVER':'UNDER', direction:z>=0?'up':'down', z, absZ:Math.abs(z), n:d.length };
 }
 
-/* ==== HIGH / LOW TICK ENGINE ====
-   Compares last-digit distribution against a barrier digit.
-   Returns HIGH TICK (> barrier) when the above-side has positive z vs baseline,
-   or LOW TICK (< barrier) when the below-side does. Direction 'up' = HIGH, 'down' = LOW. */
+/* ==== HIGH / LOW TICK ENGINE ==== */
 function evaluateHighLow(mkt){
   const win=engineState.highLowWindow;
   const d=mkt.digits.slice(-win); if(d.length<HL.MIN_TICKS) return null;
@@ -1711,9 +1720,6 @@ function hasSignalForStrategy(strat){
     return r.label === 'UNDER';
   }
 
-  /* ==== HIGH TICK / LOW TICK ====
-     Both map to the Pulse 'highlow' engine. HIGH_TICK fires on direction 'up'
-     (last digit above barrier). LOW_TICK fires on direction 'down' (below barrier). */
   if(strat.type === 'HIGH_TICK' || strat.type === 'LOW_TICK'){
     const key = code + '|highlow';
     const conf = engineState.activeConfirmations.get(key);
@@ -1745,7 +1751,6 @@ function placeStrategyContract(strat, marketOverride=null){
     amount: stake, basis:'stake', contract_type: def.contract,
     currency:'USD', duration, duration_unit:'t', underlying_symbol: marketSymbol
   };
-  // For digit-barrier contracts (Over/Under/Matches/Differs/High/Low Tick) pass the digit as barrier.
   if(def.needsDigit && strat.prediction != null) params.barrier = String(strat.prediction);
 
   if(!wsConnected){
@@ -2409,7 +2414,6 @@ function setupNavMenu(){
     });
   });
 
-  /* Close on outside click / Escape / resize to desktop */
   document.addEventListener('click', e => {
     if(!navMenu.classList.contains('open')) return;
     if(navMenu.contains(e.target) || e.target === burger) return;
@@ -2667,6 +2671,29 @@ function hunterEvenOdd(mkt){
     pct:Math.max(e,o), raw: isEven?even/n:odd/n, count:isEven?even:odd, n,
     score:Math.abs(isEven?evenZ:oddZ), detail:`Even ${Math.round(e*100)}% · Odd ${Math.round(o*100)}%`};
 }
+
+/* ==== NEW: RISE / FALL HUNTER ====
+   Re-uses the Pulse Rise/Fall engine (momentum + structure + trend + regime)
+   and scans every market. Choppy regimes are auto-capped at 60% confidence
+   by the engine, so they will naturally fall below the 65–80% hunter threshold. */
+function hunterRiseFall(mkt){
+  const r = evaluateRiseFall(mkt, HUNTER.window);
+  if(!r) return null;
+  const confidence = r.confidence;
+  return {
+    market: mkt,
+    kind: 'RISE/FALL',
+    label: r.label,
+    direction: r.direction,
+    pct: confidence / 100,
+    raw: r.absScore,
+    count: r.n,
+    n: r.n,
+    score: r.absScore,
+    detail: `${r.meta.regime} · mom ${r.meta.momentumGlyph} · ER ${r.meta.er.toFixed(2)} · ${confidence}%`
+  };
+}
+
 function hunterBarrier(mkt,b){
   const d=hunterWindow(mkt), n=d.length;
   if(n<HUNTER.minTicks) return null;
@@ -2691,6 +2718,7 @@ function hunterJumble(mkt){
 }
 function hunterEval(mkt,tab){
   if(tab==='evenodd') return hunterEvenOdd(mkt);
+  if(tab==='risefall') return hunterRiseFall(mkt);
   if(tab==='o1u8') return hunterBarrier(mkt,1);
   if(tab==='o2u7') return hunterBarrier(mkt,2);
   if(tab==='o3u6') return hunterBarrier(mkt,3);
@@ -2708,6 +2736,7 @@ function hunterRank(tab){
 function hunterContractFor(r){
   if(!r) return null;
   if(r.kind==='EVEN/ODD') return {type:r.label==='EVEN'?'EVEN':'ODD',prediction:null};
+  if(r.kind==='RISE/FALL') return {type:r.label==='RISE'?'RISE':'FALL',prediction:null};
   if(r.kind==='O1/U8') return {type:r.label.startsWith('OVER')?'OVER':'UNDER',prediction:r.label.startsWith('OVER')?1:8};
   if(r.kind==='O2/U7') return {type:r.label.startsWith('OVER')?'OVER':'UNDER',prediction:r.label.startsWith('OVER')?2:7};
   if(r.kind==='O3/U6') return {type:r.label.startsWith('OVER')?'OVER':'UNDER',prediction:r.label.startsWith('OVER')?3:6};
@@ -2838,8 +2867,11 @@ function setupHunterUI(){
       document.querySelectorAll('[data-hmode]').forEach(x=>x.classList.remove('active'));
       btn.classList.add('active');
       HUNTER.mode=btn.dataset.hmode;
-      HUNTER.tab=HUNTER.mode==='evenodd'?'evenodd':'o2u7';
-      HUNTER.threshold=HUNTER.mode==='evenodd'?0.65:0.70;
+
+      // Sniper Hunter defaults to Rise/Fall; Even/Odd AI defaults to parity.
+      HUNTER.tab = HUNTER.mode === 'evenodd' ? 'evenodd' : 'risefall';
+      HUNTER.threshold = HUNTER.mode === 'evenodd' ? 0.65 : 0.70;
+
       document.querySelectorAll('[data-htab]').forEach(x=>x.classList.toggle('active',x.dataset.htab===HUNTER.tab));
       document.querySelectorAll('[data-th]').forEach(x=>x.classList.toggle('active',Number(x.dataset.th)===HUNTER.threshold));
       renderHunter();
@@ -2914,6 +2946,7 @@ setTimeout(() => {
 
 console.log('%c🔷 EMRON AI — Strategy Row + Pulse Engine', 'color:#6677ff;font-weight:bold;font-size:14px');
 console.log('Sidebar removed — hamburger dropdown nav is active on all screen sizes.');
+console.log('Sniper Hunter now scans Rise/Fall across all markets.');
 
 })();
 </script>
