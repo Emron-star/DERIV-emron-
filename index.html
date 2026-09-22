@@ -1003,11 +1003,15 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
       <h3>🎯 AI Hunter</h3>
       <div class="faq-item">
         <div class="faq-question">What does the Sniper Hunter scan?<span>+</span></div>
-        <div class="faq-answer">Sniper Hunter scans all 15 markets (10 Volatility + 5 Jump) across four signal families: Rise/Fall (momentum + structure + trend + efficiency ratio), Only Ups / Only Downs (run-length probability over the last 50 ticks), High/Low Tick (barrier-digit z-test against the fair baseline), and Over/Under (barrier z-test). Each tab re-ranks every market and only shows the strongest edges at or above the active threshold.</div>
+        <div class="faq-answer">Sniper Hunter scans all 15 markets (10 Volatility + 5 Jump) across four signal families: Rise/Fall (momentum + structure + trend + efficiency ratio), Only Ups / Only Downs (2-tick run-length probability over the last 50 ticks), High/Low Tick (barrier-digit z-test against the fair baseline), and Over/Under (barrier z-test). Each tab re-ranks every market and only shows the strongest edges at or above the active threshold.</div>
       </div>
       <div class="faq-item">
         <div class="faq-question">How does the High / Low Tick tab pick a barrier?<span>+</span></div>
         <div class="faq-answer">The High/Low Tick engine tests every barrier from 1 to 8 on each market and returns the strongest above/below deviation. The winning barrier is carried into the contract, so the trades fire with the exact barrier the AI selected, not a hardcoded default.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question">Why does Only Ups/Downs use 2 ticks?<span>+</span></div>
+        <div class="faq-answer">Only Ups/Downs contracts pay when the market moves in the same direction for N consecutive ticks. EMRON is calibrated for a 2-tick duration — the confidence model uses a baseline of 0.25 (a 2-in-a-row directional bias) rather than the much rarer 5-in-a-row baseline, giving more realistic and actionable confidence scores.</div>
       </div>
       <div class="faq-item">
         <div class="faq-question">Can I still trade Over/Under and Even/Odd from the Hunter?<span>+</span></div>
@@ -1194,7 +1198,7 @@ const engineState = {
   threshold: 1.0,
   highLowWindow: 100,
   highLowBarrier: 'auto',
-  onlyUpDownDuration: 5
+  onlyUpDownDuration: 2
 };
 
 const PULSE_SYMBOLS = [
@@ -1287,7 +1291,9 @@ function evaluateOverUnder(mkt, w){
   return { category:'overunder', label:z>=0?'OVER':'UNDER', direction:z>=0?'up':'down', z, absZ:Math.abs(z), n:d.length };
 }
 
-/* ==== HIGH / LOW TICK ENGINE ==== */
+/* ==== HIGH / LOW TICK ENGINE ====
+   Confidence divisor is 2 so that a genuine barrier-digit skew (z ≈ 1.0+)
+   clears the Sniper threshold instead of sitting just under it. */
 function evaluateHighLow(mkt){
   const win=engineState.highLowWindow;
   const d=mkt.digits.slice(-win); if(d.length<HL.MIN_TICKS) return null;
@@ -1310,7 +1316,7 @@ function evaluateHighLow(mkt){
     if(!best||c.absScore>best.absScore) best=c;
   }
   if(!best) return null;
-  const conf=Math.round(50+45*Math.tanh(best.absZ/3));
+  const conf=Math.round(50+45*Math.tanh(best.absZ/2));
   return { category:'highlow', label:`${best.label} ${best.sideLabel}`, direction:best.direction,
     score:best.direction==='up'?best.absScore:-best.absScore, absScore:best.absScore, strength:best.absScore,
     confidence:conf, z:best.z, absZ:best.absZ, n,
@@ -1332,7 +1338,7 @@ function evaluateOnlyUpDown(mkt){
   for(let i=q.length-lb;i<q.length;i++){ const d=q[i]-q[i-1]; if(d>0)ups++; else if(d<0)downs++; }
   const total=ups+downs; if(total<10) return null;
   const pUp=(ups+0.5)/(total+1), pDown=1-pUp;
-  const dur=engineState.onlyUpDownDuration;
+  const dur=engineState.onlyUpDownDuration;   // now 2
   const baseline=Math.pow(0.5,dur);
   const pU=Math.pow(pUp,dur), pD=Math.pow(pDown,dur);
   const isUps=pU>=pD;
@@ -2695,9 +2701,7 @@ function hunterRiseFall(mkt){
 }
 
 /* ==== ONLY UPS / ONLY DOWNS HUNTER ====
-   Uses the Pulse run-length engine over the last 50 ticks. Confidence is
-   scaled by both the probability of N consecutive same-direction moves and
-   the strength of the directional bias (Wilson z on up/down counts). */
+   2-tick run-length probability over the last 50 ticks. */
 function hunterOnlyUpDown(mkt){
   const r = evaluateOnlyUpDown(mkt);
   if(!r) return null;
@@ -2720,11 +2724,7 @@ function hunterOnlyUpDown(mkt){
   };
 }
 
-/* ==== HIGH / LOW TICK HUNTER ====
-   Uses the Pulse high/low engine, which tests every barrier 1–8 on each
-   market and returns the strongest above/below deviation. The winning
-   barrier is carried into the contract so trades fire with the exact
-   barrier the AI picked. */
+/* ==== HIGH / LOW TICK HUNTER ==== */
 function hunterHighLow(mkt){
   const r = evaluateHighLow(mkt);
   if(!r) return null;
@@ -2840,9 +2840,6 @@ function hunterExecuteAll(){
     return;
   }
 
-  // Every proposal is sent in the same JavaScript turn. The Deriv socket
-  // processes the requests independently, so qualifying markets are submitted
-  // together rather than waiting for one contract to settle before submitting the next.
   const submitted=[];
   rows.forEach(r=>{
     const c=hunterContractFor(r);
@@ -2923,7 +2920,6 @@ function setupHunterUI(){
       btn.classList.add('active');
       HUNTER.mode=btn.dataset.hmode;
 
-      // Sniper Hunter defaults to Rise/Fall; Even/Odd AI defaults to parity.
       HUNTER.tab = HUNTER.mode === 'evenodd' ? 'evenodd' : 'risefall';
       HUNTER.threshold = HUNTER.mode === 'evenodd' ? 0.65 : 0.70;
 
@@ -2964,7 +2960,7 @@ document.getElementById('modeLabel').textContent = MODE;
 document.getElementById('topModeLabel').textContent = MODE;
 document.getElementById('bulkModeTag').textContent = `→ /bulk-purchase/${MODE === 'REAL' ? 'real' : 'demo'}`;
 
-// Seed defaults (only-ups / only-downs / high-tick to showcase the new entry)
+// Seed defaults (only-ups / only-downs to showcase the multi-tick strategies)
 addStrategy('ONLY_UPS');
 addStrategy('ONLY_DOWNS');
 
@@ -3001,7 +2997,7 @@ setTimeout(() => {
 
 console.log('%c🔷 EMRON AI — Strategy Row + Pulse Engine', 'color:#6677ff;font-weight:bold;font-size:14px');
 console.log('Sidebar removed — hamburger dropdown nav is active on all screen sizes.');
-console.log('Sniper Hunter now scans Rise/Fall, Only Ups/Downs, High/Low Tick across all markets.');
+console.log('Sniper Hunter scans Rise/Fall, Only Ups/Downs (2-tick), High/Low Tick, Over/Under across all markets.');
 
 })();
 </script>
