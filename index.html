@@ -744,6 +744,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
           <div class="setting-row"><span class="label">Current strategy</span><span class="value" id="engCurrent" style="color:var(--accent-cyan);">—</span></div>
           <div class="setting-row"><span class="label">Recovery</span><span class="value" id="engRecovery">$0.00</span></div>
           <div class="setting-row"><span class="label">Open contracts</span><span class="value" id="engOpen">0 / 3</span></div>
+          <div class="setting-row"><span class="label">Last stake sent</span><span class="value" id="engLastStake" style="color:var(--accent-cyan);">—</span></div>
           <div class="setting-row"><span class="label">RL backoff</span><span class="value" id="engRLBackoff" style="color:var(--accent-green);">idle</span></div>
         </div>
         <div class="settings-list" style="margin-top:8px;border-top:1px solid var(--border);padding-top:8px;">
@@ -1245,7 +1246,7 @@ let selectedStrategies = [];
 let botConfig = {
   market:'Volatility 50',
   defaultTicks:1,
-  defaultStake:0.35,
+  defaultStake:normalizeStake(0.35),
   defaultDigit:2,
   rounds:30,
   lossesToSwitch:1,
@@ -1297,7 +1298,7 @@ const botFiredSignalKeys = new Map();
 let trades = [];
 
 const adaptiveEngine = {
-  version: 2,
+  version: 3,
   storeKey: 'emron_ai_learning_v2',
   models: new Map(),
   pendingContexts: new Map(),
@@ -1307,7 +1308,7 @@ const adaptiveEngine = {
     startBalance: 0, peakBalance: 0, dayKey: '', dailyProfit: 0,
     lifeScore: 50, learningUpdates: 0, blockedEntries: 0,
     marketSwitches: 0, strategySwitches: 0, consecutiveLosses: 0,
-    cooldownUntil: 0, mode: 'TRAINING', currentMarket: '—', currentStrategy: '—'
+    cooldownUntil: 0, mode: 'TRAINING', currentMarket: '—', currentStrategy: '—', lastStakeSent: '—'
   },
   dailyLedger: {}
 };
@@ -1808,7 +1809,7 @@ function renderActiveList(){
       if(!strat) return;
       let v = parseFloat(inp.value);
       if(isNaN(v)) v = 0;
-      if(field === 'stake') strat.stake = Math.max(0.35, v);
+      if(field === 'stake') strat.stake = normalizeStake(v);
       else if(field === 'duration') strat.duration = Math.max(1, Math.min(10, Math.round(v)));
       else if(field === 'prediction') strat.prediction = Math.max(0, Math.min(9, Math.round(v)));
       renderActiveList();
@@ -1886,8 +1887,21 @@ function selectedCandidatePool(){
   engineState.markets.forEach(m=>rows.push(...getCandidatesForMarket(m)));
   return rankAdaptiveCandidates(rows);
 }
+function normalizeStake(value){
+  const n=Number(value);
+  if(!Number.isFinite(n)) return 0.35;
+  // Convert to integer cents first. This avoids binary floating-point tails
+  // such as 4.119999999999999 reaching the Deriv proposal validator.
+  const cents=Math.max(35, Math.round((n + Number.EPSILON) * 100));
+  return cents / 100;
+}
+function stakeForApi(value){
+  const stake=normalizeStake(value);
+  const text=stake.toFixed(2);
+  return { number:Number(text), text };
+}
 function adaptiveStake(strat, candidate=null){
-  const base=Math.max(0.35, Number(strat?.stake||botConfig.defaultStake||0.35));
+  const base=normalizeStake(Math.max(0.35, Number(strat?.stake||botConfig.defaultStake||0.35)));
   const currentBal=Math.max(0,Number(balance||0));
   if(!currentBal) return base;
   const confidence=Number(candidate?.adaptiveConfidence || candidate?.confidence || 65);
@@ -1897,7 +1911,7 @@ function adaptiveStake(strat, candidate=null){
   const drawdownScale=botConfig.survivalMode && drawdown>0 ? clamp(1-(drawdown/Math.max(0.01,botConfig.softDrawdownPct))*0.55,0.35,1) : 1;
   const lifeScale=botConfig.adaptiveLearning && adaptiveEngine.session.lifeScore>=65 ? clamp(1 + (adaptiveEngine.session.lifeScore-65)/500,1,1.07) : 0.92;
   const cap=Math.max(0.35, currentBal*botConfig.maxStakePctBalance);
-  return clamp(Math.min(base*confidenceScale*drawdownScale*lifeScale, cap),0.35,Math.max(0.35,cap));
+  return normalizeStake(clamp(Math.min(base*confidenceScale*drawdownScale*lifeScale, cap),0.35,Math.max(0.35,cap)));
 }
 function ledgerKey(){ return `${learningAccountKey()}|${dayKey()}`; }
 function loadDailyLedger(){
@@ -1964,6 +1978,7 @@ function refreshBrainStatus(){
   set('brainAccountFloor',floor>0?`$${floor.toFixed(2)}`:'—','warn');
   set('brainDrawdown',`${dd.toFixed(1)}%`,dd>=botConfig.softDrawdownPct*100?'warn':'');
   set('brainMarket',adaptiveEngine.session.currentMarket || botConfig.market || '—','cyan');
+  const stakeEl=document.getElementById('engLastStake'); if(stakeEl) stakeEl.textContent=adaptiveEngine.session.lastStakeSent&&adaptiveEngine.session.lastStakeSent!=='—'?`$${adaptiveEngine.session.lastStakeSent}`:'—';
   const gateEl=document.getElementById('brainGate');
   if(gateEl){ gateEl.textContent=adaptiveEngine.lastGate?.allowed ? 'READY' : 'BLOCKED'; gateEl.className='brain-value '+(adaptiveEngine.lastGate?.allowed?'good':'warn'); }
   const action=document.getElementById('brainAction'); if(action) action.textContent=adaptiveEngine.lastGate?.detail || 'Collecting evidence before the next entry…';
@@ -2271,15 +2286,27 @@ function placeStrategyContract(strat, marketOverride=null, options={}){
     setAdaptiveGate(false,'gap','Entry pacing gate is active after the previous request.');
     return false;
   }
-  const stake = Number(options.stakeOverride ?? adaptiveStake(strat,candidate));
+  const stakeData = stakeForApi(options.stakeOverride ?? adaptiveStake(strat,candidate));
+  const stake = stakeData.number;
+  const stakeText = stakeData.text;
   const duration = strat.duration || def.duration;
   const params = {
     amount: stake, basis:'stake', contract_type: def.contract,
-    currency:'USD', duration, duration_unit:'t', underlying_symbol: marketSymbol
+    currency:'USD', duration, duration_unit:'t', underlying_symbol: marketSymbol,
+    subscribe:1
   };
+  // Final preflight: the numeric amount serialized to JSON must round-trip to
+  // the same <=2-decimal value we display/send.
+  const roundTrip = Number(Number(params.amount).toFixed(2));
+  if(!Number.isFinite(roundTrip) || roundTrip !== stake){
+    setAdaptiveGate(false,'stake_validation','Stake failed EMRON preflight validation.');
+    lastAction='Blocked malformed stake before proposal';
+    return false;
+  }
   if(def.needsDigit && strat.prediction != null) params.barrier = String(strat.prediction);
   lastBuyTime = Date.now();
-  lastAction = `Proposal ${getStrategyLabel(strat)}`;
+  adaptiveEngine.session.lastStakeSent = stakeText;
+  lastAction = `Proposal ${getStrategyLabel(strat)} · $${stakeText}`;
   adaptiveEngine.session.currentMarket=market?.short || marketSymbol;
   adaptiveEngine.session.currentStrategy=getStrategyLabel(strat);
   updateEngineStatus();
@@ -2290,9 +2317,9 @@ function placeStrategyContract(strat, marketOverride=null, options={}){
     accountKey:learningAccountKey(), modelKey:lm.key, regime:lm.regime,
     strategyType:strat.type, marketSymbol, marketName:market?.name||marketSymbol,
     signalLabel:candidate?.signalLabel || getStrategyLabel(strat), confidence:Number(candidate?.adaptiveConfidence || candidate?.confidence || botConfig.confidenceFloor),
-    rawConfidence:Number(candidate?.confidence||0), stake, createdAt:Date.now(), purpose
+    rawConfidence:Number(candidate?.confidence||0), stake, stakeText, createdAt:Date.now(), purpose
   };
-  const payload={purpose,slotIdx,strategyRef:strat,marketSymbol,contractType:def.contract,label:getStrategyLabel(strat),stake,adaptiveContext:context};
+  const payload={purpose,slotIdx,strategyRef:strat,marketSymbol,contractType:def.contract,label:getStrategyLabel(strat),stake,stakeText,adaptiveContext:context};
   pendingProposalMap.set(id,payload);
   adaptiveEngine.pendingContexts.set(id,context);
   ws.send(JSON.stringify({ proposal:1, ...params, req_id:id }));
@@ -2306,7 +2333,8 @@ function onProposalReceived(data){
   adaptiveEngine.pendingContexts.delete(data.req_id);
   if(data.error){
     lastAction=`Proposal rejected · ${data.error.message || 'unknown error'}`;
-    toast(`⚠️ Proposal rejected — ${data.error.message || 'unknown error'}`,'error');
+    const rejectedStake=Number(t.stake||0).toFixed(2);
+    toast(`⚠️ Proposal rejected — ${data.error.message || 'unknown error'} (stake sent: $${t.stakeText || rejectedStake})`,'error');
     setAdaptiveGate(false,'proposal_error',data.error.message || 'Proposal request failed.');
     updateEngineStatus();
     return;
@@ -3235,7 +3263,8 @@ document.getElementById('botTicks').addEventListener('change', e => {
   botConfig.defaultTicks = Math.max(1, Math.min(10, parseInt(e.target.value,10)||1));
 });
 document.getElementById('botStake').addEventListener('change', e => {
-  botConfig.defaultStake = Math.max(0.35, parseFloat(e.target.value)||0.35);
+  botConfig.defaultStake = normalizeStake(parseFloat(e.target.value)||0.35);
+  e.target.value = botConfig.defaultStake.toFixed(2);
   updateHunterExecuteButton();
 });
 document.getElementById('botDigit').addEventListener('change', e => {
@@ -3407,7 +3436,7 @@ document.getElementById('bulkBuyBtn').addEventListener('click', async () => {
   }).filter(Boolean);
   if(!accounts.length){ toast('No valid token,account lines', 'error'); return; }
   const type = MODE === 'REAL' ? 'real' : 'demo';
-  const stake = parseFloat(document.getElementById('bulkStakeOverride').value) || 1;
+  const stake = normalizeStake(parseFloat(document.getElementById('bulkStakeOverride').value) || 1);
   const override = document.getElementById('bulkContractOverride').value;
   const ct = override !== 'auto' ? override : 'DIGITEVEN';
   const params = { contract_type: ct, underlying_symbol: getSymbol(botConfig.market),
