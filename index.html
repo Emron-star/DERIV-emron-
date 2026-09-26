@@ -451,6 +451,21 @@ tr:hover td{background:rgba(255,255,255,.02)}
 .metric-label{font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px}
 .metric-value{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:14px}
 
+/* ===== EMRON ADAPTIVE SURVIVAL BRAIN ===== */
+.brain-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0}
+.brain-box{padding:9px 10px;background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius-md)}
+.brain-label{font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+.brain-value{font:700 13px 'JetBrains Mono',monospace}
+.brain-value.good{color:var(--accent-green)}
+.brain-value.warn{color:var(--accent-yellow)}
+.brain-value.bad{color:var(--accent-red)}
+.brain-value.cyan{color:var(--accent-cyan)}
+.brain-note{font-size:10px;color:var(--text-dim);line-height:1.55;margin-top:8px}
+.brain-gate{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 10px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);font:10px 'JetBrains Mono',monospace}
+.brain-gate strong{font-weight:700}
+@media(max-width:800px){.brain-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:450px){.brain-grid{grid-template-columns:1fr}}
+
 /* ===== RESPONSIVE ===== */
 @media (min-width:601px){
   .status-indicator{display:flex!important}
@@ -644,7 +659,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
       </div>
       <div class="form-group">
         <label>Take Profit ($)</label>
-        <input class="form-control" id="botTP" type="number" step="0.01" value="20.00">
+        <input class="form-control" id="botTP" type="number" step="0.01" value="1000.00">
       </div>
       <div class="form-group">
         <label>Stop Loss ($)</label>
@@ -662,10 +677,40 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
       <label class="toggle-item" id="volSwitchToggle">
         <input type="checkbox" data-toggle="volSwitch"> <span>Vol Switch</span>
       </label>
+      <label class="toggle-item on" id="autoSwitchToggle">
+        <input type="checkbox" checked data-toggle="autoSwitchMarkets"> <span>Auto Market Switch</span>
+      </label>
+      <label class="toggle-item on" id="adaptiveLearningToggle">
+        <input type="checkbox" checked data-toggle="adaptiveLearning"> <span>Self-Learning</span>
+      </label>
+      <label class="toggle-item on" id="survivalToggle">
+        <input type="checkbox" checked data-toggle="survivalMode"> <span>Survival Mode</span>
+      </label>
       <label class="toggle-item on" id="delayToggle">
         <input type="checkbox" checked data-toggle="delay"> <span>Delay</span>
       </label>
     </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">🧠 EMRON Adaptive Brain — Survival + Self-Learning</div>
+      <span class="free-badge">ENGINE V2</span>
+    </div>
+    <div class="brain-grid">
+      <div class="brain-box"><div class="brain-label">Daily EMRON P/L</div><div class="brain-value good" id="brainDailyPL">$0.00</div></div>
+      <div class="brain-box"><div class="brain-label">Daily Target</div><div class="brain-value cyan" id="brainDailyTarget">$1,000.00</div></div>
+      <div class="brain-box"><div class="brain-label">Life Score</div><div class="brain-value cyan" id="brainLifeScore">50.0</div></div>
+      <div class="brain-box"><div class="brain-label">Learning Updates</div><div class="brain-value" id="brainLearningUpdates">0</div></div>
+    </div>
+    <div class="brain-grid">
+      <div class="brain-box"><div class="brain-label">Account Floor</div><div class="brain-value warn" id="brainAccountFloor">—</div></div>
+      <div class="brain-box"><div class="brain-label">Drawdown</div><div class="brain-value" id="brainDrawdown">0.0%</div></div>
+      <div class="brain-box"><div class="brain-label">Market</div><div class="brain-value cyan" id="brainMarket">—</div></div>
+      <div class="brain-box"><div class="brain-label">Entry Gate</div><div class="brain-value good" id="brainGate">WATCHING</div></div>
+    </div>
+    <div class="brain-gate"><span id="brainAction">Collecting evidence before the next entry…</span><strong id="brainState">TRAINING</strong></div>
+    <div class="brain-note">The engine learns from settled EMRON trades, raises the entry bar after weak conditions, reduces stake under drawdown, and can rotate across the configured markets/selected strategies when the current setup fails its adaptive gate. REAL mode is never enabled automatically; "LIVE-READY" is a validation state for manual review.</div>
   </div>
 
   <div class="card">
@@ -681,7 +726,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
     <div class="progress-container">
       <div class="progress-label">
         <span class="current">$<span id="windowProfit">0.00</span></span>
-        <span class="target">/ $<span id="profitTargetDisplay">20.00</span> TP · $<span id="stopLossDisplay">20.00</span> SL</span>
+        <span class="target">/ $<span id="profitTargetDisplay">1000.00</span> DAILY · $<span id="stopLossDisplay">20.00</span> SL</span>
       </div>
       <div class="progress-bar"><div class="progress-fill" id="profitFill" style="width:0%"></div></div>
     </div>
@@ -1010,8 +1055,8 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
         <div class="faq-answer">Most strategies only need a stake and ticks. Over, Under, Matches, Differs, High Tick and Low Tick also use a "prediction" field (a digit 0–9). For High Tick and Low Tick that digit is the barrier — the next tick's last digit must land above it (High Tick) or below it (Low Tick).</div>
       </div>
       <div class="faq-item">
-        <div class="faq-question">How does switch-on-loss work?<span>+</span></div>
-        <div class="faq-answer">In Sequential Recovery mode, a loss increments the recovery state and, once the configured loss threshold is reached, the bot immediately changes the current strategy. Next Strategy follows the selected order; Best Live Signal searches the selected strategies across live markets and can move to the strongest confirmed opportunity. When accumulated wins recover the pending loss, the engine resets to strategy #1.</div>
+        <div class="faq-question">How does switch-on-loss and adaptive survival work?<span>+</span></div>
+        <div class="faq-answer">A loss updates EMRON's learned outcome model. The next entry can switch strategy and market, raises the required confidence when the account is under pressure, reduces stake during drawdown, and refuses to force an entry when no selected strategy/market clears the adaptive gate. The configured emergency stop-loss and account survival floor remain hard limits.</div>
       </div>
       <div class="faq-item">
         <div class="faq-question">What are High Tick and Low Tick?<span>+</span></div>
@@ -1046,6 +1091,25 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
       <div class="faq-item">
         <div class="faq-question">Can I still trade Over/Under and Even/Odd from the Hunter?<span>+</span></div>
         <div class="faq-answer">Yes. The Even/Odd tab carries the parity scan, and the O1/U8, O2/U7 and O3/U6 tabs carry the barrier scans. Use the signal tab row to switch between them at any time.</div>
+      </div>
+    </div>
+    <div class="faq-category">
+      <h3>🧠 Adaptive Survival Brain</h3>
+      <div class="faq-item">
+        <div class="faq-question">What does self-learning do?<span>+</span></div>
+        <div class="faq-answer">Each settled EMRON trade is recorded against strategy, market and detected regime. Over time the model estimates a learned win rate and reward history, then raises or lowers the entry bar for that context. Learning data is stored locally in this browser; the PAT is not stored in the learning model.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question">What happens when a market stops meeting its threshold?<span>+</span></div>
+        <div class="faq-answer">With Auto Market Switch enabled, EMRON evaluates the selected strategies across the live market set and can move to another market that clears both the live signal threshold and the adaptive learning gate. It can also rotate strategy during recovery.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question">How does the $1,000 target and survival lock work?<span>+</span></div>
+        <div class="faq-answer">The daily EMRON target defaults to $1,000 of recorded EMRON profit for the current account/day. Reaching it stops the bot. A balance at or below the configured account floor, or a recorded floor breach, locks the bot for that account/day. The $1,000 target is a goal, not a guaranteed result.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question">Does profitable demo trading automatically switch to REAL?<span>+</span></div>
+        <div class="faq-answer">No. EMRON can reach a LIVE-READY validation state after sufficient positive training evidence, but the REAL mode remains a manual human decision.</div>
       </div>
     </div>
     <div class="faq-category">
@@ -1116,7 +1180,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 <div class="modal-overlay" id="tpModal">
   <div class="modal" style="max-width:400px;text-align:center;">
     <div class="modal-header" style="justify-content:center;"><div class="modal-title">🎉 Take Profit Hit</div></div>
-    <div style="font-size:12px;color:var(--text-muted);margin:8px 0;">Session hit its take-profit target.</div>
+    <div style="font-size:12px;color:var(--text-muted);margin:8px 0;">EMRON hit its daily profit target.</div>
     <div style="font-size:26px;font-weight:800;color:var(--accent-green);padding:8px 0;">$<span id="tpAmount">0.00</span></div>
     <div class="modal-actions" style="flex-direction:column;gap:8px;">
       <button class="btn btn-success" id="tpProceedBtn" style="width:100%;">✅ Proceed</button>
@@ -1185,18 +1249,31 @@ let botConfig = {
   defaultDigit:2,
   rounds:30,
   lossesToSwitch:1,
-  takeProfit:20.00,
+  takeProfit:1000.00,
+  dailyTarget:1000.00,
   stopLoss:20.00,
   turbo:true,
   mainMode:true,
   volSwitch:false,
   delayOn:true,
   delayAfterSettle:2,
-  minBuyGap:500,
+  minBuyGap:700,
   maxOpen:3,
   executionMode:'SEQUENTIAL_RECOVERY',
-  recoverySelection:'NEXT_STRATEGY',
-  confidenceFloor:65
+  recoverySelection:'BEST_LIVE',
+  confidenceFloor:65,
+  autoSwitchMarkets:true,
+  adaptiveLearning:true,
+  survivalMode:true,
+  hardAccountFloorPct:10,
+  softDrawdownPct:0.60,
+  learningMinSamples:6,
+  learningWindow:40,
+  liveMinTrades:30,
+  liveMinLifeScore:80,
+  maxStakePctBalance:0.02,
+  lossCooldownMs:1500,
+  maxConsecutiveLossesBeforeStandDown:3
 };
 
 let botRunning = false;
@@ -1218,6 +1295,22 @@ let lastLossRoute = null;
 const botFiredSignalKeys = new Map();
 
 let trades = [];
+
+const adaptiveEngine = {
+  version: 2,
+  storeKey: 'emron_ai_learning_v2',
+  models: new Map(),
+  pendingContexts: new Map(),
+  lastTickBySymbol: new Map(),
+  lastGate: { allowed:true, reason:'initialising', detail:'' },
+  session: {
+    startBalance: 0, peakBalance: 0, dayKey: '', dailyProfit: 0,
+    lifeScore: 50, learningUpdates: 0, blockedEntries: 0,
+    marketSwitches: 0, strategySwitches: 0, consecutiveLosses: 0,
+    cooldownUntil: 0, mode: 'TRAINING', currentMarket: '—', currentStrategy: '—'
+  },
+  dailyLedger: {}
+};
 
 const pendingProposalMap = new Map();
 const pendingBuyMap = new Map();
@@ -1495,11 +1588,18 @@ function evaluateMatchesStatus(mkt){
 /* ============================================================
    TICK HANDLER
    ============================================================ */
-function onPulseTick(symbolCode, quote){
+function onPulseTick(symbolCode, quote, epoch=null){
   const mkt = engineState.markets.get(symbolCode);
   if(!mkt) return;
   const num = typeof quote === 'number' ? quote : parseFloat(quote);
   if(isNaN(num)) return;
+  const eKey=epoch!=null?String(epoch):null;
+  if(eKey){
+    const prev=adaptiveEngine.lastTickBySymbol.get(symbolCode);
+    const signature=`${eKey}|${num}`;
+    if(prev===signature) return;
+    adaptiveEngine.lastTickBySymbol.set(symbolCode,signature);
+  }
   const qStr = num.toFixed(mkt.decimals);
   const lastDigit = parseInt(qStr.charAt(qStr.length-1), 10);
   mkt.digits.push(lastDigit); if(mkt.digits.length>MAX_BUFFER) mkt.digits.shift();
@@ -1724,6 +1824,229 @@ function renderActiveList(){
 }
 
 /* ============================================================
+   EMRON ADAPTIVE SURVIVAL BRAIN V2
+   ============================================================ */
+function clamp(v, lo, hi){ return Math.max(lo, Math.min(hi, v)); }
+function dayKey(){ const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+function currentAccountId(){
+  const a = MODE === 'REAL' ? accountSessions.real : accountSessions.demo;
+  return a?.account_id || 'UNCONNECTED';
+}
+function learningAccountKey(){ return `${MODE}|${currentAccountId()}`; }
+function learningRegime(mkt){
+  if(!mkt) return 'UNKNOWN';
+  const rf = evaluateRiseFall(mkt, engineState.windowSize);
+  return rf?.meta?.regime || 'NEUTRAL';
+}
+function modelKey(stratType, symbol, regime){
+  return `${learningAccountKey()}|${stratType}|${symbol}|${regime}`;
+}
+function defaultLearningModel(){
+  return { trials:0, wins:0, losses:0, pl:0, emaReward:0, emaConfidence:0,
+    lossStreak:0, winStreak:0, lastOutcome:null, lastUpdated:0, blocked:0 };
+}
+function getLearningModel(stratType, market){
+  const regime = learningRegime(market);
+  const key = modelKey(stratType, market?.code || 'UNKNOWN', regime);
+  let model = adaptiveEngine.models.get(key);
+  if(!model){ model = defaultLearningModel(); adaptiveEngine.models.set(key, model); }
+  return { key, regime, model };
+}
+function adjustedWinRate(model){ return (Number(model.wins||0)+2)/(Number(model.trials||0)+4); }
+function learningConfidence(model, rawConfidence){
+  const n = Number(model.trials||0);
+  const p = adjustedWinRate(model);
+  const sampleFactor = botConfig.adaptiveLearning ? clamp(n / Math.max(1,botConfig.learningMinSamples), 0, 1) : 0;
+  return clamp(rawConfidence*(1-0.35*sampleFactor) + p*100*(0.35*sampleFactor), 45, 99);
+}
+function candidateModelSnapshot(candidate){
+  const lm = getLearningModel(candidate.strat.type, engineState.markets.get(candidate.symbol));
+  const adaptive = learningConfidence(lm.model, candidate.confidence);
+  const floor = clamp(
+    botConfig.confidenceFloor +
+    (lm.model.lossStreak >= 2 ? 7 : 0) +
+    (lm.model.trials >= botConfig.learningMinSamples && adjustedWinRate(lm.model) < 0.46 ? 6 : 0),
+    55, 92
+  );
+  const reliable = lm.model.trials >= botConfig.learningMinSamples;
+  const badModel = reliable && adjustedWinRate(lm.model) < 0.44 && lm.model.lossStreak >= 2;
+  const rewardBias = clamp(Number(lm.model.emaReward||0), -1, 1) * 4;
+  const score = clamp(adaptive + rewardBias, 45, 99);
+  return { ...candidate, regime:lm.regime, modelKey:lm.key, model:lm.model,
+    learnedWinRate:adjustedWinRate(lm.model), adaptiveConfidence:score,
+    entryFloor:floor, reliable, badModel };
+}
+function rankAdaptiveCandidates(rows){
+  return rows.map(candidateModelSnapshot)
+    .filter(r => !r.badModel && r.adaptiveConfidence >= r.entryFloor)
+    .sort((a,b)=>b.adaptiveConfidence-a.adaptiveConfidence || b.learnedWinRate-a.learnedWinRate || b.confidence-a.confidence);
+}
+function selectedCandidatePool(){
+  const rows=[];
+  engineState.markets.forEach(m=>rows.push(...getCandidatesForMarket(m)));
+  return rankAdaptiveCandidates(rows);
+}
+function adaptiveStake(strat, candidate=null){
+  const base=Math.max(0.35, Number(strat?.stake||botConfig.defaultStake||0.35));
+  const currentBal=Math.max(0,Number(balance||0));
+  if(!currentBal) return base;
+  const confidence=Number(candidate?.adaptiveConfidence || candidate?.confidence || 65);
+  const confidenceScale=clamp(0.78 + Math.max(0,confidence-65)/120, 0.78, 1.08);
+  const drawdown=adaptiveEngine.session.startBalance>0
+    ? clamp((adaptiveEngine.session.startBalance-currentBal)/adaptiveEngine.session.startBalance,0,1) : 0;
+  const drawdownScale=botConfig.survivalMode && drawdown>0 ? clamp(1-(drawdown/Math.max(0.01,botConfig.softDrawdownPct))*0.55,0.35,1) : 1;
+  const lifeScale=botConfig.adaptiveLearning && adaptiveEngine.session.lifeScore>=65 ? clamp(1 + (adaptiveEngine.session.lifeScore-65)/500,1,1.07) : 0.92;
+  const cap=Math.max(0.35, currentBal*botConfig.maxStakePctBalance);
+  return clamp(Math.min(base*confidenceScale*drawdownScale*lifeScale, cap),0.35,Math.max(0.35,cap));
+}
+function ledgerKey(){ return `${learningAccountKey()}|${dayKey()}`; }
+function loadDailyLedger(){
+  try{ adaptiveEngine.dailyLedger=JSON.parse(localStorage.getItem('emron_ai_daily_v2')||'{}') || {}; }
+  catch(e){ adaptiveEngine.dailyLedger={}; }
+}
+function getDailyRecord(){
+  const k=ledgerKey();
+  if(!adaptiveEngine.dailyLedger[k]) adaptiveEngine.dailyLedger[k]={profit:0,resolved:0,wins:0,losses:0,startBalance:0,peakBalance:0,floorBreached:false};
+  const r=adaptiveEngine.dailyLedger[k];
+  if(!r.startBalance && balance>0) r.startBalance=balance;
+  if(balance>r.peakBalance) r.peakBalance=balance;
+  adaptiveEngine.session.dayKey=dayKey();
+  adaptiveEngine.session.dailyProfit=Number(r.profit||0);
+  return r;
+}
+function persistAdaptiveState(){
+  try{
+    const models={};adaptiveEngine.models.forEach((v,k)=>models[k]=v);
+    localStorage.setItem(adaptiveEngine.storeKey, JSON.stringify({version:adaptiveEngine.version,models,lifeScore:adaptiveEngine.session.lifeScore}));
+    localStorage.setItem('emron_ai_daily_v2', JSON.stringify(adaptiveEngine.dailyLedger));
+  }catch(e){ console.warn('EMRON learning persistence failed',e); }
+}
+function loadAdaptiveState(){
+  try{
+    const raw=JSON.parse(localStorage.getItem(adaptiveEngine.storeKey)||'{}');
+    adaptiveEngine.models=new Map(Object.entries(raw.models||{}));
+    if(Number.isFinite(Number(raw.lifeScore))) adaptiveEngine.session.lifeScore=clamp(Number(raw.lifeScore),0,100);
+  }catch(e){ adaptiveEngine.models=new Map(); }
+  loadDailyLedger();
+}
+function updateLifeScore(won, profit){
+  const delta=(won?1.5:-2.25) + clamp(Number(profit||0)/25,-4,4);
+  adaptiveEngine.session.lifeScore=clamp(adaptiveEngine.session.lifeScore+delta,0,100);
+}
+function liveReadiness(){
+  const rec=getDailyRecord();
+  const all=[...adaptiveEngine.models.values()].filter(m=>Number(m.trials||0)>0);
+  const trials=all.reduce((a,m)=>a+Number(m.trials||0),0);
+  const wins=all.reduce((a,m)=>a+Number(m.wins||0),0);
+  const wr=trials ? wins/trials : 0;
+  if(MODE==='DEMO' && trials>=botConfig.liveMinTrades && adaptiveEngine.session.lifeScore>=botConfig.liveMinLifeScore && rec.profit>0){
+    return {state:'LIVE-READY', detail:`${trials} trades · ${Math.round(wr*100)}% learned win rate · positive validation P/L`};
+  }
+  if(adaptiveEngine.session.consecutiveLosses>=botConfig.maxConsecutiveLossesBeforeStandDown) return {state:'SURVIVAL',detail:'loss streak stand-down'};
+  if(adaptiveEngine.session.dailyProfit>0) return {state:'ADAPTING',detail:`learning from +$${adaptiveEngine.session.dailyProfit.toFixed(2)} today`};
+  return {state:'TRAINING',detail:`${trials} learned outcomes`};
+}
+function refreshBrainStatus(){
+  const rec=getDailyRecord();
+  const bal=Math.max(0,Number(balance||0));
+  const start=Math.max(0,Number(adaptiveEngine.session.startBalance||rec.startBalance||bal));
+  if(start>adaptiveEngine.session.peakBalance) adaptiveEngine.session.peakBalance=start;
+  if(bal>adaptiveEngine.session.peakBalance) adaptiveEngine.session.peakBalance=bal;
+  const dd=adaptiveEngine.session.peakBalance>0 ? Math.max(0,(adaptiveEngine.session.peakBalance-bal)/adaptiveEngine.session.peakBalance)*100 : 0;
+  const floor=start>0 ? start*(botConfig.hardAccountFloorPct/100) : 0;
+  const readiness=liveReadiness();
+  const map={good:'good',warn:'warn',bad:'bad',cyan:'cyan'};
+  const set=(id,txt,cls)=>{const el=document.getElementById(id);if(el){el.textContent=txt;el.className='brain-value '+(map[cls]||'');}};
+  set('brainDailyPL',`${rec.profit>=0?'+':''}$${Number(rec.profit||0).toFixed(2)}`,rec.profit>=0?'good':'bad');
+  set('brainDailyTarget',`$${Number(botConfig.dailyTarget||1000).toFixed(2)}`,'cyan');
+  set('brainLifeScore',Number(adaptiveEngine.session.lifeScore||50).toFixed(1),adaptiveEngine.session.lifeScore>=80?'good':'cyan');
+  set('brainLearningUpdates',String(adaptiveEngine.session.learningUpdates),'');
+  set('brainAccountFloor',floor>0?`$${floor.toFixed(2)}`:'—','warn');
+  set('brainDrawdown',`${dd.toFixed(1)}%`,dd>=botConfig.softDrawdownPct*100?'warn':'');
+  set('brainMarket',adaptiveEngine.session.currentMarket || botConfig.market || '—','cyan');
+  const gateEl=document.getElementById('brainGate');
+  if(gateEl){ gateEl.textContent=adaptiveEngine.lastGate?.allowed ? 'READY' : 'BLOCKED'; gateEl.className='brain-value '+(adaptiveEngine.lastGate?.allowed?'good':'warn'); }
+  const action=document.getElementById('brainAction'); if(action) action.textContent=adaptiveEngine.lastGate?.detail || 'Collecting evidence before the next entry…';
+  const state=document.getElementById('brainState'); if(state){state.textContent=readiness.state;state.style.color=readiness.state==='SURVIVAL'?'var(--accent-yellow)':readiness.state==='LIVE-READY'?'var(--accent-green)':'var(--accent-cyan)';}
+}
+function setAdaptiveGate(allowed,reason,detail){
+  adaptiveEngine.lastGate={allowed,reason,detail};
+  if(!allowed) adaptiveEngine.session.blockedEntries++;
+  refreshBrainStatus();
+}
+function accountRiskGate(candidate=null){
+  const rec=getDailyRecord();
+  const now=Date.now();
+  if(!botRunning) return {allowed:false,reason:'stopped',detail:'Bot is stopped.'};
+  if(now<adaptiveEngine.session.cooldownUntil) return {allowed:false,reason:'cooldown',detail:'Short learning cooldown after the last settlement.'};
+  const start=Number(adaptiveEngine.session.startBalance||rec.startBalance||0);
+  const bal=Number(balance||0);
+  const floor=start>0?start*(botConfig.hardAccountFloorPct/100):0;
+  if(bal<=0 || (floor>0 && bal<=floor)) return {allowed:false,reason:'account_floor',detail:`Account survival floor reached at $${Math.max(0,bal).toFixed(2)}.`};
+  if(rec.floorBreached) return {allowed:false,reason:'breached',detail:'This account/day is locked after a survival-floor breach.'};
+  if(rec.profit>=botConfig.dailyTarget) return {allowed:false,reason:'daily_target',detail:`Daily target reached: +$${rec.profit.toFixed(2)}.`};
+  const hard=Math.max(0.01,Number(botConfig.stopLoss||20));
+  if(sessionPL<=-hard) return {allowed:false,reason:'stop_loss',detail:`Hard session stop reached at -$${hard.toFixed(2)}.`};
+  if(sessionPL <= -(hard-0.35)) return {allowed:false,reason:'stop_buffer',detail:`Entry blocked: the remaining loss buffer is too small for the minimum stake.`};
+  if(candidate){
+    const dd=start>0?Math.max(0,(start-bal)/start):0;
+    const riskPct=Math.abs(Math.min(0,sessionPL))/hard;
+    const emergencyFloor=botConfig.confidenceFloor + (botConfig.survivalMode && riskPct>0.5?8:0) + (botConfig.survivalMode && dd>=botConfig.softDrawdownPct?8:0) + (botConfig.survivalMode && adaptiveEngine.session.consecutiveLosses>=2?6:0);
+    if(candidate.adaptiveConfidence < emergencyFloor){
+      return {allowed:false,reason:'adaptive_floor',detail:`Entry rejected: ${candidate.adaptiveConfidence.toFixed(1)}% adaptive score is below the ${emergencyFloor}% survival floor.`};
+    }
+    if(candidate.badModel) return {allowed:false,reason:'learned_bad',detail:'Recent learned outcomes for this strategy/market/regime are below the entry threshold.'};
+  }
+  return {allowed:true,reason:'ok',detail:'Adaptive gate open — strongest viable conditions only.'};
+}
+function chooseAdaptiveCandidate(preferredStrat=null, preferredSymbol=null){
+  const pool=selectedCandidatePool();
+  if(!pool.length) return null;
+  const excluded = pool.filter(c => !(preferredSymbol && c.symbol===preferredSymbol && preferredStrat && c.strat===preferredStrat));
+  const preferred = pool.find(c => preferredStrat && c.strat===preferredStrat && (!preferredSymbol || c.symbol===preferredSymbol));
+  if(preferred && !preferred.badModel) return preferred;
+  return excluded[0] || pool[0] || null;
+}
+function updateLearningFromSettlement(context, won, profit){
+  const doLearn=botConfig.adaptiveLearning!==false;
+  if(context && doLearn){
+    const m=adaptiveEngine.models.get(context.modelKey) || defaultLearningModel();
+    m.trials=Number(m.trials||0)+1;
+    if(won){m.wins=Number(m.wins||0)+1;m.winStreak=Number(m.winStreak||0)+1;m.lossStreak=0;}
+    else {m.losses=Number(m.losses||0)+1;m.lossStreak=Number(m.lossStreak||0)+1;m.winStreak=0;}
+    m.pl=Number(m.pl||0)+Number(profit||0);
+    const reward=context.stake>0 ? clamp(Number(profit||0)/context.stake,-1,1) : (won?1:-1);
+    const alpha=0.20;
+    m.emaReward=Number(m.emaReward||0)*(1-alpha)+reward*alpha;
+    m.emaConfidence=Number(m.emaConfidence||0)*(1-alpha)+Number(context.confidence||0)*alpha;
+    m.lastOutcome=won?'WIN':'LOSS';m.lastUpdated=Date.now();
+    adaptiveEngine.models.set(context.modelKey,m);
+    adaptiveEngine.session.learningUpdates++;
+  }
+  const rec=getDailyRecord();
+  rec.profit=Number(rec.profit||0)+Number(profit||0);
+  rec.resolved=Number(rec.resolved||0)+1;
+  if(won) rec.wins=Number(rec.wins||0)+1; else rec.losses=Number(rec.losses||0)+1;
+  updateLifeScore(won,profit);
+  adaptiveEngine.session.consecutiveLosses=won?0:adaptiveEngine.session.consecutiveLosses+1;
+  adaptiveEngine.session.dailyProfit=rec.profit;
+  adaptiveEngine.session.cooldownUntil=Date.now() + (adaptiveEngine.session.consecutiveLosses>=botConfig.maxConsecutiveLossesBeforeStandDown ? Math.max(5000,botConfig.lossCooldownMs*4) : botConfig.lossCooldownMs);
+  persistAdaptiveState();
+}
+
+function checkAccountSurvival(){
+  if(!botRunning) return;
+  const rec=getDailyRecord();
+  const start=Number(adaptiveEngine.session.startBalance||rec.startBalance||0);
+  const floor=start>0?start*(botConfig.hardAccountFloorPct/100):0;
+  if(Number(balance||0)<=0 || (floor>0 && Number(balance||0)<=floor)){
+    rec.floorBreached=true;persistAdaptiveState();
+    toast(`🛑 EMRON survival lock — account floor breached at $${Math.max(0,Number(balance||0)).toFixed(2)}.`,'error');
+    stopBot('account_breach');
+  }
+}
+
+/* ============================================================
    BOT ENGINE — switch-on-loss with recovery
    ============================================================ */
 function executionModeLabel(){
@@ -1753,12 +2076,6 @@ function updateExecutionModeUI(){
   if(recoverySel) recoverySel.disabled=botConfig.executionMode==='ALL_SELECTED';
   if(floor) floor.value=botConfig.confidenceFloor;
   if(readout) readout.textContent=executionModeTag();
-  const modeReadout=document.getElementById('botModeReadout');
-  if(modeReadout) modeReadout.textContent=botConfig.executionMode==='ALL_SELECTED'
-    ? `ALL SELECTED · UP TO ${Math.max(1,selectedStrategies.length)} OPEN`
-    : botConfig.executionMode==='BEST_CONFIDENCE'
-      ? `AI RANKING · FLOOR ${botConfig.confidenceFloor}%`
-      : `RECOVERY · ${botConfig.recoverySelection==='BEST_LIVE'?'BEST LIVE':'NEXT STRATEGY'}`;
   updateEngineStatus();
 }
 function getBotOpenLimit(){
@@ -1814,54 +2131,77 @@ function getCandidatesForMarket(market){return selectedStrategies.map(s=>getStra
 function getBestLiveCandidate(excludeStrat=null,excludeSymbol=null){
   const rows=[];engineState.markets.forEach(m=>rows.push(...getCandidatesForMarket(m)));
   const alternatives=rows.filter(r=>!(excludeStrat&&r.strat===excludeStrat&&r.symbol===excludeSymbol));
-  return alternatives.sort((a,b)=>b.confidence-a.confidence||a.marketName.localeCompare(b.marketName))[0]||null;
+  return rankAdaptiveCandidates(alternatives)[0]||null;
 }
 function evaluateBotOnTick(){
   if(!botRunning||selectedStrategies.length===0)return;
   if(roundsRemaining<=0){stopBot('rounds');return;}
   if(botOpenCount()>=getBotOpenLimit())return;
+  const pre=accountRiskGate();
+  if(!pre.allowed){setAdaptiveGate(false,pre.reason,pre.detail); if(pre.reason==='account_floor'||pre.reason==='breached'||pre.reason==='stop_loss'||pre.reason==='daily_target') stopBot(pre.reason); return;}
+
+  let candidates=[];
+  const configuredMarket=engineState.markets.get(getSymbol(botConfig.market));
+  const preferredStrategy=selectedStrategies[currentStrategyIndex%selectedStrategies.length];
 
   if(botConfig.executionMode==='ALL_SELECTED'){
-    const market=engineState.markets.get(getSymbol(botConfig.market));
-    if(!market)return;
-    const candidates=getCandidatesForMarket(market);
-    let submitted=0;
-    for(const candidate of candidates){
-      if(botOpenCount()>=getBotOpenLimit())break;
-      if(!candidateIsFresh(candidate))continue;
-      if(placeStrategyContract(candidate.strat,candidate.symbol,{bypassGap:true})){
-        markCandidateFired(candidate);submitted++;
-      }
+    const marketPool=botConfig.autoSwitchMarkets ? Array.from(engineState.markets.values()) : (configuredMarket?[configuredMarket]:[]);
+    marketPool.forEach(m=>candidates.push(...getCandidatesForMarket(m)));
+    const ranked=rankAdaptiveCandidates(candidates);
+    const chosen=ranked[0];
+    if(!chosen){setAdaptiveGate(false,'no_viable_setup','No selected strategy/market passed the adaptive gate. The engine keeps scanning instead of forcing a trade.');return;}
+    const gate=accountRiskGate(chosen); if(!gate.allowed){setAdaptiveGate(false,gate.reason,gate.detail);return;}
+    if(botConfig.autoSwitchMarkets && configuredMarket && chosen.symbol!==configuredMarket.code){
+      adaptiveEngine.session.marketSwitches++;
+      adaptiveEngine.session.currentMarket=chosen.marketShort;
+      if(wsConnected) subscribeTicks();
     }
-    if(submitted){lastAction=`All selected → ${submitted} contract${submitted===1?'':'s'} submitted`;updateEngineStatus();}
-    return;
-  }
-
-  if(botConfig.executionMode==='BEST_CONFIDENCE'){
-    const best=getBestLiveCandidate();
-    if(!best||!candidateIsFresh(best))return;
-    if(placeStrategyContract(best.strat,best.symbol)){
-      currentStrategyIndex=selectedStrategies.indexOf(best.strat);
-      markCandidateFired(best);
-      lastAction=`AI best → ${best.marketShort} · ${best.label} · ${Math.round(best.confidence)}%`;
+    if(!candidateIsFresh(chosen))return;
+    if(placeStrategyContract(chosen.strat,chosen.symbol,{candidate:chosen,stakeOverride:adaptiveStake(chosen.strat,chosen)})){
+      markCandidateFired(chosen);
+      lastAction=`Adaptive → ${chosen.marketShort} · ${chosen.label} · ${chosen.adaptiveConfidence.toFixed(1)}%`;
+      setAdaptiveGate(true,'ok',`Entry accepted on ${chosen.marketShort}; learned win rate ${Math.round(chosen.learnedWinRate*100)}% over ${chosen.model.trials} samples.`);
       updateEngineStatus();
     }
     return;
   }
 
-  const market=engineState.markets.get(getSymbol(botConfig.market));
-  if(!market)return;
-  let strat=selectedStrategies[currentStrategyIndex%selectedStrategies.length];
-  if(!strat)return;
-  let candidate=null;
-  if(recoveryActive&&botConfig.recoverySelection==='BEST_LIVE') candidate=getBestLiveCandidate(lastLossRoute?.strat||null,lastLossRoute?.symbol||null);
-  if(candidate){
-    currentStrategyIndex=selectedStrategies.indexOf(candidate.strat);strat=candidate.strat;
-  }else candidate=getStrategyCandidate(strat,market);
-  if(!candidate||!candidateIsFresh(candidate))return;
-  if(placeStrategyContract(strat,candidate.symbol)){
-    markCandidateFired(candidate);
-    lastAction=`${recoveryActive?'Recovery':'Strategy'} → #${currentStrategyIndex+1} ${candidate.label}`;
+  if(botConfig.executionMode==='BEST_CONFIDENCE' || botConfig.autoSwitchMarkets || (recoveryActive&&botConfig.recoverySelection==='BEST_LIVE')){
+    const ranked=selectedCandidatePool();
+    candidates=ranked.filter(c=>!(recoveryActive&&lastLossRoute&&c.strat===lastLossRoute.strat&&c.symbol===lastLossRoute.symbol));
+  }else if(configuredMarket){
+    candidates=rankAdaptiveCandidates(getCandidatesForMarket(configuredMarket));
+  }
+
+  let chosen=null;
+  if(botConfig.executionMode==='SEQUENTIAL_RECOVERY' && !recoveryActive && !botConfig.autoSwitchMarkets){
+    chosen=candidates.find(c=>c.strat===preferredStrategy)||null;
+  }else{
+    chosen=candidates.find(c=>c.strat===preferredStrategy && (!configuredMarket || c.symbol===configuredMarket.code)) || candidates[0] || null;
+  }
+  if(!chosen){
+    const fallback=chooseAdaptiveCandidate(preferredStrategy,configuredMarket?.code||null);
+    chosen=fallback;
+  }
+  if(!chosen){setAdaptiveGate(false,'no_viable_setup','No selected strategy/market passed the adaptive gate. EMRON will wait and rescan instead of forcing an entry.');return;}
+  const gate=accountRiskGate(chosen);
+  if(!gate.allowed){setAdaptiveGate(false,gate.reason,gate.detail);return;}
+  if(chosen.strat!==preferredStrategy){
+    adaptiveEngine.session.strategySwitches++;
+    currentStrategyIndex=selectedStrategies.indexOf(chosen.strat);
+    recoveryActive=true;
+  }
+  if(configuredMarket && chosen.symbol!==configuredMarket.code){
+    adaptiveEngine.session.marketSwitches++;
+    adaptiveEngine.session.currentMarket=chosen.marketShort;
+    if(wsConnected) subscribeTicks();
+  }
+  if(!candidateIsFresh(chosen))return;
+  const stake=adaptiveStake(chosen.strat,chosen);
+  if(placeStrategyContract(chosen.strat,chosen.symbol,{candidate:chosen,stakeOverride:stake})){ 
+    markCandidateFired(chosen);
+    lastAction=`${recoveryActive?'Adaptive recovery':'Adaptive entry'} → ${chosen.marketShort} · ${getStrategyLabel(chosen.strat)} · ${chosen.adaptiveConfidence.toFixed(1)}%`;
+    setAdaptiveGate(true,'ok',`Trade accepted: ${chosen.marketShort} ${chosen.signalLabel} · ${Math.round(chosen.learnedWinRate*100)}% learned win rate (${chosen.model.trials} samples).`);
     updateEngineStatus();
   }
 }
@@ -1914,48 +2254,82 @@ function hasSignalForStrategy(strat){
 
 function placeStrategyContract(strat, marketOverride=null, options={}){
   const def = STRATEGY_DEFS[strat.type];
-  if(!def) return;
+  if(!def) return false;
   const marketSymbol = marketOverride || getSymbol(botConfig.market);
-  const stake = strat.stake;
+  const market = engineState.markets.get(marketSymbol);
+  const candidate = options.candidate || null;
+  const purpose = options.purpose || 'bot';
+  if(purpose==='bot'){
+    const gate=accountRiskGate(candidate);
+    if(!gate.allowed){setAdaptiveGate(false,gate.reason,gate.detail);return false;}
+  }
+  if(!wsConnected){
+    toast('❌ Trading connection is not active. Contract was not sent.', 'error');
+    return false;
+  }
+  if(!options.bypassGap && Date.now()-lastBuyTime < botConfig.minBuyGap){
+    setAdaptiveGate(false,'gap','Entry pacing gate is active after the previous request.');
+    return false;
+  }
+  const stake = Number(options.stakeOverride ?? adaptiveStake(strat,candidate));
   const duration = strat.duration || def.duration;
-
-  lastBuyTime = Date.now();
-  lastAction = `Buy ${getStrategyLabel(strat)}`;
-  updateEngineStatus();
-
   const params = {
     amount: stake, basis:'stake', contract_type: def.contract,
     currency:'USD', duration, duration_unit:'t', underlying_symbol: marketSymbol
   };
   if(def.needsDigit && strat.prediction != null) params.barrier = String(strat.prediction);
-
-  if(!wsConnected){
-    toast('❌ Trading connection is not active. Contract was not sent.', 'error');
-    return;
-  }
-
+  lastBuyTime = Date.now();
+  lastAction = `Proposal ${getStrategyLabel(strat)}`;
+  adaptiveEngine.session.currentMarket=market?.short || marketSymbol;
+  adaptiveEngine.session.currentStrategy=getStrategyLabel(strat);
+  updateEngineStatus();
   const id = wsReqId++;
   const slotIdx = selectedStrategies.indexOf(strat);
-  pendingProposalMap.set(id, { purpose:'bot', slotIdx, strategyRef:strat, marketSymbol, contractType: def.contract, label: getStrategyLabel(strat), stake });
-  ws.send(JSON.stringify({ proposal:1, ...params, req_id: id }));
+  const lm = getLearningModel(strat.type, market || {code:marketSymbol});
+  const context={
+    accountKey:learningAccountKey(), modelKey:lm.key, regime:lm.regime,
+    strategyType:strat.type, marketSymbol, marketName:market?.name||marketSymbol,
+    signalLabel:candidate?.signalLabel || getStrategyLabel(strat), confidence:Number(candidate?.adaptiveConfidence || candidate?.confidence || botConfig.confidenceFloor),
+    rawConfidence:Number(candidate?.confidence||0), stake, createdAt:Date.now(), purpose
+  };
+  const payload={purpose,slotIdx,strategyRef:strat,marketSymbol,contractType:def.contract,label:getStrategyLabel(strat),stake,adaptiveContext:context};
+  pendingProposalMap.set(id,payload);
+  adaptiveEngine.pendingContexts.set(id,context);
+  ws.send(JSON.stringify({ proposal:1, ...params, req_id:id }));
+  return true;
 }
 
 function onProposalReceived(data){
   const t = pendingProposalMap.get(data.req_id);
   if(!t) return;
   pendingProposalMap.delete(data.req_id);
+  adaptiveEngine.pendingContexts.delete(data.req_id);
+  if(data.error){
+    lastAction=`Proposal rejected · ${data.error.message || 'unknown error'}`;
+    toast(`⚠️ Proposal rejected — ${data.error.message || 'unknown error'}`,'error');
+    setAdaptiveGate(false,'proposal_error',data.error.message || 'Proposal request failed.');
+    updateEngineStatus();
+    return;
+  }
   if(!data.proposal) return;
   const buyId = wsReqId++;
   pendingBuyMap.set(buyId, t);
-  ws.send(JSON.stringify({ buy: data.proposal.id, price: data.proposal.ask_price, req_id: buyId }));
+  ws.send(JSON.stringify({ buy: data.proposal.id, price: Number(data.proposal.ask_price), req_id: buyId }));
 }
 function onBuyReceived(data){
   const t = pendingBuyMap.get(data.req_id);
   if(!t) return;
   pendingBuyMap.delete(data.req_id);
+  if(data.error){
+    lastAction=`Buy rejected · ${data.error.message || 'unknown error'}`;
+    toast(`⚠️ Buy rejected — ${data.error.message || 'unknown error'}`,'error');
+    setAdaptiveGate(false,'buy_error',data.error.message || 'Buy request failed.');
+    updateEngineStatus();
+    return;
+  }
   if(!data.buy) return;
   const cid = data.buy.contract_id;
-  activeContracts.set(cid, { slotIdx: t.slotIdx, strategyRef:t.strategyRef || null, marketSymbol:t.marketSymbol || null, contractType:t.contractType, label:t.label, stake:t.stake });
+  activeContracts.set(cid, { slotIdx: t.slotIdx, strategyRef:t.strategyRef || null, marketSymbol:t.marketSymbol || null, contractType:t.contractType, label:t.label, stake:t.stake, purpose:t.purpose||'bot', adaptiveContext:t.adaptiveContext||null });
   lastAction = `Opened ${t.label} · ${cid}`;
   toast(`📈 ${t.label} placed`, 'success');
   updateEngineStatus();
@@ -1970,15 +2344,29 @@ function onContractUpdate(data){
   activeContracts.delete(cid);
   const profit = parseFloat(c.profit) || 0;
   const won = profit > 0;
-  const strat = rec.strategyRef || selectedStrategies[rec.slotIdx];
-  if(strat) onStrategyResult(strat, won, profit, rec.stake, c.entry_tick, c.exit_tick, rec.marketSymbol);
+  if(rec.purpose==='bot'){
+    const strat = rec.strategyRef || selectedStrategies[rec.slotIdx];
+    if(strat) onStrategyResult(strat, won, profit, rec.stake, c.entry_tick, c.exit_tick, rec.marketSymbol, rec.adaptiveContext);
+  }else if(rec.adaptiveContext){
+    updateLearningFromSettlement(rec.adaptiveContext, won, profit);
+    refreshBrainStatus();
+  }
+  if(wsConnected) ws.send(JSON.stringify({ balance:1, req_id:wsReqId++ }));
   setTimeout(() => { if(botRunning) evaluateBotOnTick(); }, (botConfig.delayOn ? botConfig.delayAfterSettle : 0) * 1000);
 }
 
-function onStrategyResult(strat, won, profit, stake, entrySpot, exitSpot, marketSymbol=null){
+function onStrategyResult(strat, won, profit, stake, entrySpot, exitSpot, marketSymbol=null, learningContext=null){
   sessionStake += stake;
   sessionPayout += won ? (stake + profit) : 0;
   sessionPL += profit;
+  if(won) sessionWins++; else sessionLosses++;
+  roundsRemaining=Math.max(0,roundsRemaining-1);
+  strat.wins=Number(strat.wins||0)+(won?1:0);
+  strat.losses=Number(strat.losses||0)+(won?0:1);
+  strat.pl=Number(strat.pl||0)+profit;
+  trades.unshift({time:new Date().toLocaleTimeString(),strategy:getStrategyLabel(strat),entry:entrySpot??'—',exit:exitSpot??'—',stake:Number(stake||0),pl:Number(profit||0)});
+  if(trades.length>200) trades.length=200;
+  if(learningContext) updateLearningFromSettlement(learningContext,won,profit);
   if(won){
     if(lossAccumulator>0){
       lossAccumulator=Math.max(0,lossAccumulator-profit);
@@ -2027,16 +2415,28 @@ function onStrategyResult(strat, won, profit, stake, entrySpot, exitSpot, market
   renderTrades();
   renderActiveList();
   updateEngineStatus();
-  if(wsConnected) ws.send(JSON.stringify({ balance:1, req_id: wsReqId++ }));
+  refreshBrainStatus();
 
+  const daily=getDailyRecord();
+  if(daily.profit >= botConfig.dailyTarget){
+    document.getElementById('tpAmount').textContent = daily.profit.toFixed(2);
+    document.getElementById('tpModal').classList.add('active');
+    stopBot('daily_target');
+    return;
+  }
   if(sessionPL >= botConfig.takeProfit){
     document.getElementById('tpAmount').textContent = sessionPL.toFixed(2);
     document.getElementById('tpModal').classList.add('active');
     stopBot('take_profit');
     return;
   }
+  if(Number(balance||0)<=0){
+    daily.floorBreached=true;persistAdaptiveState();
+    stopBot('account_breach');
+    return;
+  }
   if(sessionPL <= -botConfig.stopLoss){
-    toast(`🛑 Stop Loss hit at -$${botConfig.stopLoss.toFixed(2)}`, 'error');
+    toast(`🛑 Hard emergency Stop Loss reached at -$${botConfig.stopLoss.toFixed(2)}.`,'error');
     stopBot('stop_loss');
     return;
   }
@@ -2061,6 +2461,20 @@ function startBot(){
     toast('⚠️ Add at least one strategy first', 'error');
     return;
   }
+  if(!(Number(balance)>0)){
+    ws.send(JSON.stringify({ balance:1, req_id:wsReqId++ }));
+    toast('⏳ Waiting for a verified account balance before starting EMRON.','info');
+    return;
+  }
+  const daily=getDailyRecord();
+  if(daily.floorBreached){
+    toast('🛑 This account/day is locked after a previous survival-floor breach.','error');
+    return;
+  }
+  if(daily.profit>=botConfig.dailyTarget){
+    toast(`✅ Daily target already reached: +$${daily.profit.toFixed(2)}. EMRON stays off until the next day.`,'success');
+    return;
+  }
   botRunning = true;
   roundsRemaining = botConfig.rounds;
   sessionStake = 0; sessionPayout = 0; sessionWins = 0; sessionLosses = 0; sessionPL = 0;
@@ -2073,7 +2487,17 @@ function startBot(){
   recoveryActive = false;
   lastLossRoute = null;
   lastBuyTime = 0;
-  rlBackoff = 'idle';
+  rlBackoff = 'adaptive';
+  adaptiveEngine.session.startBalance=Number(balance||0);
+  adaptiveEngine.session.peakBalance=Number(balance||0);
+  adaptiveEngine.session.dayKey=dayKey();
+  adaptiveEngine.session.dailyProfit=Number(daily.profit||0);
+  adaptiveEngine.session.consecutiveLosses=0;
+  adaptiveEngine.session.cooldownUntil=0;
+  adaptiveEngine.session.currentMarket=botConfig.market;
+  adaptiveEngine.session.currentStrategy=getStrategyLabel(selectedStrategies[0]);
+  adaptiveEngine.lastGate={allowed:true,reason:'starting',detail:'Adaptive survival brain is active; waiting for a qualified entry.'};
+  refreshBrainStatus();
 
   statusBadge.className = 'status-badge active';
   statusText.textContent = 'ACTIVE';
@@ -2092,10 +2516,15 @@ function stopBot(reason){
   statusText.textContent = 'INACTIVE';
   activateBtn.disabled = false;
   deactivateBtn.disabled = true;
-  lastAction = reason ? `Stopped (${reason})` : 'Stopped';
+  const label=reason==='account_breach'?'ACCOUNT BREACH LOCK':reason==='daily_target'?'DAILY TARGET REACHED':reason==='stop_loss'?'HARD STOP LOSS':'STOPPED';
+  lastAction = `${label}`;
+  if(reason==='account_breach'){
+    const rec=getDailyRecord();rec.floorBreached=true;persistAdaptiveState();
+  }
   renderActiveList();
   updateEngineStatus();
-  toast('⏸ Bot stopped', 'info');
+  refreshBrainStatus();
+  toast(reason==='account_breach'?'🛑 EMRON stopped permanently for this account/day.':reason==='daily_target'?'🎯 EMRON reached the $1,000 daily target.':'⏸ Bot stopped','info');
 }
 
 /* ============================================================
@@ -2113,7 +2542,7 @@ function updateStatsDisplay(){
 }
 function updateProfitDisplay(){
   document.getElementById('windowProfit').textContent = sessionPL.toFixed(2);
-  document.getElementById('profitTargetDisplay').textContent = botConfig.takeProfit.toFixed(2);
+  document.getElementById('profitTargetDisplay').textContent = botConfig.dailyTarget.toFixed(2);
   document.getElementById('stopLossDisplay').textContent = botConfig.stopLoss.toFixed(2);
   const pct = Math.min(100, Math.max(0, (sessionPL / botConfig.takeProfit) * 100));
   document.getElementById('profitFill').style.width = pct + '%';
@@ -2133,6 +2562,10 @@ function updateEngineStatus(){
   document.getElementById('engOpen').textContent = `${botOpenCount()} / ${getBotOpenLimit()}`;
   document.getElementById('engRLBackoff').textContent = rlBackoff;
   document.getElementById('engLastAction').textContent = lastAction;
+  const brainMarket=adaptiveEngine.session.currentMarket || botConfig.market || '—';
+  adaptiveEngine.session.currentStrategy=cur?getStrategyLabel(cur):adaptiveEngine.session.currentStrategy;
+  const bp=document.getElementById('brainMarket'); if(bp) bp.textContent=brainMarket;
+  refreshBrainStatus();
   document.getElementById('engWatching').textContent = selectedStrategies.length === 0
     ? '—'
     : selectedStrategies.map((s,i) => `#${i+1} ${getStrategyLabel(s)}`).join(', ');
@@ -2638,7 +3071,7 @@ function subscribeTicks(){
   if(!ws || ws.readyState !== WebSocket.OPEN) return;
   tickSubIds.forEach(id=>{try{ws.send(JSON.stringify({forget:id,req_id:wsReqId++}));}catch(e){}});
   tickSubIds=new Set();
-  const scanAllMarkets=botConfig.executionMode==='BEST_CONFIDENCE'||(botConfig.executionMode==='SEQUENTIAL_RECOVERY'&&botConfig.recoverySelection==='BEST_LIVE');
+  const scanAllMarkets=botConfig.autoSwitchMarkets||botConfig.executionMode==='BEST_CONFIDENCE'||(botConfig.executionMode==='SEQUENTIAL_RECOVERY'&&botConfig.recoverySelection==='BEST_LIVE');
   const symbols=scanAllMarkets?PULSE_SYMBOLS.map(s=>s.code):[getSymbol(botConfig.market)];
   symbols.forEach(symbol=>{try{ws.send(JSON.stringify({ticks:symbol,subscribe:1,req_id:wsReqId++}));}catch(e){}});
 }
@@ -2653,12 +3086,16 @@ function handleWsMessage(ev){
         document.getElementById('patBalance').textContent = `${data.balance.currency || 'USD'} ${balance.toFixed(2)}`;
         if(MODE === 'DEMO') document.getElementById('demoBalance').textContent = `$${balance.toFixed(2)}`;
         else document.getElementById('realBalance').textContent = `$${balance.toFixed(2)}`;
+        if(adaptiveEngine.session.startBalance>0 && balance>adaptiveEngine.session.peakBalance) adaptiveEngine.session.peakBalance=balance;
+        getDailyRecord();
+        refreshBrainStatus();
+        checkAccountSurvival();
       }
       break;
     case 'tick':
       if(data.tick && data.tick.quote){
         if(data.subscription) tickSubIds.add(data.subscription.id);
-        onPulseTick(data.tick.symbol, parseFloat(data.tick.quote));
+        onPulseTick(data.tick.symbol, parseFloat(data.tick.quote), data.tick.epoch);
       }
       break;
     case 'proposal': onProposalReceived(data); break;
@@ -2829,8 +3266,10 @@ document.getElementById('botConfidenceFloor').addEventListener('change', e => {
   updateExecutionModeUI();
 });
 document.getElementById('botTP').addEventListener('change', e => {
-  botConfig.takeProfit = parseFloat(e.target.value)||20;
+  botConfig.takeProfit = Math.max(0.35,parseFloat(e.target.value)||1000);
+  botConfig.dailyTarget = botConfig.takeProfit;
   updateProfitDisplay();
+  refreshBrainStatus();
 });
 document.getElementById('botSL').addEventListener('change', e => {
   botConfig.stopLoss = parseFloat(e.target.value)||20;
@@ -2844,8 +3283,12 @@ document.querySelectorAll('[data-toggle]').forEach(inp => {
     if(key === 'turbo') botConfig.turbo = on;
     else if(key === 'mainMode') botConfig.mainMode = on;
     else if(key === 'volSwitch') botConfig.volSwitch = on;
+    else if(key === 'autoSwitchMarkets') { botConfig.autoSwitchMarkets = on; if(wsConnected) subscribeTicks(); }
+    else if(key === 'adaptiveLearning') botConfig.adaptiveLearning = on;
+    else if(key === 'survivalMode') botConfig.survivalMode = on;
     else if(key === 'delay') botConfig.delayOn = on;
     inp.closest('.toggle-item').classList.toggle('on', on);
+    refreshBrainStatus();
     updateEngineStatus();
   });
 });
@@ -3227,7 +3670,7 @@ function hunterExecuteAll(){
       type:c.type, stake:botConfig.defaultStake, duration:c.duration||1, prediction:c.prediction,
       wins:0, losses:0, pl:0, hunter:true, hunterMarket:r.market.short, hunterSignal:r.label, hunterPct:r.pct
     };
-    placeStrategyContract(strat, r.market.code);
+    placeStrategyContract(strat, r.market.code, {purpose:'hunter', bypassGap:true});
     submitted.push(`${r.market.short} ${r.label}`);
   });
 
@@ -3248,7 +3691,7 @@ function hunterExecute(r){
     wins:0, losses:0, pl:0,
     hunter:true, hunterMarket:r.market.short, hunterSignal:r.label, hunterPct:r.pct
   };
-  placeStrategyContract(strat, r.market.code);
+  placeStrategyContract(strat, r.market.code, {purpose:'hunter', bypassGap:true});
   lastAction=`Hunter → ${r.market.short} ${r.label} (${Math.round(r.pct*100)}%)`;
   updateEngineStatus();
 }
@@ -3333,6 +3776,9 @@ setupTabs();
 setupModals();
 setupNavMenu();
 setupHunterUI();
+loadAdaptiveState();
+getDailyRecord();
+refreshBrainStatus();
 loadStoredToken();
 document.getElementById('modeLabel').textContent = MODE;
 document.getElementById('topModeLabel').textContent = MODE;
@@ -3358,7 +3804,7 @@ setTimeout(() => {
       try {
         const d = JSON.parse(ev.data);
         if(d.msg_type === 'tick' && d.tick && d.tick.quote){
-          onPulseTick(d.tick.symbol, parseFloat(d.tick.quote));
+          onPulseTick(d.tick.symbol, parseFloat(d.tick.quote), d.tick.epoch);
         }
       } catch(e){}
     };
@@ -3373,9 +3819,9 @@ setTimeout(() => {
   renderHunter();
 }, 800);
 
-console.log('%c🔷 EMRON AI — Strategy Row + Pulse Engine', 'color:#6677ff;font-weight:bold;font-size:14px');
+console.log('%c🔷 EMRON AI — Adaptive Survival Brain V2', 'color:#6677ff;font-weight:bold;font-size:14px');
 console.log('Sidebar removed — hamburger dropdown nav is active on all screen sizes.');
-console.log('Sniper Hunter scans Rise/Fall, Only Ups/Downs (2-tick), High/Low Tick, Over/Under across all markets.');
+console.log('Adaptive brain: learned entry gating, survival drawdown controls, daily target tracking, and cross-market rotation.');
 
 })();
 </script>
