@@ -248,6 +248,14 @@ tr:hover td{background:rgba(255,255,255,.02)}
 .execution-mode-row{display:grid;grid-template-columns:minmax(240px,1.2fr) minmax(180px,1fr) 1fr;gap:10px;margin-bottom:10px}
 .execution-mode-help{font-size:10px;color:var(--text-dim);line-height:1.5;margin-top:3px}
 .bot-mode-readout{font:10px 'JetBrains Mono',monospace;color:var(--text-muted);padding:9px 10px;background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius-md);min-height:36px;display:flex;align-items:center}
+.hl-pair-panel{border-color:rgba(68,85,238,.42);background:linear-gradient(135deg,rgba(68,85,238,.06),rgba(0,230,118,.03))}
+.hl-pair-subtitle{font-size:10px;color:var(--text-dim);margin-top:3px;line-height:1.4}
+.hl-pair-grid{display:grid;grid-template-columns:1.35fr .8fr .9fr .95fr .95fr;gap:10px;align-items:end}
+.hl-pair-note{margin-top:10px;padding:9px 10px;border:1px solid var(--border);border-radius:var(--radius-md);background:var(--bg-surface);font-size:10px;color:var(--text-muted);line-height:1.55}
+.hl-pair-panel.pair-on{border-color:var(--accent-green);box-shadow:0 0 0 1px rgba(0,230,118,.08) inset,0 0 18px rgba(0,230,118,.05)}
+@media(max-width:1050px){.hl-pair-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:700px){.hl-pair-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:480px){.hl-pair-grid{grid-template-columns:1fr}}
 @media(max-width:900px){.execution-mode-row{grid-template-columns:1fr 1fr}}
 @media(max-width:600px){.execution-mode-row{grid-template-columns:1fr}}
 @media (max-width:700px){.settings-row-aligned{grid-template-columns:repeat(2,1fr)}}
@@ -658,7 +666,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
         <input class="form-control" id="botLossesToSwitch" type="number" value="1" min="1">
       </div>
       <div class="form-group">
-        <label>Take Profit ($)</label>
+        <label>Session Take Profit ($)</label>
         <input class="form-control" id="botTP" type="number" step="0.01" value="1000.00">
       </div>
       <div class="form-group">
@@ -689,6 +697,45 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
       <label class="toggle-item on" id="delayToggle">
         <input type="checkbox" checked data-toggle="delay"> <span>Delay</span>
       </label>
+    </div>
+  </div>
+
+  <div class="card hl-pair-panel">
+    <div class="card-header">
+      <div>
+        <div class="card-title">↕️ Higher / Lower Pair Execution</div>
+        <div class="hl-pair-subtitle">Submit Higher and Lower contracts back-to-back from the same qualified signal. Both proposal requests are sent immediately; each contract is bought as soon as its proposal returns.</div>
+      </div>
+      <span class="free-badge" id="pairStatusTag">PAIR OFF</span>
+    </div>
+
+    <div class="hl-pair-grid">
+      <div class="form-group">
+        <label>Contract Mode</label>
+        <select class="form-control" id="botPairMode">
+          <option value="OFF" selected>Single Contract</option>
+          <option value="HIGHER_LOWER">Higher + Lower Together</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Barrier</label>
+        <input class="form-control" id="botPairBarrier" type="number" min="1" max="8" step="1" value="2">
+      </div>
+      <div class="form-group">
+        <label>No. of Ticks</label>
+        <input class="form-control" id="botPairTicks" type="number" min="1" max="10" step="1" value="1">
+      </div>
+      <div class="form-group">
+        <label>Stake / Leg ($)</label>
+        <div class="bot-mode-readout" id="botPairStakeReadout">$0.35 each</div>
+      </div>
+      <div class="form-group">
+        <label>Take Profit ($)</label>
+        <input class="form-control" id="botPairTP" type="number" min="0.35" step="0.01" value="1000.00">
+      </div>
+    </div>
+    <div class="hl-pair-note" id="pairModeHelp">
+      Pair mode is off. Select <b>Higher + Lower Together</b> to submit DIGITOVER and DIGITUNDER using the same barrier and tick duration. The existing strategy/signal engine remains the entry trigger.
     </div>
   </div>
 
@@ -1248,6 +1295,11 @@ let botConfig = {
   defaultTicks:1,
   defaultStake:normalizeStake(0.35),
   defaultDigit:2,
+  // Higher/Lower paired execution uses DIGITOVER + DIGITUNDER with
+  // the same barrier and duration, submitted back-to-back on one signal tick.
+  pairMode:false,
+  pairBarrier:2,
+  pairTicks:1,
   rounds:30,
   lossesToSwitch:1,
   takeProfit:1000.00,
@@ -1316,6 +1368,9 @@ const adaptiveEngine = {
 const pendingProposalMap = new Map();
 const pendingBuyMap = new Map();
 const activeContracts = new Map();
+const pairBatches = new Map();
+let pairSeq = 0;
+let lastPairSignalKey = '';
 
 /* ============================================================
    PULSE ENGINES
@@ -1750,6 +1805,7 @@ function removeStrategy(type){
   toast(`Removed ${def ? def.label : type}`, 'info');
 }
 function getStrategyLabel(strat){
+  if(strat && strat.labelOverride) return strat.labelOverride;
   const def = STRATEGY_DEFS[strat.type];
   if(!def) return strat.type;
   if(def.needsDigit && strat.prediction != null) return `${def.label} ${strat.prediction}`;
@@ -2070,23 +2126,50 @@ function executionModeLabel(){
   return 'SEQUENTIAL RECOVERY';
 }
 function executionModeTag(){
-  if(selectedStrategies.length===0) return 'no strategies selected';
+  if(selectedStrategies.length===0) return botConfig.pairMode ? 'HIGHER + LOWER · paired · no trigger strategy' : 'no strategies selected';
+  if(botConfig.pairMode) return `HIGHER + LOWER · paired · ${botConfig.pairBarrier} barrier · ${botConfig.pairTicks} tick${botConfig.pairTicks>1?'s':''}`;
   if(botConfig.executionMode==='SEQUENTIAL_RECOVERY'){
     return `RECOVERY · ${botConfig.recoverySelection==='BEST_LIVE'?'best live':`switch ${botConfig.lossesToSwitch} loss${botConfig.lossesToSwitch>1?'es':''}`}`;
   }
   return executionModeLabel();
+}
+function updatePairModeUI(){
+  const panel=document.querySelector('.hl-pair-panel');
+  const select=document.getElementById('botPairMode');
+  const barrier=document.getElementById('botPairBarrier');
+  const ticks=document.getElementById('botPairTicks');
+  const tp=document.getElementById('botPairTP');
+  const tag=document.getElementById('pairStatusTag');
+  const help=document.getElementById('pairModeHelp');
+  const stake=document.getElementById('botPairStakeReadout');
+  const on=botConfig.pairMode===true;
+  if(select) select.value=on?'HIGHER_LOWER':'OFF';
+  if(barrier) barrier.value=botConfig.pairBarrier;
+  if(ticks) ticks.value=botConfig.pairTicks;
+  if(tp) tp.value=Number(botConfig.takeProfit||1000).toFixed(2);
+  if(stake) stake.textContent=`$${Number(botConfig.defaultStake||0.35).toFixed(2)} each`;
+  if(tag){tag.textContent=on?'PAIR ON':'PAIR OFF';tag.className='free-badge';tag.style.color=on?'var(--accent-green)':'var(--accent-green)';tag.style.background='rgba(0,230,118,.15)';}
+  if(panel) panel.classList.toggle('pair-on',on);
+  if(help){
+    help.innerHTML=on
+      ? `<b>PAIR ON:</b> one qualified signal submits <b>Higher</b> (DIGITOVER) and <b>Lower</b> (DIGITUNDER) back-to-back with barrier <b>${botConfig.pairBarrier}</b> for <b>${botConfig.pairTicks}</b> tick${botConfig.pairTicks>1?'s':''}. Stake is <b>$${Number(botConfig.defaultStake||0.35).toFixed(2)} per leg</b>.`
+      : 'Pair mode is off. Select <b>Higher + Lower Together</b> to submit DIGITOVER and DIGITUNDER using the same barrier and tick duration. The existing strategy/signal engine remains the entry trigger.';
+  }
 }
 function updateExecutionModeUI(){
   const help=document.getElementById('executionModeHelp');
   const readout=document.getElementById('activeStrategiesTag');
   const recoverySel=document.getElementById('botRecoverySelection');
   const floor=document.getElementById('botConfidenceFloor');
+  updatePairModeUI();
   if(help){
-    help.textContent=botConfig.executionMode==='ALL_SELECTED'
-      ? 'Every selected strategy with a live confirmed signal is submitted together on the active market.'
-      : botConfig.executionMode==='BEST_CONFIDENCE'
-        ? 'Ranks confirmed signals across the live markets and trades the strongest selected strategy/market.'
-        : 'One strategy at a time. After a loss, recovery switches strategy; Best Live can change market too.';
+    help.textContent=botConfig.pairMode
+      ? 'Paired execution overrides the final contract choice: the selected signal triggers Higher + Lower together.'
+      : botConfig.executionMode==='ALL_SELECTED'
+        ? 'Every selected strategy with a live confirmed signal is submitted together on the active market.'
+        : botConfig.executionMode==='BEST_CONFIDENCE'
+          ? 'Ranks confirmed signals across the live markets and trades the strongest selected strategy/market.'
+          : 'One strategy at a time. After a loss, recovery switches strategy; Best Live can change market too.';
   }
   if(recoverySel) recoverySel.disabled=botConfig.executionMode==='ALL_SELECTED';
   if(floor) floor.value=botConfig.confidenceFloor;
@@ -2094,7 +2177,7 @@ function updateExecutionModeUI(){
   updateEngineStatus();
 }
 function getBotOpenLimit(){
-  return botConfig.executionMode==='ALL_SELECTED' ? Math.max(1,selectedStrategies.length) : Math.max(1,botConfig.maxOpen);
+  return botConfig.executionMode==='ALL_SELECTED' ? Math.max(1,selectedStrategies.length,botConfig.pairMode?2:0) : Math.max(1,botConfig.maxOpen,botConfig.pairMode?2:0);
 }
 function botPendingCount(){
   let n=0;
@@ -2154,6 +2237,11 @@ function evaluateBotOnTick(){
   if(botOpenCount()>=getBotOpenLimit())return;
   const pre=accountRiskGate();
   if(!pre.allowed){setAdaptiveGate(false,pre.reason,pre.detail); if(pre.reason==='account_floor'||pre.reason==='breached'||pre.reason==='stop_loss'||pre.reason==='daily_target') stopBot(pre.reason); return;}
+
+  if(botConfig.pairMode){
+    evaluateHigherLowerPairOnTick();
+    return;
+  }
 
   let candidates=[];
   const configuredMarket=engineState.markets.get(getSymbol(botConfig.market));
@@ -2274,6 +2362,7 @@ function placeStrategyContract(strat, marketOverride=null, options={}){
   const market = engineState.markets.get(marketSymbol);
   const candidate = options.candidate || null;
   const purpose = options.purpose || 'bot';
+  const contractLabel = options.labelOverride || getStrategyLabel(strat);
   if(purpose==='bot'){
     const gate=accountRiskGate(candidate);
     if(!gate.allowed){setAdaptiveGate(false,gate.reason,gate.detail);return false;}
@@ -2295,8 +2384,6 @@ function placeStrategyContract(strat, marketOverride=null, options={}){
     currency:'USD', duration, duration_unit:'t', underlying_symbol: marketSymbol,
     subscribe:1
   };
-  // Final preflight: the numeric amount serialized to JSON must round-trip to
-  // the same <=2-decimal value we display/send.
   const roundTrip = Number(Number(params.amount).toFixed(2));
   if(!Number.isFinite(roundTrip) || roundTrip !== stake){
     setAdaptiveGate(false,'stake_validation','Stake failed EMRON preflight validation.');
@@ -2306,9 +2393,9 @@ function placeStrategyContract(strat, marketOverride=null, options={}){
   if(def.needsDigit && strat.prediction != null) params.barrier = String(strat.prediction);
   lastBuyTime = Date.now();
   adaptiveEngine.session.lastStakeSent = stakeText;
-  lastAction = `Proposal ${getStrategyLabel(strat)} · $${stakeText}`;
+  lastAction = `Proposal ${contractLabel} · $${stakeText}`;
   adaptiveEngine.session.currentMarket=market?.short || marketSymbol;
-  adaptiveEngine.session.currentStrategy=getStrategyLabel(strat);
+  adaptiveEngine.session.currentStrategy=contractLabel;
   updateEngineStatus();
   const id = wsReqId++;
   const slotIdx = selectedStrategies.indexOf(strat);
@@ -2316,16 +2403,55 @@ function placeStrategyContract(strat, marketOverride=null, options={}){
   const context={
     accountKey:learningAccountKey(), modelKey:lm.key, regime:lm.regime,
     strategyType:strat.type, marketSymbol, marketName:market?.name||marketSymbol,
-    signalLabel:candidate?.signalLabel || getStrategyLabel(strat), confidence:Number(candidate?.adaptiveConfidence || candidate?.confidence || botConfig.confidenceFloor),
-    rawConfidence:Number(candidate?.confidence||0), stake, stakeText, createdAt:Date.now(), purpose
+    signalLabel:candidate?.signalLabel || contractLabel, confidence:Number(candidate?.adaptiveConfidence || candidate?.confidence || botConfig.confidenceFloor),
+    rawConfidence:Number(candidate?.confidence||0), stake, stakeText, createdAt:Date.now(), purpose,
+    pairId:options.pairId || null, pairLeg:options.pairLeg || null, pairBarrier:options.pairId ? Number(strat.prediction) : null, pairTicks:options.pairId ? Number(duration) : null
   };
-  const payload={purpose,slotIdx,strategyRef:strat,marketSymbol,contractType:def.contract,label:getStrategyLabel(strat),stake,stakeText,adaptiveContext:context};
+  const payload={purpose,slotIdx,strategyRef:strat,marketSymbol,contractType:def.contract,label:contractLabel,stake,stakeText,adaptiveContext:context,
+    pairId:options.pairId || null,pairLeg:options.pairLeg || null};
   pendingProposalMap.set(id,payload);
   adaptiveEngine.pendingContexts.set(id,context);
   ws.send(JSON.stringify({ proposal:1, ...params, req_id:id }));
   return true;
 }
 
+function resolvePairLegFailure(t, reason){
+  const pairId=t?.pairId;
+  if(!pairId) return;
+  const batch=pairBatches.get(pairId);
+  if(!batch || batch.resolved>=batch.expected) return;
+  batch.resolved++;
+  batch.failed++;
+  batch.errors.push(reason || 'unknown pair leg failure');
+  if(batch.resolved>=batch.expected) finalizeHigherLowerPair(batch);
+}
+function resolvePairLegSettlement(rec, profit, won, entryTick, exitTick){
+  const batch=pairBatches.get(rec.pairId);
+  if(!batch || batch.resolved>=batch.expected) return;
+  batch.resolved++;
+  batch.settled++;
+  batch.totalProfit += Number(profit||0);
+  batch.results.push({leg:rec.pairLeg,profit:Number(profit||0),won,entryTick,exitTick});
+  if(batch.resolved>=batch.expected) finalizeHigherLowerPair(batch);
+}
+function finalizeHigherLowerPair(batch){
+  if(!batch || batch.finalized) return;
+  batch.finalized=true;
+  pairBatches.delete(batch.pairId);
+  const totalProfit=Number(batch.totalProfit||0);
+  if(batch.settled===0){
+    lastAction=`Higher + Lower pair not completed · ${batch.errors.length?batch.errors[0]:'no leg settled'}`;
+    setAdaptiveGate(false,'pair_error',batch.errors.length?batch.errors[0]:'No pair leg completed.');
+    updateEngineStatus();
+    return;
+  }
+  const trigger=batch.triggerStrategy || selectedStrategies[currentStrategyIndex] || selectedStrategies[0];
+  if(trigger) applyBotOutcomeControl(trigger,totalProfit>0,totalProfit,batch.marketSymbol,1,'Higher + Lower pair');
+  else {
+    roundsRemaining=Math.max(0,roundsRemaining-1);
+    updateStatsDisplay();updateProfitDisplay();updateEngineStatus();refreshBrainStatus();
+  }
+}
 function onProposalReceived(data){
   const t = pendingProposalMap.get(data.req_id);
   if(!t) return;
@@ -2335,6 +2461,7 @@ function onProposalReceived(data){
     lastAction=`Proposal rejected · ${data.error.message || 'unknown error'}`;
     const rejectedStake=Number(t.stake||0).toFixed(2);
     toast(`⚠️ Proposal rejected — ${data.error.message || 'unknown error'} (stake sent: $${t.stakeText || rejectedStake})`,'error');
+    if(t.pairId) resolvePairLegFailure(t, data.error.message || 'Pair proposal rejected.');
     setAdaptiveGate(false,'proposal_error',data.error.message || 'Proposal request failed.');
     updateEngineStatus();
     return;
@@ -2351,13 +2478,22 @@ function onBuyReceived(data){
   if(data.error){
     lastAction=`Buy rejected · ${data.error.message || 'unknown error'}`;
     toast(`⚠️ Buy rejected — ${data.error.message || 'unknown error'}`,'error');
+    if(t.pairId) resolvePairLegFailure(t, data.error.message || 'Pair buy rejected.');
     setAdaptiveGate(false,'buy_error',data.error.message || 'Buy request failed.');
     updateEngineStatus();
     return;
   }
   if(!data.buy) return;
   const cid = data.buy.contract_id;
-  activeContracts.set(cid, { slotIdx: t.slotIdx, strategyRef:t.strategyRef || null, marketSymbol:t.marketSymbol || null, contractType:t.contractType, label:t.label, stake:t.stake, purpose:t.purpose||'bot', adaptiveContext:t.adaptiveContext||null });
+  activeContracts.set(cid, {
+    slotIdx: t.slotIdx, strategyRef:t.strategyRef || null, marketSymbol:t.marketSymbol || null,
+    contractType:t.contractType, label:t.label, stake:t.stake, purpose:t.purpose||'bot',
+    adaptiveContext:t.adaptiveContext||null, pairId:t.pairId||null, pairLeg:t.pairLeg||null
+  });
+  if(t.pairId){
+    const batch=pairBatches.get(t.pairId);
+    if(batch) batch.bought++;
+  }
   lastAction = `Opened ${t.label} · ${cid}`;
   toast(`📈 ${t.label} placed`, 'success');
   updateEngineStatus();
@@ -2374,49 +2510,41 @@ function onContractUpdate(data){
   const won = profit > 0;
   if(rec.purpose==='bot'){
     const strat = rec.strategyRef || selectedStrategies[rec.slotIdx];
-    if(strat) onStrategyResult(strat, won, profit, rec.stake, c.entry_tick, c.exit_tick, rec.marketSymbol, rec.adaptiveContext);
+    if(strat) onStrategyResult(strat, won, profit, rec.stake, c.entry_tick, c.exit_tick, rec.marketSymbol, rec.adaptiveContext,
+      rec.pairId ? {deferControl:true,pairLeg:rec.pairLeg} : {});
   }else if(rec.adaptiveContext){
     updateLearningFromSettlement(rec.adaptiveContext, won, profit);
     refreshBrainStatus();
   }
+  if(rec.pairId) resolvePairLegSettlement(rec,profit,won,c.entry_tick,c.exit_tick);
   if(wsConnected) ws.send(JSON.stringify({ balance:1, req_id:wsReqId++ }));
-  setTimeout(() => { if(botRunning) evaluateBotOnTick(); }, (botConfig.delayOn ? botConfig.delayAfterSettle : 0) * 1000);
+  if(!rec.pairId) setTimeout(() => { if(botRunning) evaluateBotOnTick(); }, (botConfig.delayOn ? botConfig.delayAfterSettle : 0) * 1000);
 }
 
-function onStrategyResult(strat, won, profit, stake, entrySpot, exitSpot, marketSymbol=null, learningContext=null){
-  sessionStake += stake;
-  sessionPayout += won ? (stake + profit) : 0;
-  sessionPL += profit;
-  if(won) sessionWins++; else sessionLosses++;
-  roundsRemaining=Math.max(0,roundsRemaining-1);
-  strat.wins=Number(strat.wins||0)+(won?1:0);
-  strat.losses=Number(strat.losses||0)+(won?0:1);
-  strat.pl=Number(strat.pl||0)+profit;
-  trades.unshift({time:new Date().toLocaleTimeString(),strategy:getStrategyLabel(strat),entry:entrySpot??'—',exit:exitSpot??'—',stake:Number(stake||0),pl:Number(profit||0)});
-  if(trades.length>200) trades.length=200;
-  if(learningContext) updateLearningFromSettlement(learningContext,won,profit);
+function applyBotOutcomeControl(strat, won, profit, marketSymbol=null, roundsToConsume=1, prefix=''){
+  const labelPrefix=prefix ? `${prefix} · ` : '';
   if(won){
     if(lossAccumulator>0){
       lossAccumulator=Math.max(0,lossAccumulator-profit);
       if(lossAccumulator<=0){
         lossesInARow=0;recoveryActive=false;lastLossRoute=null;currentStrategyIndex=0;
         const first=selectedStrategies[0];
-        lastAction=first?`✅ Recovery complete → #1 ${getStrategyLabel(first)}`:'✅ Recovery complete';
-        if(first)toast(`✅ Loss recovered — back to #1 ${getStrategyLabel(first)}`,'success');
+        lastAction=first?`✅ ${labelPrefix}Recovery complete → #1 ${getStrategyLabel(first)}`:`✅ ${labelPrefix}Recovery complete`;
+        if(first)toast(`✅ ${prefix||'Recovery'} complete — back to #1 ${getStrategyLabel(first)}`,'success');
       }else{
-        lastAction=`Win — recovering · $${lossAccumulator.toFixed(2)} left`;
+        lastAction=`${prefix?'✅ '+prefix+' · ':''}Win — recovering · $${lossAccumulator.toFixed(2)} left`;
       }
     }else{
       lossesInARow=0;
-      lastAction=`Win — ${executionModeLabel().toLowerCase()} continues`;
+      lastAction=`${prefix?'✅ '+prefix+' · ':''}Win — ${executionModeLabel().toLowerCase()} continues`;
     }
   }else{
     lastLossRoute={strat,symbol:marketSymbol||getSymbol(botConfig.market)};
     lossAccumulator+=Math.abs(profit);
     lossesInARow++;
-    if(botConfig.executionMode==='SEQUENTIAL_RECOVERY'&&lossesInARow>=botConfig.lossesToSwitch){
+    if(!botConfig.pairMode && botConfig.executionMode==='SEQUENTIAL_RECOVERY'&&lossesInARow>=botConfig.lossesToSwitch){
       lossesInARow=0;recoveryActive=true;
-      currentStrategyIndex=(currentStrategyIndex+1)%selectedStrategies.length;
+      currentStrategyIndex=(currentStrategyIndex+1)%Math.max(1,selectedStrategies.length);
       const next=selectedStrategies[currentStrategyIndex];
       if(botConfig.recoverySelection==='BEST_LIVE'){
         const best=getBestLiveCandidate(strat,marketSymbol||getSymbol(botConfig.market));
@@ -2433,11 +2561,14 @@ function onStrategyResult(strat, won, profit, stake, entrySpot, exitSpot, market
         toast(`🔁 Loss → switched to #${currentStrategyIndex+1} ${next?getStrategyLabel(next):'next strategy'}`,'info');
       }
     }else{
-      lastAction=botConfig.executionMode==='SEQUENTIAL_RECOVERY'
-        ? `Loss — preparing recovery (${lossesInARow}/${botConfig.lossesToSwitch})`
-        : `Loss — ${executionModeLabel().toLowerCase()} remains active`;
+      lastAction=prefix
+        ? `❌ ${prefix} loss — recovery route holds until the pair result is resolved`
+        : botConfig.executionMode==='SEQUENTIAL_RECOVERY'
+          ? `Loss — preparing recovery (${lossesInARow}/${botConfig.lossesToSwitch})`
+          : `Loss — ${executionModeLabel().toLowerCase()} remains active`;
     }
   }
+  roundsRemaining=Math.max(0,roundsRemaining-Math.max(0,roundsToConsume));
   updateStatsDisplay();
   updateProfitDisplay();
   renderTrades();
@@ -2472,6 +2603,110 @@ function onStrategyResult(strat, won, profit, stake, entrySpot, exitSpot, market
     toast('✅ Session complete — rounds exhausted', 'info');
     stopBot('rounds');
   }
+}
+
+function onStrategyResult(strat, won, profit, stake, entrySpot, exitSpot, marketSymbol=null, learningContext=null, options={}){
+  sessionStake += stake;
+  sessionPayout += won ? (stake + profit) : 0;
+  sessionPL += profit;
+  if(won) sessionWins++; else sessionLosses++;
+  strat.wins=Number(strat.wins||0)+(won?1:0);
+  strat.losses=Number(strat.losses||0)+(won?0:1);
+  strat.pl=Number(strat.pl||0)+profit;
+  trades.unshift({time:new Date().toLocaleTimeString(),strategy:getStrategyLabel(strat),entry:entrySpot??'—',exit:exitSpot??'—',stake:Number(stake||0),pl:Number(profit||0)});
+  if(trades.length>200) trades.length=200;
+  if(learningContext) updateLearningFromSettlement(learningContext,won,profit);
+  if(options.deferControl){
+    lastAction=`${options.pairLeg||'Pair leg'} settled ${won?'WIN':'LOSS'} · ${profit>=0?'+':''}$${Number(profit||0).toFixed(2)}`;
+    updateStatsDisplay();updateProfitDisplay();renderTrades();renderActiveList();updateEngineStatus();refreshBrainStatus();
+    return;
+  }
+  applyBotOutcomeControl(strat,won,profit,marketSymbol,1,'');
+}
+
+function selectPairTriggerCandidate(){
+  const configuredMarket=engineState.markets.get(getSymbol(botConfig.market));
+  const preferredStrategy=selectedStrategies[currentStrategyIndex%Math.max(1,selectedStrategies.length)];
+  let candidates=[];
+  if(botConfig.executionMode==='BEST_CONFIDENCE' || botConfig.autoSwitchMarkets || (recoveryActive&&botConfig.recoverySelection==='BEST_LIVE')){
+    candidates=selectedCandidatePool();
+    if(recoveryActive&&lastLossRoute){
+      candidates=candidates.filter(c=>!(c.strat===lastLossRoute.strat&&c.symbol===lastLossRoute.symbol));
+    }
+  }else if(configuredMarket){
+    candidates=rankAdaptiveCandidates(getCandidatesForMarket(configuredMarket));
+  }
+  let chosen=candidates.find(c=>c.strat===preferredStrategy && (!configuredMarket || c.symbol===configuredMarket.code)) || candidates[0] || null;
+  if(!chosen) chosen=chooseAdaptiveCandidate(preferredStrategy,configuredMarket?.code||null);
+  return chosen;
+}
+function placeHigherLowerPair(candidate){
+  const marketSymbol=candidate.symbol || getSymbol(botConfig.market);
+  const market=engineState.markets.get(marketSymbol);
+  const barrier=Math.max(1,Math.min(8,Math.round(Number(botConfig.pairBarrier)||2)));
+  const ticks=Math.max(1,Math.min(10,Math.round(Number(botConfig.pairTicks)||1)));
+  const stake=normalizeStake(Number(botConfig.defaultStake)||0.35);
+  const tick=market?.tickCount||0;
+  const signalKey=`${candidate.symbol}|${candidate.key||candidate.label}|${tick}`;
+  if(signalKey===lastPairSignalKey) return false;
+  if(pairBatches.size>0) return false;
+  if(botOpenCount()+2>getBotOpenLimit()) return false;
+  const gate=accountRiskGate(candidate);
+  if(!gate.allowed){setAdaptiveGate(false,gate.reason,gate.detail);return false;}
+  const hard=Math.max(0.01,Number(botConfig.stopLoss||20));
+  if(sessionPL <= -(hard - stake*2)){
+    setAdaptiveGate(false,'pair_stop_buffer','Paired entry blocked because the remaining stop-loss buffer is smaller than two legs.');
+    return false;
+  }
+  if(!wsConnected){toast('❌ Trading connection is not active. Pair was not sent.','error');return false;}
+
+  const pairId=`HLPAIR-${Date.now()}-${++pairSeq}`;
+  const batch={pairId,expected:0,resolved:0,settled:0,bought:0,failed:0,errors:[],results:[],totalProfit:0,
+    triggerStrategy:candidate.strat,marketSymbol,marketShort:market?.short||marketSymbol,barrier,ticks,stake,createdAt:Date.now(),finalized:false};
+  pairBatches.set(pairId,batch);
+
+  const higher={type:'OVER',stake,duration:ticks,prediction:barrier,wins:0,losses:0,pl:0,pair:true,labelOverride:`Higher > ${barrier}`};
+  const lower={type:'UNDER',stake,duration:ticks,prediction:barrier,wins:0,losses:0,pl:0,pair:true,labelOverride:`Lower < ${barrier}`};
+  const sentHigher=placeStrategyContract(higher,marketSymbol,{purpose:'bot',candidate,stakeOverride:stake,bypassGap:true,pairId,pairLeg:'HIGHER',labelOverride:`Higher > ${barrier}`});
+  if(sentHigher) batch.expected++;
+  const sentLower=placeStrategyContract(lower,marketSymbol,{purpose:'bot',candidate,stakeOverride:stake,bypassGap:true,pairId,pairLeg:'LOWER',labelOverride:`Lower < ${barrier}`});
+  if(sentLower) batch.expected++;
+  if(batch.expected===0){pairBatches.delete(pairId);return false;}
+  lastPairSignalKey=signalKey;
+  adaptiveEngine.session.currentMarket=market?.short||marketSymbol;
+  adaptiveEngine.session.currentStrategy=`Higher + Lower @ ${barrier}`;
+  lastAction=`⚡ Pair submitted → Higher > ${barrier} + Lower < ${barrier} · ${ticks} tick${ticks>1?'s':''}`;
+  setAdaptiveGate(true,'pair_submitted',`Higher and Lower pair submitted back-to-back on ${market?.short||marketSymbol}; $${stake.toFixed(2)} per leg.`);
+  updateEngineStatus();
+  toast(`⚡ Higher + Lower submitted · barrier ${barrier} · ${ticks} tick${ticks>1?'s':''}`,'success');
+  return true;
+}
+function evaluateHigherLowerPairOnTick(){
+  if(!botRunning || !botConfig.pairMode || selectedStrategies.length===0) return false;
+  if(pairBatches.size>0) return false;
+  const chosen=selectPairTriggerCandidate();
+  if(!chosen) return false;
+  const gate=accountRiskGate(chosen);
+  if(!gate.allowed){setAdaptiveGate(false,gate.reason,gate.detail);return false;}
+  if(chosen.strat!==selectedStrategies[currentStrategyIndex]){
+    adaptiveEngine.session.strategySwitches++;
+    currentStrategyIndex=selectedStrategies.indexOf(chosen.strat);
+    recoveryActive=true;
+  }
+  const configuredMarket=engineState.markets.get(getSymbol(botConfig.market));
+  if(configuredMarket && chosen.symbol!==configuredMarket.code){
+    adaptiveEngine.session.marketSwitches++;
+    adaptiveEngine.session.currentMarket=chosen.marketShort;
+    if(wsConnected) subscribeTicks();
+  }
+  if(!candidateIsFresh(chosen)) return false;
+  if(placeHigherLowerPair(chosen)){
+    markCandidateFired(chosen);
+    lastAction=`Paired execution → ${chosen.marketShort} · ${chosen.signalLabel} · ${chosen.adaptiveConfidence.toFixed(1)}%`;
+    updateEngineStatus();
+    return true;
+  }
+  return false;
 }
 
 function startBot(){
@@ -2515,6 +2750,8 @@ function startBot(){
   recoveryActive = false;
   lastLossRoute = null;
   lastBuyTime = 0;
+  pairBatches.clear();
+  lastPairSignalKey = '';
   rlBackoff = 'adaptive';
   adaptiveEngine.session.startBalance=Number(balance||0);
   adaptiveEngine.session.peakBalance=Number(balance||0);
@@ -2535,7 +2772,7 @@ function startBot(){
   updateProfitDisplay();
   renderActiveList();
   updateEngineStatus();
-  toast(`🚀 Bot started · ${executionModeLabel()} · ${selectedStrategies.length} strategies · ${botConfig.rounds} rounds`, 'success');
+  toast(`🚀 Bot started · ${botConfig.pairMode?'HIGHER + LOWER pair':'single contract'} · ${selectedStrategies.length} strategies · ${botConfig.rounds} rounds`, 'success');
 }
 function stopBot(reason){
   if(!botRunning) return;
@@ -2576,7 +2813,7 @@ function updateProfitDisplay(){
   document.getElementById('profitFill').style.width = pct + '%';
 }
 function updateEngineStatus(){
-  document.getElementById('engMode').textContent = executionModeLabel();
+  document.getElementById('engMode').textContent = botConfig.pairMode ? `HIGHER + LOWER · ${executionModeLabel()}` : executionModeLabel();
   document.getElementById('engRoundRemaining').textContent = botRunning ? roundsRemaining : 0;
   const spl = document.getElementById('engSessionPL');
   spl.textContent = `${sessionPL>=0?'+':''}$${sessionPL.toFixed(2)}`;
@@ -3261,10 +3498,33 @@ marketSel.addEventListener('change', () => {
 });
 document.getElementById('botTicks').addEventListener('change', e => {
   botConfig.defaultTicks = Math.max(1, Math.min(10, parseInt(e.target.value,10)||1));
+  botConfig.pairTicks = botConfig.defaultTicks;
+  updatePairModeUI();
+});
+document.getElementById('botPairMode').addEventListener('change', e => {
+  botConfig.pairMode = e.target.value === 'HIGHER_LOWER';
+  lastPairSignalKey='';
+  if(botConfig.pairMode){
+    botConfig.pairTicks = Math.max(1,Math.min(10,parseInt(document.getElementById('botPairTicks').value,10)||botConfig.defaultTicks||1));
+  }
+  updateExecutionModeUI();
+  toast(botConfig.pairMode ? '↕️ Higher + Lower paired execution ON' : '↕️ Single contract execution restored','info');
+});
+document.getElementById('botPairBarrier').addEventListener('change', e => {
+  botConfig.pairBarrier = Math.max(1, Math.min(8, parseInt(e.target.value,10)||2));
+  e.target.value = botConfig.pairBarrier;
+  updateExecutionModeUI();
+});
+document.getElementById('botPairTicks').addEventListener('change', e => {
+  botConfig.pairTicks = Math.max(1, Math.min(10, parseInt(e.target.value,10)||1));
+  botConfig.defaultTicks = botConfig.pairTicks;
+  document.getElementById('botTicks').value = botConfig.pairTicks;
+  updatePairModeUI();
 });
 document.getElementById('botStake').addEventListener('change', e => {
   botConfig.defaultStake = normalizeStake(parseFloat(e.target.value)||0.35);
   e.target.value = botConfig.defaultStake.toFixed(2);
+  updatePairModeUI();
   updateHunterExecuteButton();
 });
 document.getElementById('botDigit').addEventListener('change', e => {
@@ -3297,6 +3557,14 @@ document.getElementById('botConfidenceFloor').addEventListener('change', e => {
 document.getElementById('botTP').addEventListener('change', e => {
   botConfig.takeProfit = Math.max(0.35,parseFloat(e.target.value)||1000);
   botConfig.dailyTarget = botConfig.takeProfit;
+  updatePairModeUI();
+  updateProfitDisplay();
+  refreshBrainStatus();
+});
+document.getElementById('botPairTP').addEventListener('change', e => {
+  botConfig.takeProfit = Math.max(0.35,parseFloat(e.target.value)||1000);
+  botConfig.dailyTarget = botConfig.takeProfit;
+  document.getElementById('botTP').value = botConfig.takeProfit.toFixed(2);
   updateProfitDisplay();
   refreshBrainStatus();
 });
@@ -3808,6 +4076,8 @@ setupHunterUI();
 loadAdaptiveState();
 getDailyRecord();
 refreshBrainStatus();
+updatePairModeUI();
+updateExecutionModeUI();
 loadStoredToken();
 document.getElementById('modeLabel').textContent = MODE;
 document.getElementById('topModeLabel').textContent = MODE;
