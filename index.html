@@ -664,9 +664,11 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
         <select class="form-control" id="videoContractMode">
           <option value="AUTO" selected>AI Auto — strongest confirmed signal</option>
           <option value="RISEFALL">Rise / Fall</option>
-          <option value="MATCHES">Digit Match</option>
-          <option value="HIGHLOW">High / Low Tick</option>
-          <option value="ONLYUPDOWN">Only Ups / Downs</option>
+          <option value="MATCHES">Digit Match — 2nd Most → Most on Loss</option>
+          <option value="OVERUNDER">Over / Under — O3/U6 → Recovery U3/O6</option>
+          <option value="EVENODD">Even / Odd</option>
+          <option value="HIGHLOW">High / Low Tick — 5 Ticks</option>
+          <option value="ONLYUPDOWN">Only Ups / Downs — 2 Ticks → 3 on Loss</option>
         </select>
       </div>
       <div class="form-group">
@@ -688,6 +690,10 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
           <option value="ADAPTIVE">Adaptive by confidence</option>
         </select>
       </div>
+    </div>
+
+    <div class="video-video-note" style="margin-top:0;margin-bottom:10px;">
+      <strong>Video rules:</strong> High/Low Tick = 5 ticks. Only Ups/Downs = 2 ticks, then 3-tick recovery after a loss. Matches = 2nd most appearing digit, then most appearing digit after a loss. Over/Under = Over 3 / Under 6, then recovery uses Under 3 / Over 6 after a loss. Even/Odd is analysed continuously.
     </div>
 
     <div class="form-group">
@@ -1262,7 +1268,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
       </div>
       <div class="faq-item">
         <div class="faq-question">What does each strategy need?<span>+</span></div>
-        <div class="faq-answer">Most strategies only need a stake and ticks. Over, Under, Matches, Differs, High Tick and Low Tick also use a "prediction" field (a digit 0–9). For High Tick and Low Tick that digit is the barrier — the next tick's last digit must land above it (High Tick) or below it (Low Tick).</div>
+        <div class="faq-answer">Most strategies only need a stake and ticks. Over, Under, Matches and Differs use a digit prediction. High Tick and Low Tick use a tick-position prediction from 1–5 because the contract asks which of the next five price ticks will be highest or lowest.</div>
       </div>
       <div class="faq-item">
         <div class="faq-question">How does switch-on-loss and adaptive survival work?<span>+</span></div>
@@ -1270,14 +1276,14 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
       </div>
       <div class="faq-item">
         <div class="faq-question">What are High Tick and Low Tick?<span>+</span></div>
-        <div class="faq-answer">High Tick (TICKHIGH) and Low Tick (TICKLOW) are fixed to a 5-tick duration. The selected barrier digit is passed with the contract and the live High/Low Tick engine supplies the signal. and the same Pulse "highlow" engine — a Wilson-adjusted proportion test comparing the observed above/below distribution against the fair baseline for your barrier.</div>
+        <div class="faq-answer">High Tick (TICKHIGH) and Low Tick (TICKLOW) always run for 5 ticks. The prediction is a tick position from 1–5, not a digit barrier, and the live High/Low Tick engine supplies that position.</div>
       </div>
     </div>
     <div class="faq-category">
       <h3>📡 EMRON Pulse</h3>
       <div class="faq-item">
         <div class="faq-question">What signals does Pulse produce?<span>+</span></div>
-        <div class="faq-answer">Pulse runs six engines in parallel: Rise/Fall (price momentum + structure + regime), Even/Odd (digit parity), Over/Under (digit threshold), Matches (Dollar Printer staged rules), High/Low Tick (barrier digit), and Only Ups/Downs (run-length probability).</div>
+        <div class="faq-answer">Pulse runs six engines in parallel: Rise/Fall (price momentum + structure + regime), Even/Odd (digit parity), Over/Under (digit threshold), Matches (staged digit rules), High/Low Tick (5-tick position model), and Only Ups/Downs (run-length probability).</div>
       </div>
       <div class="faq-item">
         <div class="faq-question">How does the bot pick a signal?<span>+</span></div>
@@ -1288,11 +1294,11 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
       <h3>🎯 AI Hunter</h3>
       <div class="faq-item">
         <div class="faq-question">What does the Sniper Hunter scan?<span>+</span></div>
-        <div class="faq-answer">Sniper Hunter scans all 15 markets (10 Volatility + 5 Jump) across four signal families: Rise/Fall (momentum + structure + trend + efficiency ratio), Only Ups / Only Downs (2-tick run-length probability over the last 50 ticks), High/Low Tick (barrier-digit z-test against the fair baseline), and Over/Under (barrier z-test). Each tab re-ranks every market and only shows the strongest edges at or above the active threshold.</div>
+        <div class="faq-answer">Sniper Hunter scans all 15 markets (10 Volatility + 5 Jump) across four signal families: Rise/Fall (momentum + structure + trend + efficiency ratio), Only Ups / Only Downs (2-tick run-length probability over the last 50 ticks), High/Low Tick (historical 5-position winner-frequency model), and Over/Under (barrier z-test). Each tab re-ranks every market and only shows the strongest edges at or above the active threshold.</div>
       </div>
       <div class="faq-item">
-        <div class="faq-question">How does the High / Low Tick tab pick a barrier?<span>+</span></div>
-        <div class="faq-answer">The High/Low Tick engine tests every barrier from 1 to 8 on each market and returns the strongest above/below deviation. The winning barrier is carried into the contract, so the trades fire with the exact barrier the AI selected, not a hardcoded default.</div>
+        <div class="faq-question">How does the High / Low Tick tab pick a tick?<span>+</span></div>
+        <div class="faq-answer">The High/Low Tick engine learns which of the next five tick positions most often becomes the highest or lowest over recent five-tick windows. The selected position (1–5) is carried into the TICKHIGH/TICKLOW contract and the contract always runs for 5 ticks.</div>
       </div>
       <div class="faq-item">
         <div class="faq-question">Why does Only Ups/Downs use 2 ticks?<span>+</span></div>
@@ -1434,8 +1440,8 @@ const STRATEGY_DEFS = {
   FALL:       { label:'Fall',       icon:'📉', contract:'PUT',       category:'risefall',   dir:'FALL',  duration:1, needsDigit:false },
   ONLY_UPS:   { label:'Only Ups',   icon:'⇈',  contract:'RUNHIGH',   category:'onlyupdown', dir:'UP',    duration:2, needsDigit:false },
   ONLY_DOWNS: { label:'Only Downs', icon:'⇊',  contract:'RUNLOW',    category:'onlyupdown', dir:'DOWN',  duration:2, needsDigit:false },
-  HIGH_TICK:  { label:'High Tick',  icon:'🔺', contract:'TICKHIGH',  category:'highlow',    dir:'HIGH',  duration:5, needsDigit:true,  defaultDigit:5 },
-  LOW_TICK:   { label:'Low Tick',   icon:'🔻', contract:'TICKLOW',   category:'highlow',    dir:'LOW',   duration:5, needsDigit:true,  defaultDigit:5 }
+  HIGH_TICK:  { label:'High Tick',  icon:'🔺', contract:'TICKHIGH',  category:'highlow',    dir:'HIGH',  duration:5, needsDigit:true,  defaultDigit:1 },
+  LOW_TICK:   { label:'Low Tick',   icon:'🔻', contract:'TICKLOW',   category:'highlow',    dir:'LOW',   duration:5, needsDigit:true,  defaultDigit:1 }
 };
 
 /* ============================================================
@@ -1644,37 +1650,88 @@ function evaluateOverUnder(mkt, w){
 }
 
 /* ==== HIGH / LOW TICK ENGINE ====
-   Confidence divisor is 2 so that a genuine barrier-digit skew (z ≈ 1.0+)
-   clears the Sniper threshold instead of sitting just under it. */
+   Deriv High Tick / Low Tick is NOT a digit/barrier contract.
+   It asks which POSITION (1..5) among the next five price ticks
+   will be the highest/lowest. We therefore learn the winning tick
+   position from historical 5-tick windows and send that position via
+   `selected_tick`. Duration is always 5 ticks. */
 function evaluateHighLow(mkt){
-  const win=engineState.highLowWindow;
-  const d=mkt.digits.slice(-win); if(d.length<HL.MIN_TICKS) return null;
-  const counts=new Array(10).fill(0); d.forEach(x=>counts[x]++);
-  const n=d.length;
-  let mode=0,mc=-1; for(let i=0;i<10;i++) if(counts[i]>mc){mc=counts[i];mode=i;}
-  const barriers = engineState.highLowBarrier==='auto' ? [1,2,3,4,5,6,7,8] : [engineState.highLowBarrier];
-  let best=null;
-  for(const b of barriers){
-    if(b<1||b>8) continue;
-    let above=0,below=0;
-    for(let i=0;i<10;i++){ if(i>b) above+=counts[i]; if(i<b) below+=counts[i]; }
-    const bh=(9-b)/10, bl=b/10;
-    const zH=wilsonZ(above,n,bh), zL=wilsonZ(below,n,bl);
-    let c=null;
-    if(zH>=0&&zH>=zL) c={barrier:b,direction:'up',label:'HIGH TICK',sideLabel:`> ${b}`,p:(above+0.5)/(n+1),base:bh,z:zH,above,below};
-    else if(zL>=0) c={barrier:b,direction:'down',label:'LOW TICK',sideLabel:`< ${b}`,p:(below+0.5)/(n+1),base:bl,z:zL,above,below};
-    if(!c) continue;
-    c.absZ=c.z; c.absScore=Math.max(0,Math.min(1,Math.tanh(c.z/3)));
-    if(!best||c.absScore>best.absScore) best=c;
+  const q=mkt.quotes || [];
+  const sampleWindow=Math.min(100, q.length-4);
+  if(sampleWindow < 25) return null;
+
+  const start=Math.max(0, q.length-5-sampleWindow+1);
+  const highCounts=[0,0,0,0,0];
+  const lowCounts=[0,0,0,0,0];
+  let highSamples=0, lowSamples=0, tieWindows=0;
+
+  for(let i=start; i+4<q.length; i++) {
+    const w=q.slice(i,i+5);
+    const maxV=Math.max(...w);
+    const minV=Math.min(...w);
+    const maxPos=w.indexOf(maxV);
+    const minPos=w.indexOf(minV);
+    const maxCount=w.filter(v=>v===maxV).length;
+    const minCount=w.filter(v=>v===minV).length;
+    if(maxCount===1){ highCounts[maxPos]++; highSamples++; }
+    if(minCount===1){ lowCounts[minPos]++; lowSamples++; }
+    if(maxCount>1 || minCount>1) tieWindows++;
   }
-  if(!best) return null;
-  const conf=Math.round(50+45*Math.tanh(best.absZ/2));
-  return { category:'highlow', label:`${best.label} ${best.sideLabel}`, direction:best.direction,
-    score:best.direction==='up'?best.absScore:-best.absScore, absScore:best.absScore, strength:best.absScore,
-    confidence:conf, z:best.z, absZ:best.absZ, n,
-    meta:{ barrier:best.barrier, sideLabel:best.sideLabel, predictedDigit:mode, modeCount:mc,
-      p:best.p, base:best.base, above:best.above, below:best.below, counts,
-      autoBarrier:engineState.highLowBarrier==='auto' } };
+
+  if(highSamples<20 || lowSamples<20) return null;
+
+  let highTick=0, lowTick=0;
+  for(let i=1;i<5;i++){
+    if(highCounts[i]>highCounts[highTick]) highTick=i;
+    if(lowCounts[i]>lowCounts[lowTick]) lowTick=i;
+  }
+
+  const highP=(highCounts[highTick]+0.5)/(highSamples+1);
+  const lowP=(lowCounts[lowTick]+0.5)/(lowSamples+1);
+  const highZ=wilsonZ(highCounts[highTick],highSamples,0.2);
+  const lowZ=wilsonZ(lowCounts[lowTick],lowSamples,0.2);
+  const highScore=Math.max(0,Math.min(1,Math.tanh(Math.max(0,highZ)/3)));
+  const lowScore=Math.max(0,Math.min(1,Math.tanh(Math.max(0,lowZ)/3)));
+  const highConf=Math.round(50+45*Math.tanh(Math.max(0,highZ)/2));
+  const lowConf=Math.round(50+45*Math.tanh(Math.max(0,lowZ)/2));
+
+  const useHigh=highConf>=lowConf;
+  const selected=useHigh ? highTick+1 : lowTick+1;
+  const label=useHigh ? 'HIGH TICK' : 'LOW TICK';
+  const score=useHigh ? highScore : lowScore;
+  const conf=useHigh ? highConf : lowConf;
+  const p=useHigh ? highP : lowP;
+  const samples=useHigh ? highSamples : lowSamples;
+  const counts=useHigh ? highCounts : lowCounts;
+
+  return {
+    category:'highlow',
+    label:`${label} ${selected}`,
+    direction:useHigh?'up':'down',
+    score:useHigh?score:-score,
+    absScore:score,
+    strength:score,
+    confidence:conf,
+    z:(useHigh?highZ:lowZ),
+    absZ:Math.abs(useHigh?highZ:lowZ),
+    n:q.length,
+    meta:{
+      selectedTick:selected,
+      selectedPct:p,
+      baseline:0.2,
+      samples,
+      highTick:highTick+1,
+      highPct:highP,
+      highConfidence:highConf,
+      lowTick:lowTick+1,
+      lowPct:lowP,
+      lowConfidence:lowConf,
+      highCounts,
+      lowCounts,
+      tieWindows,
+      windowSize:sampleWindow
+    }
+  };
 }
 
 function currentUpDownStreak(q){
@@ -2010,8 +2067,8 @@ function renderActiveList(){
         </div>
         ${def && def.needsDigit ? `
         <div class="as-field">
-          <label>Digit</label>
-          <input type="number" min="0" max="9" data-field="prediction" data-idx="${i}" value="${s.prediction != null ? s.prediction : botConfig.defaultDigit}">
+          <label>${(s.type==='HIGH_TICK'||s.type==='LOW_TICK') ? 'Tick #' : 'Digit'}</label>
+          <input type="number" min="${(s.type==='HIGH_TICK'||s.type==='LOW_TICK') ? 1 : 0}" max="${(s.type==='HIGH_TICK'||s.type==='LOW_TICK') ? 5 : 9}" data-field="prediction" data-idx="${i}" value="${s.prediction != null ? s.prediction : ((s.type==='HIGH_TICK'||s.type==='LOW_TICK') ? 1 : botConfig.defaultDigit)}" ${(s.type==='HIGH_TICK'||s.type==='LOW_TICK') ? 'title="High Tick / Low Tick predicts one of the next 5 tick positions"' : ''}>
         </div>` : ''}
       </div>
       <span class="as-badge ${plCls}">${plSign}$${s.pl.toFixed(2)}</span>
@@ -2030,7 +2087,7 @@ function renderActiveList(){
       if(isNaN(v)) v = 0;
       if(field === 'stake') strat.stake = normalizeStake(v);
       else if(field === 'duration') strat.duration = (strat.type==='HIGH_TICK'||strat.type==='LOW_TICK') ? 5 : Math.max(1, Math.min(10, Math.round(v)));
-      else if(field === 'prediction') strat.prediction = Math.max(0, Math.min(9, Math.round(v)));
+      else if(field === 'prediction') strat.prediction = (strat.type==='HIGH_TICK'||strat.type==='LOW_TICK') ? Math.max(1, Math.min(5, Math.round(v))) : Math.max(0, Math.min(9, Math.round(v)));
       renderActiveList();
     });
   });
@@ -4049,8 +4106,8 @@ function hunterHighLow(mkt){
     count: r.n,
     n: r.n,
     score: r.absScore,
-    barrier: r.meta.barrier,
-    detail: `${r.meta.sideLabel} · z ${r.absZ.toFixed(2)} · ${confidence}%`
+    selectedTick: r.meta.selectedTick,
+    detail: `Tick ${r.meta.selectedTick} · ${Math.round(r.meta.selectedPct*100)}% · ${confidence}%`
   };
 }
 
@@ -4100,7 +4157,7 @@ function hunterContractFor(r){
   if(r.kind==='EVEN/ODD') return {type:r.label==='EVEN'?'EVEN':'ODD',prediction:null,duration:1};
   if(r.kind==='RISE/FALL') return {type:r.label==='RISE'?'RISE':'FALL',prediction:null,duration:1};
   if(r.kind==='ONLY/UP/DOWN') return {type:r.label==='ONLY UPS'?'ONLY_UPS':'ONLY_DOWNS',prediction:null,duration:r.duration||2};
-  if(r.kind==='HIGH/LOW') return {type:r.label.startsWith('HIGH TICK')?'HIGH_TICK':'LOW_TICK',prediction:r.barrier,duration:5};
+  if(r.kind==='HIGH/LOW') return {type:r.label.startsWith('HIGH TICK')?'HIGH_TICK':'LOW_TICK',prediction:r.selectedTick||1,duration:5};
   if(r.kind==='O1/U8') return {type:r.label.startsWith('OVER')?'OVER':'UNDER',prediction:r.label.startsWith('OVER')?1:8,duration:1};
   if(r.kind==='O2/U7') return {type:r.label.startsWith('OVER')?'OVER':'UNDER',prediction:r.label.startsWith('OVER')?2:7,duration:1};
   if(r.kind==='O3/U6') return {type:r.label.startsWith('OVER')?'OVER':'UNDER',prediction:r.label.startsWith('OVER')?3:6,duration:1};
@@ -4327,6 +4384,7 @@ const VIDEO_ENGINE = {
   stakeMode:'FIXED',
   marketCodes:new Set(['1HZ10V','1HZ50V','1HZ100V']),
   lastSignalKey:'',
+  recovery:null,
   startedAt:0,
   session:{stake:0,payout:0,runs:0,wins:0,losses:0,pl:0},
   transactions:[],
@@ -4367,6 +4425,7 @@ function videoResetStats(){
   VIDEO_ENGINE.session={stake:0,payout:0,runs:0,wins:0,losses:0,pl:0};
   VIDEO_ENGINE.transactions=[];
   VIDEO_ENGINE.lastSignalKey='';
+  VIDEO_ENGINE.recovery=null;
   renderVideoStats();
   renderVideoTransactions();
 }
@@ -4402,19 +4461,47 @@ function videoModeAllowed(candidate){
   if(mode==='AUTO') return true;
   if(mode==='RISEFALL') return type==='RISE'||type==='FALL';
   if(mode==='MATCHES') return type==='MATCHES';
+  if(mode==='OVERUNDER') return type==='OVER'||type==='UNDER';
+  if(mode==='EVENODD') return type==='EVEN'||type==='ODD';
   if(mode==='HIGHLOW') return type==='HIGH_TICK'||type==='LOW_TICK';
   if(mode==='ONLYUPDOWN') return type==='ONLY_UPS'||type==='ONLY_DOWNS';
   return true;
 }
-function videoTransientStrategy(type, market, conf){
+function videoRecoveryFor(code,type){
+  const r=VIDEO_ENGINE.recovery;
+  if(!r || r.market!==code || r.family!==type) return null;
+  return r;
+}
+function videoDigitRanking(mkt){
+  const d=(mkt?.digits||[]).slice(-100);
+  if(d.length<25) return null;
+  const counts=new Array(10).fill(0);
+  d.forEach(x=>{ if(Number.isInteger(x) && x>=0 && x<=9) counts[x]++; });
+  const rows=counts.map((count,digit)=>({digit,count,pct:count/d.length}));
+  rows.sort((a,b)=>b.count-a.count || b.pct-a.pct || a.digit-b.digit);
+  return {rows,n:d.length,most:rows[0],second:rows[1]};
+}
+function videoTransientStrategy(type, market, conf, overrides={}){
   const def=STRATEGY_DEFS[type]; if(!def) return null;
   const digit=conf?.meta?.predictionDigit!=null ? Number(conf.meta.predictionDigit)
     : (String(conf?.label||'').match(/\d+/)?.[0] != null ? Number(String(conf.label).match(/\d+/)[0]) : null);
+  const duration=Number.isFinite(Number(overrides.duration)) ? Number(overrides.duration) : def.duration;
+  const prediction=overrides.prediction!=null
+    ? Number(overrides.prediction)
+    : (def.needsDigit ? (Number.isFinite(digit)?digit:def.defaultDigit) : null);
+  const labelOverride=overrides.labelOverride ||
+    (type==='MATCHES' && Number.isFinite(prediction) ? `Matches ${prediction}` :
+     type==='OVER' && Number.isFinite(prediction) ? `Over ${prediction}` :
+     type==='UNDER' && Number.isFinite(prediction) ? `Under ${prediction}` :
+     type==='ONLY_UPS' ? `Only Ups ${duration}T` :
+     type==='ONLY_DOWNS' ? `Only Downs ${duration}T` :
+     type==='HIGH_TICK' && Number.isFinite(prediction) ? `High Tick ${prediction}` :
+     type==='LOW_TICK' && Number.isFinite(prediction) ? `Low Tick ${prediction}` : null);
   return {
-    type, stake:VIDEO_ENGINE.stake, duration:def.duration,
-    prediction:def.needsDigit ? (Number.isFinite(digit)?digit:def.defaultDigit) : null,
+    type, stake:VIDEO_ENGINE.stake, duration,
+    prediction,
     wins:0, losses:0, pl:0,
-    labelOverride: type==='MATCHES' && Number.isFinite(digit) ? `Matches ${digit}` : null
+    labelOverride
   };
 }
 function videoBuildCandidates(){
@@ -4422,27 +4509,69 @@ function videoBuildCandidates(){
   const modes=VIDEO_ENGINE.strategy;
   for(const code of VIDEO_ENGINE.marketCodes){
     const mkt=engineState.markets.get(code); if(!mkt || !mkt.tickCount) continue;
-    const add=(type,conf,detail='')=>{
+    const add=(type,conf,detail='',overrides={})=>{
       if(!conf || !videoModeAllowed({strat:{type}})) return;
       if(type==='MATCHES' && !conf.meta?.readyToSignal) return;
       const label=String(conf.label||'');
-      const strat=videoTransientStrategy(type,mkt,conf); if(!strat) return;
+      const strat=videoTransientStrategy(type,mkt,conf,overrides); if(!strat) return;
       rows.push({
         strat,symbol:code,marketName:mkt.name,marketShort:mkt.short,label:getStrategyLabel(strat),
-        signalLabel:label,confidence:Number(conf.confidence||confidenceOf(conf)||0),
-        key:`video|${code}|${type}|${mkt.tickCount}`,detail:detail||label
+        signalLabel:overrides.signalLabel || label,confidence:Number(conf.confidence||confidenceOf(conf)||0),
+        key:`video|${code}|${type}|${strat.prediction??'x'}|${strat.duration}|${mkt.tickCount}`,
+        detail:detail||label, recovery:Boolean(overrides.recovery)
       });
     };
+
     const rf=engineState.activeConfirmations.get(`${code}|risefall`);
     if(rf) add(rf.label==='FALL'?'FALL':'RISE',rf,'Trend/momentum confirmation');
+
     const md=engineState.activeConfirmations.get(`${code}|matchdiffer`);
-    if(md) add('MATCHES',md,md.meta?.readyToSignal?'Digit confirmation':'Digit setup');
+    if(md && md.meta?.readyToSignal){
+      const ranks=videoDigitRanking(mkt);
+      const rec=videoRecoveryFor(code,'MATCHES');
+      const digit=rec?.prediction!=null ? rec.prediction : ranks?.second?.digit;
+      if(Number.isFinite(digit)) add('MATCHES',md,rec ? 'Recovery: most appearing digit' : 'Entry: second most appearing digit',
+        {prediction:digit,recovery:!!rec,signalLabel:rec?`MATCHES ${digit} · recovery`: `MATCHES ${digit} · 2nd most`});
+    }
+
     const ou=engineState.activeConfirmations.get(`${code}|onlyupdown`);
-    if(ou) add(ou.label==='ONLY DOWNS'?'ONLY_DOWNS':'ONLY_UPS',ou,'Two-tick direction confirmation');
+    if(ou){
+      const upType=ou.label==='ONLY DOWNS'?'ONLY_DOWNS':'ONLY_UPS';
+      const rec=videoRecoveryFor(code, 'ONLYUPDOWN');
+      const type=rec?.strategyType || upType;
+      const ticks=rec?.duration || 2;
+      add(type,ou,rec?'Recovery: 3-tick contract':'Entry: 2-tick contract',{duration:ticks,recovery:!!rec});
+    }
+
+    const ou2=engineState.activeConfirmations.get(`${code}|overunder`);
+    if(ou2){
+      const rec=videoRecoveryFor(code,'OVERUNDER');
+      const type=rec?.strategyType || (ou2.label==='OVER'?'OVER':'UNDER');
+      const barrier=rec?.prediction!=null ? rec.prediction : (type==='OVER'?3:6);
+      add(type,ou2,rec?'Recovery: reversed barrier rule':`Entry rule: ${type==='OVER'?'OVER 3':'UNDER 6'}`,
+        {prediction:barrier,recovery:!!rec,signalLabel:rec?`${type} ${barrier} · recovery`:`${type} ${barrier}`});
+    }
+
+    const eo=engineState.activeConfirmations.get(`${code}|evenodd`);
+    if(eo){
+      const type=eo.label==='ODD'?'ODD':'EVEN';
+      add(type,eo,'Even/Odd confirmation');
+    }
+
     const hl=engineState.activeConfirmations.get(`${code}|highlow`);
-    if(hl) add(String(hl.label||'').toUpperCase().includes('LOW')?'LOW_TICK':'HIGH_TICK',hl,'High/low tick confirmation');
+    if(hl){
+      const type=String(hl.label||'').toUpperCase().includes('LOW')?'LOW_TICK':'HIGH_TICK';
+      const selectedTick=hl.meta?.selectedTick!=null ? Number(hl.meta.selectedTick) : 1;
+      add(type,hl,'High/low tick confirmation — position 1–5 · fixed 5 ticks',{duration:5,prediction:selectedTick,signalLabel:`${type==='HIGH_TICK'?'HIGH TICK':'LOW TICK'} ${selectedTick}`});
+    }
   }
-  const ranked=rankAdaptiveCandidates(rows);
+  // A recovery trade has priority over every new setup. If the required
+  // recovery signal is not confirmed yet, stay in scan mode instead of
+  // jumping to an unrelated strategy.
+  const recoveryRows=rows.filter(r=>r.recovery);
+  const pool=VIDEO_ENGINE.recovery ? recoveryRows : rows;
+  if(VIDEO_ENGINE.recovery && !recoveryRows.length) return [];
+  const ranked=rankAdaptiveCandidates(pool);
   return ranked.filter(r=>Number(r.adaptiveConfidence||0)>=Number(VIDEO_ENGINE.confidence||70) && Number(r.confidence||0)>=50);
 }
 function videoRiskGate(candidate=null){
@@ -4468,6 +4597,7 @@ function videoStart(){
   VIDEO_ENGINE.confidence=Math.max(50,Math.min(99,Number(videoEl('videoConfidence')?.value)||70));
   VIDEO_ENGINE.stakeMode=videoEl('videoStakeMode')?.value||'FIXED';
   VIDEO_ENGINE.running=true; VIDEO_ENGINE.opening=false; VIDEO_ENGINE.startedAt=Date.now(); VIDEO_ENGINE.scanCycles=0;
+  VIDEO_ENGINE.recovery=null;
   videoResetStats();
   videoSetState('SCANNING');
   videoSetPhase('SCANNING THE MARKET','Scanning the market','Collecting live ticks and waiting for a confirmed setup.','scanning');
@@ -4556,7 +4686,36 @@ function videoOnSettlement(rec,profit,won,entrySpot,exitSpot){
   const s=VIDEO_ENGINE.session;
   s.stake+=stake; s.payout+=won?(stake+pl):0; s.runs++; s.pl+=pl;
   if(won)s.wins++;else s.losses++;
-  const def=STRATEGY_DEFS[rec.strategyRef?.type]; const label=rec.label||getStrategyLabel(rec.strategyRef||{type:'VIDEO'});
+
+  // Video-derived recovery rules:
+  // ONLY UPS/DOWNS: next trade keeps the detected direction but expands 2T → 3T.
+  // MATCHES: initial = 2nd most appearing digit; after a loss = most appearing digit.
+  // OVER/UNDER: initial = O3/U6; after a loss, reverse to U3/O6.
+  // EVEN/ODD: no special recovery override; continue with live parity analysis.
+  const type=rec.strategyRef?.type;
+  const marketCode=rec.marketSymbol;
+  if(!won){
+    if(type==='ONLY_UPS' || type==='ONLY_DOWNS'){
+      VIDEO_ENGINE.recovery={family:'ONLYUPDOWN',market:marketCode,strategyType:type,duration:3,createdAt:Date.now()};
+      videoLog(`[INFO] Recovery armed → ${type==='ONLY_UPS'?'ONLY UPS':'ONLY DOWNS'} for 3 ticks.`,'warn');
+    }else if(type==='MATCHES'){
+      const mkt=engineState.markets.get(marketCode);
+      const ranks=videoDigitRanking(mkt);
+      if(ranks?.most){
+        VIDEO_ENGINE.recovery={family:'MATCHES',market:marketCode,prediction:ranks.most.digit,createdAt:Date.now()};
+        videoLog(`[INFO] Recovery armed → MATCHES most appearing digit ${ranks.most.digit}.`,'warn');
+      }
+    }else if(type==='OVER' || type==='UNDER'){
+      const recoveryType=type==='OVER'?'UNDER':'OVER';
+      const recoveryBarrier=type==='OVER'?3:6;
+      VIDEO_ENGINE.recovery={family:'OVERUNDER',market:marketCode,strategyType:recoveryType,prediction:recoveryBarrier,createdAt:Date.now()};
+      videoLog(`[INFO] Recovery armed → ${recoveryType} ${recoveryBarrier}.`,'warn');
+    }
+  }else if(VIDEO_ENGINE.recovery && VIDEO_ENGINE.recovery.market===marketCode){
+    VIDEO_ENGINE.recovery=null;
+  }
+
+  const def=STRATEGY_DEFS[type]; const label=rec.label||getStrategyLabel(rec.strategyRef||{type:'VIDEO'});
   const mkt=engineState.markets.get(rec.marketSymbol);
   VIDEO_ENGINE.transactions.unshift({time:new Date().toLocaleTimeString(),market:mkt?.short||rec.marketSymbol||'—',
     signal:label,direction:(label.toUpperCase().includes('FALL')||label.toUpperCase().includes('DOWN')||label.toUpperCase().includes('LOW'))?'down':'up',
@@ -4564,6 +4723,9 @@ function videoOnSettlement(rec,profit,won,entrySpot,exitSpot){
   renderVideoStats(); renderVideoTransactions();
   videoEl('videoLastAction').textContent=`${won?'WIN':'LOSS'} → ${mkt?.short||rec.marketSymbol} ${label} · ${pl>=0?'+':''}${videoMoney(pl)}`;
   videoLog(`[${won?'SUCCESS':'WARNING'}] ${won?'WIN':'LOSS'} · ${mkt?.short||rec.marketSymbol} · ${label} · P/L ${pl>=0?'+':''}${videoMoney(pl)}.` ,won?'ok':'warn');
+  if(won && VIDEO_ENGINE.recovery){
+    videoLog('[SUCCESS] Recovery cycle completed — returning to normal rule.','ok');
+  }
   if(rec.adaptiveContext) updateLearningFromSettlement(rec.adaptiveContext,won,pl);
   if(s.pl>=VIDEO_ENGINE.target){
     videoStop('target');
