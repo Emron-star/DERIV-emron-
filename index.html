@@ -1270,7 +1270,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
       </div>
       <div class="faq-item">
         <div class="faq-question">What are High Tick and Low Tick?<span>+</span></div>
-        <div class="faq-answer">High Tick (TICKHIGH) pays when the last digit of the next tick is higher than your barrier digit. Low Tick (TICKLOW) pays when it's lower. Both are single-tick contracts and use the same Pulse "highlow" engine — a Wilson-adjusted proportion test comparing the observed above/below distribution against the fair baseline for your barrier.</div>
+        <div class="faq-answer">High Tick (TICKHIGH) and Low Tick (TICKLOW) are fixed to a 5-tick duration. The selected barrier digit is passed with the contract and the live High/Low Tick engine supplies the signal. and the same Pulse "highlow" engine — a Wilson-adjusted proportion test comparing the observed above/below distribution against the fair baseline for your barrier.</div>
       </div>
     </div>
     <div class="faq-category">
@@ -1434,8 +1434,8 @@ const STRATEGY_DEFS = {
   FALL:       { label:'Fall',       icon:'📉', contract:'PUT',       category:'risefall',   dir:'FALL',  duration:1, needsDigit:false },
   ONLY_UPS:   { label:'Only Ups',   icon:'⇈',  contract:'RUNHIGH',   category:'onlyupdown', dir:'UP',    duration:2, needsDigit:false },
   ONLY_DOWNS: { label:'Only Downs', icon:'⇊',  contract:'RUNLOW',    category:'onlyupdown', dir:'DOWN',  duration:2, needsDigit:false },
-  HIGH_TICK:  { label:'High Tick',  icon:'🔺', contract:'TICKHIGH',  category:'highlow',    dir:'HIGH',  duration:1, needsDigit:true,  defaultDigit:5 },
-  LOW_TICK:   { label:'Low Tick',   icon:'🔻', contract:'TICKLOW',   category:'highlow',    dir:'LOW',   duration:1, needsDigit:true,  defaultDigit:5 }
+  HIGH_TICK:  { label:'High Tick',  icon:'🔺', contract:'TICKHIGH',  category:'highlow',    dir:'HIGH',  duration:5, needsDigit:true,  defaultDigit:5 },
+  LOW_TICK:   { label:'Low Tick',   icon:'🔻', contract:'TICKLOW',   category:'highlow',    dir:'LOW',   duration:5, needsDigit:true,  defaultDigit:5 }
 };
 
 /* ============================================================
@@ -2006,7 +2006,7 @@ function renderActiveList(){
         </div>
         <div class="as-field">
           <label>Ticks</label>
-          <input type="number" min="1" max="10" data-field="duration" data-idx="${i}" value="${s.duration}">
+          <input type="number" min="1" max="10" data-field="duration" data-idx="${i}" value="${(s.type==='HIGH_TICK'||s.type==='LOW_TICK') ? 5 : s.duration}" ${(s.type==='HIGH_TICK'||s.type==='LOW_TICK') ? 'readonly title="High Tick / Low Tick is fixed at 5 ticks"' : ''}>
         </div>
         ${def && def.needsDigit ? `
         <div class="as-field">
@@ -2029,7 +2029,7 @@ function renderActiveList(){
       let v = parseFloat(inp.value);
       if(isNaN(v)) v = 0;
       if(field === 'stake') strat.stake = normalizeStake(v);
-      else if(field === 'duration') strat.duration = Math.max(1, Math.min(10, Math.round(v)));
+      else if(field === 'duration') strat.duration = (strat.type==='HIGH_TICK'||strat.type==='LOW_TICK') ? 5 : Math.max(1, Math.min(10, Math.round(v)));
       else if(field === 'prediction') strat.prediction = Math.max(0, Math.min(9, Math.round(v)));
       renderActiveList();
     });
@@ -2548,7 +2548,7 @@ function placeStrategyContract(strat, marketOverride=null, options={}){
   const stakeData = stakeForApi(options.stakeOverride ?? adaptiveStake(strat,candidate));
   const stake = stakeData.number;
   const stakeText = stakeData.text;
-  const duration = strat.duration || def.duration;
+  const duration = (strat.type==='HIGH_TICK'||strat.type==='LOW_TICK') ? 5 : (strat.duration || def.duration);
   const params = {
     amount: stake, basis:'stake', contract_type: def.contract,
     currency:'USD', duration, duration_unit:'t', underlying_symbol: marketSymbol,
@@ -3896,8 +3896,10 @@ document.getElementById('bulkBuyBtn').addEventListener('click', async () => {
   const stake = normalizeStake(parseFloat(document.getElementById('bulkStakeOverride').value) || 1);
   const override = document.getElementById('bulkContractOverride').value;
   const ct = override !== 'auto' ? override : 'DIGITEVEN';
+  // High Tick / Low Tick are fixed to 5 ticks everywhere in EMRON.
+  const bulkDuration = (ct==='TICKHIGH' || ct==='TICKLOW') ? 5 : 1;
   const params = { contract_type: ct, underlying_symbol: getSymbol(botConfig.market),
-    currency:'USD', amount: stake, basis:'stake', duration:1, duration_unit:'t' };
+    currency:'USD', amount: stake, basis:'stake', duration:bulkDuration, duration_unit:'t' };
   const status = document.getElementById('bulkStatus');
   status.textContent = `Submitting ${accounts.length}…`;
   try {
@@ -4098,7 +4100,7 @@ function hunterContractFor(r){
   if(r.kind==='EVEN/ODD') return {type:r.label==='EVEN'?'EVEN':'ODD',prediction:null,duration:1};
   if(r.kind==='RISE/FALL') return {type:r.label==='RISE'?'RISE':'FALL',prediction:null,duration:1};
   if(r.kind==='ONLY/UP/DOWN') return {type:r.label==='ONLY UPS'?'ONLY_UPS':'ONLY_DOWNS',prediction:null,duration:r.duration||2};
-  if(r.kind==='HIGH/LOW') return {type:r.label.startsWith('HIGH TICK')?'HIGH_TICK':'LOW_TICK',prediction:r.barrier,duration:1};
+  if(r.kind==='HIGH/LOW') return {type:r.label.startsWith('HIGH TICK')?'HIGH_TICK':'LOW_TICK',prediction:r.barrier,duration:5};
   if(r.kind==='O1/U8') return {type:r.label.startsWith('OVER')?'OVER':'UNDER',prediction:r.label.startsWith('OVER')?1:8,duration:1};
   if(r.kind==='O2/U7') return {type:r.label.startsWith('OVER')?'OVER':'UNDER',prediction:r.label.startsWith('OVER')?2:7,duration:1};
   if(r.kind==='O3/U6') return {type:r.label.startsWith('OVER')?'OVER':'UNDER',prediction:r.label.startsWith('OVER')?3:6,duration:1};
@@ -4534,7 +4536,7 @@ function evaluateVideoOnTick(symbolCode=null){
   videoSetPhase('CONFIRMED SIGNAL',`${chosen.marketShort} · ${chosen.label}`,`${chosen.signalLabel} · ${Number(chosen.adaptiveConfidence||chosen.confidence).toFixed(1)}% confidence`,'signal');
   videoEl('videoLastAction').textContent=`Entry → ${chosen.marketShort} ${chosen.label}`;
   videoLog(`[SUCCESS] Signal confirmed: ${chosen.marketShort} · ${chosen.label} · ${Number(chosen.adaptiveConfidence||chosen.confidence).toFixed(1)}%.`,'ok');
-  videoLog(`[INFO] Sending contract proposal · stake $${stake.toFixed(2)} · ${chosen.strat.duration||1} tick.`,'info');
+  videoLog(`[INFO] Sending contract proposal · stake $${stake.toFixed(2)} · ${chosen.strat.type==='HIGH_TICK'||chosen.strat.type==='LOW_TICK' ? 5 : (chosen.strat.duration||1)} ticks.`,'info');
   const sent=placeStrategyContract(chosen.strat,chosen.symbol,{candidate:chosen,stakeOverride:stake,purpose:'video',bypassGap:true,labelOverride:chosen.label});
   if(!sent){
     VIDEO_ENGINE.opening=false;
