@@ -2530,10 +2530,14 @@ function placeStrategyContract(strat, marketOverride=null, options={}){
     const gate=accountRiskGate(candidate);
     if(!gate.allowed){setAdaptiveGate(false,gate.reason,gate.detail);return false;}
   }else if(purpose==='video'){
+    // Video-mode sets `opening` before submission to prevent duplicate ticks.
+    // Do not run the normal opening gate again during the same synchronous submit.
     const gate=videoRiskGate(candidate);
-    if(!gate.allowed) return false;
+    if(!gate.allowed && gate.reason!=='open') return false;
   }
-  if(!wsConnected){
+  const socketReady = !!(ws && ws.readyState === WebSocket.OPEN);
+  if(!wsConnected || !socketReady){
+    wsConnected = false;
     toast('❌ Trading connection is not active. Contract was not sent.', 'error');
     return false;
   }
@@ -2556,7 +2560,10 @@ function placeStrategyContract(strat, marketOverride=null, options={}){
     lastAction='Blocked malformed stake before proposal';
     return false;
   }
-  if(def.needsDigit && strat.prediction != null) params.barrier = String(strat.prediction);
+  if(def.needsDigit && strat.prediction != null){
+    if(def.contract==='TICKHIGH' || def.contract==='TICKLOW') params.selected_tick = Number(strat.prediction);
+    else params.barrier = String(strat.prediction);
+  }
   lastBuyTime = Date.now();
   adaptiveEngine.session.lastStakeSent = stakeText;
   lastAction = `Proposal ${contractLabel} · $${stakeText}`;
@@ -2577,8 +2584,19 @@ function placeStrategyContract(strat, marketOverride=null, options={}){
     pairId:options.pairId || null,pairLeg:options.pairLeg || null};
   pendingProposalMap.set(id,payload);
   adaptiveEngine.pendingContexts.set(id,context);
-  ws.send(JSON.stringify({ proposal:1, ...params, req_id:id }));
-  return true;
+  try{
+    ws.send(JSON.stringify({ proposal:1, ...params, req_id:id }));
+    return true;
+  }catch(err){
+    pendingProposalMap.delete(id);
+    adaptiveEngine.pendingContexts.delete(id);
+    wsConnected = false;
+    if(purpose==='video') VIDEO_ENGINE.opening=false;
+    lastAction='Contract request failed before transmission';
+    videoLog(`[ERROR] WebSocket send failed · ${err?.message || 'connection closed'}.`,'err');
+    updateConnectionStatus(false);
+    return false;
+  }
 }
 
 function resolvePairLegFailure(t, reason){
@@ -4509,6 +4527,8 @@ function evaluateVideoOnTick(symbolCode=null){
   VIDEO_ENGINE.lastSignalKey=chosen.key;
   const stake=videoStakeForCandidate(chosen);
   const risk=videoRiskGate(chosen); if(!risk.allowed)return;
+  // Reserve the signal before the proposal round-trip so no second tick can fire.
+  // placeStrategyContract explicitly permits this synchronous submit phase.
   VIDEO_ENGINE.opening=true;
   videoSetState('SIGNAL');
   videoSetPhase('CONFIRMED SIGNAL',`${chosen.marketShort} · ${chosen.label}`,`${chosen.signalLabel} · ${Number(chosen.adaptiveConfidence||chosen.confidence).toFixed(1)}% confidence`,'signal');
@@ -4518,6 +4538,9 @@ function evaluateVideoOnTick(symbolCode=null){
   const sent=placeStrategyContract(chosen.strat,chosen.symbol,{candidate:chosen,stakeOverride:stake,purpose:'video',bypassGap:true,labelOverride:chosen.label});
   if(!sent){
     VIDEO_ENGINE.opening=false;
+    VIDEO_ENGINE.lastSignalKey='';
+    videoSetState('SCANNING');
+    videoSetPhase('SCANNING THE MARKET','Scanning the market','Entry submission failed; waiting for the next verified setup.','scanning');
     videoLog('[ERROR] Contract request was not sent; returning to scan.','err');
   }
 }
