@@ -6,7 +6,7 @@
 <title>EMRON AI — Strategy Row + Pulse Switch-on-Loss Engine</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --primary:#4455ee;--primary-dark:#2233cc;--primary-glow:rgba(68,85,238,.4);
@@ -545,66 +545,111 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
   .hunter-primary-exec{min-width:0;width:100%}
 }
 
-/* ============================================================
-   VIDEO-MATCH MODE — derived from the six supplied clips
-   ============================================================ */
-.video-match-card{border-color:rgba(0,188,212,.34);background:
-  linear-gradient(135deg,rgba(0,188,212,.045),rgba(68,85,238,.04)),var(--glass-bg)}
-.video-match-badge{font:9px 'JetBrains Mono',monospace;color:var(--accent-cyan);
-  border:1px solid rgba(0,188,212,.3);padding:3px 7px;border-radius:10px;text-transform:uppercase}
-.video-mode-grid{display:grid;grid-template-columns:minmax(200px,1.1fr) repeat(4,minmax(110px,.7fr));gap:8px;margin-bottom:10px}
-.video-mode-grid .form-group label{font-size:9px}
-.video-markets{display:flex;gap:6px;flex-wrap:wrap}
-.video-market-chip{display:flex;align-items:center;gap:5px;padding:7px 9px;border:1px solid var(--border);
-  background:var(--bg-surface);border-radius:7px;color:var(--text-muted);font:10px 'JetBrains Mono',monospace;
-  cursor:pointer;user-select:none}
-.video-market-chip input{accent-color:var(--primary);width:13px;height:13px}
-.video-market-chip.on{border-color:rgba(0,230,118,.4);color:var(--accent-green);background:rgba(0,230,118,.05)}
-.video-match-toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding-top:10px;border-top:1px solid var(--border);margin-top:6px}
-.video-match-toolbar .btn{min-height:40px}
-.video-reticle{position:relative;border:1px solid var(--border);border-radius:12px;padding:18px 16px;text-align:center;
-  background:var(--bg-surface);margin:12px 0;transition:border-color .25s,box-shadow .25s}
-.video-reticle.scanning{border-color:rgba(0,188,212,.5);box-shadow:0 0 0 1px rgba(0,188,212,.12) inset,0 0 24px rgba(0,188,212,.08)}
-.video-reticle.signal{border-color:rgba(0,230,118,.5);box-shadow:0 0 0 1px rgba(0,230,118,.1) inset,0 0 24px rgba(0,230,118,.08)}
-.video-reticle .vr-eyebrow{font:10px 'JetBrains Mono',monospace;color:var(--text-dim);letter-spacing:.04em;margin-bottom:6px}
-.video-reticle .vr-title{font-size:24px;font-weight:800;line-height:1.15}
-.video-reticle .vr-title.up{color:var(--accent-green)}
-.video-reticle .vr-title.down{color:var(--accent-red)}
-.video-reticle .vr-sub{font:10px 'JetBrains Mono',monospace;color:var(--text-muted);margin-top:6px}
-.video-dots{display:inline-flex;gap:5px;margin-left:7px;vertical-align:middle}
-.video-dots i{width:5px;height:5px;border-radius:50%;background:var(--accent-cyan);opacity:.35;animation:videoDots 1.1s infinite}
-.video-dots i:nth-child(2){animation-delay:.16s}.video-dots i:nth-child(3){animation-delay:.32s}
-@keyframes videoDots{0%,100%{opacity:.2;transform:translateY(0)}50%{opacity:1;transform:translateY(-2px)}}
-.video-log{height:138px;overflow:auto;background:#07100b;border:1px solid rgba(0,230,118,.18);border-radius:9px;
-  padding:9px 10px;font:10px/1.45 'JetBrains Mono',monospace;color:#7ef29a;white-space:pre-wrap}
-.video-log .warn{color:#ffd85a}.video-log .err{color:#ff7a8c}.video-log .ok{color:#7ef29a}.video-log .info{color:#9ee7ff}
-.video-stats-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:7px;margin-top:10px}
-.video-stat{padding:8px 9px;background:var(--bg-surface);border:1px solid var(--border);border-radius:8px}
-.video-stat .k{font-size:8px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.05em}
-.video-stat .v{font:700 14px 'JetBrains Mono',monospace;margin-top:3px}
-.video-stat .v.profit{color:var(--accent-green)} .video-stat .v.loss{color:var(--accent-red)}
-.video-tx{margin-top:10px;max-height:230px;overflow:auto;border:1px solid var(--border);border-radius:8px}
-.video-tx-row{display:grid;grid-template-columns:86px 1fr 82px 88px 72px;gap:6px;padding:8px 9px;border-bottom:1px solid var(--border);
-  font:10px 'JetBrains Mono',monospace;align-items:center}
-.video-tx-row:last-child{border-bottom:none}
-.video-tx-row .market{color:var(--text-primary);font-weight:600}
-.video-tx-row .signal.up{color:var(--accent-green)} .video-tx-row .signal.down{color:var(--accent-red)}
-.video-tx-row .num{text-align:right}
-.video-complete{display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(5px);align-items:center;justify-content:center;z-index:1800;padding:14px}
-.video-complete.open{display:flex}
-.video-complete-card{width:min(520px,100%);background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:22px;box-shadow:var(--shadow-lg);text-align:center}
-.video-complete-card .icon{font-size:30px;margin-bottom:6px}
-.video-complete-card h3{font-size:20px;margin-bottom:7px}
-.video-complete-card p{font-size:12px;color:var(--text-muted);line-height:1.55}
-.video-complete-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin:14px 0}
-.video-complete-stats .box{padding:10px;background:var(--bg-surface);border:1px solid var(--border);border-radius:8px}
-.video-complete-stats b{display:block;font:700 15px 'JetBrains Mono',monospace}.video-complete-stats span{font-size:9px;color:var(--text-dim)}
-.video-video-note{font-size:10px;color:var(--text-dim);line-height:1.5;margin-top:10px}
-@media(max-width:1000px){.video-mode-grid{grid-template-columns:1fr 1fr 1fr}}
-@media(max-width:650px){.video-mode-grid{grid-template-columns:1fr 1fr}.video-stats-grid{grid-template-columns:repeat(3,1fr)}
-  .video-tx-row{grid-template-columns:72px 1fr 66px 68px}.video-tx-row .hide-sm{display:none}}
-@media(max-width:430px){.video-mode-grid{grid-template-columns:1fr}.video-stats-grid{grid-template-columns:repeat(2,1fr)}}
+/* ===== EMRON PREMIUM AUTO (video-derived Premium screen) ===== */
+#premium .px-shell{--px-bg:#eef0f8;--px-card:#fff;--px-row:#f6f7fc;--px-line:#e2e5f0;--px-text:#1b2030;--px-mut:#7a8296;--px-green:#16a34a;--px-red:#e11d48;--px-pink:#fde7ee;--px-acc:#14b8a6;
+  font-family:'Poppins','Inter',system-ui,sans-serif;max-width:480px;margin:0 auto;background:var(--px-bg);color:var(--px-text);border-radius:22px;padding:12px 12px 8px;border:1px solid var(--px-line);box-shadow:0 10px 40px rgba(0,0,0,.45);position:relative}
+#premium .px-shell[data-theme=dark]{--px-bg:#0f1219;--px-card:#171b25;--px-row:#1c212d;--px-line:#2a3040;--px-text:#e8ecf4;--px-mut:#8c95a8;--px-green:#22c55e;--px-red:#fb4d6d;--px-pink:rgba(251,77,109,.14)}
+.px-shell button{font-family:inherit;color:inherit}
+.px-shell svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.px-head{display:flex;align-items:center;gap:10px;padding:4px 2px 8px}
+.px-ib{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--px-mut)}
+.px-ib:hover{background:var(--px-row);color:var(--px-text)}
+.px-logo{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#14b8a6,#6677ff);display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 0 0 3px rgba(20,184,166,.18)}
+.px-sp{flex:1}
+.px-acct{display:flex;align-items:center;gap:8px;padding:4px 6px;border-radius:10px}
+.px-acct-t{display:flex;flex-direction:column;align-items:flex-end;line-height:1.15}
+.px-acct-t b{font-size:13px;font-weight:600}
+.px-acct-t small{font-size:10px;color:var(--px-mut)}
+.px-collapse{display:flex;justify-content:center;width:100%;color:var(--px-mut);padding:0 0 4px}
+.px-collapse svg{transition:transform .2s}
+.px-collapse.open svg{transform:rotate(180deg)}
+.px-ticker{display:none;align-items:center;gap:8px;background:var(--px-card);border:1px solid var(--px-line);border-radius:12px;padding:8px 10px;font-size:11px;margin-bottom:10px}
+.px-ticker.on{display:flex}
+.px-ticker span{flex:1}
+.px-ticker.win b{color:var(--px-green)}.px-ticker.loss b{color:var(--px-red)}
+.px-config{display:none;margin-bottom:10px}
+.px-config.open{display:block;animation:navIn .2s ease-out}
+.px-engines{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.px-engine{text-align:left;background:var(--px-card);border:1.5px solid var(--px-line);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:3px;transition:border-color .15s,box-shadow .15s}
+.px-engine svg{color:var(--px-acc)}
+.px-engine b{font-size:12px;font-weight:600}
+.px-engine small{font-size:10px;color:var(--px-mut);line-height:1.35}
+.px-engine.sel{border-color:var(--px-acc);box-shadow:0 0 0 3px rgba(20,184,166,.15)}
+.px-field{display:block;margin-bottom:9px}
+.px-field>span{display:block;font-size:11px;color:var(--px-mut);margin-bottom:4px}
+.px-input{display:flex;align-items:center;background:var(--px-card);border:1px solid var(--px-line);border-radius:12px;padding:0 12px}
+.px-input input,.px-input select,.px-field>select{flex:1;min-width:0;height:42px;background:transparent;border:none;color:var(--px-text);font:500 14px 'Poppins','Inter',sans-serif;outline:none}
+.px-field>select{width:100%;background:var(--px-card);border:1px solid var(--px-line);border-radius:12px;padding:0 12px}
+.px-input em{font-style:normal;font-size:11px;color:var(--px-mut)}
+.px-pl{display:flex;justify-content:space-between;align-items:center;padding:6px 4px;font-size:13px}
+.px-pl b{font-weight:600}
+.px-start{width:100%;height:44px;border-radius:12px;background:var(--px-green);color:#fff!important;font-weight:600;font-size:14px;margin-top:4px}
+.px-start:disabled{opacity:.5}
+.px-status{text-align:center;font-size:11px;color:var(--px-mut);padding:4px 0 8px;min-height:22px}
+.px-tx{background:var(--px-card);border:1px solid var(--px-line);border-radius:14px;padding:10px}
+.px-tx-h{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.px-tx-h strong{flex:1;font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px}
+.px-stop,.px-reset{height:30px;border-radius:9px;padding:0 10px;font-size:11px;font-weight:600;display:flex;align-items:center;gap:5px;border:1px solid var(--px-line)}
+.px-stop{background:var(--px-pink);color:var(--px-red)!important;border-color:transparent}
+.px-stop.go{background:rgba(22,163,74,.14);color:var(--px-green)!important}
+.px-stop i{width:8px;height:8px;background:currentColor;border-radius:2px;display:inline-block}
+.px-stop.go i{border-radius:0;background:none;border-left:8px solid currentColor;border-top:5px solid transparent;border-bottom:5px solid transparent;width:0;height:0}
+.px-reset svg{width:13px;height:13px}
+.px-list{display:flex;flex-direction:column;gap:7px;max-height:360px;overflow-y:auto;padding-right:2px}
+.px-empty{text-align:center;color:var(--px-mut);font-size:11px;padding:30px 10px}
+.px-row{display:flex;align-items:center;gap:10px;background:var(--px-row);border:1px solid var(--px-line);border-radius:12px;padding:10px 11px}
+.px-ico{width:22px;height:22px;display:flex;align-items:center;justify-content:center}
+.px-ico.up{color:var(--px-green)}.px-ico.down{color:var(--px-red)}
+.px-ico svg{width:16px;height:16px}
+.px-rm{flex:1;min-width:0}
+.px-rt{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.px-rs{font-size:10px;color:var(--px-mut);margin-top:1px}
+.px-rp{font-size:13px;font-weight:600}
+.px-rp.p{color:var(--px-green)}.px-rp.n{color:var(--px-red)}
+.px-sell{height:26px;border-radius:8px;padding:0 9px;font-size:10px;font-weight:600;background:var(--px-pink);color:var(--px-red)!important}
+.px-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:9px}
+.px-st{background:var(--px-row);border:1px solid var(--px-line);border-radius:10px;padding:8px 9px}
+.px-st small{display:block;font-size:8px;letter-spacing:.04em;color:var(--px-mut);text-transform:uppercase;margin-bottom:2px}
+.px-st b{font-size:12px;font-weight:600}
+.px-bot{display:grid;grid-template-columns:repeat(4,1fr);margin-top:10px;border-top:1px solid var(--px-line);padding-top:6px}
+.px-bot button{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:9px;color:var(--px-mut)!important;padding:6px 0;position:relative;text-align:center;line-height:1.15}
+.px-bot button.act{color:var(--px-acc)!important;font-weight:600}
+.px-bot button.act::before{content:'';position:absolute;top:-7px;left:30%;right:30%;height:2px;border-radius:2px;background:var(--px-acc)}
+/* scanning overlay */
+.px-scan{position:fixed;inset:0;z-index:1700;background:#020a04;display:none;align-items:center;justify-content:center;overflow:hidden}
+.px-scan.on{display:flex}
+.px-scan-log{position:absolute;inset:0;font:10px/12.5px 'JetBrains Mono',monospace;color:#37e04a;text-shadow:0 0 6px rgba(55,224,74,.55);white-space:pre;overflow:hidden;padding:0 4px;opacity:.95}
+.px-scan-log u{text-decoration:none;color:#b6ff7a}
+.px-scan-card{position:relative;background:#09090c;border:2px solid #22d3ee;border-radius:10px;padding:18px 38px;text-align:center;box-shadow:0 0 22px rgba(34,211,238,.65),inset 0 0 14px rgba(34,211,238,.15);min-width:240px}
+.px-scan-card svg{width:30px;height:30px;color:#22d3ee;stroke-width:1.8;animation:pxspin 2.4s linear infinite}
+@keyframes pxspin{to{transform:rotate(360deg)}}
+.px-scan-t{color:#fff;font:600 14px 'Poppins','Inter',sans-serif;margin:8px 0 6px}
+.px-dots i{display:inline-block;width:5px;height:5px;border-radius:50%;background:#22d3ee;margin:0 3px;animation:pxdot 1.1s infinite}
+.px-dots i:nth-child(2){animation-delay:.18s}.px-dots i:nth-child(3){animation-delay:.36s}
+@keyframes pxdot{0%,80%,100%{opacity:.25}40%{opacity:1}}
+/* result modal */
+.px-mo{position:fixed;inset:0;z-index:1650;background:rgba(0,0,0,.55);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;padding:14px}
+.px-mo.on{display:flex;animation:fadeIn .2s ease}
+.px-mc{background:#fff;color:#1b2030;border-radius:16px;padding:22px 18px 18px;width:100%;max-width:330px;text-align:center;position:relative;font-family:'Poppins','Inter',sans-serif}
+.px-mx{position:absolute;top:10px;right:12px;color:#8a92a6;font-size:15px}
+.px-mi{width:44px;height:44px;border-radius:50%;background:#d9f3ef;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-size:20px}
+.px-mc h3{font-size:16px;font-weight:700;margin-bottom:6px}
+.px-mc p{font-size:12px;color:#5d667a;line-height:1.5;margin-bottom:12px}
+.px-mb{border:1px solid #e6e9f2;border-radius:10px;padding:10px;margin-bottom:14px;background:#f9fafd}
+.px-mn{display:flex;justify-content:space-between;font-size:12px;margin-bottom:8px;color:#5d667a}
+.px-mn b{color:#16a34a;font-weight:600}.px-mn b.neg{color:#e11d48}
+.px-mcols{display:grid;grid-template-columns:repeat(3,1fr)}
+.px-mcols b{display:block;font-size:13px}
+.px-mcols small{font-size:10px;color:#8a92a6}
+.px-mcols div:nth-child(2) b{color:#16a34a}.px-mcols div:nth-child(3) b{color:#e11d48}
+.px-mok{width:100%;height:42px;border-radius:12px;background:#22c55e;color:#fff!important;font-weight:600;font-size:14px}
 
+.px-fams{display:flex;flex-wrap:wrap;gap:6px}
+.px-fam{padding:6px 10px;border-radius:16px;font-size:11px;font-weight:500;background:var(--px-card);border:1px solid var(--px-line);color:var(--px-mut)!important}
+.px-fam.on{border-color:var(--px-acc);color:var(--px-acc)!important;background:rgba(20,184,166,.1)}
+.px-chips{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;padding:0 0 8px}
+.px-chips span{font-size:9px;padding:3px 7px;border-radius:9px;background:var(--px-row);border:1px solid var(--px-line);color:var(--px-mut)}
+.px-chips span.on{color:var(--px-green);border-color:var(--px-green)}
 </style>
 </head>
 <body>
@@ -617,6 +662,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
     <button class="tab active" data-tab="trading-hub" role="tab">Trading Hub</button>
     <button class="tab" data-tab="pulse" role="tab">📡 EMRON Pulse</button>
     <button class="tab" data-tab="hunter" role="tab">🎯 AI Hunter</button>
+    <button class="tab" data-tab="premium" role="tab">⚡ EMRON Auto</button>
     <button class="tab" data-tab="api-playground" role="tab">API Playground</button>
     <button class="tab" data-tab="help" role="tab">Help</button>
   </nav>
@@ -642,113 +688,6 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
     <div class="strategy-picker-row" id="strategyPicker"></div>
     <div style="font-size:10px;color:var(--text-dim);margin-top:2px;">
       Select one or more strategies. Choose Sequential Recovery, All Selected Together, or AI Best Confidence to control how the engine enters trades.
-    </div>
-  </div>
-
-
-  <div class="card video-match-card" id="videoMatchCard">
-    <div class="card-header">
-      <div>
-        <div class="card-title">🎥 Video-Match AI Engine <span class="video-match-badge">SCANNING / TARGET STOP</span></div>
-        <div class="execution-mode-help">Recreates the observable workflow from the supplied clips: scan → confirm signal → one trade → settle → repeat → stop at target.</div>
-      </div>
-      <div class="card-actions">
-        <button class="btn btn-success btn-sm" id="videoStartBtn">▶ Start Video Engine</button>
-        <button class="btn btn-danger btn-sm" id="videoStopBtn" disabled>⏸ Stop</button>
-      </div>
-    </div>
-
-    <div class="video-mode-grid">
-      <div class="form-group">
-        <label>Contract Selection</label>
-        <select class="form-control" id="videoContractMode">
-          <option value="AUTO" selected>AI Auto — strongest confirmed signal</option>
-          <option value="RISEFALL">Rise / Fall</option>
-          <option value="MATCHES">Digit Match — 2nd Most → Most on Loss</option>
-          <option value="OVERUNDER">Over / Under — O3/U6 → Recovery U3/O6</option>
-          <option value="EVENODD">Even / Odd</option>
-          <option value="HIGHLOW">High / Low Tick — 5 Ticks</option>
-          <option value="ONLYUPDOWN">Only Ups / Downs — 2 Ticks → 3 on Loss</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Stake ($)</label>
-        <input class="form-control" id="videoStake" type="number" min="0.35" step="0.01" value="61.00">
-      </div>
-      <div class="form-group">
-        <label>Target Profit ($)</label>
-        <input class="form-control" id="videoTarget" type="number" min="1" step="0.01" value="5000.00">
-      </div>
-      <div class="form-group">
-        <label>Confidence Floor</label>
-        <input class="form-control" id="videoConfidence" type="number" min="50" max="99" step="1" value="70">
-      </div>
-      <div class="form-group">
-        <label>Stake Mode</label>
-        <select class="form-control" id="videoStakeMode">
-          <option value="FIXED" selected>Fixed (video-like)</option>
-          <option value="ADAPTIVE">Adaptive by confidence</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="video-video-note" style="margin-top:0;margin-bottom:10px;">
-      <strong>Video rules:</strong> High/Low Tick = 5 ticks. Only Ups/Downs = 2 ticks, then 3-tick recovery after a loss. Matches = 2nd most appearing digit, then most appearing digit after a loss. Over/Under = Over 3 / Under 6, then recovery uses Under 3 / Over 6 after a loss. Even/Odd is analysed continuously.
-    </div>
-
-    <div class="form-group">
-      <label>Video Markets</label>
-      <div class="video-markets">
-        <label class="video-market-chip on"><input type="checkbox" value="1HZ10V" checked> V10 (1s)</label>
-        <label class="video-market-chip on"><input type="checkbox" value="1HZ50V" checked> V50 (1s)</label>
-        <label class="video-market-chip on"><input type="checkbox" value="1HZ100V" checked> V100 (1s)</label>
-      </div>
-    </div>
-
-    <div class="video-match-toolbar">
-      <div style="font:10px 'JetBrains Mono',monospace;color:var(--text-muted);flex:1;min-width:220px;">
-        State: <strong id="videoStateLabel" style="color:var(--accent-cyan);">IDLE</strong>
-        · Last action: <span id="videoLastAction">—</span>
-      </div>
-    </div>
-
-    <div class="video-reticle" id="videoReticle">
-      <div class="vr-eyebrow" id="videoPhase">STANDBY</div>
-      <div class="vr-title" id="videoSignalTitle">Scanning the market<span class="video-dots"><i></i><i></i><i></i></span></div>
-      <div class="vr-sub" id="videoSignalSub">Start the engine to begin live market analysis.</div>
-    </div>
-
-    <div class="video-log" id="videoLog"></div>
-
-    <div class="video-stats-grid">
-      <div class="video-stat"><div class="k">Total stake</div><div class="v" id="videoTotalStake">$0.00</div></div>
-      <div class="video-stat"><div class="k">Total payout</div><div class="v" id="videoTotalPayout">$0.00</div></div>
-      <div class="video-stat"><div class="k">Runs</div><div class="v" id="videoRuns">0</div></div>
-      <div class="video-stat"><div class="k">Wins</div><div class="v profit" id="videoWins">0</div></div>
-      <div class="video-stat"><div class="k">Losses</div><div class="v loss" id="videoLosses">0</div></div>
-      <div class="video-stat"><div class="k">Net P/L</div><div class="v profit" id="videoPL">$0.00</div></div>
-    </div>
-
-    <div class="video-tx" id="videoTransactions">
-      <div class="empty-state">No video-mode contracts yet.</div>
-    </div>
-
-    <div class="video-video-note">
-      The clips expose the trading workflow and outcomes, not the original site's private scoring code. This mode reproduces the visible operating pattern while keeping the entry rule transparent and editable.
-    </div>
-  </div>
-
-  <div class="video-complete" id="videoComplete">
-    <div class="video-complete-card">
-      <div class="icon">🎉</div>
-      <h3>Congratulations!</h3>
-      <p id="videoCompleteCopy">You've reached your target profit. Video-Match AI has stopped trading to lock in your gains.</p>
-      <div class="video-complete-stats">
-        <div class="box"><b id="vcPL">$0.00</b><span>Net profit</span></div>
-        <div class="box"><b id="vcWins">0</b><span>Wins</span></div>
-        <div class="box"><b id="vcLosses">0</b><span>Losses</span></div>
-      </div>
-      <button class="btn btn-success" id="videoCompleteBtn" style="width:100%;min-height:44px;">Awesome</button>
     </div>
   </div>
 
@@ -1104,6 +1043,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
           <div class="hist-stat"><div class="n" id="histResolved">0</div><div class="l">Resolved</div></div>
           <div class="hist-stat"><div class="n" id="histPending">0</div><div class="l">Pending</div></div>
         </div>
+        <div class="hunter-chipline" id="histAcc" style="margin:0 0 8px"></div>
         <table class="hist-table" id="histTable">
           <thead><tr><th>Market</th><th>Call</th><th>Conf.</th><th>Result</th></tr></thead>
           <tbody id="histBody"></tbody>
@@ -1185,6 +1125,59 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
   </div>
 </div>
 
+<div class="tab-content" id="premium">
+ <div class="px-shell" id="pxShell" data-theme="light">
+  <header class="px-head">
+    <button class="px-ib" id="pxMenuBtn" aria-label="Menu"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+    <div class="px-logo">🔷</div>
+    <div class="px-sp"></div>
+    <button class="px-ib" id="pxThemeBtn" aria-label="Toggle theme"><svg viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+    <div class="px-acct"><span style="font-size:18px">🇺🇸</span><span class="px-acct-t"><b id="pxBal">— USD</b><small id="pxAcctLbl">Not connected</small></span></div>
+  </header>
+  <button class="px-collapse open" id="pxCollapseBtn" aria-label="Toggle settings"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
+  <div class="px-ticker" id="pxTicker"><span id="pxTickerTxt"></span><button class="px-ib" id="pxTickerX" style="width:22px;height:22px" aria-label="Dismiss">✕</button></div>
+
+  <section class="px-config open" id="pxConfig">
+    <div class="px-engines">
+      <button class="px-engine sel" data-engine="strike"><svg viewBox="0 0 24 24"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg><b>EMRON Strike Pro</b><small>Trades the strongest live signal on your chosen market.</small></button>
+      <button class="px-engine" data-engine="switcher"><svg viewBox="0 0 24 24"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg><b>Auto Switcher</b><small>Scans all markets and moves to the strongest signal.</small></button>
+    </div>
+    <div class="px-field"><span>Strategies</span><div class="px-fams" id="pxFams"></div></div>
+    <label class="px-field"><span>Market</span><select id="pxMarket"></select></label>
+    <label class="px-field"><span>Stake per trade</span><div class="px-input"><input id="pxStake" type="number" inputmode="decimal" min="0.35" step="0.01"><em>USD</em></div></label>
+    <label class="px-field"><span>Profit target</span><div class="px-input"><input id="pxTarget" type="number" inputmode="decimal" min="0.01" step="0.01"><em>USD</em></div></label>
+    <label class="px-field"><span>Max loss</span><div class="px-input"><input id="pxMaxLoss" type="number" inputmode="decimal" min="0.35" step="0.01"><em>USD</em></div></label>
+    <div class="px-pl"><span>Total P/L</span><b id="pxPL">+0.00 USD</b></div>
+    <button class="px-start" id="pxStartBtn">▶ Start auto-trading</button>
+  </section>
+  <div class="px-status" id="pxStatus">Ready — set your limits and start.</div>
+  <div class="px-chips" id="pxChips"></div>
+
+  <section class="px-tx">
+    <div class="px-tx-h">
+      <strong><svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Transactions</strong>
+      <button class="px-stop" id="pxStopBtn"><i></i><span>Stop</span></button>
+      <button class="px-reset" id="pxResetBtn"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5"/></svg>Reset</button>
+    </div>
+    <div class="px-list" id="pxList"></div>
+  </section>
+  <section class="px-stats">
+    <div class="px-st"><small>Total stake</small><b id="pxSStake">0.00 USD</b></div>
+    <div class="px-st"><small>Total payout</small><b id="pxSPayout">0.00 USD</b></div>
+    <div class="px-st"><small>No. of runs</small><b id="pxSRuns">0</b></div>
+    <div class="px-st"><small>Contracts lost</small><b id="pxSLost">0</b></div>
+    <div class="px-st"><small>Contracts won</small><b id="pxSWon">0</b></div>
+    <div class="px-st"><small>Total P/L</small><b id="pxSPL">+0.00 USD</b></div>
+  </section>
+  <nav class="px-bot">
+    <button data-go="trading-hub"><svg viewBox="0 0 24 24"><path d="M5 21V10M12 21V3M19 21v-7"/></svg>Manual<br>Trading</button>
+    <button data-go="pulse"><svg viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8zM19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8z"/></svg>EMRON AI<br>Free</button>
+    <button class="act"><svg viewBox="0 0 24 24"><path d="M3 18l2-10 5 5 2-8 2 8 5-5 2 10zM3 21h18"/></svg>EMRON AI<br>Premium</button>
+    <button data-go="help"><svg viewBox="0 0 24 24"><path d="M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8zM7.5 7.5h.01"/></svg>Help<br>Center</button>
+  </nav>
+ </div>
+</div>
+
 <div class="tab-content" id="api-playground">
   <div class="playground-grid">
     <div class="account-card">
@@ -1213,7 +1206,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
       <span class="free-badge">Personal Access Token</span>
     </div>
     <div class="input-group">
-      <input id="patTokenInput" placeholder="eyJ0eXAiOiJKV1Qi..." type="text">
+      <input id="patTokenInput" placeholder="eyJ0eXAiOiJKV1Qi..." type="password" autocomplete="off" spellcheck="false">
       <button class="btn btn-primary" id="patConnectBtn">Connect PAT</button>
       <button class="btn btn-ghost" id="patRefreshBtn">↻ Refresh Accounts</button>
        <button class="btn btn-ghost" id="patDisconnectBtn">Disconnect</button>
@@ -1268,7 +1261,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
       </div>
       <div class="faq-item">
         <div class="faq-question">What does each strategy need?<span>+</span></div>
-        <div class="faq-answer">Most strategies only need a stake and ticks. Over, Under, Matches and Differs use a digit prediction. High Tick and Low Tick use a tick-position prediction from 1–5 because the contract asks which of the next five price ticks will be highest or lowest.</div>
+        <div class="faq-answer">Most strategies only need a stake and ticks. Over, Under, Matches and Differs also use a digit (Over 3 / Under 6 by default; Matches uses the 2nd most frequent digit automatically). High Tick and Low Tick run for 5 ticks and use a selected tick from 1 to 5 — the contract wins if that tick is the highest (High) or lowest (Low) of the five.</div>
       </div>
       <div class="faq-item">
         <div class="faq-question">How does switch-on-loss and adaptive survival work?<span>+</span></div>
@@ -1276,14 +1269,14 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
       </div>
       <div class="faq-item">
         <div class="faq-question">What are High Tick and Low Tick?<span>+</span></div>
-        <div class="faq-answer">High Tick (TICKHIGH) and Low Tick (TICKLOW) always run for 5 ticks. The prediction is a tick position from 1–5, not a digit barrier, and the live High/Low Tick engine supplies that position.</div>
+        <div class="faq-answer">High Tick (TICKHIGH) pays when your selected tick (1–5) is the highest of the next 5 ticks; Low Tick (TICKLOW) pays when it is the lowest. EMRON measures how often each tick position was the high/low in recent non-overlapping 5-tick blocks and tests it against the random-walk baseline (the first and last tick are the likeliest, about 27% each; ticks 2–4 about 14–16%) — not a flat 20%.</div>
       </div>
     </div>
     <div class="faq-category">
       <h3>📡 EMRON Pulse</h3>
       <div class="faq-item">
         <div class="faq-question">What signals does Pulse produce?<span>+</span></div>
-        <div class="faq-answer">Pulse runs six engines in parallel: Rise/Fall (price momentum + structure + regime), Even/Odd (digit parity), Over/Under (digit threshold), Matches (staged digit rules), High/Low Tick (5-tick position model), and Only Ups/Downs (run-length probability).</div>
+        <div class="faq-answer">Pulse runs six engines in parallel: Rise/Fall (price momentum + structure + regime), Even/Odd (digit parity), Over/Under (digit threshold), Matches (Dollar Printer staged rules), High/Low Tick (barrier digit), and Only Ups/Downs (run-length probability).</div>
       </div>
       <div class="faq-item">
         <div class="faq-question">How does the bot pick a signal?<span>+</span></div>
@@ -1294,11 +1287,11 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
       <h3>🎯 AI Hunter</h3>
       <div class="faq-item">
         <div class="faq-question">What does the Sniper Hunter scan?<span>+</span></div>
-        <div class="faq-answer">Sniper Hunter scans all 15 markets (10 Volatility + 5 Jump) across four signal families: Rise/Fall (momentum + structure + trend + efficiency ratio), Only Ups / Only Downs (2-tick run-length probability over the last 50 ticks), High/Low Tick (historical 5-position winner-frequency model), and Over/Under (barrier z-test). Each tab re-ranks every market and only shows the strongest edges at or above the active threshold.</div>
+        <div class="faq-answer">Sniper Hunter scans all 15 markets (10 Volatility + 5 Jump) across four signal families: Rise/Fall (momentum + structure + trend + efficiency ratio), Only Ups / Only Downs (2-tick run-length probability over the last 50 ticks), High/Low Tick (barrier-digit z-test against the fair baseline), and Over/Under (barrier z-test). Each tab re-ranks every market and only shows the strongest edges at or above the active threshold.</div>
       </div>
       <div class="faq-item">
-        <div class="faq-question">How does the High / Low Tick tab pick a tick?<span>+</span></div>
-        <div class="faq-answer">The High/Low Tick engine learns which of the next five tick positions most often becomes the highest or lowest over recent five-tick windows. The selected position (1–5) is carried into the TICKHIGH/TICKLOW contract and the contract always runs for 5 ticks.</div>
+        <div class="faq-question">How does the High / Low Tick tab pick a barrier?<span>+</span></div>
+        <div class="faq-answer">The High/Low Tick engine tests every barrier from 1 to 8 on each market and returns the strongest above/below deviation. The winning barrier is carried into the contract, so the trades fire with the exact barrier the AI selected, not a hardcoded default.</div>
       </div>
       <div class="faq-item">
         <div class="faq-question">Why does Only Ups/Downs use 2 ticks?<span>+</span></div>
@@ -1352,6 +1345,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
   <div class="nav-item active" data-nav-tab="trading-hub" role="menuitem"><span class="nav-icon">📊</span><span>Trading Hub</span></div>
   <div class="nav-item" data-nav-tab="pulse" role="menuitem"><span class="nav-icon">📡</span><span>EMRON Pulse</span></div>
   <div class="nav-item" data-nav-tab="hunter" role="menuitem"><span class="nav-icon">🎯</span><span>AI Hunter</span></div>
+  <div class="nav-item" data-nav-tab="premium" role="menuitem"><span class="nav-icon">⚡</span><span>EMRON Auto</span></div>
   <div class="nav-item" data-nav-tab="api-playground" role="menuitem"><span class="nav-icon">🧪</span><span>API Playground</span></div>
   <div class="nav-item" data-nav-tab="help" role="menuitem"><span class="nav-icon">❓</span><span>Help Center</span></div>
 </div>
@@ -1405,6 +1399,28 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
   </div>
 </div>
 
+<div class="px-scan" id="pxScan" aria-hidden="true">
+  <div class="px-scan-log" id="pxScanLog"></div>
+  <div class="px-scan-card">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><path d="M12 3v4M12 17v4M3 12h4M17 12h4"/></svg>
+    <div class="px-scan-t">Scanning the market</div>
+    <div class="px-dots"><i></i><i></i><i></i></div>
+  </div>
+</div>
+<div class="px-mo" id="pxModal">
+  <div class="px-mc" role="dialog" aria-modal="true">
+    <button class="px-mx" id="pxModalX" aria-label="Close">✕</button>
+    <div class="px-mi" id="pxModalIco">🎉</div>
+    <h3 id="pxModalTitle">Congratulations! 🎉</h3>
+    <p id="pxModalText"></p>
+    <div class="px-mb">
+      <div class="px-mn"><span>Net profit</span><b id="pxModalNet">+0.00 USD</b></div>
+      <div class="px-mcols"><div><b id="pxModalTrades">0</b><small>Trades</small></div><div><b id="pxModalWins">0</b><small>Wins</small></div><div><b id="pxModalLosses">0</b><small>Losses</small></div></div>
+    </div>
+    <button class="px-mok" id="pxModalOk">Awesome</button>
+  </div>
+</div>
+
 <div class="toast-container" id="toastContainer"></div>
 
 <script>
@@ -1434,14 +1450,14 @@ const STRATEGY_DEFS = {
   ODD:        { label:'Odd',        icon:'🔴', contract:'DIGITODD',  category:'evenodd',    dir:'ODD',   duration:1, needsDigit:false },
   MATCHES:    { label:'Matches',    icon:'🎯', contract:'DIGITMATCH',category:'matchdiffer',dir:'MATCH', duration:1, needsDigit:true,  defaultDigit:2 },
   DIFFERS:    { label:'Differs',    icon:'🚫', contract:'DIGITDIFF', category:'matchdiffer',dir:'DIFFER',duration:1, needsDigit:true,  defaultDigit:2 },
-  OVER:       { label:'Over',       icon:'⬆️', contract:'DIGITOVER', category:'overunder',  dir:'OVER',  duration:1, needsDigit:true,  defaultDigit:5 },
-  UNDER:      { label:'Under',      icon:'⬇️', contract:'DIGITUNDER',category:'overunder',  dir:'UNDER', duration:1, needsDigit:true,  defaultDigit:5 },
+  OVER:       { label:'Over',       icon:'⬆️', contract:'DIGITOVER', category:'overunder',  dir:'OVER',  duration:1, needsDigit:true,  defaultDigit:3 },
+  UNDER:      { label:'Under',      icon:'⬇️', contract:'DIGITUNDER',category:'overunder',  dir:'UNDER', duration:1, needsDigit:true,  defaultDigit:6 },
   RISE:       { label:'Rise',       icon:'📈', contract:'CALL',      category:'risefall',   dir:'RISE',  duration:1, needsDigit:false },
   FALL:       { label:'Fall',       icon:'📉', contract:'PUT',       category:'risefall',   dir:'FALL',  duration:1, needsDigit:false },
   ONLY_UPS:   { label:'Only Ups',   icon:'⇈',  contract:'RUNHIGH',   category:'onlyupdown', dir:'UP',    duration:2, needsDigit:false },
   ONLY_DOWNS: { label:'Only Downs', icon:'⇊',  contract:'RUNLOW',    category:'onlyupdown', dir:'DOWN',  duration:2, needsDigit:false },
-  HIGH_TICK:  { label:'High Tick',  icon:'🔺', contract:'TICKHIGH',  category:'highlow',    dir:'HIGH',  duration:5, needsDigit:true,  defaultDigit:1 },
-  LOW_TICK:   { label:'Low Tick',   icon:'🔻', contract:'TICKLOW',   category:'highlow',    dir:'LOW',   duration:5, needsDigit:true,  defaultDigit:1 }
+  HIGH_TICK:  { label:'High Tick',  icon:'🔺', contract:'TICKHIGH',  category:'highlow',    dir:'HIGH',  duration:5, needsDigit:true,  defaultDigit:3 },
+  LOW_TICK:   { label:'Low Tick',   icon:'🔻', contract:'TICKLOW',   category:'highlow',    dir:'LOW',   duration:5, needsDigit:true,  defaultDigit:3 }
 };
 
 /* ============================================================
@@ -1597,10 +1613,9 @@ const RF = { MIN_TICKS:30, ATR_LOOKBACK:50, TREND_SHORT:15, TREND_MED:40,
   MIN_SCORE:0.34, CHOP_PENALTY:0.55, CHOP_CONF_CAP:60 };
 const HL = { MIN_TICKS:25 };
 const OU = { MIN_TICKS:25, LOOKBACK:50 };
-const MATCHES = { WINDOW:100, RISE_SHIFT:20, MIN_TICKS:120, MIN_LEADER_PCT:12.0,
-  TOP_COUNT:3, OPPOSITE_RUN:3, MAX_SETUP_WAIT:35, CONFIRM_DISPLAY_TICKS:1 };
+const MATCHES = { WINDOW:500, MIN_TICKS:300, MAX_GAP_PCT:0.3, CONFIRM_DISPLAY_TICKS:1 };
 const CONFIRM_PERSIST = 3;
-const MAX_BUFFER = 300;
+const MAX_BUFFER = 1000;
 
 function averageAbsDelta(q, lb){ const n=Math.min(q.length-1, lb); if(n<2) return 0; let s=0; for(let i=q.length-n;i<q.length;i++) s+=Math.abs(q[i]-q[i-1]); return s/n; }
 function linSlope(q){ const n=q.length; if(n<3) return 0; const mx=(n-1)/2; let my=0; for(let i=0;i<n;i++) my+=q[i]; my/=n; let num=0,den=0; for(let i=0;i<n;i++){num+=(i-mx)*(q[i]-my);den+=(i-mx)*(i-mx);} return den===0?0:num/den; }
@@ -1613,7 +1628,7 @@ function trendWord(v){ return v>=0.18?'RISE':v<=-0.18?'FALL':'FLAT'; }
 function momentumGlyph(v){ if(v>=0.55)return'+++'; if(v>=0.25)return'++'; if(v>=0.08)return'+'; if(v<=-0.55)return'−−−'; if(v<=-0.25)return'−−'; if(v<=-0.08)return'−'; return'·'; }
 function rfConfidence(a){ return Math.round(50+45*Math.tanh(a/0.75)); }
 
-function evaluateRiseFall(mkt, w){
+function _evaluateRiseFall(mkt, w){
   const q=mkt.quotes; if(q.length<RF.MIN_TICKS) return null;
   const atr=averageAbsDelta(q,RF.ATR_LOOKBACK); if(atr<=0) return null;
   const m5=normMomentum(q,5,atr),m10=normMomentum(q,10,atr),m20=normMomentum(q,20,atr);
@@ -1636,111 +1651,19 @@ function evaluateRiseFall(mkt, w){
       accel, accelWord:accel>0.12?'strengthening':accel<-0.12?'weakening':'steady',
       er, regimeTrending, regime:regimeTrending?'TRENDING':'CHOPPY' } };
 }
-function evaluateEvenOdd(mkt, w){
+function _evaluateEvenOdd(mkt, w){
   const d=mkt.digits.slice(-w); if(d.length<Math.min(20,w)) return null;
   const evens=d.reduce((a,x)=>a+(x%2===0?1:0),0);
   const z=wilsonZ(evens,d.length,0.5);
   return { category:'evenodd', label:z>=0?'EVEN':'ODD', direction:z>=0?'up':'down', z, absZ:Math.abs(z), n:d.length };
 }
-function evaluateOverUnder(mkt, w){
-  const d=mkt.digits.slice(-w); if(d.length<Math.min(20,w)) return null;
-  const o=d.reduce((a,x)=>a+(x>=5?1:0),0);
-  const z=wilsonZ(o,d.length,0.5);
-  return { category:'overunder', label:z>=0?'OVER':'UNDER', direction:z>=0?'up':'down', z, absZ:Math.abs(z), n:d.length };
-}
-
-/* ==== HIGH / LOW TICK ENGINE ====
-   Deriv High Tick / Low Tick is NOT a digit/barrier contract.
-   It asks which POSITION (1..5) among the next five price ticks
-   will be the highest/lowest. We therefore learn the winning tick
-   position from historical 5-tick windows and send that position via
-   `selected_tick`. Duration is always 5 ticks. */
-function evaluateHighLow(mkt){
-  const q=mkt.quotes || [];
-  const sampleWindow=Math.min(100, q.length-4);
-  if(sampleWindow < 25) return null;
-
-  const start=Math.max(0, q.length-5-sampleWindow+1);
-  const highCounts=[0,0,0,0,0];
-  const lowCounts=[0,0,0,0,0];
-  let highSamples=0, lowSamples=0, tieWindows=0;
-
-  for(let i=start; i+4<q.length; i++) {
-    const w=q.slice(i,i+5);
-    const maxV=Math.max(...w);
-    const minV=Math.min(...w);
-    const maxPos=w.indexOf(maxV);
-    const minPos=w.indexOf(minV);
-    const maxCount=w.filter(v=>v===maxV).length;
-    const minCount=w.filter(v=>v===minV).length;
-    if(maxCount===1){ highCounts[maxPos]++; highSamples++; }
-    if(minCount===1){ lowCounts[minPos]++; lowSamples++; }
-    if(maxCount>1 || minCount>1) tieWindows++;
-  }
-
-  if(highSamples<20 || lowSamples<20) return null;
-
-  let highTick=0, lowTick=0;
-  for(let i=1;i<5;i++){
-    if(highCounts[i]>highCounts[highTick]) highTick=i;
-    if(lowCounts[i]>lowCounts[lowTick]) lowTick=i;
-  }
-
-  const highP=(highCounts[highTick]+0.5)/(highSamples+1);
-  const lowP=(lowCounts[lowTick]+0.5)/(lowSamples+1);
-  const highZ=wilsonZ(highCounts[highTick],highSamples,0.2);
-  const lowZ=wilsonZ(lowCounts[lowTick],lowSamples,0.2);
-  const highScore=Math.max(0,Math.min(1,Math.tanh(Math.max(0,highZ)/3)));
-  const lowScore=Math.max(0,Math.min(1,Math.tanh(Math.max(0,lowZ)/3)));
-  const highConf=Math.round(50+45*Math.tanh(Math.max(0,highZ)/2));
-  const lowConf=Math.round(50+45*Math.tanh(Math.max(0,lowZ)/2));
-
-  const useHigh=highConf>=lowConf;
-  const selected=useHigh ? highTick+1 : lowTick+1;
-  const label=useHigh ? 'HIGH TICK' : 'LOW TICK';
-  const score=useHigh ? highScore : lowScore;
-  const conf=useHigh ? highConf : lowConf;
-  const p=useHigh ? highP : lowP;
-  const samples=useHigh ? highSamples : lowSamples;
-  const counts=useHigh ? highCounts : lowCounts;
-
-  return {
-    category:'highlow',
-    label:`${label} ${selected}`,
-    direction:useHigh?'up':'down',
-    score:useHigh?score:-score,
-    absScore:score,
-    strength:score,
-    confidence:conf,
-    z:(useHigh?highZ:lowZ),
-    absZ:Math.abs(useHigh?highZ:lowZ),
-    n:q.length,
-    meta:{
-      selectedTick:selected,
-      selectedPct:p,
-      baseline:0.2,
-      samples,
-      highTick:highTick+1,
-      highPct:highP,
-      highConfidence:highConf,
-      lowTick:lowTick+1,
-      lowPct:lowP,
-      lowConfidence:lowConf,
-      highCounts,
-      lowCounts,
-      tieWindows,
-      windowSize:sampleWindow
-    }
-  };
-}
-
 function currentUpDownStreak(q){
   if(q.length<2) return {dir:null,len:0};
   let len=0,dir=null;
   for(let i=q.length-1;i>0;i--){ const d=q[i]-q[i-1]; const s=d>0?'up':d<0?'down':null; if(!s) break; if(!dir){dir=s;len=1;} else if(s===dir) len++; else break; }
   return {dir,len};
 }
-function evaluateOnlyUpDown(mkt){
+function _evaluateOnlyUpDown(mkt){
   const q=mkt.quotes; if(q.length<OU.MIN_TICKS) return null;
   const lb=Math.min(q.length-1,OU.LOOKBACK); if(lb<15) return null;
   let ups=0,downs=0;
@@ -1767,103 +1690,157 @@ function evaluateOnlyUpDown(mkt){
       currentStreakLen:streak.len, currentStreakDir:streak.dir } };
 }
 
-function getMatchesDistribution(mkt){
-  const all=mkt.digits; if(all.length<MATCHES.MIN_TICKS) return null;
-  const win=MATCHES.WINDOW, shift=MATCHES.RISE_SHIFT;
-  const cur=all.slice(-win);
-  const priorEnd=all.length-shift, priorStart=priorEnd-win;
-  if(priorStart<0) return null;
-  const prior=all.slice(priorStart,priorEnd);
-  const counts=new Array(10).fill(0), priorCounts=new Array(10).fill(0);
-  cur.forEach(d=>counts[d]++); prior.forEach(d=>priorCounts[d]++);
-  const n=cur.length;
-  const rows=[];
-  for(let d=0;d<10;d++){
-    const pct=counts[d]*100/n, prevPct=priorCounts[d]*100/n;
-    rows.push({digit:d,count:counts[d],pct,prevPct,gain:pct-prevPct});
-  }
-  const byPct=rows.slice().sort((a,b)=>(b.pct-a.pct)||(b.gain-a.gain)||(a.digit-b.digit));
-  const top3=byPct.slice(0,MATCHES.TOP_COUNT);
-  const top3ByGain=top3.slice().sort((a,b)=>(b.gain-a.gain)||(b.pct-a.pct)||(a.digit-b.digit));
-  const leader=byPct[0];
-  const least=rows.slice().sort((a,b)=>(a.pct-b.pct)||(a.gain-b.gain)||(a.digit-b.digit))[0];
-  const prediction=top3ByGain[1]||top3ByGain[0]||null;
-  const leaderRising = leader ? leader.gain > 0 : false;
-  const leaderValid = !!leader && leader.pct >= MATCHES.MIN_LEADER_PCT && leaderRising;
-  return { n, counts, rows, byPct, top3, top3ByGain, leader, least, prediction, leaderValid };
+/* ============================================================
+   CORE HELPERS (cache, spec, resolution, feed)
+   ============================================================ */
+function cached(mkt,key,fn){
+  let c=mkt._ev;
+  if(!c||c.t!==mkt.tickCount){ c=mkt._ev={t:mkt.tickCount,m:new Map()}; }
+  if(c.m.has(key)) return c.m.get(key);
+  const v=fn(); c.m.set(key,v); return v;
 }
-function matchesOppositeRange(digit,dom){ if(dom==null||digit==null) return false; return dom<=4?digit>=5:digit<=4; }
-function resetMatchesState(mkt,reason='watching'){ mkt.matches.stage=reason; mkt.matches.oppositeRun=0; mkt.matches.stageTicks=0; mkt.matches.setup=null; }
+function isTabActive(id){ const el=document.getElementById(id); return !!(el&&el.classList.contains('active')); }
+function evaluateRiseFall(mkt,w){ return cached(mkt,'rf'+w,()=>_evaluateRiseFall(mkt,w)); }
+function evaluateEvenOdd(mkt,w){ return cached(mkt,'eo'+w,()=>_evaluateEvenOdd(mkt,w)); }
+function evaluateOverUnder(mkt,w){ return cached(mkt,'ou'+w,()=>_evaluateOverUnder(mkt,w)); }
+function evaluateHighLow(mkt){ return cached(mkt,'hl',()=>_evaluateHighLow(mkt)); }
+function evaluateOnlyUpDown(mkt){ return cached(mkt,'ud'+engineState.onlyUpDownDuration,()=>_evaluateOnlyUpDown(mkt)); }
+
+/* Over 3 (digits 4-9) / Under 6 (digits 0-5): both 60% base. */
+function _evaluateOverUnder(mkt,w){
+  const d=mkt.digits.slice(-w); if(d.length<Math.min(20,w)) return null; const n=d.length;
+  const o=d.reduce((a,x)=>a+(x>=4?1:0),0), u=d.reduce((a,x)=>a+(x<=5?1:0),0);
+  const zo=wilsonZ(o,n,.6), zu=wilsonZ(u,n,.6), over=zo>=zu, z=over?zo:zu;
+  return { category:'overunder', label:over?'OVER':'UNDER', direction:over?'up':'down', z, absZ:Math.max(0,z), n,
+    meta:{ barrier:over?3:6, hit:(over?o:u)/n, base:.6 } };
+}
+/* High/Low Tick: 5-tick contract, selected tick 1-5. Null model = driftless random walk (ends are likelier). */
+function _evaluateHighLow(mkt){
+  const b=pxHighLowSpec(mkt); if(!b) return null;
+  const absZ=Math.max(0,b.z), up=b.type==='HIGH', absScore=Math.max(0,Math.min(1,Math.tanh(absZ/3)));
+  return { category:'highlow', label:`${up?'HIGH':'LOW'} TICK #${b.k}`, direction:up?'up':'down', score:up?absScore:-absScore,
+    absScore, strength:absScore, confidence:Math.round(50+45*Math.tanh(absZ/2)), z:b.z, absZ, n:b.n*5,
+    meta:{ barrier:b.k, selectedTick:b.k, sideLabel:`#${b.k}`, blocks:b.n, count:b.count, base:PXR.hlBase[b.k-1] } };
+}
+
+/* Matches: the match digit is the 2nd most frequent digit; trade only when the top-two gap <= 0.3 points. */
+function matchesSpec(mkt){ return cached(mkt,'mspec',()=>{
+  const d=mkt.digits.slice(-MATCHES.WINDOW), n=d.length; if(n<MATCHES.MIN_TICKS) return null;
+  const c=new Array(10).fill(0); d.forEach(x=>c[x]++);
+  const rows=c.map((count,digit)=>({digit,count,pct:count*100/n})).sort((a,b)=>b.count-a.count||a.digit-b.digit);
+  const first=rows[0], second=rows[1], gap=first.pct-second.pct;
+  return { n, rows, first, second, gap, ready:gap<=MATCHES.MAX_GAP_PCT+1e-9 };
+});}
 function stepMatchesEngine(mkt){
-  const dist=getMatchesDistribution(mkt), st=mkt.matches;
-  if(!dist||!dist.leader||!dist.prediction){ resetMatchesState(mkt,'collecting'); return null; }
-  if(st.stage==='watching'||st.stage==='collecting'){
-    if(!dist.leaderValid){ st.stage='watching'; st.oppositeRun=0; st.stageTicks=0; st.setup=null; return null; }
-    st.stage='opposite_run'; st.oppositeRun=0; st.stageTicks=0; st.setup=null;
-  }
-  if(st.stage==='opposite_run'){
-    if(!matchesOppositeRange(mkt.lastDigit,dist.leader.digit)){ st.oppositeRun=0; st.stageTicks=0; return null; }
-    st.oppositeRun++; st.stageTicks++;
-    if(st.oppositeRun>=MATCHES.OPPOSITE_RUN){
-      st.setup={ dominantDigit:dist.leader.digit, dominantPct:dist.leader.pct, dominantGain:dist.leader.gain,
-        leastDigit:dist.least.digit, leastPct:dist.least.pct,
-        predictionDigit:dist.prediction.digit, predictionPct:dist.prediction.pct,
-        predictionGain:dist.prediction.gain,
-        top3:dist.top3.map(x=>({digit:x.digit,pct:x.pct,gain:x.gain})),
-        frozenAtTick:mkt.tickCount };
-      st.stage='wait_least'; st.stageTicks=0;
-    }
-    return null;
-  }
-  if(st.stage==='wait_least'){
-    st.stageTicks++;
-    if(st.stageTicks>MATCHES.MAX_SETUP_WAIT){ resetMatchesState(mkt,'watching'); return null; }
-    if(mkt.lastDigit===st.setup.leastDigit){ st.stage='wait_dominant'; st.stageTicks=0; }
-    return null;
-  }
-  if(st.stage==='wait_dominant'){
-    st.stageTicks++;
-    if(st.stageTicks>MATCHES.MAX_SETUP_WAIT){ resetMatchesState(mkt,'watching'); return null; }
-    if(mkt.lastDigit===st.setup.dominantDigit){
-      const sig={ category:'matchdiffer', label:`MATCHES ${st.setup.predictionDigit}`, direction:'up',
-        score:1, absScore:1, strength:1, confidence:100, n:MATCHES.WINDOW,
-        meta:{ readyToSignal:true, predictionDigit:st.setup.predictionDigit,
-          dominantDigit:st.setup.dominantDigit, dominantPct:st.setup.dominantPct,
-          leastDigit:st.setup.leastDigit, leastPct:st.setup.leastPct,
-          top3:st.setup.top3, oppositeRun:MATCHES.OPPOSITE_RUN, ruleComplete:true } };
-      st.lastSignal={tick:mkt.tickCount, ...sig.meta}; st.lastSignalTick=mkt.tickCount;
-      resetMatchesState(mkt,'watching');
-      return sig;
-    }
-  }
-  return null;
+  const s=matchesSpec(mkt), st=mkt.matches;
+  if(!s){ st.stage='collecting'; st.key=null; return null; }
+  if(!s.ready){ st.stage='watching'; st.key=null; return null; }
+  const key=s.second.digit+'|'+s.first.digit;
+  if(st.stage==='ready'&&st.key===key) return null;
+  st.stage='ready'; st.key=key;
+  const sig={ category:'matchdiffer', label:`MATCHES ${s.second.digit}`, direction:'up', score:1, absScore:1, strength:1, confidence:100, n:s.n,
+    meta:{ readyToSignal:true, predictionDigit:s.second.digit, recoveryDigit:s.first.digit, dominantDigit:s.first.digit,
+      dominantPct:s.first.pct, secondPct:s.second.pct, gap:s.gap, ruleComplete:true } };
+  st.lastSignal={tick:mkt.tickCount,...sig.meta}; st.lastSignalTick=mkt.tickCount;
+  return sig;
 }
 function evaluateMatchesStatus(mkt){
-  const dist=getMatchesDistribution(mkt), st=mkt.matches;
-  const justFired = st.lastSignal && (mkt.tickCount - st.lastSignalTick <= MATCHES.CONFIRM_DISPLAY_TICKS);
+  const s=matchesSpec(mkt), st=mkt.matches;
+  const justFired=st.lastSignal && (mkt.tickCount-st.lastSignalTick<=MATCHES.CONFIRM_DISPLAY_TICKS);
   if(justFired){
-    return { category:'matchdiffer', label:`MATCHES ${st.lastSignal.predictionDigit}`, direction:'up',
-      score:1, absScore:1, strength:1, confidence:100, n:MATCHES.WINDOW,
-      meta:{ readyToSignal:true, signalJustFired:true, ...st.lastSignal, hasData:true } };
+    return { category:'matchdiffer', label:`MATCHES ${st.lastSignal.predictionDigit}`, direction:'up', score:1, absScore:1, strength:1,
+      confidence:100, n:MATCHES.WINDOW, meta:{ readyToSignal:true, signalJustFired:true, ...st.lastSignal, hasData:true } };
   }
-  const meta = dist ? {
-    readyToSignal:false, stage:st.stage, oppositeRun:st.oppositeRun,
-    predictionDigit: st.setup ? st.setup.predictionDigit : (dist.prediction?dist.prediction.digit:null),
-    dominantDigit: st.setup ? st.setup.dominantDigit : (dist.leader?dist.leader.digit:null),
-    dominantPct: st.setup ? st.setup.dominantPct : (dist.leader?dist.leader.pct:0),
-    leastDigit: st.setup ? st.setup.leastDigit : (dist.least?dist.least.digit:null),
-    top3: st.setup ? st.setup.top3 : (dist.top3||[]).map(x=>({digit:x.digit,pct:x.pct,gain:x.gain})),
-    leaderValid:dist.leaderValid, hasData:true
-  } : { readyToSignal:false, stage:'collecting', hasData:false };
-  return { category:'matchdiffer', label: meta.readyToSignal?`MATCHES ${meta.predictionDigit}`:'WATCHING MATCH RULE',
-    direction:'up', score:0, absScore:0, strength:0, confidence: meta.readyToSignal?100:0,
-    n: dist?dist.n:0, meta };
+  const meta=s?{ readyToSignal:false, stage:st.stage, hasData:true, gap:s.gap, predictionDigit:s.second.digit, recoveryDigit:s.first.digit,
+    dominantDigit:s.first.digit, dominantPct:s.first.pct, secondPct:s.second.pct, leaderValid:s.ready }
+    :{ readyToSignal:false, stage:'collecting', hasData:false };
+  return { category:'matchdiffer', label:'WATCHING MATCH RULE', direction:'up', score:0, absScore:0, strength:0, confidence:0, n:s?s.n:0, meta };
+}
+
+/* ---- signal resolution: turns the Signal Log into a real, honest accuracy tracker ---- */
+function signalHorizon(r){ if(r.category==='highlow') return 5; if(r.category==='onlyupdown') return (r.meta&&r.meta.duration)||2; return 1; }
+function signalSpec(r){
+  if(r.category==='highlow') return {type:/^HIGH/.test(r.label)?'HIGH':'LOW',k:(r.meta&&r.meta.selectedTick)||1};
+  if(r.category==='matchdiffer') return {digit:r.meta&&r.meta.predictionDigit};
+  return null;
+}
+function resolvePending(mkt){
+  const L=mkt.quotes.length, D=mkt.digits.length; let changed=false;
+  engineState.history.forEach(e=>{
+    if(e.status!=='pending'||e.symbol!==mkt.code) return;
+    const h=e.horizon||1; if(mkt.tickCount-e.tickWhenLogged<h||L<h+1||D<h) return;
+    const q0=mkt.quotes[L-1-h], seg=mkt.quotes.slice(L-h), dseg=mkt.digits.slice(D-h), lab=String(e.label); let hit=false;
+    if(e.category==='risefall') hit=lab.startsWith('RISE')?seg[0]>q0:seg[0]<q0;
+    else if(e.category==='evenodd') hit=(dseg[0]%2===0)===lab.startsWith('EVEN');
+    else if(e.category==='overunder') hit=lab.startsWith('OVER')?dseg[0]>=4:dseg[0]<=5;
+    else if(e.category==='matchdiffer') hit=!!e.spec&&dseg[0]===e.spec.digit;
+    else if(e.category==='onlyupdown'){ const up=lab.includes('UPS'); let ok=true,p=q0; for(const v of seg){ if(up?!(v>p):!(v<p)){ok=false;break;} p=v; } hit=ok; }
+    else if(e.category==='highlow'&&e.spec&&seg.length===5){
+      const ex=e.spec.type==='HIGH'?Math.max(...seg):Math.min(...seg), i=seg.indexOf(ex);
+      hit=seg.lastIndexOf(ex)===i&&i===e.spec.k-1;
+    }
+    e.status=hit?'hit':'miss'; changed=true;
+    const a=(engineState.acc=engineState.acc||{}); const s=(a[e.category]=a[e.category]||{hit:0,miss:0}); if(hit) s.hit++; else s.miss++;
+    if(e.category==='risefall'){
+      const rs=engineState.rfStats, r=hit?'W':'L'; if(hit) rs.wins++; else rs.losses++;
+      rs.last20.push(r); if(rs.last20.length>20) rs.last20.shift();
+      if(rs.runDir===r) rs.run++; else { rs.runDir=r; rs.run=1; }
+    }
+  });
+  if(changed){ renderHistory(); renderRfPerformance(); }
+}
+function renderAccuracy(){
+  const el=document.getElementById('histAcc'); if(!el) return;
+  const a=engineState.acc||{}, names={risefall:'Rise/Fall',evenodd:'Even/Odd',overunder:'Over/Under',matchdiffer:'Matches',highlow:'High/Low',onlyupdown:'Ups/Downs'};
+  const parts=Object.keys(names).filter(k=>a[k]).map(k=>{const s=a[k],n=s.hit+s.miss;return `<span>${names[k]} ${Math.round(s.hit*100/n)}% · ${n}</span>`;});
+  el.innerHTML=parts.join('')||'<span>Resolved-signal accuracy appears here</span>';
+}
+
+/* ---- public tick feed: auto-reconnect + keep-alive + history preload ---- */
+const PUBFEED={retry:0,ping:null};
+function startPublicFeed(){
+  try{
+    const w=new WebSocket(WS_PUBLIC);
+    w.onopen=()=>{
+      PUBFEED.retry=0;
+      PULSE_SYMBOLS.concat(HUNTER.extraSymbols).forEach((s,i)=>{
+        w.send(JSON.stringify({ticks:s.code,subscribe:1}));
+        if((engineState.markets.get(s.code)||{digits:[]}).digits.length<400)
+          w.send(JSON.stringify({ticks_history:s.code,adjust_start_time:1,count:1000,end:'latest',style:'ticks',req_id:9000+i}));
+      });
+      clearInterval(PUBFEED.ping);
+      PUBFEED.ping=setInterval(()=>{ if(w.readyState===1) w.send(JSON.stringify({ping:1})); },30000);
+    };
+    w.onmessage=ev=>{
+      try{
+        const d=JSON.parse(ev.data);
+        if(d.msg_type==='tick'&&d.tick&&d.tick.quote) onPulseTick(d.tick.symbol,parseFloat(d.tick.quote),d.tick.epoch,d.tick.pip_size);
+        else if(d.msg_type==='history'&&d.history) ingestHistory(d);
+      }catch(e){}
+    };
+    w.onclose=()=>{ clearInterval(PUBFEED.ping); setTimeout(startPublicFeed,Math.min(15000,1000*Math.pow(2,PUBFEED.retry++))); };
+    w.onerror=()=>{ try{w.close();}catch(e){} };
+    window.__pulseWs=w;
+  }catch(e){ setTimeout(startPublicFeed,5000); }
+}
+function ingestHistory(d){
+  const sym=d.echo_req&&d.echo_req.ticks_history, mkt=engineState.markets.get(sym);
+  const prices=(d.history&&d.history.prices)||[]; if(!mkt||!prices.length||mkt.digits.length>=400) return;
+  const pip=Number(d.pip_size); if(Number.isInteger(pip)&&pip>=0&&pip<=6) mkt.decimals=pip;
+  const dig=[],q=[];
+  prices.forEach(p=>{ const n=parseFloat(p); if(isNaN(n)) return; const s=n.toFixed(mkt.decimals); dig.push(parseInt(s.charAt(s.length-1),10)); q.push(n); });
+  mkt.digits=dig.concat(mkt.digits).slice(-MAX_BUFFER); mkt.quotes=q.concat(mkt.quotes).slice(-MAX_BUFFER); mkt._ev=null;
+}
+function pxConnectionLost(){
+  [pendingProposalMap,pendingBuyMap].forEach(map=>{
+    Array.from(map.entries()).forEach(([k,t])=>{ if(t&&t.purpose==='premium'){ map.delete(k); premiumOnTradeError(t,'connection lost'); } });
+  });
 }
 
 /* ============================================================
    TICK HANDLER
    ============================================================ */
-function onPulseTick(symbolCode, quote, epoch=null){
+function onPulseTick(symbolCode, quote, epoch=null, pipSize=null){
   const mkt = engineState.markets.get(symbolCode);
   if(!mkt) return;
   const num = typeof quote === 'number' ? quote : parseFloat(quote);
@@ -1875,12 +1852,13 @@ function onPulseTick(symbolCode, quote, epoch=null){
     if(prev===signature) return;
     adaptiveEngine.lastTickBySymbol.set(symbolCode,signature);
   }
+  if(pipSize!=null){ let pd=Number(pipSize); if(pd>0&&pd<1) pd=Math.round(-Math.log10(pd)); if(Number.isInteger(pd)&&pd>=0&&pd<=6) mkt.decimals=pd; }
   const qStr = num.toFixed(mkt.decimals);
   const lastDigit = parseInt(qStr.charAt(qStr.length-1), 10);
   mkt.digits.push(lastDigit); if(mkt.digits.length>MAX_BUFFER) mkt.digits.shift();
   mkt.quotes.push(num); if(mkt.quotes.length>MAX_BUFFER) mkt.quotes.shift();
   mkt.lastQuote = qStr; mkt.lastDigit = lastDigit; mkt.tickCount++;
-  renderHunter();
+  resolvePending(mkt);
 
   const parity = lastDigit%2===0?'even':'odd';
   if(mkt.streak.dir===null) mkt.streak={dir:parity,len:1};
@@ -1896,7 +1874,8 @@ function onPulseTick(symbolCode, quote, epoch=null){
   }
 
   if(botRunning) evaluateBotOnTick();
-  if(VIDEO_ENGINE.running) evaluateVideoOnTick(symbolCode);
+  if(PX.running) premiumOnTick();
+  premiumIdleRender();
   schedulePulseRender();
 }
 
@@ -1975,7 +1954,7 @@ function logSignal(r, marketName){
   const entry = { id: ++engineState.historySeq, symbol:r.symbol, marketName, category:r.category,
     label:r.label, direction:r.direction, baseConfidence:confidenceOf(r),
     tickWhenLogged: (engineState.markets.get(r.symbol)||{}).tickCount||0,
-    status:'pending', createdAt:Date.now() };
+    status:'pending', createdAt:Date.now(), horizon:signalHorizon(r), spec:signalSpec(r) };
   engineState.history.unshift(entry);
   if(engineState.history.length > 40) engineState.history.pop();
   if(r.category==='risefall') engineState.rfStats.signals++;
@@ -2063,12 +2042,12 @@ function renderActiveList(){
         </div>
         <div class="as-field">
           <label>Ticks</label>
-          <input type="number" min="1" max="10" data-field="duration" data-idx="${i}" value="${(s.type==='HIGH_TICK'||s.type==='LOW_TICK') ? 5 : s.duration}" ${(s.type==='HIGH_TICK'||s.type==='LOW_TICK') ? 'readonly title="High Tick / Low Tick is fixed at 5 ticks"' : ''}>
+          <input type="number" min="1" max="10" data-field="duration" data-idx="${i}" value="${s.duration}">
         </div>
         ${def && def.needsDigit ? `
         <div class="as-field">
-          <label>${(s.type==='HIGH_TICK'||s.type==='LOW_TICK') ? 'Tick #' : 'Digit'}</label>
-          <input type="number" min="${(s.type==='HIGH_TICK'||s.type==='LOW_TICK') ? 1 : 0}" max="${(s.type==='HIGH_TICK'||s.type==='LOW_TICK') ? 5 : 9}" data-field="prediction" data-idx="${i}" value="${s.prediction != null ? s.prediction : ((s.type==='HIGH_TICK'||s.type==='LOW_TICK') ? 1 : botConfig.defaultDigit)}" ${(s.type==='HIGH_TICK'||s.type==='LOW_TICK') ? 'title="High Tick / Low Tick predicts one of the next 5 tick positions"' : ''}>
+          <label>${def.contract==='TICKHIGH'||def.contract==='TICKLOW'?'Tick (1-5)':'Digit'}</label>
+          <input type="number" min="${def.contract==='TICKHIGH'||def.contract==='TICKLOW'?1:0}" max="${def.contract==='TICKHIGH'||def.contract==='TICKLOW'?5:9}" data-field="prediction" data-idx="${i}" value="${s.prediction != null ? s.prediction : botConfig.defaultDigit}">
         </div>` : ''}
       </div>
       <span class="as-badge ${plCls}">${plSign}$${s.pl.toFixed(2)}</span>
@@ -2086,8 +2065,8 @@ function renderActiveList(){
       let v = parseFloat(inp.value);
       if(isNaN(v)) v = 0;
       if(field === 'stake') strat.stake = normalizeStake(v);
-      else if(field === 'duration') strat.duration = (strat.type==='HIGH_TICK'||strat.type==='LOW_TICK') ? 5 : Math.max(1, Math.min(10, Math.round(v)));
-      else if(field === 'prediction') strat.prediction = (strat.type==='HIGH_TICK'||strat.type==='LOW_TICK') ? Math.max(1, Math.min(5, Math.round(v))) : Math.max(0, Math.min(9, Math.round(v)));
+      else if(field === 'duration') strat.duration = Math.max(1, Math.min(10, Math.round(v)));
+      else if(field === 'prediction'){ const tk = strat.type==='HIGH_TICK'||strat.type==='LOW_TICK'; strat.prediction = tk ? Math.max(1, Math.min(5, Math.round(v))) : Math.max(0, Math.min(9, Math.round(v))); }
       renderActiveList();
     });
   });
@@ -2422,7 +2401,7 @@ function markCandidateFired(candidate){
 function strategyMatchesCandidate(strat,conf){
   if(!conf) return false;
   const type=strat.type,label=String(conf.label||'').toUpperCase();
-  if(type==='MATCHES')return !!(conf.meta&&conf.meta.readyToSignal)&&(strat.prediction==null||label.includes(String(strat.prediction)));
+  if(type==='MATCHES')return !!(conf.meta&&conf.meta.readyToSignal);
   if(type==='DIFFERS')return !!(conf.meta&&conf.meta.readyToSignal);
   if(type==='EVEN')return label==='EVEN';
   if(type==='ODD')return label==='ODD';
@@ -2443,7 +2422,7 @@ function getStrategyCandidate(strat,market){
   if(!strategyMatchesCandidate(strat,conf))return null;
   const confidence=Number(conf.confidence||confidenceOf(conf)||0);
   if(confidence<botConfig.confidenceFloor)return null;
-  return {strat,symbol:market.code,marketName:market.name,marketShort:market.short,label:getStrategyLabel(strat),signalLabel:conf.label,confidence,key:signalKey(strat,market.code,conf)};
+  return {strat,symbol:market.code,marketName:market.name,marketShort:market.short,label:getStrategyLabel(strat),signalLabel:conf.label,confidence,meta:conf.meta||null,key:signalKey(strat,market.code,conf)};
 }
 function getCandidatesForMarket(market){return selectedStrategies.map(s=>getStrategyCandidate(s,market)).filter(Boolean).sort((a,b)=>b.confidence-a.confidence);}
 function getBestLiveCandidate(excludeStrat=null,excludeSymbol=null){
@@ -2586,15 +2565,8 @@ function placeStrategyContract(strat, marketOverride=null, options={}){
   if(purpose==='bot'){
     const gate=accountRiskGate(candidate);
     if(!gate.allowed){setAdaptiveGate(false,gate.reason,gate.detail);return false;}
-  }else if(purpose==='video'){
-    // Video-mode sets `opening` before submission to prevent duplicate ticks.
-    // Do not run the normal opening gate again during the same synchronous submit.
-    const gate=videoRiskGate(candidate);
-    if(!gate.allowed && gate.reason!=='open') return false;
   }
-  const socketReady = !!(ws && ws.readyState === WebSocket.OPEN);
-  if(!wsConnected || !socketReady){
-    wsConnected = false;
+  if(!wsConnected){
     toast('❌ Trading connection is not active. Contract was not sent.', 'error');
     return false;
   }
@@ -2605,7 +2577,8 @@ function placeStrategyContract(strat, marketOverride=null, options={}){
   const stakeData = stakeForApi(options.stakeOverride ?? adaptiveStake(strat,candidate));
   const stake = stakeData.number;
   const stakeText = stakeData.text;
-  const duration = (strat.type==='HIGH_TICK'||strat.type==='LOW_TICK') ? 5 : (strat.duration || def.duration);
+  const isTickCt = def.contract==='TICKHIGH' || def.contract==='TICKLOW';
+  const duration = isTickCt ? 5 : (strat.duration || def.duration);
   const params = {
     amount: stake, basis:'stake', contract_type: def.contract,
     currency:'USD', duration, duration_unit:'t', underlying_symbol: marketSymbol,
@@ -2617,10 +2590,12 @@ function placeStrategyContract(strat, marketOverride=null, options={}){
     lastAction='Blocked malformed stake before proposal';
     return false;
   }
-  if(def.needsDigit && strat.prediction != null){
-    if(def.contract==='TICKHIGH' || def.contract==='TICKLOW') params.selected_tick = Number(strat.prediction);
-    else params.barrier = String(strat.prediction);
-  }
+  let digitArg = strat.prediction;
+  if(strat.type==='MATCHES' && candidate && candidate.meta && candidate.meta.predictionDigit!=null) digitArg = candidate.meta.predictionDigit;
+  if(isTickCt){
+    const st = candidate && candidate.meta && candidate.meta.selectedTick ? candidate.meta.selectedTick : digitArg;
+    params.selected_tick = Math.max(1, Math.min(5, Math.round(Number(st)||1)));
+  } else if(def.needsDigit && digitArg != null) params.barrier = String(digitArg);
   lastBuyTime = Date.now();
   adaptiveEngine.session.lastStakeSent = stakeText;
   lastAction = `Proposal ${contractLabel} · $${stakeText}`;
@@ -2641,19 +2616,8 @@ function placeStrategyContract(strat, marketOverride=null, options={}){
     pairId:options.pairId || null,pairLeg:options.pairLeg || null};
   pendingProposalMap.set(id,payload);
   adaptiveEngine.pendingContexts.set(id,context);
-  try{
-    ws.send(JSON.stringify({ proposal:1, ...params, req_id:id }));
-    return true;
-  }catch(err){
-    pendingProposalMap.delete(id);
-    adaptiveEngine.pendingContexts.delete(id);
-    wsConnected = false;
-    if(purpose==='video') VIDEO_ENGINE.opening=false;
-    lastAction='Contract request failed before transmission';
-    videoLog(`[ERROR] WebSocket send failed · ${err?.message || 'connection closed'}.`,'err');
-    updateConnectionStatus(false);
-    return false;
-  }
+  ws.send(JSON.stringify({ proposal:1, ...params, req_id:id }));
+  return true;
 }
 
 function resolvePairLegFailure(t, reason){
@@ -2699,16 +2663,17 @@ function onProposalReceived(data){
   pendingProposalMap.delete(data.req_id);
   adaptiveEngine.pendingContexts.delete(data.req_id);
   if(data.error){
-    if(t.purpose==='video'){ VIDEO_ENGINE.opening=false; videoLog(`[ERROR] Proposal rejected · ${data.error.message || 'unknown error'}.`,'err'); videoSetState('SCANNING'); }
     lastAction=`Proposal rejected · ${data.error.message || 'unknown error'}`;
     const rejectedStake=Number(t.stake||0).toFixed(2);
     toast(`⚠️ Proposal rejected — ${data.error.message || 'unknown error'} (stake sent: $${t.stakeText || rejectedStake})`,'error');
+    if(t.purpose==='premium') premiumOnTradeError(t, data.error.message || 'Proposal rejected');
     if(t.pairId) resolvePairLegFailure(t, data.error.message || 'Pair proposal rejected.');
     setAdaptiveGate(false,'proposal_error',data.error.message || 'Proposal request failed.');
     updateEngineStatus();
     return;
   }
   if(!data.proposal) return;
+  t.proposalSub = data.subscription ? data.subscription.id : null;
   const buyId = wsReqId++;
   pendingBuyMap.set(buyId, t);
   ws.send(JSON.stringify({ buy: data.proposal.id, price: Number(data.proposal.ask_price), req_id: buyId }));
@@ -2717,10 +2682,11 @@ function onBuyReceived(data){
   const t = pendingBuyMap.get(data.req_id);
   if(!t) return;
   pendingBuyMap.delete(data.req_id);
+  if(t.proposalSub && ws && ws.readyState===1){ try{ ws.send(JSON.stringify({forget:t.proposalSub,req_id:wsReqId++})); }catch(e){} }
   if(data.error){
-    if(t.purpose==='video'){ VIDEO_ENGINE.opening=false; videoLog(`[ERROR] Buy rejected · ${data.error.message || 'unknown error'}.`,'err'); videoSetState('SCANNING'); }
     lastAction=`Buy rejected · ${data.error.message || 'unknown error'}`;
     toast(`⚠️ Buy rejected — ${data.error.message || 'unknown error'}`,'error');
+    if(t.purpose==='premium') premiumOnTradeError(t, data.error.message || 'Buy rejected');
     if(t.pairId) resolvePairLegFailure(t, data.error.message || 'Pair buy rejected.');
     setAdaptiveGate(false,'buy_error',data.error.message || 'Buy request failed.');
     updateEngineStatus();
@@ -2731,9 +2697,10 @@ function onBuyReceived(data){
   activeContracts.set(cid, {
     slotIdx: t.slotIdx, strategyRef:t.strategyRef || null, marketSymbol:t.marketSymbol || null,
     contractType:t.contractType, label:t.label, stake:t.stake, purpose:t.purpose||'bot',
-    adaptiveContext:t.adaptiveContext||null, pairId:t.pairId||null, pairLeg:t.pairLeg||null
+    adaptiveContext:t.adaptiveContext||null, pairId:t.pairId||null, pairLeg:t.pairLeg||null,
+    premiumId:t.premiumId||null, sid:t.sid||null, pxCand:t.pxCand||null
   });
-  if(t.purpose==='video') videoOnBuy({marketSymbol:t.marketSymbol,stake:t.stake,label:t.label});
+  if(t.purpose==='premium') premiumOnBought(cid,t);
   if(t.pairId){
     const batch=pairBatches.get(t.pairId);
     if(batch) batch.bought++;
@@ -2745,16 +2712,17 @@ function onBuyReceived(data){
 }
 function onContractUpdate(data){
   const c = data.proposal_open_contract;
-  if(!c || !c.is_sold) return;
+  if(!c) return;
+  const liveRec = activeContracts.get(c.contract_id);
+  if(liveRec && liveRec.purpose==='premium'){ premiumOnContractUpdate(c, liveRec); return; }
+  if(!c.is_sold) return;
   const cid = c.contract_id;
   const rec = activeContracts.get(cid);
   if(!rec) return;
   activeContracts.delete(cid);
   const profit = parseFloat(c.profit) || 0;
   const won = profit > 0;
-  if(rec.purpose==='video'){
-    videoOnSettlement(rec,profit,won,c.entry_tick,c.exit_tick);
-  }else if(rec.purpose==='bot'){
+  if(rec.purpose==='bot'){
     const strat = rec.strategyRef || selectedStrategies[rec.slotIdx];
     if(strat) onStrategyResult(strat, won, profit, rec.stake, c.entry_tick, c.exit_tick, rec.marketSymbol, rec.adaptiveContext,
       rec.pairId ? {deferControl:true,pairLeg:rec.pairLeg} : {});
@@ -2862,6 +2830,7 @@ function onStrategyResult(strat, won, profit, stake, entrySpot, exitSpot, market
   trades.unshift({time:new Date().toLocaleTimeString(),strategy:getStrategyLabel(strat),entry:entrySpot??'—',exit:exitSpot??'—',stake:Number(stake||0),pl:Number(profit||0)});
   if(trades.length>200) trades.length=200;
   if(learningContext) updateLearningFromSettlement(learningContext,won,profit);
+  if(strat.type==='ONLY_UPS'||strat.type==='ONLY_DOWNS') strat.duration = won ? 2 : 3;   // 2 ticks normally, 3 ticks to recover
   if(options.deferControl){
     lastAction=`${options.pairLeg||'Pair leg'} settled ${won?'WIN':'LOSS'} · ${profit>=0?'+':''}$${Number(profit||0).toFixed(2)}`;
     updateStatsDisplay();updateProfitDisplay();renderTrades();renderActiveList();updateEngineStatus();refreshBrainStatus();
@@ -2957,6 +2926,7 @@ function evaluateHigherLowerPairOnTick(){
 
 function startBot(){
   if(botRunning) return;
+  if(PX.running){ toast('Stop EMRON Auto before running the Trading Hub bot.','error'); return; }
   if(!accessToken || !wsConnected){
     toast('🔐 Connect a valid Deriv PAT before running the bot.', 'error');
     return;
@@ -3120,6 +3090,7 @@ function schedulePulseRender(){
   pulseRenderQueued = true;
   setTimeout(() => {
     pulseRenderQueued = false;
+    if(!isTabActive("pulse")) return;
     renderMarketStrip();
     renderPulsePanel();
     renderAIScan();
@@ -3213,14 +3184,14 @@ function renderPulsePanel(){
       eyebrow.textContent = 'MATCH SIGNAL';
       label.className = 'ret-label up';
       label.textContent = `◆ MATCHES ${r.meta.predictionDigit}`;
-      retSub.textContent = `Dominant ${r.meta.dominantDigit} · least ${r.meta.leastDigit}`;
+      retSub.textContent = `Most ${r.meta.dominantDigit} · 2nd ${r.meta.predictionDigit} · gap ${Number(r.meta.gap||0).toFixed(2)}%`;
       return;
     }
     reticle.classList.remove('acquired');
     eyebrow.textContent = 'Watching';
     label.className = 'ret-label idle';
-    label.textContent = `Stage: ${r.meta.stage}`;
-    retSub.textContent = `Leader ${r.meta.dominantDigit ?? '—'} · prediction ${r.meta.predictionDigit ?? '—'}`;
+    label.textContent = r.meta.leaderValid ? `Ready · Matches ${r.meta.predictionDigit}` : `Waiting · gap ${Number(r.meta.gap||0).toFixed(2)}% (needs ≤ ${MATCHES.MAX_GAP_PCT}%)`;
+    retSub.textContent = `Most ${r.meta.dominantDigit ?? '—'} ${Number(r.meta.dominantPct||0).toFixed(1)}% · 2nd ${r.meta.predictionDigit ?? '—'} ${Number(r.meta.secondPct||0).toFixed(1)}%`;
     return;
   }
 
@@ -3268,6 +3239,7 @@ function renderHistory(){
   document.getElementById('histResolved').textContent = resolved.length;
   document.getElementById('histPending').textContent = engineState.history.length - resolved.length;
   document.getElementById('histWinRate').textContent = resolved.length === 0 ? '—' : Math.round((hits/resolved.length)*100) + '%';
+  renderAccuracy();
 }
 function renderRfPerformance(){
   const s = engineState.rfStats;
@@ -3391,6 +3363,7 @@ async function connectWebSocket(token){
 
       ws.send(JSON.stringify({ balance:1, subscribe:1, req_id: wsReqId++ }));
       subscribeTicks();
+      activeContracts.forEach((v,cid)=>{ try{ ws.send(JSON.stringify({proposal_open_contract:1,contract_id:cid,subscribe:1})); }catch(e){} });
 
       if(window.wsPing) clearInterval(window.wsPing);
       window.wsPing = setInterval(() => {
@@ -3402,6 +3375,7 @@ async function connectWebSocket(token){
     ws.onerror = () => setAuthStatus(`⚠️ WebSocket error on ${MODE.toLowerCase()} account`, true);
     ws.onclose = () => {
       wsConnected = false;
+      pxConnectionLost();
       if(window.wsPing) clearInterval(window.wsPing);
       updateConnectionStatus(false);
       const status = document.getElementById(MODE === 'DEMO' ? 'demoStatusText' : 'realStatusText');
@@ -3501,6 +3475,7 @@ function renderAccountCards(){
   const active = MODE === 'REAL' ? real : demo;
   document.getElementById('patAccountId').textContent = active?.account_id || '—';
   document.getElementById('patBalance').textContent = active ? `${active.currency} ${Number(active.balance||0).toFixed(2)}` : '—';
+  pxRenderHeader();
 }
 
 async function connectWithPAT(token){
@@ -3582,8 +3557,7 @@ function subscribeTicks(){
   if(!ws || ws.readyState !== WebSocket.OPEN) return;
   tickSubIds.forEach(id=>{try{ws.send(JSON.stringify({forget:id,req_id:wsReqId++}));}catch(e){}});
   tickSubIds=new Set();
-  const scanAllMarkets=botConfig.autoSwitchMarkets||botConfig.executionMode==='BEST_CONFIDENCE'||(botConfig.executionMode==='SEQUENTIAL_RECOVERY'&&botConfig.recoverySelection==='BEST_LIVE');
-  const symbols=scanAllMarkets?PULSE_SYMBOLS.map(s=>s.code):[getSymbol(botConfig.market)];
+  const symbols=PULSE_SYMBOLS.concat(HUNTER.extraSymbols).map(s=>s.code);   // always analyse every market
   symbols.forEach(symbol=>{try{ws.send(JSON.stringify({ticks:symbol,subscribe:1,req_id:wsReqId++}));}catch(e){}});
 }
 function handleWsMessage(ev){
@@ -3601,12 +3575,13 @@ function handleWsMessage(ev){
         getDailyRecord();
         refreshBrainStatus();
         checkAccountSurvival();
+        pxRenderHeader();
       }
       break;
     case 'tick':
       if(data.tick && data.tick.quote){
         if(data.subscription) tickSubIds.add(data.subscription.id);
-        onPulseTick(data.tick.symbol, parseFloat(data.tick.quote), data.tick.epoch);
+        onPulseTick(data.tick.symbol, parseFloat(data.tick.quote), data.tick.epoch, data.tick.pip_size);
       }
       break;
     case 'proposal': onProposalReceived(data); break;
@@ -3670,6 +3645,7 @@ function setupTabs(){
       const t = document.getElementById(tab.dataset.tab);
       if(t) t.classList.add('active');
       syncNavActive(tab.dataset.tab);
+      HUNTER.lastRender = 0; renderHunter(); schedulePulseRender(); pxRenderAll();
     });
   });
 }
@@ -3953,10 +3929,8 @@ document.getElementById('bulkBuyBtn').addEventListener('click', async () => {
   const stake = normalizeStake(parseFloat(document.getElementById('bulkStakeOverride').value) || 1);
   const override = document.getElementById('bulkContractOverride').value;
   const ct = override !== 'auto' ? override : 'DIGITEVEN';
-  // High Tick / Low Tick are fixed to 5 ticks everywhere in EMRON.
-  const bulkDuration = (ct==='TICKHIGH' || ct==='TICKLOW') ? 5 : 1;
   const params = { contract_type: ct, underlying_symbol: getSymbol(botConfig.market),
-    currency:'USD', amount: stake, basis:'stake', duration:bulkDuration, duration_unit:'t' };
+    currency:'USD', amount: stake, basis:'stake', duration:1, duration_unit:'t' };
   const status = document.getElementById('bulkStatus');
   status.textContent = `Submitting ${accounts.length}…`;
   try {
@@ -4015,11 +3989,11 @@ const HUNTER = {
   best: null,
   lastRender: 0,
   extraSymbols: [
-    { code:"JD10", short:"JD10", name:"Jump 10 Index", decimals:3 },
-    { code:"JD25", short:"JD25", name:"Jump 25 Index", decimals:3 },
-    { code:"JD50", short:"JD50", name:"Jump 50 Index", decimals:3 },
-    { code:"JD75", short:"JD75", name:"Jump 75 Index", decimals:3 },
-    { code:"JD100", short:"JD100", name:"Jump 100 Index", decimals:3 }
+    { code:"JD10", short:"JD10", name:"Jump 10 Index", decimals:2 },
+    { code:"JD25", short:"JD25", name:"Jump 25 Index", decimals:2 },
+    { code:"JD50", short:"JD50", name:"Jump 50 Index", decimals:2 },
+    { code:"JD75", short:"JD75", name:"Jump 75 Index", decimals:2 },
+    { code:"JD100", short:"JD100", name:"Jump 100 Index", decimals:2 }
   ]
 };
 HUNTER.extraSymbols.forEach(s => {
@@ -4106,17 +4080,18 @@ function hunterHighLow(mkt){
     count: r.n,
     n: r.n,
     score: r.absScore,
-    selectedTick: r.meta.selectedTick,
-    detail: `Tick ${r.meta.selectedTick} · ${Math.round(r.meta.selectedPct*100)}% · ${confidence}%`
+    barrier: r.meta.barrier,
+    detail: `${r.meta.sideLabel} · z ${r.absZ.toFixed(2)} · ${confidence}%`
   };
 }
 
 function hunterBarrier(mkt,b){
   const d=hunterWindow(mkt), n=d.length;
   if(n<HUNTER.minTicks) return null;
-  const over=d.reduce((a,x)=>a+(x>b?1:0),0), under=d.reduce((a,x)=>a+(x<b?1:0),0);
-  const po=hunterWilsonPct(over,n,(9-b)/10), pu=hunterWilsonPct(under,n,b/10);
-  const zo=wilsonZ(over,n,(9-b)/10), zu=wilsonZ(under,n,b/10);
+  // Over b wins on digits > b; Under (9-b) wins on digits < 9-b. Both share the same (9-b)/10 base.
+  const over=d.reduce((a,x)=>a+(x>b?1:0),0), under=d.reduce((a,x)=>a+(x<(9-b)?1:0),0);
+  const po=hunterWilsonPct(over,n,(9-b)/10), pu=hunterWilsonPct(under,n,(9-b)/10);
+  const zo=wilsonZ(over,n,(9-b)/10), zu=wilsonZ(under,n,(9-b)/10);
   const isOver=po>=pu;
   return {market:mkt,kind:`O${b}/U${9-b}`,label:isOver?`OVER ${b}`:`UNDER ${9-b}`,
     direction:isOver?'up':'down',pct:Math.max(po,pu),raw:isOver?over/n:under/n,
@@ -4157,7 +4132,7 @@ function hunterContractFor(r){
   if(r.kind==='EVEN/ODD') return {type:r.label==='EVEN'?'EVEN':'ODD',prediction:null,duration:1};
   if(r.kind==='RISE/FALL') return {type:r.label==='RISE'?'RISE':'FALL',prediction:null,duration:1};
   if(r.kind==='ONLY/UP/DOWN') return {type:r.label==='ONLY UPS'?'ONLY_UPS':'ONLY_DOWNS',prediction:null,duration:r.duration||2};
-  if(r.kind==='HIGH/LOW') return {type:r.label.startsWith('HIGH TICK')?'HIGH_TICK':'LOW_TICK',prediction:r.selectedTick||1,duration:5};
+  if(r.kind==='HIGH/LOW') return {type:r.label.startsWith('HIGH TICK')?'HIGH_TICK':'LOW_TICK',prediction:r.barrier,duration:5};
   if(r.kind==='O1/U8') return {type:r.label.startsWith('OVER')?'OVER':'UNDER',prediction:r.label.startsWith('OVER')?1:8,duration:1};
   if(r.kind==='O2/U7') return {type:r.label.startsWith('OVER')?'OVER':'UNDER',prediction:r.label.startsWith('OVER')?2:7,duration:1};
   if(r.kind==='O3/U6') return {type:r.label.startsWith('OVER')?'OVER':'UNDER',prediction:r.label.startsWith('OVER')?3:6,duration:1};
@@ -4241,6 +4216,7 @@ function hunterExecute(r){
   updateEngineStatus();
 }
 function renderHunter(){
+  if(!isTabActive('hunter')) return;
   const now=Date.now();
   if(now-HUNTER.lastRender<180) return;
   HUNTER.lastRender=now;
@@ -4263,7 +4239,7 @@ function renderHunter(){
       <div class="sub">${b.detail} · ${b.n} observations · ${b.pct>=HUNTER.threshold?'meets':'below'} ${Math.round(HUNTER.threshold*100)}% threshold</div>`;
   }
   const board=document.getElementById('hunterBoard');
-  board.innerHTML=rows.slice(0,12).map((r,i)=>{
+  board.innerHTML=rows.slice(0,15).map((r,i)=>{
     const pct=Math.round(r.pct*100), isReady=r.pct>=HUNTER.threshold;
     return `<div class="hunter-row ${isReady?'ready':''}">
       <div class="hunter-market">${r.market.short}</div>
@@ -4315,12 +4291,365 @@ function setupHunterUI(){
 }
 
 /* ============================================================
+   EMRON PREMIUM AUTO-TRADER — video-derived screen + EMRON rule-book
+   Scans ALL markets, runs the analysis gate, then trades one contract at a time.
+   ============================================================ */
+const PXR = {
+  z:{ evenodd:1.65, overunder:1.28, onlyupdown:1.0, highlow:1.5, recover:0 },
+  hlBase:[0.2734,0.1563,0.1406,0.1563,0.2734]   // P(tick k of 5 is the max/min) for a driftless random walk
+};
+const PX_FAMS=[['evenodd','Even/Odd'],['matches','Matches'],['overunder','Over/Under'],['onlyupdown','Only Ups/Downs'],['highlow','High/Low Tick']];
+const PX_OU={
+  OVER3:{type:'DIGITOVER', barrier:3,base:.6,label:'Over 3', hit:d=>d>=4},
+  UNDER6:{type:'DIGITUNDER',barrier:6,base:.6,label:'Under 6',hit:d=>d<=5},
+  UNDER3:{type:'DIGITUNDER',barrier:3,base:.3,label:'Under 3',hit:d=>d<=2},
+  OVER6:{type:'DIGITOVER', barrier:6,base:.3,label:'Over 6', hit:d=>d>=7}
+};
+const PX_OU_FLIP={OVER3:'UNDER3',UNDER3:'OVER3',UNDER6:'OVER6',OVER6:'UNDER6'};
+const PX_KEY='emron_px_cfg_v2';
+const PX={
+  cfg:{engine:'strike',market:'ALL',stake:1,target:20,maxLoss:10,recovery:1.6,families:['evenodd','matches','overunder','onlyupdown','highlow']},
+  running:false,scanning:false,finished:false,sid:1,seq:0,open:null,
+  rows:[],stats:{stake:0,payout:0,runs:0,lost:0,won:0,pl:0},lossStreak:0,recovery:null,
+  errStreak:0,nextAt:0,dark:false,scanTimer:null,logTimer:null,lastStatus:''
+};
+const $px=id=>document.getElementById(id);
+const pxFmt=n=>Number(n||0).toFixed(2);
+const pxSigned=n=>{n=Number(n||0);return (n>=0?'+':'-')+Math.abs(n).toFixed(2);};
+const pxMoney=n=>Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const pxConf=z=>Math.round(50+45*Math.tanh(Math.max(0,z)/3));
+
+/* ---------- analysis (all cached per market tick) ---------- */
+function pxEvenOdd(m,rec){ return cached(m,'pxeo'+(rec?1:0),()=>{
+  const d=m.digits.slice(-100); if(d.length<60) return null;
+  const n=d.length, e=d.reduce((a,x)=>a+(x%2===0?1:0),0), z=wilsonZ(e,n,.5), even=z>=0, az=Math.abs(z);
+  const r=m.digits.slice(-30), e30=r.reduce((a,x)=>a+(x%2===0?1:0),0), z30=wilsonZ(even?e30:r.length-e30,r.length,.5);
+  if(az<(rec?PXR.z.recover:PXR.z.evenodd) || (!rec && z30<0.5)) return null;
+  return {family:'evenodd',kind:even?'EVEN':'ODD',label:even?'Even':'Odd',z:az,conf:pxConf(az),
+    why:`parity ${Math.round((even?e:n-e)*100/n)}% over ${n} · recent ${z30>=0.5?'confirms':'neutral'} · z ${az.toFixed(2)}`,
+    contract:{type:even?'DIGITEVEN':'DIGITODD',duration:1}};
+});}
+function pxMatches(m,rec){ return cached(m,'pxm'+(rec?rec.kind:'n'),()=>{
+  const s=matchesSpec(m); if(!s||!s.ready) return null;
+  const useFirst=!!rec && rec.kind==='MATCH_SECOND';          // normal = 2nd most frequent, recovery = most frequent
+  const pick=useFirst?s.first:s.second, z=wilsonZ(pick.count,s.n,.1);
+  return {family:'matches',kind:useFirst?'MATCH_MOST':'MATCH_SECOND',label:`Matches ${pick.digit}`,z,conf:pxConf(Math.max(0,z)+1),
+    why:`top ${s.first.digit} ${s.first.pct.toFixed(1)}% · 2nd ${s.second.digit} ${s.second.pct.toFixed(1)}% · gap ${s.gap.toFixed(2)}%`,
+    contract:{type:'DIGITMATCH',duration:1,barrier:pick.digit}};
+});}
+function pxOverUnder(m,rec){ return cached(m,'pxou'+(rec?rec.kind:'n'),()=>{
+  const d=m.digits.slice(-100); if(d.length<60) return null; const n=d.length;
+  const test=k=>{const s=PX_OU[k],c=d.reduce((a,x)=>a+(s.hit(x)?1:0),0);return {k,z:wilsonZ(c,n,s.base),pct:c*100/n};};
+  let best;
+  if(rec){ best=test(PX_OU_FLIP[rec.kind]); if(best.z<PXR.z.recover) return null; }
+  else { const a=test('OVER3'),b=test('UNDER6'); best=a.z>=b.z?a:b; if(best.z<PXR.z.overunder) return null; }
+  const s=PX_OU[best.k];
+  return {family:'overunder',kind:best.k,label:s.label,z:best.z,conf:pxConf(best.z),
+    why:`${s.label} hit ${best.pct.toFixed(0)}% vs ${Math.round(s.base*100)}% base · z ${best.z.toFixed(2)}`,
+    contract:{type:s.type,duration:1,barrier:s.barrier}};
+});}
+function pxOnlyUpDown(m,rec){ return cached(m,'pxud'+(rec?1:0),()=>{
+  const q=m.quotes; if(q.length<30) return null;
+  const lb=Math.min(q.length-1,50); let u=0,dn=0;
+  for(let i=q.length-lb;i<q.length;i++){const d=q[i]-q[i-1]; if(d>0)u++; else if(d<0)dn++;}
+  const t=u+dn; if(t<20) return null;
+  const up=u>=dn, z=wilsonZ(up?u:dn,t,.5), last=q[q.length-1]-q[q.length-2], agree=up?last>0:last<0;
+  if(z<(rec?PXR.z.recover:PXR.z.onlyupdown) || (!rec && !agree)) return null;
+  const dur=rec?3:2;                                          // 2 ticks normally, 3 ticks to recover
+  return {family:'onlyupdown',kind:up?'UP':'DOWN',label:`${up?'Only Ups':'Only Downs'} · ${dur}t`,z,conf:pxConf(z),
+    why:`${up?u:dn}/${t} ${up?'up':'down'} ticks · last tick ${agree?'agrees':'neutral'} · z ${z.toFixed(2)}`,
+    contract:{type:up?'RUNHIGH':'RUNLOW',duration:dur}};
+});}
+function pxHighLowSpec(m){ return cached(m,'pxhls',()=>{
+  const q=m.quotes.slice(-300), B=Math.floor(q.length/5); if(B<30) return null;
+  const hi=[0,0,0,0,0], lo=[0,0,0,0,0]; let nh=0,nl=0;
+  for(let b=0;b<B;b++){
+    const o=q.length-(B-b)*5, seg=q.slice(o,o+5), mx=Math.max(...seg), mn=Math.min(...seg);
+    const ih=seg.indexOf(mx), il=seg.indexOf(mn);
+    if(seg.lastIndexOf(mx)===ih){hi[ih]++;nh++;}              // ignore tied extremes
+    if(seg.lastIndexOf(mn)===il){lo[il]++;nl++;}
+  }
+  let best=null;
+  for(let k=0;k<5;k++) [['HIGH',hi,nh],['LOW',lo,nl]].forEach(([t,arr,n])=>{
+    if(n<20) return; const z=wilsonZ(arr[k],n,PXR.hlBase[k]);
+    if(!best||z>best.z) best={type:t,k:k+1,z,count:arr[k],n};
+  });
+  return best;
+});}
+function pxHighLow(m,rec){
+  const b=pxHighLowSpec(m); if(!b||b.z<(rec?PXR.z.recover:PXR.z.highlow)) return null;
+  return {family:'highlow',kind:b.type,label:`${b.type==='HIGH'?'High':'Low'} Tick #${b.k}`,z:b.z,conf:pxConf(b.z),
+    why:`tick #${b.k} was the ${b.type.toLowerCase()} in ${b.count}/${b.n} blocks · z ${b.z.toFixed(2)}`,
+    contract:{type:b.type==='HIGH'?'TICKHIGH':'TICKLOW',duration:5,selectedTick:b.k}};   // 5 ticks, selected tick 1-5
+}
+function pxAnalyze(m,fam,rec){
+  if(fam==='evenodd') return pxEvenOdd(m,rec);
+  if(fam==='matches') return pxMatches(m,rec);
+  if(fam==='overunder') return pxOverUnder(m,rec);
+  if(fam==='onlyupdown') return pxOnlyUpDown(m,rec);
+  if(fam==='highlow') return pxHighLow(m,rec);
+  return null;
+}
+function pxPool(){
+  if(PX.cfg.market==='ALL') return Array.from(engineState.markets.values());
+  const m=engineState.markets.get(PX.cfg.market); return m?[m]:[];
+}
+function pxScan(){
+  const rec=PX.recovery, fams=rec?[rec.family]:PX.cfg.families;
+  let pool=pxPool();
+  if(rec && PX.cfg.engine==='strike'){ const lm=engineState.markets.get(rec.symbol); if(lm) pool=[lm]; }
+  const out=[];
+  pool.forEach(m=>fams.forEach(f=>{ const c=pxAnalyze(m,f,rec); if(c){ c.symbol=m.code; c.short=m.short; out.push(c); } }));
+  return out.sort((a,b)=>b.conf-a.conf||b.z-a.z);
+}
+
+/* ---------- stake / limits ---------- */
+function pxComputeStake(){
+  let s=normalizeStake(PX.cfg.stake);
+  for(let i=0;i<Math.min(PX.lossStreak,4);i++) s=normalizeStake(s*PX.cfg.recovery);   // x1.6 after each loss, win resets
+  const left=PX.cfg.maxLoss+PX.stats.pl;
+  if(s>left) s=Math.floor(left*100)/100;
+  return s;
+}
+
+/* ---------- trading loop ---------- */
+function premiumOnTick(){
+  if(!PX.running||PX.open||Date.now()<PX.nextAt||!wsConnected) return;
+  if(PX.recovery && Date.now()-PX.recovery.since>120000){ PX.recovery=null; }
+  const list=pxScan();
+  if(!list.length){
+    const n=pxPool().length;
+    pxSetStatus(PX.recovery?`Recovery: waiting for the ${PX.recovery.family} analysis to confirm…`:`Analyzing ${n} market${n===1?'':'s'} · ${PX.cfg.families.length} strategies — scanning for the next signal…`);
+    return;
+  }
+  pxPlace(list[0]);
+}
+function pxPlace(c){
+  const stake=pxComputeStake();
+  if(stake<0.35){ pxFinish('maxloss'); return; }
+  const sd=stakeForApi(stake), id=++PX.seq, reqId=wsReqId++;
+  const params={amount:sd.number,basis:'stake',contract_type:c.contract.type,currency:(accountInfo&&accountInfo.currency)||'USD',
+    duration:c.contract.duration,duration_unit:'t',underlying_symbol:c.symbol,subscribe:1};
+  if(c.contract.barrier!=null) params.barrier=String(c.contract.barrier);
+  if(c.contract.selectedTick!=null) params.selected_tick=c.contract.selectedTick;
+  pendingProposalMap.set(reqId,{purpose:'premium',premiumId:id,sid:PX.sid,slotIdx:-1,strategyRef:null,marketSymbol:c.symbol,
+    contractType:c.contract.type,label:c.label,stake:sd.number,stakeText:sd.text,adaptiveContext:null,pairId:null,pairLeg:null,pxCand:c});
+  PX.open={id,cand:c};
+  pxSetStatus(`Signal ${c.short} · ${c.label} (${c.conf}%) — ${c.why}`);
+  ws.send(JSON.stringify({proposal:1,...params,req_id:reqId}));
+}
+function premiumOnTradeError(t,msg){
+  if(t.sid!==PX.sid) return;
+  PX.open=null; PX.errStreak++; PX.nextAt=Date.now()+1500;
+  pxSetStatus(`Order rejected: ${msg}`);
+  if(PX.errStreak>=3) pxStop('Stopped after repeated rejected orders.');
+}
+function premiumOnBought(cid,t){
+  if(t.sid!==PX.sid) return;
+  PX.errStreak=0;
+  const m=engineState.markets.get(t.marketSymbol), c=t.pxCand;
+  PX.rows.unshift({id:t.premiumId,cid,name:m?m.name:t.marketSymbol,label:t.label,ts:Date.now(),stake:t.stake,value:t.stake,profit:0,status:'open',
+    dir:(t.contractType==='RUNHIGH'||t.contractType==='TICKHIGH'||t.contractType==='DIGITOVER')?'up':'down'});
+  if(PX.rows.length>120) PX.rows.length=120;
+  pxRenderRows();
+}
+function premiumOnContractUpdate(c,rec){
+  const row=PX.rows.find(r=>r.cid===c.contract_id);
+  if(rec.sid!==PX.sid){ if(c.is_sold) activeContracts.delete(c.contract_id); return; }
+  if(!c.is_sold){ if(row){ row.value=Number(c.bid_price)||0; row.profit=Number(c.profit)||0; pxRenderRows(); } return; }
+  activeContracts.delete(c.contract_id);
+  const profit=Number(c.profit)||0, won=profit>0, payout=Math.max(0,rec.stake+profit), cand=rec.pxCand;
+  if(row){ row.status=won?'won':'lost'; row.profit=profit; row.value=payout; }
+  const s=PX.stats; s.stake+=rec.stake; s.payout+=payout; s.runs++; s.pl+=profit; if(won) s.won++; else s.lost++;
+  PX.open=null;
+  if(won){ PX.lossStreak=0; PX.recovery=null; }
+  else { PX.lossStreak++; if(cand) PX.recovery={family:cand.family,kind:cand.kind,symbol:cand.symbol,since:Date.now()}; }
+  PX.nextAt=Date.now()+(won?600:900);
+  const tk=$px('pxTicker'); if(tk){ tk.className='px-ticker on '+(won?'win':'loss');
+    $px('pxTickerTxt').innerHTML=`${won?'You made':'You lost'} <b>$${pxFmt(Math.abs(profit))}</b> on ${row?row.name.replace(' Index',''):'a contract'}`; }
+  pxRenderAll();
+  if(wsConnected) ws.send(JSON.stringify({balance:1,req_id:wsReqId++}));
+  if(s.pl>=PX.cfg.target) pxFinish('target');
+  else if(s.pl<=-PX.cfg.maxLoss || pxComputeStake()<0.35) pxFinish('maxloss');
+  else if(PX.running) pxSetStatus(won?'Win — scanning for the next signal…':`Loss — recovery stake $${pxFmt(pxComputeStake())}, waiting for the analysis…`);
+}
+function pxSell(cid){ if(wsConnected) ws.send(JSON.stringify({sell:cid,price:0,req_id:wsReqId++})); }
+
+/* ---------- start / stop / reset ---------- */
+function pxReadInputs(){
+  const stake=normalizeStake(parseFloat($px('pxStake').value)||1);
+  PX.cfg.stake=stake;
+  PX.cfg.target=Math.max(0.01,parseFloat($px('pxTarget').value)||20);
+  PX.cfg.maxLoss=Math.max(stake,parseFloat($px('pxMaxLoss').value)||10);
+  PX.cfg.market=$px('pxMarket').value||'ALL';
+  $px('pxStake').value=pxFmt(PX.cfg.stake); $px('pxTarget').value=pxFmt(PX.cfg.target); $px('pxMaxLoss').value=pxFmt(PX.cfg.maxLoss);
+  pxSaveCfg();
+}
+function pxStart(){
+  if(PX.running||PX.scanning) return;
+  if(botRunning){ toast('Stop the Trading Hub bot before using Premium Auto.','error'); return; }
+  if(!accessToken||!wsConnected){ toast('🔐 Connect a Deriv PAT first.','error'); connectBtn.click(); return; }
+  pxReadInputs();
+  if(!(Number(balance)>0)){ ws.send(JSON.stringify({balance:1,req_id:wsReqId++})); toast('⏳ Waiting for your account balance…','info'); return; }
+  if(PX.finished) pxReset(true);
+  if(MODE==='REAL' && !window.confirm(`Premium Auto will place REAL-money trades.\nStake $${pxFmt(PX.cfg.stake)} · target $${pxFmt(PX.cfg.target)} · max loss $${pxFmt(PX.cfg.maxLoss)}.\nContinue?`)) return;
+  pxShowScan().then(()=>{
+    if(!wsConnected){ toast('Connection lost during the scan.','error'); return; }
+    PX.running=true; PX.nextAt=0; PX.errStreak=0;
+    $px('pxConfig').classList.remove('open'); $px('pxCollapseBtn').classList.remove('open');
+    pxSetStatus('Scanning market for the next signal…'); pxRenderAll();
+  });
+}
+function pxStop(msg){
+  if(!PX.running) return;
+  PX.running=false; pxSetStatus(msg||'Stopped. Any open contract settles automatically.'); pxRenderAll();
+}
+function pxReset(silent){
+  PX.running=false; PX.sid++; PX.open=null; PX.rows=[]; PX.stats={stake:0,payout:0,runs:0,lost:0,won:0,pl:0};
+  PX.lossStreak=0; PX.recovery=null; PX.finished=false; PX.errStreak=0;
+  const tk=$px('pxTicker'); if(tk) tk.className='px-ticker';
+  if(!silent){ $px('pxConfig').classList.add('open'); $px('pxCollapseBtn').classList.add('open'); pxSetStatus('Ready — set your limits and start.'); }
+  pxRenderAll();
+}
+function pxFinish(kind){
+  PX.running=false; PX.finished=true;
+  const s=PX.stats, win=kind==='target';
+  pxSetStatus(win?'Profit target reached — trading stopped.':'Max loss reached — trading stopped.');
+  $px('pxModalIco').textContent=win?'🎉':'🛡️';
+  $px('pxModalTitle').textContent=win?'Congratulations! 🎉':'Max loss reached';
+  $px('pxModalText').textContent=win?"You've reached your target profit. EMRON Auto has stopped trading to lock in your gains. Great session!":'EMRON Auto has stopped trading to protect your balance.';
+  const net=$px('pxModalNet'); net.textContent=`${s.pl>=0?'+':'-'}${pxMoney(Math.abs(s.pl))} USD`; net.className=s.pl<0?'neg':'';
+  $px('pxModalTrades').textContent=s.runs; $px('pxModalWins').textContent=s.won; $px('pxModalLosses').textContent=s.lost;
+  $px('pxModalOk').textContent=win?'Awesome':'Got it';
+  $px('pxModal').classList.add('on'); pxRenderAll();
+}
+
+/* ---------- scanning overlay ---------- */
+function pxLogLine(matrix){
+  const R=()=>Math.random();
+  if(matrix){ let s=''; const ch='01ABCDEF#%$@&*+=<>'; for(let i=0;i<90;i++) s+=ch[Math.floor(R()*ch.length)]; return s; }
+  const mk=Array.from(engineState.markets.values()), m=mk[Math.floor(R()*mk.length)];
+  const T=[
+    ['INFO','Authenticating API key... [OK]'],['INFO','Fetching market data...'],['INFO',`Streaming ${m.short} · ${m.digits.length} ticks buffered`],
+    ['INFO','Analysing volatility index...'],['INFO','Scoring Even/Odd · Matches · Over/Under...'],['INFO','Scoring Only Ups/Downs · High/Low Tick...'],
+    ['SUCCESS','Data stream established...'],['WARNING','High market volatility detected...'],['INFO','Compiling results...'],
+    ['SECURITY','Encryption enabled...'],['INFO','Data transmission complete...'],['INFO',`Ranking ${mk.length} markets...`]];
+  let s=''; for(let i=0;i<3;i++){ const t=T[Math.floor(R()*T.length)]; s+=`[${t[0]}] ${t[1]}  `; } return s;
+}
+function pxShowScan(){
+  return new Promise(resolve=>{
+    PX.scanning=true; const ov=$px('pxScan'), log=$px('pxScanLog'); ov.classList.add('on');
+    const rows=Math.ceil(window.innerHeight/12.5)+2, t0=Date.now(), lines=[];
+    const push=()=>{ lines.push(pxLogLine(Date.now()-t0<700)); if(lines.length>rows) lines.shift(); log.textContent=lines.join('\n'); };
+    for(let i=0;i<rows;i++) push();
+    PX.logTimer=setInterval(push,75);
+    const ready=()=>pxPool().some(m=>m.digits.length>=60);
+    PX.scanTimer=setInterval(()=>{
+      const el=Date.now()-t0;
+      if((el>=3200&&ready())||el>=20000){
+        clearInterval(PX.scanTimer); clearInterval(PX.logTimer); ov.classList.remove('on'); PX.scanning=false; resolve();
+      }
+    },120);
+  });
+}
+
+/* ---------- rendering ---------- */
+const PX_ARROW={up:'<svg viewBox="0 0 24 24"><path d="M7 17L17 7M9 7h8v8"/></svg>',down:'<svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 9v8H9"/></svg>'};
+function pxSetStatus(t){ if(PX.lastStatus===t) return; PX.lastStatus=t; const el=$px('pxStatus'); if(el) el.textContent=t; }
+function pxRenderHeader(){
+  const b=$px('pxBal'), l=$px('pxAcctLbl'); if(!b) return;
+  b.textContent=(accessToken&&Number(balance)>0)?`${pxMoney(balance)} USD`:'— USD';
+  l.textContent=!accessToken?'Not connected':(MODE==='REAL'?'Real account':'Demo account');
+}
+function pxDate(ts){ const d=new Date(ts),M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${d.getDate()} ${M[d.getMonth()]}, ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; }
+function pxRenderRows(){
+  const el=$px('pxList'); if(!el) return;
+  if(!PX.rows.length){ el.innerHTML='<div class="px-empty">No trades yet.<br>Start auto-trading to scan all markets.</div>'; return; }
+  el.innerHTML=PX.rows.slice(0,60).map(r=>{
+    const open=r.status==='open', cls=r.profit>=0?'p':'n';
+    const sub=open?`${r.label} · Stake ${pxFmt(r.stake)} · Value ${pxFmt(r.value)}`:`${pxDate(r.ts)} · ${r.label} · Stake ${pxFmt(r.stake)}`;
+    return `<div class="px-row"><span class="px-ico ${r.dir}">${PX_ARROW[r.dir]}</span><div class="px-rm"><div class="px-rt">${r.name}</div><div class="px-rs">${sub}</div></div><span class="px-rp ${cls}">${pxSigned(r.profit)}</span>${open?`<button class="px-sell" data-sell="${r.cid}">× Sell</button>`:''}</div>`;
+  }).join('');
+}
+function pxRenderStats(){
+  const s=PX.stats, set=(id,v)=>{const e=$px(id); if(e) e.textContent=v;};
+  set('pxSStake',`${pxFmt(s.stake)} USD`); set('pxSPayout',`${pxFmt(s.payout)} USD`); set('pxSRuns',s.runs);
+  set('pxSLost',s.lost); set('pxSWon',s.won);
+  const t=`${pxSigned(s.pl)} USD`; set('pxSPL',t); set('pxPL',t);
+  ['pxSPL','pxPL'].forEach(id=>{const e=$px(id); if(e) e.style.color=s.pl>0?'var(--px-green)':s.pl<0?'var(--px-red)':'';});
+}
+function pxRenderControls(){
+  const b=$px('pxStopBtn'); if(!b) return;
+  b.className='px-stop'+(PX.running?'':' go'); b.querySelector('span').textContent=PX.running?'Stop':'Start';
+  $px('pxStartBtn').disabled=PX.running||PX.scanning;
+  $px('pxStartBtn').textContent=PX.running?'Auto-trading…':(PX.finished?'▶ Start a new session':'▶ Start auto-trading');
+}
+function pxRenderChips(){
+  const el=$px('pxChips'); if(!el) return;
+  const pool=pxPool(), cnt={}; PX.cfg.families.forEach(f=>cnt[f]=0);
+  pool.forEach(m=>PX.cfg.families.forEach(f=>{ if(pxAnalyze(m,f,null)) cnt[f]++; }));
+  el.innerHTML=`<span>${pool.length} markets analysed</span>`+PX_FAMS.filter(f=>cnt[f[0]]!==undefined).map(f=>`<span class="${cnt[f[0]]?'on':''}">${f[1]} ${cnt[f[0]]}</span>`).join('');
+}
+function pxRenderAll(){ pxRenderHeader(); pxRenderRows(); pxRenderStats(); pxRenderControls(); }
+let pxChipsAt=0;
+function premiumIdleRender(){
+  if(!$px('premium')||!$px('premium').classList.contains('active')) return;
+  const n=Date.now(); if(n-pxChipsAt<700) return; pxChipsAt=n; pxRenderChips();
+}
+function pxApplyTheme(){
+  $px('pxShell').dataset.theme=PX.dark?'dark':'light';
+}
+function pxLoadCfg(){
+  try{
+    const r=JSON.parse(localStorage.getItem(PX_KEY)||'{}');
+    if(r.engine==='strike'||r.engine==='switcher') PX.cfg.engine=r.engine;
+    if(r.market==='ALL'||PULSE_SYMBOLS.some(s=>s.code===r.market)||HUNTER.extraSymbols.some(s=>s.code===r.market)) PX.cfg.market=r.market;
+    ['stake','target','maxLoss'].forEach(k=>{const v=Number(r[k]); if(Number.isFinite(v)&&v>0) PX.cfg[k]=v;});
+    if(Array.isArray(r.families)){ const f=r.families.filter(x=>PX_FAMS.some(p=>p[0]===x)); if(f.length) PX.cfg.families=f; }
+    PX.dark=!!r.dark;
+  }catch(e){}
+}
+function pxSaveCfg(){ try{ localStorage.setItem(PX_KEY,JSON.stringify({engine:PX.cfg.engine,market:PX.cfg.market,stake:PX.cfg.stake,target:PX.cfg.target,maxLoss:PX.cfg.maxLoss,families:PX.cfg.families,dark:PX.dark})); }catch(e){} }
+function pxRenderFams(){
+  const el=$px('pxFams'); el.innerHTML=PX_FAMS.map(f=>`<button class="px-fam${PX.cfg.families.includes(f[0])?' on':''}" data-fam="${f[0]}">${f[1]}</button>`).join('');
+}
+function setupPremiumUI(){
+  pxLoadCfg();
+  const sel=$px('pxMarket');
+  sel.innerHTML='<option value="ALL">All markets (auto)</option>'+PULSE_SYMBOLS.concat(HUNTER.extraSymbols).map(s=>`<option value="${s.code}">${s.name.replace(' Index','')}</option>`).join('');
+  sel.value=PX.cfg.market; $px('pxStake').value=pxFmt(PX.cfg.stake); $px('pxTarget').value=pxFmt(PX.cfg.target); $px('pxMaxLoss').value=pxFmt(PX.cfg.maxLoss);
+  const setEngine=e=>{ PX.cfg.engine=e; document.querySelectorAll('.px-engine').forEach(b=>b.classList.toggle('sel',b.dataset.engine===e)); pxSaveCfg(); };
+  setEngine(PX.cfg.engine); pxRenderFams(); pxApplyTheme();
+  document.querySelectorAll('.px-engine').forEach(b=>b.addEventListener('click',()=>setEngine(b.dataset.engine)));
+  $px('pxFams').addEventListener('click',e=>{
+    const b=e.target.closest('[data-fam]'); if(!b) return; const f=b.dataset.fam, a=PX.cfg.families;
+    if(a.includes(f)){ if(a.length>1) a.splice(a.indexOf(f),1); else toast('Keep at least one strategy on.','info'); } else a.push(f);
+    pxRenderFams(); pxSaveCfg();
+  });
+  ['pxStake','pxTarget','pxMaxLoss','pxMarket'].forEach(id=>$px(id).addEventListener('change',pxReadInputs));
+  $px('pxCollapseBtn').addEventListener('click',()=>{ const o=$px('pxConfig').classList.toggle('open'); $px('pxCollapseBtn').classList.toggle('open',o); });
+  $px('pxThemeBtn').addEventListener('click',()=>{ PX.dark=!PX.dark; pxApplyTheme(); pxSaveCfg(); });
+  $px('pxMenuBtn').addEventListener('click',()=>document.getElementById('hamburger').click());
+  $px('pxTickerX').addEventListener('click',()=>{ $px('pxTicker').className='px-ticker'; });
+  $px('pxStartBtn').addEventListener('click',pxStart);
+  $px('pxStopBtn').addEventListener('click',()=>{ if(PX.running) pxStop(); else pxStart(); });
+  $px('pxResetBtn').addEventListener('click',()=>pxReset(false));
+  $px('pxList').addEventListener('click',e=>{ const b=e.target.closest('[data-sell]'); if(b) pxSell(Number(b.dataset.sell)); });
+  const closeM=()=>$px('pxModal').classList.remove('on');
+  $px('pxModalOk').addEventListener('click',closeM); $px('pxModalX').addEventListener('click',closeM);
+  document.querySelectorAll('.px-bot [data-go]').forEach(b=>b.addEventListener('click',()=>{ const t=document.querySelector(`.tab[data-tab="${b.dataset.go}"]`); if(t) t.click(); }));
+  pxSetStatus('Ready — set your limits and start.'); pxRenderAll(); pxRenderChips();
+}
+
+/* ============================================================
    BOOT
    ============================================================ */
 setupTabs();
 setupModals();
 setupNavMenu();
 setupHunterUI();
+setupPremiumUI();
 loadAdaptiveState();
 getDailyRecord();
 refreshBrainStatus();
@@ -4341,23 +4670,7 @@ updateStatsDisplay();
 updateProfitDisplay();
 updateEngineStatus();
 
-setTimeout(() => {
-  try {
-    const pubWs = new WebSocket(WS_PUBLIC);
-    pubWs.onopen = () => {
-      PULSE_SYMBOLS.concat(HUNTER.extraSymbols).forEach(s => pubWs.send(JSON.stringify({ ticks: s.code, subscribe: 1 })));
-    };
-    pubWs.onmessage = ev => {
-      try {
-        const d = JSON.parse(ev.data);
-        if(d.msg_type === 'tick' && d.tick && d.tick.quote){
-          onPulseTick(d.tick.symbol, parseFloat(d.tick.quote), d.tick.epoch);
-        }
-      } catch(e){}
-    };
-    window.__pulseWs = pubWs;
-  } catch(e){}
-}, 400);
+setTimeout(startPublicFeed, 400);
 
 setTimeout(() => {
   renderMarketStrip();
@@ -4369,392 +4682,6 @@ setTimeout(() => {
 console.log('%c🔷 EMRON AI — Adaptive Survival Brain V2', 'color:#6677ff;font-weight:bold;font-size:14px');
 console.log('Sidebar removed — hamburger dropdown nav is active on all screen sizes.');
 console.log('Adaptive brain: learned entry gating, survival drawdown controls, daily target tracking, and cross-market rotation.');
-
-
-/* ============================================================
-   VIDEO-MATCH AI MODE
-   ============================================================ */
-const VIDEO_ENGINE = {
-  running:false,
-  opening:false,
-  strategy:'AUTO',
-  confidence:70,
-  stake:61,
-  target:5000,
-  stakeMode:'FIXED',
-  marketCodes:new Set(['1HZ10V','1HZ50V','1HZ100V']),
-  lastSignalKey:'',
-  recovery:null,
-  startedAt:0,
-  session:{stake:0,payout:0,runs:0,wins:0,losses:0,pl:0},
-  transactions:[],
-  scanCycles:0,
-  logTimer:null
-};
-
-function videoEl(id){ return document.getElementById(id); }
-function videoMoney(n){ return `$${Number(n||0).toFixed(2)}`; }
-function videoLog(msg, type='info'){
-  const box=videoEl('videoLog'); if(!box) return;
-  const row=document.createElement('div');
-  row.className=type;
-  row.textContent=msg;
-  box.appendChild(row);
-  while(box.children.length>80) box.removeChild(box.firstChild);
-  box.scrollTop=box.scrollHeight;
-}
-function videoSetPhase(phase,title,sub,mode='scanning'){
-  const phaseEl=videoEl('videoPhase'), titleEl=videoEl('videoSignalTitle'), subEl=videoEl('videoSignalSub'), ret=videoEl('videoReticle');
-  if(phaseEl) phaseEl.textContent=phase;
-  if(titleEl){ titleEl.textContent=''; const span=document.createElement('span'); span.textContent=title; titleEl.appendChild(span);
-    if(mode==='scanning' && VIDEO_ENGINE.running){
-      const dots=document.createElement('span'); dots.className='video-dots'; dots.innerHTML='<i></i><i></i><i></i>'; titleEl.appendChild(dots);
-    }
-    titleEl.className='vr-title ' + (mode==='signal'?(title.toUpperCase().includes('FALL')||title.toUpperCase().includes('DOWN')?'down':'up'):'');
-  }
-  if(subEl) subEl.textContent=sub;
-  if(ret) ret.className='video-reticle ' + mode;
-}
-function videoSetState(text){
-  const e=videoEl('videoStateLabel'); if(e) e.textContent=text;
-  const start=videoEl('videoStartBtn'), stop=videoEl('videoStopBtn');
-  if(start) start.disabled=VIDEO_ENGINE.running;
-  if(stop) stop.disabled=!VIDEO_ENGINE.running;
-}
-function videoResetStats(){
-  VIDEO_ENGINE.session={stake:0,payout:0,runs:0,wins:0,losses:0,pl:0};
-  VIDEO_ENGINE.transactions=[];
-  VIDEO_ENGINE.lastSignalKey='';
-  VIDEO_ENGINE.recovery=null;
-  renderVideoStats();
-  renderVideoTransactions();
-}
-function renderVideoStats(){
-  const s=VIDEO_ENGINE.session;
-  const set=(id,txt)=>{const e=videoEl(id);if(e)e.textContent=txt;};
-  set('videoTotalStake',videoMoney(s.stake));
-  set('videoTotalPayout',videoMoney(s.payout));
-  set('videoRuns',String(s.runs));
-  set('videoWins',String(s.wins));
-  set('videoLosses',String(s.losses));
-  set('videoPL',`${s.pl>=0?'+':''}${videoMoney(s.pl)}`);
-  const pl=videoEl('videoPL'); if(pl) pl.className='v '+(s.pl>=0?'profit':'loss');
-}
-function renderVideoTransactions(){
-  const box=videoEl('videoTransactions'); if(!box)return;
-  if(!VIDEO_ENGINE.transactions.length){box.innerHTML='<div class="empty-state">No video-mode contracts yet.</div>';return;}
-  box.innerHTML='';
-  VIDEO_ENGINE.transactions.slice(0,50).forEach(t=>{
-    const row=document.createElement('div'); row.className='video-tx-row';
-    row.innerHTML=`<div>${t.time}</div><div class="market">${t.market}</div><div class="signal ${t.direction==='down'?'down':'up'}">${t.signal}</div><div class="num">${videoMoney(t.stake)}</div><div class="num">${t.pl>=0?'+':''}${videoMoney(t.pl)}</div>`;
-    box.appendChild(row);
-  });
-}
-function videoSelectedMarkets(){
-  const chips=[...document.querySelectorAll('#videoMatchCard .video-market-chip')];
-  const out=chips.filter(x=>x.querySelector('input')?.checked).map(x=>x.querySelector('input').value);
-  return out.length ? out : ['1HZ100V'];
-}
-function videoModeAllowed(candidate){
-  const mode=VIDEO_ENGINE.strategy;
-  const type=candidate?.strat?.type;
-  if(mode==='AUTO') return true;
-  if(mode==='RISEFALL') return type==='RISE'||type==='FALL';
-  if(mode==='MATCHES') return type==='MATCHES';
-  if(mode==='OVERUNDER') return type==='OVER'||type==='UNDER';
-  if(mode==='EVENODD') return type==='EVEN'||type==='ODD';
-  if(mode==='HIGHLOW') return type==='HIGH_TICK'||type==='LOW_TICK';
-  if(mode==='ONLYUPDOWN') return type==='ONLY_UPS'||type==='ONLY_DOWNS';
-  return true;
-}
-function videoRecoveryFor(code,type){
-  const r=VIDEO_ENGINE.recovery;
-  if(!r || r.market!==code || r.family!==type) return null;
-  return r;
-}
-function videoDigitRanking(mkt){
-  const d=(mkt?.digits||[]).slice(-100);
-  if(d.length<25) return null;
-  const counts=new Array(10).fill(0);
-  d.forEach(x=>{ if(Number.isInteger(x) && x>=0 && x<=9) counts[x]++; });
-  const rows=counts.map((count,digit)=>({digit,count,pct:count/d.length}));
-  rows.sort((a,b)=>b.count-a.count || b.pct-a.pct || a.digit-b.digit);
-  return {rows,n:d.length,most:rows[0],second:rows[1]};
-}
-function videoTransientStrategy(type, market, conf, overrides={}){
-  const def=STRATEGY_DEFS[type]; if(!def) return null;
-  const digit=conf?.meta?.predictionDigit!=null ? Number(conf.meta.predictionDigit)
-    : (String(conf?.label||'').match(/\d+/)?.[0] != null ? Number(String(conf.label).match(/\d+/)[0]) : null);
-  const duration=Number.isFinite(Number(overrides.duration)) ? Number(overrides.duration) : def.duration;
-  const prediction=overrides.prediction!=null
-    ? Number(overrides.prediction)
-    : (def.needsDigit ? (Number.isFinite(digit)?digit:def.defaultDigit) : null);
-  const labelOverride=overrides.labelOverride ||
-    (type==='MATCHES' && Number.isFinite(prediction) ? `Matches ${prediction}` :
-     type==='OVER' && Number.isFinite(prediction) ? `Over ${prediction}` :
-     type==='UNDER' && Number.isFinite(prediction) ? `Under ${prediction}` :
-     type==='ONLY_UPS' ? `Only Ups ${duration}T` :
-     type==='ONLY_DOWNS' ? `Only Downs ${duration}T` :
-     type==='HIGH_TICK' && Number.isFinite(prediction) ? `High Tick ${prediction}` :
-     type==='LOW_TICK' && Number.isFinite(prediction) ? `Low Tick ${prediction}` : null);
-  return {
-    type, stake:VIDEO_ENGINE.stake, duration,
-    prediction,
-    wins:0, losses:0, pl:0,
-    labelOverride
-  };
-}
-function videoBuildCandidates(){
-  const rows=[];
-  const modes=VIDEO_ENGINE.strategy;
-  for(const code of VIDEO_ENGINE.marketCodes){
-    const mkt=engineState.markets.get(code); if(!mkt || !mkt.tickCount) continue;
-    const add=(type,conf,detail='',overrides={})=>{
-      if(!conf || !videoModeAllowed({strat:{type}})) return;
-      if(type==='MATCHES' && !conf.meta?.readyToSignal) return;
-      const label=String(conf.label||'');
-      const strat=videoTransientStrategy(type,mkt,conf,overrides); if(!strat) return;
-      rows.push({
-        strat,symbol:code,marketName:mkt.name,marketShort:mkt.short,label:getStrategyLabel(strat),
-        signalLabel:overrides.signalLabel || label,confidence:Number(conf.confidence||confidenceOf(conf)||0),
-        key:`video|${code}|${type}|${strat.prediction??'x'}|${strat.duration}|${mkt.tickCount}`,
-        detail:detail||label, recovery:Boolean(overrides.recovery)
-      });
-    };
-
-    const rf=engineState.activeConfirmations.get(`${code}|risefall`);
-    if(rf) add(rf.label==='FALL'?'FALL':'RISE',rf,'Trend/momentum confirmation');
-
-    const md=engineState.activeConfirmations.get(`${code}|matchdiffer`);
-    if(md && md.meta?.readyToSignal){
-      const ranks=videoDigitRanking(mkt);
-      const rec=videoRecoveryFor(code,'MATCHES');
-      const digit=rec?.prediction!=null ? rec.prediction : ranks?.second?.digit;
-      if(Number.isFinite(digit)) add('MATCHES',md,rec ? 'Recovery: most appearing digit' : 'Entry: second most appearing digit',
-        {prediction:digit,recovery:!!rec,signalLabel:rec?`MATCHES ${digit} · recovery`: `MATCHES ${digit} · 2nd most`});
-    }
-
-    const ou=engineState.activeConfirmations.get(`${code}|onlyupdown`);
-    if(ou){
-      const upType=ou.label==='ONLY DOWNS'?'ONLY_DOWNS':'ONLY_UPS';
-      const rec=videoRecoveryFor(code, 'ONLYUPDOWN');
-      const type=rec?.strategyType || upType;
-      const ticks=rec?.duration || 2;
-      add(type,ou,rec?'Recovery: 3-tick contract':'Entry: 2-tick contract',{duration:ticks,recovery:!!rec});
-    }
-
-    const ou2=engineState.activeConfirmations.get(`${code}|overunder`);
-    if(ou2){
-      const rec=videoRecoveryFor(code,'OVERUNDER');
-      const type=rec?.strategyType || (ou2.label==='OVER'?'OVER':'UNDER');
-      const barrier=rec?.prediction!=null ? rec.prediction : (type==='OVER'?3:6);
-      add(type,ou2,rec?'Recovery: reversed barrier rule':`Entry rule: ${type==='OVER'?'OVER 3':'UNDER 6'}`,
-        {prediction:barrier,recovery:!!rec,signalLabel:rec?`${type} ${barrier} · recovery`:`${type} ${barrier}`});
-    }
-
-    const eo=engineState.activeConfirmations.get(`${code}|evenodd`);
-    if(eo){
-      const type=eo.label==='ODD'?'ODD':'EVEN';
-      add(type,eo,'Even/Odd confirmation');
-    }
-
-    const hl=engineState.activeConfirmations.get(`${code}|highlow`);
-    if(hl){
-      const type=String(hl.label||'').toUpperCase().includes('LOW')?'LOW_TICK':'HIGH_TICK';
-      const selectedTick=hl.meta?.selectedTick!=null ? Number(hl.meta.selectedTick) : 1;
-      add(type,hl,'High/low tick confirmation — position 1–5 · fixed 5 ticks',{duration:5,prediction:selectedTick,signalLabel:`${type==='HIGH_TICK'?'HIGH TICK':'LOW TICK'} ${selectedTick}`});
-    }
-  }
-  // A recovery trade has priority over every new setup. If the required
-  // recovery signal is not confirmed yet, stay in scan mode instead of
-  // jumping to an unrelated strategy.
-  const recoveryRows=rows.filter(r=>r.recovery);
-  const pool=VIDEO_ENGINE.recovery ? recoveryRows : rows;
-  if(VIDEO_ENGINE.recovery && !recoveryRows.length) return [];
-  const ranked=rankAdaptiveCandidates(pool);
-  return ranked.filter(r=>Number(r.adaptiveConfidence||0)>=Number(VIDEO_ENGINE.confidence||70) && Number(r.confidence||0)>=50);
-}
-function videoRiskGate(candidate=null){
-  if(!VIDEO_ENGINE.running) return {allowed:false,reason:'stopped',detail:'Video engine is stopped.'};
-  if(VIDEO_ENGINE.opening) return {allowed:false,reason:'open',detail:'Waiting for the active contract to settle.'};
-  if(!(Number(balance)>0)) return {allowed:false,reason:'balance',detail:'Waiting for a verified account balance.'};
-  if(VIDEO_ENGINE.session.pl>=VIDEO_ENGINE.target) return {allowed:false,reason:'target',detail:'Target profit reached.'};
-  if(candidate && Number(candidate.adaptiveConfidence||candidate.confidence||0)<VIDEO_ENGINE.confidence) return {allowed:false,reason:'confidence',detail:'No signal above the active confidence floor.'};
-  return {allowed:true,reason:'ok',detail:'Video entry gate open.'};
-}
-function videoStakeForCandidate(candidate){
-  if(VIDEO_ENGINE.stakeMode==='ADAPTIVE') return adaptiveStake(candidate.strat,candidate);
-  return normalizeStake(VIDEO_ENGINE.stake);
-}
-function videoStart(){
-  if(VIDEO_ENGINE.running) return;
-  if(!wsConnected){ toast('Connect the Deriv account before starting Video-Match AI.','error'); return; }
-  const markets=videoSelectedMarkets();
-  VIDEO_ENGINE.marketCodes=new Set(markets);
-  VIDEO_ENGINE.strategy=videoEl('videoContractMode')?.value||'AUTO';
-  VIDEO_ENGINE.stake=normalizeStake(Number(videoEl('videoStake')?.value)||61);
-  VIDEO_ENGINE.target=Math.max(1,Number(videoEl('videoTarget')?.value)||5000);
-  VIDEO_ENGINE.confidence=Math.max(50,Math.min(99,Number(videoEl('videoConfidence')?.value)||70));
-  VIDEO_ENGINE.stakeMode=videoEl('videoStakeMode')?.value||'FIXED';
-  VIDEO_ENGINE.running=true; VIDEO_ENGINE.opening=false; VIDEO_ENGINE.startedAt=Date.now(); VIDEO_ENGINE.scanCycles=0;
-  VIDEO_ENGINE.recovery=null;
-  videoResetStats();
-  videoSetState('SCANNING');
-  videoSetPhase('SCANNING THE MARKET','Scanning the market','Collecting live ticks and waiting for a confirmed setup.','scanning');
-  videoEl('videoLastAction').textContent='Starting scanner…';
-  videoLog('[INFO] Connecting to live market stream…','info');
-  videoLog('[SUCCESS] Data stream established.','ok');
-  videoLog('[INFO] Fetching market data…','info');
-  videoLog(`[INFO] Markets selected: ${[...VIDEO_ENGINE.marketCodes].map(c=>engineState.markets.get(c)?.short||c).join(', ')}`,'info');
-  videoLog('[INFO] Analysing Volatility Index…','info');
-  videoLog('[INFO] Predicting next digit / direction…','info');
-  videoLog('[WARNING] Waiting for a confirmed edge before entry.','warn');
-  if(ws && ws.readyState===WebSocket.OPEN){
-    VIDEO_ENGINE.marketCodes.forEach(symbol=>{
-      try{ws.send(JSON.stringify({ticks:symbol,subscribe:1,req_id:wsReqId++}));}catch(e){}
-    });
-  }
-  scheduleVideoHeartbeat();
-}
-function scheduleVideoHeartbeat(){
-  clearInterval(VIDEO_ENGINE.logTimer);
-  if(!VIDEO_ENGINE.running)return;
-  VIDEO_ENGINE.logTimer=setInterval(()=>{
-    if(!VIDEO_ENGINE.running){clearInterval(VIDEO_ENGINE.logTimer);return;}
-    VIDEO_ENGINE.scanCycles++;
-    if(!VIDEO_ENGINE.opening){
-      videoLog(`[INFO] Scan cycle ${VIDEO_ENGINE.scanCycles}… analysing current volatility regime.`,'info');
-    }
-  },2800);
-}
-function videoStop(reason='manual'){
-  if(!VIDEO_ENGINE.running)return;
-  VIDEO_ENGINE.running=false; VIDEO_ENGINE.opening=false;
-  clearInterval(VIDEO_ENGINE.logTimer); VIDEO_ENGINE.logTimer=null;
-  videoSetState('STOPPED');
-  videoSetPhase('STOPPED','Scanner stopped',reason==='target'?'Target reached — gains locked in.':'Video engine stopped by user.','');
-  videoEl('videoLastAction').textContent=reason;
-  videoLog(`[INFO] Trading engine stopped: ${reason}.`,'warn');
-}
-function videoShowComplete(){
-  const s=VIDEO_ENGINE.session;
-  const pl=videoEl('vcPL'),wins=videoEl('vcWins'),losses=videoEl('vcLosses');
-  if(pl)pl.textContent=`${s.pl>=0?'+':''}${videoMoney(s.pl)}`;
-  if(wins)wins.textContent=String(s.wins);
-  if(losses)losses.textContent=String(s.losses);
-  const modal=videoEl('videoComplete'); if(modal) modal.classList.add('open');
-}
-function evaluateVideoOnTick(symbolCode=null){
-  if(!VIDEO_ENGINE.running || VIDEO_ENGINE.opening)return;
-  if(symbolCode && !VIDEO_ENGINE.marketCodes.has(symbolCode))return;
-  const gate=videoRiskGate(); if(!gate.allowed)return;
-  const candidates=videoBuildCandidates();
-  if(!candidates.length){
-    videoSetState('SCANNING');
-    videoSetPhase('SCANNING THE MARKET','Scanning the market','No confirmed setup above the active threshold yet.','scanning');
-    return;
-  }
-  const chosen=candidates[0];
-  if(chosen.key===VIDEO_ENGINE.lastSignalKey)return;
-  VIDEO_ENGINE.lastSignalKey=chosen.key;
-  const stake=videoStakeForCandidate(chosen);
-  const risk=videoRiskGate(chosen); if(!risk.allowed)return;
-  // Reserve the signal before the proposal round-trip so no second tick can fire.
-  // placeStrategyContract explicitly permits this synchronous submit phase.
-  VIDEO_ENGINE.opening=true;
-  videoSetState('SIGNAL');
-  videoSetPhase('CONFIRMED SIGNAL',`${chosen.marketShort} · ${chosen.label}`,`${chosen.signalLabel} · ${Number(chosen.adaptiveConfidence||chosen.confidence).toFixed(1)}% confidence`,'signal');
-  videoEl('videoLastAction').textContent=`Entry → ${chosen.marketShort} ${chosen.label}`;
-  videoLog(`[SUCCESS] Signal confirmed: ${chosen.marketShort} · ${chosen.label} · ${Number(chosen.adaptiveConfidence||chosen.confidence).toFixed(1)}%.`,'ok');
-  videoLog(`[INFO] Sending contract proposal · stake $${stake.toFixed(2)} · ${chosen.strat.type==='HIGH_TICK'||chosen.strat.type==='LOW_TICK' ? 5 : (chosen.strat.duration||1)} ticks.`,'info');
-  const sent=placeStrategyContract(chosen.strat,chosen.symbol,{candidate:chosen,stakeOverride:stake,purpose:'video',bypassGap:true,labelOverride:chosen.label});
-  if(!sent){
-    VIDEO_ENGINE.opening=false;
-    VIDEO_ENGINE.lastSignalKey='';
-    videoSetState('SCANNING');
-    videoSetPhase('SCANNING THE MARKET','Scanning the market','Entry submission failed; waiting for the next verified setup.','scanning');
-    videoLog('[ERROR] Contract request was not sent; returning to scan.','err');
-  }
-}
-function videoOnBuy(rec){
-  videoLog(`[SUCCESS] Contract accepted · ${rec.marketSymbol} · $${Number(rec.stake||0).toFixed(2)}.`,'ok');
-}
-function videoOnSettlement(rec,profit,won,entrySpot,exitSpot){
-  VIDEO_ENGINE.opening=false;
-  const stake=Number(rec.stake||0);
-  const pl=Number(profit||0);
-  const s=VIDEO_ENGINE.session;
-  s.stake+=stake; s.payout+=won?(stake+pl):0; s.runs++; s.pl+=pl;
-  if(won)s.wins++;else s.losses++;
-
-  // Video-derived recovery rules:
-  // ONLY UPS/DOWNS: next trade keeps the detected direction but expands 2T → 3T.
-  // MATCHES: initial = 2nd most appearing digit; after a loss = most appearing digit.
-  // OVER/UNDER: initial = O3/U6; after a loss, reverse to U3/O6.
-  // EVEN/ODD: no special recovery override; continue with live parity analysis.
-  const type=rec.strategyRef?.type;
-  const marketCode=rec.marketSymbol;
-  if(!won){
-    if(type==='ONLY_UPS' || type==='ONLY_DOWNS'){
-      VIDEO_ENGINE.recovery={family:'ONLYUPDOWN',market:marketCode,strategyType:type,duration:3,createdAt:Date.now()};
-      videoLog(`[INFO] Recovery armed → ${type==='ONLY_UPS'?'ONLY UPS':'ONLY DOWNS'} for 3 ticks.`,'warn');
-    }else if(type==='MATCHES'){
-      const mkt=engineState.markets.get(marketCode);
-      const ranks=videoDigitRanking(mkt);
-      if(ranks?.most){
-        VIDEO_ENGINE.recovery={family:'MATCHES',market:marketCode,prediction:ranks.most.digit,createdAt:Date.now()};
-        videoLog(`[INFO] Recovery armed → MATCHES most appearing digit ${ranks.most.digit}.`,'warn');
-      }
-    }else if(type==='OVER' || type==='UNDER'){
-      const recoveryType=type==='OVER'?'UNDER':'OVER';
-      const recoveryBarrier=type==='OVER'?3:6;
-      VIDEO_ENGINE.recovery={family:'OVERUNDER',market:marketCode,strategyType:recoveryType,prediction:recoveryBarrier,createdAt:Date.now()};
-      videoLog(`[INFO] Recovery armed → ${recoveryType} ${recoveryBarrier}.`,'warn');
-    }
-  }else if(VIDEO_ENGINE.recovery && VIDEO_ENGINE.recovery.market===marketCode){
-    VIDEO_ENGINE.recovery=null;
-  }
-
-  const def=STRATEGY_DEFS[type]; const label=rec.label||getStrategyLabel(rec.strategyRef||{type:'VIDEO'});
-  const mkt=engineState.markets.get(rec.marketSymbol);
-  VIDEO_ENGINE.transactions.unshift({time:new Date().toLocaleTimeString(),market:mkt?.short||rec.marketSymbol||'—',
-    signal:label,direction:(label.toUpperCase().includes('FALL')||label.toUpperCase().includes('DOWN')||label.toUpperCase().includes('LOW'))?'down':'up',
-    stake,pl});
-  renderVideoStats(); renderVideoTransactions();
-  videoEl('videoLastAction').textContent=`${won?'WIN':'LOSS'} → ${mkt?.short||rec.marketSymbol} ${label} · ${pl>=0?'+':''}${videoMoney(pl)}`;
-  videoLog(`[${won?'SUCCESS':'WARNING'}] ${won?'WIN':'LOSS'} · ${mkt?.short||rec.marketSymbol} · ${label} · P/L ${pl>=0?'+':''}${videoMoney(pl)}.` ,won?'ok':'warn');
-  if(won && VIDEO_ENGINE.recovery){
-    videoLog('[SUCCESS] Recovery cycle completed — returning to normal rule.','ok');
-  }
-  if(rec.adaptiveContext) updateLearningFromSettlement(rec.adaptiveContext,won,pl);
-  if(s.pl>=VIDEO_ENGINE.target){
-    videoStop('target');
-    videoLog(`[SUCCESS] Target crossed at ${videoMoney(s.pl)} after ${s.runs} runs.`,'ok');
-    videoShowComplete();
-    return;
-  }
-  videoSetState('SCANNING');
-  videoSetPhase('SCANNING THE MARKET','Scanning the market',`Last result: ${won?'WIN':'LOSS'} · waiting for the next confirmed setup.`,'scanning');
-}
-function videoSetupUI(){
-  document.querySelectorAll('#videoMatchCard .video-market-chip').forEach(chip=>{
-    const input=chip.querySelector('input'); if(!input)return;
-    input.addEventListener('change',()=>chip.classList.toggle('on',input.checked));
-  });
-  videoEl('videoStartBtn')?.addEventListener('click',videoStart);
-  videoEl('videoStopBtn')?.addEventListener('click',()=>videoStop('manual'));
-  videoEl('videoCompleteBtn')?.addEventListener('click',()=>videoEl('videoComplete')?.classList.remove('open'));
-  videoEl('videoContractMode')?.addEventListener('change',e=>VIDEO_ENGINE.strategy=e.target.value);
-  videoEl('videoStake')?.addEventListener('change',e=>VIDEO_ENGINE.stake=normalizeStake(Number(e.target.value)||61));
-  videoEl('videoTarget')?.addEventListener('change',e=>VIDEO_ENGINE.target=Math.max(1,Number(e.target.value)||5000));
-  videoEl('videoConfidence')?.addEventListener('change',e=>VIDEO_ENGINE.confidence=Math.max(50,Math.min(99,Number(e.target.value)||70)));
-  videoEl('videoStakeMode')?.addEventListener('change',e=>VIDEO_ENGINE.stakeMode=e.target.value);
-  renderVideoStats(); renderVideoTransactions(); videoSetState('IDLE');
-  videoLog('[INFO] Video-Match AI ready.','info');
-  videoLog('[INFO] Start the engine to begin scanning.','info');
-}
-
-videoSetupUI();
 
 })();
 </script>
