@@ -2665,7 +2665,7 @@ function onProposalReceived(data){
   if(data.error){
     lastAction=`Proposal rejected · ${data.error.message || 'unknown error'}`;
     const rejectedStake=Number(t.stake||0).toFixed(2);
-    toast(`⚠️ Proposal rejected — ${data.error.message || 'unknown error'} (stake sent: $${t.stakeText || rejectedStake})`,'error');
+    toast(`⚠️ Proposal rejected — ${data.error.message || 'unknown error'} (${t.pxCand ? t.pxCand.short+' · '+t.label+' · ' : ''}stake sent: $${t.stakeText || rejectedStake})`,'error');
     if(t.purpose==='premium') premiumOnTradeError(t, data.error.message || 'Proposal rejected');
     if(t.pairId) resolvePairLegFailure(t, data.error.message || 'Pair proposal rejected.');
     setAdaptiveGate(false,'proposal_error',data.error.message || 'Proposal request failed.');
@@ -4311,8 +4311,9 @@ const PX={
   cfg:{engine:'strike',market:'ALL',stake:1,target:20,maxLoss:10,recovery:1.6,families:['evenodd','matches','overunder','onlyupdown','highlow']},
   running:false,scanning:false,finished:false,sid:1,seq:0,open:null,
   rows:[],stats:{stake:0,payout:0,runs:0,lost:0,won:0,pl:0},lossStreak:0,recovery:null,
-  errStreak:0,nextAt:0,dark:false,scanTimer:null,logTimer:null,lastStatus:''
+  errStreak:0,nextAt:0,dark:false,scanTimer:null,logTimer:null,lastStatus:'',bad:new Map()
 };
+const pxKey=c=>`${c.symbol}|${c.contract.type}|${c.contract.barrier??''}|${c.contract.selectedTick??''}|${c.contract.duration}`;
 const $px=id=>document.getElementById(id);
 const pxFmt=n=>Number(n||0).toFixed(2);
 const pxSigned=n=>{n=Number(n||0);return (n>=0?'+':'-')+Math.abs(n).toFixed(2);};
@@ -4400,7 +4401,8 @@ function pxScan(){
   if(rec && PX.cfg.engine==='strike'){ const lm=engineState.markets.get(rec.symbol); if(lm) pool=[lm]; }
   const out=[];
   pool.forEach(m=>fams.forEach(f=>{ const c=pxAnalyze(m,f,rec); if(c){ c.symbol=m.code; c.short=m.short; out.push(c); } }));
-  return out.sort((a,b)=>b.conf-a.conf||b.z-a.z);
+  const now=Date.now();
+  return out.filter(c=>!(PX.bad.get(pxKey(c))>now)).sort((a,b)=>b.conf-a.conf||b.z-a.z);
 }
 
 /* ---------- stake / limits ---------- */
@@ -4433,16 +4435,21 @@ function pxPlace(c){
   if(c.contract.barrier!=null) params.barrier=String(c.contract.barrier);
   if(c.contract.selectedTick!=null) params.selected_tick=c.contract.selectedTick;
   pendingProposalMap.set(reqId,{purpose:'premium',premiumId:id,sid:PX.sid,slotIdx:-1,strategyRef:null,marketSymbol:c.symbol,
-    contractType:c.contract.type,label:c.label,stake:sd.number,stakeText:sd.text,adaptiveContext:null,pairId:null,pairLeg:null,pxCand:c});
+    contractType:c.contract.type,label:c.label,stake:sd.number,stakeText:sd.text,adaptiveContext:null,pairId:null,pairLeg:null,pxCand:c,pxParams:params});
   PX.open={id,cand:c};
   pxSetStatus(`Signal ${c.short} · ${c.label} (${c.conf}%) — ${c.why}`);
   ws.send(JSON.stringify({proposal:1,...params,req_id:reqId}));
 }
 function premiumOnTradeError(t,msg){
   if(t.sid!==PX.sid) return;
-  PX.open=null; PX.errStreak++; PX.nextAt=Date.now()+1500;
-  pxSetStatus(`Order rejected: ${msg}`);
-  if(PX.errStreak>=3) pxStop('Stopped after repeated rejected orders.');
+  PX.open=null; PX.errStreak++; PX.nextAt=Date.now()+300;
+  const c=t.pxCand;
+  if(c){
+    PX.bad.set(pxKey(c),Date.now()+(/no return/i.test(msg)?600000:60000));      // skip this exact contract for a while
+    pxSetStatus(`Skipped ${c.short} · ${c.label} — ${msg}. Trying the next best signal…`);
+    console.warn('EMRON Auto: Deriv rejected',t.pxParams,msg);
+  } else pxSetStatus(`Order rejected: ${msg}`);
+  if(PX.errStreak>=8) pxStop('Stopped: 8 rejected orders in a row. Check the strategy toggles / market.');
 }
 function premiumOnBought(cid,t){
   if(t.sid!==PX.sid) return;
@@ -4506,7 +4513,7 @@ function pxStop(msg){
 }
 function pxReset(silent){
   PX.running=false; PX.sid++; PX.open=null; PX.rows=[]; PX.stats={stake:0,payout:0,runs:0,lost:0,won:0,pl:0};
-  PX.lossStreak=0; PX.recovery=null; PX.finished=false; PX.errStreak=0;
+  PX.lossStreak=0; PX.recovery=null; PX.finished=false; PX.errStreak=0; PX.bad.clear();
   const tk=$px('pxTicker'); if(tk) tk.className='px-ticker';
   if(!silent){ $px('pxConfig').classList.add('open'); $px('pxCollapseBtn').classList.add('open'); pxSetStatus('Ready — set your limits and start.'); }
   pxRenderAll();
