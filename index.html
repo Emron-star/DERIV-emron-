@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
-<title>EMRON AI — Evidence-Gated Volatility Scanner</title>
+<title>EMRON AI — Strategy Row + Pulse Switch-on-Loss Engine</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -19,10 +19,6 @@
   --glass-bg:rgba(20,22,30,.92);--glass-border:rgba(42,47,61,.8);
   --topbar-height:56px;--footer-height:44px;
 }
-.research-note{margin-top:10px;padding:10px 12px;border:1px solid rgba(0,188,212,.35);border-left:3px solid var(--accent-cyan);border-radius:8px;background:rgba(0,188,212,.055);font-size:10px;line-height:1.6;color:var(--text-muted)}
-.research-note strong{display:block;color:var(--accent-cyan);font:700 10px 'JetBrains Mono',monospace;letter-spacing:.06em;margin-bottom:3px}
-.research-note b{color:var(--text-primary)}
-.validation-note{margin:0 0 8px;color:var(--text-dim);font-size:10px;line-height:1.55}
 *{margin:0;padding:0;box-sizing:border-box}
 html{font-size:14px}
 body{background:var(--bg-dark);color:var(--text-primary);font-family:'Inter',system-ui,-apple-system,sans-serif;
@@ -654,6 +650,10 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .px-chips{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;padding:0 0 8px}
 .px-chips span{font-size:9px;padding:3px 7px;border-radius:9px;background:var(--px-row);border:1px solid var(--px-line);color:var(--px-mut)}
 .px-chips span.on{color:var(--px-green);border-color:var(--px-green)}
+
+.px-two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.px-risk{background:var(--px-row);border:1px solid var(--px-line);border-radius:12px;padding:9px 11px;font-size:10.5px;line-height:1.6;color:var(--px-text);margin:2px 0 8px}
+.px-risk span{color:var(--px-mut)}.px-risk b.g{color:var(--px-green)}.px-risk b.r,.px-risk span.r{color:var(--px-red)}
 </style>
 </head>
 <body>
@@ -667,6 +667,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
     <button class="tab" data-tab="pulse" role="tab">📡 EMRON Pulse</button>
     <button class="tab" data-tab="hunter" role="tab">🎯 AI Hunter</button>
     <button class="tab" data-tab="premium" role="tab">⚡ EMRON Auto</button>
+    <button class="tab" data-tab="lab" role="tab">🧪 Edge Lab</button>
     <button class="tab" data-tab="api-playground" role="tab">API Playground</button>
     <button class="tab" data-tab="help" role="tab">Help</button>
   </nav>
@@ -691,9 +692,8 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
     </div>
     <div class="strategy-picker-row" id="strategyPicker"></div>
     <div style="font-size:10px;color:var(--text-dim);margin-top:2px;">
-      Select strategies to monitor. Sequential Recovery, All Selected Together, and Best Signal Score control entry selection—not predicted win probability.
+      Select one or more strategies. Choose Sequential Recovery, All Selected Together, or AI Best Confidence to control how the engine enters trades.
     </div>
-    <div class="research-note" role="note"><strong>EMRON RESEARCH GUARD</strong> Signal scores rank patterns; they are <b>not</b> calibrated win probabilities. Random-looking tick markets often produce convincing patterns by chance. Signal outcomes are tracked prospectively against a baseline; REAL entries are blocked until the exact strategy/market/regime has at least 100 settled DEMO outcomes, positive net DEMO P/L, and a 95% Wilson lower bound that clears the live contract's quoted break-even rate by 2%. A gate pass is not proof of future profitability; no guarantee of profit.</div>
   </div>
 
   <div class="card">
@@ -714,12 +714,19 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
       <div class="form-group">
         <label>Market</label>
         <select class="form-control" id="botMarket">
-          <optgroup label="Volatility Indices · 1 second">
-            <option value="Volatility 10 (1s)">Volatility 10 (1s) Index</option>
-            <option value="Volatility 25 (1s)">Volatility 25 (1s) Index</option>
-            <option value="Volatility 50 (1s)" selected>Volatility 50 (1s) Index</option>
-            <option value="Volatility 75 (1s)">Volatility 75 (1s) Index</option>
-            <option value="Volatility 100 (1s)">Volatility 100 (1s) Index</option>
+          <optgroup label="2-Second">
+            <option value="Volatility 10">Vol 10</option>
+            <option value="Volatility 25">Vol 25</option>
+            <option value="Volatility 50" selected>Vol 50</option>
+            <option value="Volatility 75">Vol 75</option>
+            <option value="Volatility 100">Vol 100</option>
+          </optgroup>
+          <optgroup label="1-Second">
+            <option value="Volatility 10 (1s)">Vol 10 (1s)</option>
+            <option value="Volatility 25 (1s)">Vol 25 (1s)</option>
+            <option value="Volatility 50 (1s)">Vol 50 (1s)</option>
+            <option value="Volatility 75 (1s)">Vol 75 (1s)</option>
+            <option value="Volatility 100 (1s)">Vol 100 (1s)</option>
           </optgroup>
         </select>
       </div>
@@ -743,7 +750,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
         <select class="form-control" id="botExecutionMode">
           <option value="SEQUENTIAL_RECOVERY" selected>Sequential Recovery</option>
           <option value="ALL_SELECTED">All Selected Together</option>
-          <option value="BEST_CONFIDENCE">Best Signal Score</option>
+          <option value="BEST_CONFIDENCE">AI Best Confidence</option>
         </select>
         <div class="execution-mode-help" id="executionModeHelp">One strategy at a time. After a loss, move through the selected strategy list for recovery.</div>
       </div>
@@ -756,8 +763,8 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
         <div class="execution-mode-help">Best Live Signal may move to another selected strategy/market during recovery.</div>
       </div>
       <div class="form-group">
-        <label>Minimum Signal Score</label>
-        <input class="form-control" id="botConfidenceFloor" type="number" min="50" max="99" step="1" value="80">
+        <label>Confidence Floor</label>
+        <input class="form-control" id="botConfidenceFloor" type="number" min="50" max="99" step="1" value="65">
       </div>
     </div>
 
@@ -823,8 +830,8 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
         </select>
       </div>
       <div class="form-group">
-        <label>Barrier Offset (price units)</label>
-        <input class="form-control" id="botPairBarrier" type="number" min="0.01" max="1000" step="0.01" value="1.00">
+        <label>Barrier</label>
+        <input class="form-control" id="botPairBarrier" type="number" min="1" max="8" step="1" value="2">
       </div>
       <div class="form-group">
         <label>No. of Ticks</label>
@@ -840,7 +847,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
       </div>
     </div>
     <div class="hl-pair-note" id="pairModeHelp">
-      Pair mode is off. Select <b>Higher + Lower Together</b> to submit a price-direction <b>CALL</b> with a negative relative barrier and a <b>PUT</b> with a positive relative barrier. The value is a price offset, not a last-digit barrier.
+      Pair mode is off. Select <b>Higher + Lower Together</b> to submit DIGITOVER and DIGITUNDER using the same barrier and tick duration. The existing strategy/signal engine remains the entry trigger.
     </div>
   </div>
 
@@ -862,7 +869,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
       <div class="brain-box"><div class="brain-label">Entry Gate</div><div class="brain-value good" id="brainGate">WATCHING</div></div>
     </div>
     <div class="brain-gate"><span id="brainAction">Collecting evidence before the next entry…</span><strong id="brainState">TRAINING</strong></div>
-    <div class="brain-note">The engine learns from settled outcomes, raises the entry bar after weak results, reduces stake under drawdown, and stands aside when evidence is weak. REAL mode is a manual choice; a positive demo sample does not prove an edge or guarantee future results.</div>
+    <div class="brain-note">The engine learns from settled EMRON trades, raises the entry bar after weak conditions, reduces stake under drawdown, and can rotate across the configured markets/selected strategies when the current setup fails its adaptive gate. REAL mode is never enabled automatically; "LIVE-READY" is a validation state for manual review.</div>
   </div>
 
   <div class="card">
@@ -1035,16 +1042,15 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
       </div>
 
       <div class="card">
-        <div class="card-header"><div class="card-title">📜 Prospective Signal Validation</div></div>
+        <div class="card-header"><div class="card-title">📜 Signal Log</div></div>
         <div class="pulse-summary">
-          <div class="hist-stat"><div class="n" id="histWinRate">—</div><div class="l">Recent hit rate</div></div>
+          <div class="hist-stat"><div class="n" id="histWinRate">—</div><div class="l">Win rate</div></div>
           <div class="hist-stat"><div class="n" id="histResolved">0</div><div class="l">Resolved</div></div>
           <div class="hist-stat"><div class="n" id="histPending">0</div><div class="l">Pending</div></div>
         </div>
         <div class="hunter-chipline" id="histAcc" style="margin:0 0 8px"></div>
-        <div class="validation-note">Per-family results are measured prospectively from live ticks and compared with the relevant null baseline. The 95% Wilson interval is descriptive; this dashboard does not yet apply a full multiple-hypothesis correction or a final untouched holdout. Use it as a research screen, not proof of profitability.</div>
         <table class="hist-table" id="histTable">
-          <thead><tr><th>Market</th><th>Call</th><th>Score</th><th>Result</th></tr></thead>
+          <thead><tr><th>Market</th><th>Call</th><th>Conf.</th><th>Result</th></tr></thead>
           <tbody id="histBody"></tbody>
         </table>
         <div class="empty-state" id="histEmpty" style="padding:8px 0;font-size:11px;">No signals logged yet.</div>
@@ -1118,8 +1124,8 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 
     <div class="hunter-note">
       <strong>Important:</strong> the videos show the interface, thresholds and displayed outcomes, but not the original source/model.
-      EMRON reproduces the observable workflow: rolling digit statistics → threshold test → cross-market ranking → best-signal selection. Displayed frequencies are historical summaries, not next-tick probabilities.
-      “Jumble” remains scanner-only because its exact formula and contract mapping are not visible in the source video.
+      EMRON therefore reproduces the observable decision workflow: rolling digit statistics → threshold test → cross-market ranking → best-signal selection.
+      “Jumble” is marked as an experimental concentration heuristic because its exact formula is not visible in the video.
     </div>
   </div>
 </div>
@@ -1146,6 +1152,9 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
     <label class="px-field"><span>Stake per trade</span><div class="px-input"><input id="pxStake" type="number" inputmode="decimal" min="0.35" step="0.01"><em>USD</em></div></label>
     <label class="px-field"><span>Profit target</span><div class="px-input"><input id="pxTarget" type="number" inputmode="decimal" min="0.01" step="0.01"><em>USD</em></div></label>
     <label class="px-field"><span>Max loss</span><div class="px-input"><input id="pxMaxLoss" type="number" inputmode="decimal" min="0.35" step="0.01"><em>USD</em></div></label>
+    <div class="px-two"><label class="px-field"><span>Recovery steps (x1.6 each)</span><div class="px-input"><input id="pxSteps" type="number" inputmode="numeric" min="0" max="6" step="1"></div></label>
+    <label class="px-field"><span>Value guard</span><select id="pxGuard"><option value="off">Off</option><option value="warn">Warn (show EV)</option><option value="block">Block negative EV</option></select></label></div>
+    <div class="px-risk" id="pxRisk"></div>
     <div class="px-pl"><span>Total P/L</span><b id="pxPL">+0.00 USD</b></div>
     <button class="px-start" id="pxStartBtn">▶ Start auto-trading</button>
   </section>
@@ -1177,6 +1186,23 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
  </div>
 </div>
 
+<div class="tab-content" id="lab">
+  <div class="card">
+    <div class="card-header">
+      <div><div class="card-title">🧪 Edge Lab — does any strategy beat random?</div>
+      <div style="font-size:10px;color:var(--text-dim);margin-top:3px">Walk-forward test of all six strategies on the stored tick history, compared with the same contract entered at random times.</div></div>
+      <button class="btn btn-primary btn-sm" id="labRun">▶ Run test</button>
+    </div>
+    <div class="hunter-status" id="labProg" style="margin:0 0 10px;text-align:left">Not run yet.</div>
+    <div class="table-wrapper"><table>
+      <thead><tr><th>Strategy</th><th>Signals</th><th>Hit</th><th>Expected</th><th>Excess (pp)</th><th>z</th><th>p (adj.)</th><th>Verdict</th></tr></thead>
+      <tbody id="labBody"><tr><td colspan="8" class="empty-state">Run the test to see results.</td></tr></tbody>
+    </table></div>
+    <div class="hunter-note" id="labBias" style="margin-top:12px"></div>
+    <div class="hunter-note" id="labNote"></div>
+    <div class="hunter-note"><strong>How to read this:</strong> Deriv states that its synthetic indices are driven by a cryptographically secure, independently audited random number generator, and no staking pattern (including the x1.6 recovery) can change the expected result of a fair or negative-edge game. A healthy result here is therefore "No measurable edge". If a row ever shows "Edge — verify", treat it as a lead, not a fact: re-run later and confirm it holds on fresh ticks before risking money.</div>
+  </div>
+</div>
 <div class="tab-content" id="api-playground">
   <div class="playground-grid">
     <div class="account-card">
@@ -1256,7 +1282,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
       <h3>🎯 Strategy Selection</h3>
       <div class="faq-item">
         <div class="faq-question">How do I select strategies?<span>+</span></div>
-        <div class="faq-answer">At the top of the Trading Hub you'll find a horizontal row of strategy chips (Even, Odd, Matches, Differs, Over, Under, Rise, Fall, Only Ups, Only Downs, High Tick, Low Tick). Tap a chip to add it to the active list. Tap again to remove it. The order you add them is used by Sequential Recovery. All Selected Together evaluates every selected strategy on the active market, while Best Signal Score ranks selected strategies across the five Volatility Indices (1-second markets).</div>
+        <div class="faq-answer">At the top of the Trading Hub you'll find a horizontal row of strategy chips (Even, Odd, Matches, Differs, Over, Under, Rise, Fall, Only Ups, Only Downs, High Tick, Low Tick). Tap a chip to add it to the active list. Tap again to remove it. The order you add them is used by Sequential Recovery. All Selected Together evaluates every selected strategy on the active market, while AI Best Confidence ranks the selected strategies across the live markets.</div>
       </div>
       <div class="faq-item">
         <div class="faq-question">What does each strategy need?<span>+</span></div>
@@ -1264,7 +1290,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
       </div>
       <div class="faq-item">
         <div class="faq-question">How does switch-on-loss and adaptive survival work?<span>+</span></div>
-        <div class="faq-answer">A loss updates EMRON's learned outcome model. The next entry can switch strategy and market, raises the minimum signal-score threshold when the account is under pressure, reduces stake during drawdown, and refuses to force an entry when no selected strategy/market clears the adaptive gate. The configured emergency stop-loss and account survival floor remain hard limits.</div>
+        <div class="faq-answer">A loss updates EMRON's learned outcome model. The next entry can switch strategy and market, raises the required confidence when the account is under pressure, reduces stake during drawdown, and refuses to force an entry when no selected strategy/market clears the adaptive gate. The configured emergency stop-loss and account survival floor remain hard limits.</div>
       </div>
       <div class="faq-item">
         <div class="faq-question">What are High Tick and Low Tick?<span>+</span></div>
@@ -1286,7 +1312,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
       <h3>🎯 AI Hunter</h3>
       <div class="faq-item">
         <div class="faq-question">What does the Sniper Hunter scan?<span>+</span></div>
-        <div class="faq-answer">Sniper Hunter scans the five Volatility Indices (1-second markets) across four signal families: Rise/Fall (momentum + structure + trend + efficiency ratio), Only Ups / Only Downs (2-tick run-length probability over the last 50 ticks), High/Low Tick (barrier-digit z-test against the fair baseline), and Over/Under (barrier z-test). Each tab re-ranks every market and only shows the strongest edges at or above the active threshold.</div>
+        <div class="faq-answer">Sniper Hunter scans all 15 markets (10 Volatility + 5 Jump) across four signal families: Rise/Fall (momentum + structure + trend + efficiency ratio), Only Ups / Only Downs (2-tick run-length probability over the last 50 ticks), High/Low Tick (barrier-digit z-test against the fair baseline), and Over/Under (barrier z-test). Each tab re-ranks every market and only shows the strongest edges at or above the active threshold.</div>
       </div>
       <div class="faq-item">
         <div class="faq-question">How does the High / Low Tick tab pick a barrier?<span>+</span></div>
@@ -1317,7 +1343,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
       </div>
       <div class="faq-item">
         <div class="faq-question">Does profitable demo trading automatically switch to REAL?<span>+</span></div>
-        <div class="faq-answer">No. EMRON may show a DEMO-CHECKPOINT after enough observations, but this is not a safety certification. REAL remains a manual decision and the proposal-time statistical guard may still reject trades.</div>
+        <div class="faq-answer">No. EMRON can reach a LIVE-READY validation state after sufficient positive training evidence, but the REAL mode remains a manual human decision.</div>
       </div>
     </div>
     <div class="faq-category">
@@ -1333,7 +1359,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 </main>
 
 <footer class="footer">
-  <div>© 2026 EMRON AI — Evidence-Gated 1s Volatility Engine</div>
+  <div>© 2026 EMRON AI — Strategy Row + Pulse Engine · Free & Unlocked</div>
   <div style="font-size:9px;color:var(--text-dim);">All trading involves risk. Demo-trade first.</div>
 </footer>
 </div>
@@ -1345,6 +1371,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
   <div class="nav-item" data-nav-tab="pulse" role="menuitem"><span class="nav-icon">📡</span><span>EMRON Pulse</span></div>
   <div class="nav-item" data-nav-tab="hunter" role="menuitem"><span class="nav-icon">🎯</span><span>AI Hunter</span></div>
   <div class="nav-item" data-nav-tab="premium" role="menuitem"><span class="nav-icon">⚡</span><span>EMRON Auto</span></div>
+  <div class="nav-item" data-nav-tab="lab" role="menuitem"><span class="nav-icon">🧪</span><span>Edge Lab</span></div>
   <div class="nav-item" data-nav-tab="api-playground" role="menuitem"><span class="nav-icon">🧪</span><span>API Playground</span></div>
   <div class="nav-item" data-nav-tab="help" role="menuitem"><span class="nav-icon">❓</span><span>Help Center</span></div>
 </div>
@@ -1437,10 +1464,12 @@ const WS_PUBLIC = "wss://api.derivws.com/trading/v1/options/ws/public";
 const ACCOUNTS_ENDPOINT = "/trading/v1/options/accounts";
 
 const MARKET_SYMBOLS = {
+  'Volatility 10':'R_10','Volatility 25':'R_25','Volatility 50':'R_50','Volatility 75':'R_75','Volatility 100':'R_100',
   'Volatility 10 (1s)':'1HZ10V','Volatility 25 (1s)':'1HZ25V','Volatility 50 (1s)':'1HZ50V',
-  'Volatility 75 (1s)':'1HZ75V','Volatility 100 (1s)':'1HZ100V'
+  'Volatility 75 (1s)':'1HZ75V','Volatility 100 (1s)':'1HZ100V',
+  'Crash 500':'CRASH500N','Boom 500':'BOOM500N','Range Break':'RDBREAK'
 };
-const getSymbol = m => MARKET_SYMBOLS[m] || '1HZ50V';
+const getSymbol = m => MARKET_SYMBOLS[m] || 'R_50';
 
 const STRATEGY_DEFS = {
   EVEN:       { label:'Even',       icon:'🟢', contract:'DIGITEVEN', category:'evenodd',    dir:'EVEN',  duration:1, needsDigit:false },
@@ -1472,13 +1501,14 @@ let authBusy = false;
 let selectedStrategies = [];
 
 let botConfig = {
-  market:'Volatility 50 (1s)',
+  market:'Volatility 50',
   defaultTicks:1,
   defaultStake:normalizeStake(0.35),
   defaultDigit:2,
-  // Paired price contracts: CALL barrier −offset and PUT barrier +offset.
+  // Higher/Lower paired execution uses DIGITOVER + DIGITUNDER with
+  // the same barrier and duration, submitted back-to-back on one signal tick.
   pairMode:false,
-  pairBarrier:1.00,
+  pairBarrier:2,
   pairTicks:1,
   rounds:30,
   lossesToSwitch:1,
@@ -1494,15 +1524,15 @@ let botConfig = {
   maxOpen:3,
   executionMode:'SEQUENTIAL_RECOVERY',
   recoverySelection:'BEST_LIVE',
-  confidenceFloor:80,
+  confidenceFloor:65,
   autoSwitchMarkets:true,
   adaptiveLearning:true,
   survivalMode:true,
   hardAccountFloorPct:10,
   softDrawdownPct:0.60,
-  learningMinSamples:30,
+  learningMinSamples:6,
   learningWindow:40,
-  liveMinTrades:100,
+  liveMinTrades:30,
   liveMinLifeScore:80,
   maxStakePctBalance:0.02,
   lossCooldownMs:1500,
@@ -1531,7 +1561,7 @@ let trades = [];
 
 const adaptiveEngine = {
   version: 3,
-  storeKey: 'emron_ai_learning_v5',
+  storeKey: 'emron_ai_learning_v2',
   models: new Map(),
   pendingContexts: new Map(),
   lastTickBySymbol: new Map(),
@@ -1562,9 +1592,8 @@ const engineState = {
   rfStats: { signals:0, wins:0, losses:0, run:0, runDir:null, last20:[] },
   history: [],
   historySeq: 0,
-  acc: {},
   activeTab: 'risefall',
-  selectedSymbol: '1HZ10V',
+  selectedSymbol: 'R_10',
   windowSize: 100,
   threshold: 1.0,
   highLowWindow: 100,
@@ -1573,6 +1602,11 @@ const engineState = {
 };
 
 const PULSE_SYMBOLS = [
+  { code:"R_10", short:"V10", name:"Volatility 10 Index", decimals:3 },
+  { code:"R_25", short:"V25", name:"Volatility 25 Index", decimals:3 },
+  { code:"R_50", short:"V50", name:"Volatility 50 Index", decimals:4 },
+  { code:"R_75", short:"V75", name:"Volatility 75 Index", decimals:4 },
+  { code:"R_100", short:"V100", name:"Volatility 100 Index", decimals:2 },
   { code:"1HZ10V", short:"V10 (1s)", name:"Volatility 10 (1s) Index", decimals:2 },
   { code:"1HZ25V", short:"V25 (1s)", name:"Volatility 25 (1s) Index", decimals:2 },
   { code:"1HZ50V", short:"V50 (1s)", name:"Volatility 50 (1s) Index", decimals:2 },
@@ -1607,7 +1641,7 @@ const HL = { MIN_TICKS:25 };
 const OU = { MIN_TICKS:25, LOOKBACK:50 };
 const MATCHES = { WINDOW:500, MIN_TICKS:300, MAX_GAP_PCT:0.3, CONFIRM_DISPLAY_TICKS:1 };
 const CONFIRM_PERSIST = 3;
-const MAX_BUFFER = 1000;
+const MAX_BUFFER = 3000;
 
 function averageAbsDelta(q, lb){ const n=Math.min(q.length-1, lb); if(n<2) return 0; let s=0; for(let i=q.length-n;i<q.length;i++) s+=Math.abs(q[i]-q[i-1]); return s/n; }
 function linSlope(q){ const n=q.length; if(n<3) return 0; const mx=(n-1)/2; let my=0; for(let i=0;i<n;i++) my+=q[i]; my/=n; let num=0,den=0; for(let i=0;i<n;i++){num+=(i-mx)*(q[i]-my);den+=(i-mx)*(i-mx);} return den===0?0:num/den; }
@@ -1730,7 +1764,7 @@ function stepMatchesEngine(mkt){
   const key=s.second.digit+'|'+s.first.digit;
   if(st.stage==='ready'&&st.key===key) return null;
   st.stage='ready'; st.key=key;
-  const sig={ category:'matchdiffer', label:`MATCHES ${s.second.digit}`, direction:'up', score:1, absScore:1, strength:1, confidence:55, n:s.n,
+  const sig={ category:'matchdiffer', label:`MATCHES ${s.second.digit}`, direction:'up', score:1, absScore:1, strength:1, confidence:100, n:s.n,
     meta:{ readyToSignal:true, predictionDigit:s.second.digit, recoveryDigit:s.first.digit, dominantDigit:s.first.digit,
       dominantPct:s.first.pct, secondPct:s.second.pct, gap:s.gap, ruleComplete:true } };
   st.lastSignal={tick:mkt.tickCount,...sig.meta}; st.lastSignalTick=mkt.tickCount;
@@ -1741,7 +1775,7 @@ function evaluateMatchesStatus(mkt){
   const justFired=st.lastSignal && (mkt.tickCount-st.lastSignalTick<=MATCHES.CONFIRM_DISPLAY_TICKS);
   if(justFired){
     return { category:'matchdiffer', label:`MATCHES ${st.lastSignal.predictionDigit}`, direction:'up', score:1, absScore:1, strength:1,
-      confidence:55, n:MATCHES.WINDOW, meta:{ readyToSignal:true, signalJustFired:true, ...st.lastSignal, hasData:true } };
+      confidence:100, n:MATCHES.WINDOW, meta:{ readyToSignal:true, signalJustFired:true, ...st.lastSignal, hasData:true } };
   }
   const meta=s?{ readyToSignal:false, stage:st.stage, hasData:true, gap:s.gap, predictionDigit:s.second.digit, recoveryDigit:s.first.digit,
     dominantDigit:s.first.digit, dominantPct:s.first.pct, secondPct:s.second.pct, leaderValid:s.ready }
@@ -1772,7 +1806,7 @@ function resolvePending(mkt){
       hit=seg.lastIndexOf(ex)===i&&i===e.spec.k-1;
     }
     e.status=hit?'hit':'miss'; changed=true;
-    recordSignalOutcome(e,hit);
+    const a=(engineState.acc=engineState.acc||{}); const s=(a[e.category]=a[e.category]||{hit:0,miss:0}); if(hit) s.hit++; else s.miss++;
     if(e.category==='risefall'){
       const rs=engineState.rfStats, r=hit?'W':'L'; if(hit) rs.wins++; else rs.losses++;
       rs.last20.push(r); if(rs.last20.length>20) rs.last20.shift();
@@ -1784,12 +1818,8 @@ function resolvePending(mkt){
 function renderAccuracy(){
   const el=document.getElementById('histAcc'); if(!el) return;
   const a=engineState.acc||{}, names={risefall:'Rise/Fall',evenodd:'Even/Odd',overunder:'Over/Under',matchdiffer:'Matches',highlow:'High/Low',onlyupdown:'Ups/Downs'};
-  const parts=Object.keys(names).filter(k=>a[k]&&Number(a[k].hit||0)+Number(a[k].miss||0)>0).map(k=>{
-    const s=a[k],n=Number(s.hit||0)+Number(s.miss||0),hit=Number(s.hit||0),ci=wilsonBounds(hit,n),base=Number(s.baselineSum||0.5*n)/n;
-    const flag=ci.low>base?' · above baseline (preliminary)':'';
-    return `<span title="95% Wilson interval ${(ci.low*100).toFixed(1)}%–${(ci.high*100).toFixed(1)}%; null baseline ${(base*100).toFixed(1)}%">${names[k]} ${(hit*100/n).toFixed(1)}% · n=${n} · base ${(base*100).toFixed(1)}% · CI ${(ci.low*100).toFixed(0)}–${(ci.high*100).toFixed(0)}%${flag}</span>`;
-  });
-  el.innerHTML=parts.join('')||'<span>Collecting prospectively resolved signals…</span>';
+  const parts=Object.keys(names).filter(k=>a[k]).map(k=>{const s=a[k],n=s.hit+s.miss;return `<span>${names[k]} ${Math.round(s.hit*100/n)}% · ${n}</span>`;});
+  el.innerHTML=parts.join('')||'<span>Resolved-signal accuracy appears here</span>';
 }
 
 /* ---- public tick feed: auto-reconnect + keep-alive + history preload ---- */
@@ -1802,7 +1832,7 @@ function startPublicFeed(){
       PULSE_SYMBOLS.concat(HUNTER.extraSymbols).forEach((s,i)=>{
         w.send(JSON.stringify({ticks:s.code,subscribe:1}));
         if((engineState.markets.get(s.code)||{digits:[]}).digits.length<400)
-          w.send(JSON.stringify({ticks_history:s.code,adjust_start_time:1,count:1000,end:'latest',style:'ticks',req_id:9000+i}));
+          w.send(JSON.stringify({ticks_history:s.code,adjust_start_time:1,count:3000,end:'latest',style:'ticks',req_id:9000+i}));
       });
       clearInterval(PUBFEED.ping);
       PUBFEED.ping=setInterval(()=>{ if(w.readyState===1) w.send(JSON.stringify({ping:1})); },30000);
@@ -1921,7 +1951,7 @@ function evaluateCategory(mkt, cat){
   if(cat==='matchdiffer') return evaluateMatchesStatus(mkt);
   return null;
 }
-function confidenceFromZ(z){ return Math.round(50 + 45*Math.tanh(z/3)); } // ranking score only; not a probability
+function confidenceFromZ(z){ return Math.round(50 + 45*Math.tanh(z/3)); }
 function tierFor(r){
   if(!r) return null;
   if(r.category==='risefall'||r.category==='onlyupdown'){
@@ -1942,41 +1972,17 @@ function tierFor(r){
 }
 function confidenceOf(r){
   if(!r) return 0;
-  if(r.category==='matchdiffer') return r.meta&&r.meta.readyToSignal?55:0;
+  if(r.category==='matchdiffer') return r.meta&&r.meta.readyToSignal?100:0;
   if(r.category==='risefall'||r.category==='onlyupdown') return r.confidence;
   return confidenceFromZ(r.absZ||0);
-}
-function signalBaseline(r){
-  if(r.category==='risefall'||r.category==='evenodd') return 0.5;
-  if(r.category==='overunder') return 0.6;
-  if(r.category==='matchdiffer') return 0.1;
-  if(r.category==='onlyupdown') return Math.pow(0.5,signalHorizon(r));
-  if(r.category==='highlow'){
-    const k=Number(r.meta&&r.meta.selectedTick)||1;
-    return (typeof PXR!=='undefined'&&PXR.hlBase[k-1]!=null)?PXR.hlBase[k-1]:0.2;
-  }
-  return 0.5;
-}
-function persistSignalValidation(){
-  try{localStorage.setItem('emron_signal_validation_v1',JSON.stringify(engineState.acc||{}));}catch(e){console.warn('Signal validation persistence failed',e);}
-}
-function loadSignalValidation(){
-  try{const saved=JSON.parse(localStorage.getItem('emron_signal_validation_v1')||'{}');engineState.acc=saved&&typeof saved==='object'?saved:{};}catch(e){engineState.acc={};}
-}
-function recordSignalOutcome(entry,hit){
-  const a=(engineState.acc=engineState.acc||{});
-  const s=(a[entry.category]=a[entry.category]||{hit:0,miss:0,baselineSum:0});
-  if(hit)s.hit=Number(s.hit||0)+1;else s.miss=Number(s.miss||0)+1;
-  s.baselineSum=Number(s.baselineSum||0)+Number(entry.baseline??0.5);
-  persistSignalValidation();
 }
 function logSignal(r, marketName){
   const entry = { id: ++engineState.historySeq, symbol:r.symbol, marketName, category:r.category,
     label:r.label, direction:r.direction, baseConfidence:confidenceOf(r),
     tickWhenLogged: (engineState.markets.get(r.symbol)||{}).tickCount||0,
-    status:'pending', createdAt:Date.now(), horizon:signalHorizon(r), spec:signalSpec(r), baseline:signalBaseline(r) };
+    status:'pending', createdAt:Date.now(), horizon:signalHorizon(r), spec:signalSpec(r) };
   engineState.history.unshift(entry);
-  if(engineState.history.length > 500) engineState.history.pop();
+  if(engineState.history.length > 40) engineState.history.pop();
   if(r.category==='risefall') engineState.rfStats.signals++;
   renderHistory(); renderRfPerformance();
 }
@@ -2115,13 +2121,10 @@ function learningRegime(mkt){
   return rf?.meta?.regime || 'NEUTRAL';
 }
 function modelKey(stratType, symbol, regime){
-  // Learn from the linked DEMO account only. This remains stable while the
-  // user toggles DEMO/REAL, but never mixes evidence from unrelated accounts.
-  const demoId=accountSessions.demo?.account_id || 'DEMO_UNLINKED';
-  return `EDGE|DEMO:${demoId}|${stratType}|${symbol}|${regime}`;
+  return `${learningAccountKey()}|${stratType}|${symbol}|${regime}`;
 }
 function defaultLearningModel(){
-  return { trials:0, wins:0, losses:0, pl:0, demoTrials:0, demoWins:0, demoPL:0, liveTrials:0, liveWins:0, livePL:0, emaReward:0, emaConfidence:0,
+  return { trials:0, wins:0, losses:0, pl:0, emaReward:0, emaConfidence:0,
     lossStreak:0, winStreak:0, lastOutcome:null, lastUpdated:0, blocked:0 };
 }
 function getLearningModel(stratType, market){
@@ -2132,21 +2135,11 @@ function getLearningModel(stratType, market){
   return { key, regime, model };
 }
 function adjustedWinRate(model){ return (Number(model.wins||0)+2)/(Number(model.trials||0)+4); }
-function wilsonBounds(success, n, z=1.96){
-  n=Math.max(0,Number(n)||0); success=clamp(Number(success)||0,0,n);
-  if(n===0) return {low:0,high:1};
-  const p=success/n, z2=z*z, denom=1+z2/n;
-  const center=(p+z2/(2*n))/denom;
-  const half=z*Math.sqrt((p*(1-p)/n)+(z2/(4*n*n)))/denom;
-  return {low:clamp(center-half,0,1),high:clamp(center+half,0,1)};
-}
 function learningConfidence(model, rawConfidence){
-  // A blended ranking score, not a probability forecast. Keep empirical
-  // performance influence modest; the proposal-time gate uses Wilson bounds.
-  const n=Number(model.trials||0);
-  const p=adjustedWinRate(model);
-  const sampleFactor=botConfig.adaptiveLearning ? clamp(n/Math.max(1,botConfig.learningMinSamples),0,1) : 0;
-  return clamp(Number(rawConfidence||50)*(1-0.15*sampleFactor) + p*100*(0.15*sampleFactor),50,99);
+  const n = Number(model.trials||0);
+  const p = adjustedWinRate(model);
+  const sampleFactor = botConfig.adaptiveLearning ? clamp(n / Math.max(1,botConfig.learningMinSamples), 0, 1) : 0;
+  return clamp(rawConfidence*(1-0.35*sampleFactor) + p*100*(0.35*sampleFactor), 45, 99);
 }
 function candidateModelSnapshot(candidate){
   const lm = getLearningModel(candidate.strat.type, engineState.markets.get(candidate.symbol));
@@ -2188,32 +2181,18 @@ function stakeForApi(value){
   const text=stake.toFixed(2);
   return { number:Number(text), text };
 }
-function totalCommittedStake(){
-  let used=0;
-  [activeContracts,pendingProposalMap,pendingBuyMap].forEach(map=>{
-    if(map && typeof map.forEach==='function') map.forEach(v=>{used+=Math.max(0,Number(v?.stake)||0);});
-  });
-  return used;
-}
-function accountStakeCap(){
-  return Math.max(0,Number(balance||0))*clamp(Number(botConfig.maxStakePctBalance)||0.02,0.001,0.10);
-}
 function adaptiveStake(strat, candidate=null){
-  const minStake=0.35;
-  const base=normalizeStake(Math.max(minStake,Number(strat?.stake||botConfig.defaultStake||minStake)));
+  const base=normalizeStake(Math.max(0.35, Number(strat?.stake||botConfig.defaultStake||0.35)));
   const currentBal=Math.max(0,Number(balance||0));
   if(!currentBal) return base;
-  const cap=currentBal*clamp(Number(botConfig.maxStakePctBalance)||0.02,0.001,0.10);
-  if(cap+1e-9<minStake) return 0;
+  const confidence=Number(candidate?.adaptiveConfidence || candidate?.confidence || 65);
+  const confidenceScale=clamp(0.78 + Math.max(0,confidence-65)/120, 0.78, 1.08);
   const drawdown=adaptiveEngine.session.startBalance>0
     ? clamp((adaptiveEngine.session.startBalance-currentBal)/adaptiveEngine.session.startBalance,0,1) : 0;
-  const drawdownScale=botConfig.survivalMode&&drawdown>0
-    ? clamp(1-(drawdown/Math.max(0.01,botConfig.softDrawdownPct))*0.55,0.35,1) : 1;
-  // Scores rank entries; they never increase money at risk. Round down to cents,
-  // then verify the broker minimum can still fit under the hard balance cap.
-  const riskSized=Math.floor(Math.min(base*drawdownScale,cap)*100+1e-8)/100;
-  if(riskSized+1e-9<minStake || riskSized>cap+1e-9) return 0;
-  return normalizeStake(riskSized);
+  const drawdownScale=botConfig.survivalMode && drawdown>0 ? clamp(1-(drawdown/Math.max(0.01,botConfig.softDrawdownPct))*0.55,0.35,1) : 1;
+  const lifeScale=botConfig.adaptiveLearning && adaptiveEngine.session.lifeScore>=65 ? clamp(1 + (adaptiveEngine.session.lifeScore-65)/500,1,1.07) : 0.92;
+  const cap=Math.max(0.35, currentBal*botConfig.maxStakePctBalance);
+  return normalizeStake(clamp(Math.min(base*confidenceScale*drawdownScale*lifeScale, cap),0.35,Math.max(0.35,cap)));
 }
 function ledgerKey(){ return `${learningAccountKey()}|${dayKey()}`; }
 function loadDailyLedger(){
@@ -2244,19 +2223,23 @@ function loadAdaptiveState(){
     if(Number.isFinite(Number(raw.lifeScore))) adaptiveEngine.session.lifeScore=clamp(Number(raw.lifeScore),0,100);
   }catch(e){ adaptiveEngine.models=new Map(); }
   loadDailyLedger();
-  loadSignalValidation();
 }
 function updateLifeScore(won, profit){
   const delta=(won?1.5:-2.25) + clamp(Number(profit||0)/25,-4,4);
   adaptiveEngine.session.lifeScore=clamp(adaptiveEngine.session.lifeScore+delta,0,100);
 }
 function liveReadiness(){
+  const rec=getDailyRecord();
   const all=[...adaptiveEngine.models.values()].filter(m=>Number(m.trials||0)>0);
   const trials=all.reduce((a,m)=>a+Number(m.trials||0),0);
-  if(adaptiveEngine.session.consecutiveLosses>=botConfig.maxConsecutiveLossesBeforeStandDown) return {state:'SURVIVAL',detail:'loss-streak stand-down is active'};
-  if(trials>=botConfig.liveMinTrades) return {state:'DEMO-CHECKPOINT',detail:`${trials} settled outcomes collected · not a live-trading certification`};
+  const wins=all.reduce((a,m)=>a+Number(m.wins||0),0);
+  const wr=trials ? wins/trials : 0;
+  if(MODE==='DEMO' && trials>=botConfig.liveMinTrades && adaptiveEngine.session.lifeScore>=botConfig.liveMinLifeScore && rec.profit>0){
+    return {state:'LIVE-READY', detail:`${trials} trades · ${Math.round(wr*100)}% learned win rate · positive validation P/L`};
+  }
+  if(adaptiveEngine.session.consecutiveLosses>=botConfig.maxConsecutiveLossesBeforeStandDown) return {state:'SURVIVAL',detail:'loss streak stand-down'};
   if(adaptiveEngine.session.dailyProfit>0) return {state:'ADAPTING',detail:`learning from +$${adaptiveEngine.session.dailyProfit.toFixed(2)} today`};
-  return {state:'TRAINING',detail:`${trials} settled outcomes · keep collecting demo evidence`};
+  return {state:'TRAINING',detail:`${trials} learned outcomes`};
 }
 function refreshBrainStatus(){
   const rec=getDailyRecord();
@@ -2280,27 +2263,24 @@ function refreshBrainStatus(){
   const gateEl=document.getElementById('brainGate');
   if(gateEl){ gateEl.textContent=adaptiveEngine.lastGate?.allowed ? 'READY' : 'BLOCKED'; gateEl.className='brain-value '+(adaptiveEngine.lastGate?.allowed?'good':'warn'); }
   const action=document.getElementById('brainAction'); if(action) action.textContent=adaptiveEngine.lastGate?.detail || 'Collecting evidence before the next entry…';
-  const state=document.getElementById('brainState'); if(state){state.textContent=readiness.state;state.style.color=readiness.state==='SURVIVAL'?'var(--accent-yellow)':readiness.state==='DEMO-CHECKPOINT'?'var(--accent-green)':'var(--accent-cyan)';}
+  const state=document.getElementById('brainState'); if(state){state.textContent=readiness.state;state.style.color=readiness.state==='SURVIVAL'?'var(--accent-yellow)':readiness.state==='LIVE-READY'?'var(--accent-green)':'var(--accent-cyan)';}
 }
 function setAdaptiveGate(allowed,reason,detail){
   adaptiveEngine.lastGate={allowed,reason,detail};
   if(!allowed) adaptiveEngine.session.blockedEntries++;
   refreshBrainStatus();
 }
-function accountRiskGate(candidate=null, requireRunning=true, useCooldown=true){
+function accountRiskGate(candidate=null){
   const rec=getDailyRecord();
   const now=Date.now();
-  if(requireRunning&&!botRunning) return {allowed:false,reason:'stopped',detail:'Bot is stopped.'};
-  if(useCooldown&&now<adaptiveEngine.session.cooldownUntil) return {allowed:false,reason:'cooldown',detail:'Short learning cooldown after the last settlement.'};
+  if(!botRunning) return {allowed:false,reason:'stopped',detail:'Bot is stopped.'};
+  if(now<adaptiveEngine.session.cooldownUntil) return {allowed:false,reason:'cooldown',detail:'Short learning cooldown after the last settlement.'};
   const start=Number(adaptiveEngine.session.startBalance||rec.startBalance||0);
   const bal=Number(balance||0);
   const floor=start>0?start*(botConfig.hardAccountFloorPct/100):0;
   if(bal<=0 || (floor>0 && bal<=floor)) return {allowed:false,reason:'account_floor',detail:`Account survival floor reached at $${Math.max(0,bal).toFixed(2)}.`};
-  const configuredCap=bal*clamp(Number(botConfig.maxStakePctBalance)||0.02,0.001,0.10);
-  if(configuredCap<0.35) return {allowed:false,reason:'stake_cap',detail:`Stake blocked: 2% account-risk cap is $${configuredCap.toFixed(2)}, below Deriv's $0.35 minimum stake.`};
   if(rec.floorBreached) return {allowed:false,reason:'breached',detail:'This account/day is locked after a survival-floor breach.'};
   if(rec.profit>=botConfig.dailyTarget) return {allowed:false,reason:'daily_target',detail:`Daily target reached: +$${rec.profit.toFixed(2)}.`};
-  if(rec.profit<=-Math.max(0.01,Number(botConfig.stopLoss||20))) return {allowed:false,reason:'daily_loss',detail:`Account-wide daily loss limit reached at $${rec.profit.toFixed(2)}; no more entries today.`};
   const hard=Math.max(0.01,Number(botConfig.stopLoss||20));
   if(sessionPL<=-hard) return {allowed:false,reason:'stop_loss',detail:`Hard session stop reached at -$${hard.toFixed(2)}.`};
   if(sessionPL <= -(hard-0.35)) return {allowed:false,reason:'stop_buffer',detail:`Entry blocked: the remaining loss buffer is too small for the minimum stake.`};
@@ -2309,7 +2289,7 @@ function accountRiskGate(candidate=null, requireRunning=true, useCooldown=true){
     const riskPct=Math.abs(Math.min(0,sessionPL))/hard;
     const emergencyFloor=botConfig.confidenceFloor + (botConfig.survivalMode && riskPct>0.5?8:0) + (botConfig.survivalMode && dd>=botConfig.softDrawdownPct?8:0) + (botConfig.survivalMode && adaptiveEngine.session.consecutiveLosses>=2?6:0);
     if(candidate.adaptiveConfidence < emergencyFloor){
-      return {allowed:false,reason:'adaptive_floor',detail:`Entry rejected: ${candidate.adaptiveConfidence.toFixed(1)} signal score is below the ${emergencyFloor} floor.`};
+      return {allowed:false,reason:'adaptive_floor',detail:`Entry rejected: ${candidate.adaptiveConfidence.toFixed(1)}% adaptive score is below the ${emergencyFloor}% survival floor.`};
     }
     if(candidate.badModel) return {allowed:false,reason:'learned_bad',detail:'Recent learned outcomes for this strategy/market/regime are below the entry threshold.'};
   }
@@ -2327,29 +2307,17 @@ function updateLearningFromSettlement(context, won, profit){
   const doLearn=botConfig.adaptiveLearning!==false;
   if(context && doLearn){
     const m=adaptiveEngine.models.get(context.modelKey) || defaultLearningModel();
-    // The adaptive model and REAL-entry gate are trained only on DEMO outcomes.
-    // REAL outcomes are tracked separately so they cannot leak into training evidence.
-    if(context.tradeMode==='DEMO'){
-      m.trials=Number(m.trials||0)+1;
-      if(won){m.wins=Number(m.wins||0)+1;m.winStreak=Number(m.winStreak||0)+1;m.lossStreak=0;}
-      else {m.losses=Number(m.losses||0)+1;m.lossStreak=Number(m.lossStreak||0)+1;m.winStreak=0;}
-      m.pl=Number(m.pl||0)+Number(profit||0);
-      m.demoTrials=Number(m.demoTrials||0)+1;
-      if(won)m.demoWins=Number(m.demoWins||0)+1;
-      m.demoPL=Number(m.demoPL||0)+Number(profit||0);
-      const reward=context.stake>0 ? clamp(Number(profit||0)/context.stake,-1,1) : (won?1:-1);
-      const alpha=0.20;
-      m.emaReward=Number(m.emaReward||0)*(1-alpha)+reward*alpha;
-      m.emaConfidence=Number(m.emaConfidence||0)*(1-alpha)+Number(context.confidence||0)*alpha;
-      m.lastOutcome=won?'WIN':'LOSS';m.lastUpdated=Date.now();
-      adaptiveEngine.session.learningUpdates++;
-    } else if(context.tradeMode==='REAL'){
-      m.liveTrials=Number(m.liveTrials||0)+1;
-      if(won)m.liveWins=Number(m.liveWins||0)+1;
-      m.livePL=Number(m.livePL||0)+Number(profit||0);
-      m.lastLiveOutcome=won?'WIN':'LOSS';m.lastLiveUpdated=Date.now();
-    }
+    m.trials=Number(m.trials||0)+1;
+    if(won){m.wins=Number(m.wins||0)+1;m.winStreak=Number(m.winStreak||0)+1;m.lossStreak=0;}
+    else {m.losses=Number(m.losses||0)+1;m.lossStreak=Number(m.lossStreak||0)+1;m.winStreak=0;}
+    m.pl=Number(m.pl||0)+Number(profit||0);
+    const reward=context.stake>0 ? clamp(Number(profit||0)/context.stake,-1,1) : (won?1:-1);
+    const alpha=0.20;
+    m.emaReward=Number(m.emaReward||0)*(1-alpha)+reward*alpha;
+    m.emaConfidence=Number(m.emaConfidence||0)*(1-alpha)+Number(context.confidence||0)*alpha;
+    m.lastOutcome=won?'WIN':'LOSS';m.lastUpdated=Date.now();
     adaptiveEngine.models.set(context.modelKey,m);
+    adaptiveEngine.session.learningUpdates++;
   }
   const rec=getDailyRecord();
   rec.profit=Number(rec.profit||0)+Number(profit||0);
@@ -2379,7 +2347,7 @@ function checkAccountSurvival(){
    ============================================================ */
 function executionModeLabel(){
   if(botConfig.executionMode==='ALL_SELECTED') return 'ALL SELECTED';
-  if(botConfig.executionMode==='BEST_CONFIDENCE') return 'BEST SIGNAL SCORE';
+  if(botConfig.executionMode==='BEST_CONFIDENCE') return 'AI BEST CONFIDENCE';
   return 'SEQUENTIAL RECOVERY';
 }
 function executionModeTag(){
@@ -2401,7 +2369,7 @@ function updatePairModeUI(){
   const stake=document.getElementById('botPairStakeReadout');
   const on=botConfig.pairMode===true;
   if(select) select.value=on?'HIGHER_LOWER':'OFF';
-  if(barrier) barrier.value=Number(botConfig.pairBarrier).toFixed(2);
+  if(barrier) barrier.value=botConfig.pairBarrier;
   if(ticks) ticks.value=botConfig.pairTicks;
   if(tp) tp.value=Number(botConfig.takeProfit||1000).toFixed(2);
   if(stake) stake.textContent=`$${Number(botConfig.defaultStake||0.35).toFixed(2)} each`;
@@ -2409,8 +2377,8 @@ function updatePairModeUI(){
   if(panel) panel.classList.toggle('pair-on',on);
   if(help){
     help.innerHTML=on
-      ? `<b>PAIR ON:</b> one qualified signal sends <b>Higher (CALL, barrier −${Number(botConfig.pairBarrier).toFixed(2)})</b> and <b>Lower (PUT, barrier +${Number(botConfig.pairBarrier).toFixed(2)})</b> on the same market for <b>${botConfig.pairTicks} tick${botConfig.pairTicks>1?'s':''}</b>. Stake is <b>$${Number(botConfig.defaultStake||0.35).toFixed(2)} per leg</b>; total initial stake is <b>$${(Number(botConfig.defaultStake||0.35)*2).toFixed(2)}</b>.`
-      : 'Pair mode is off. Higher uses CALL with a negative relative price barrier; Lower uses PUT with a positive relative price barrier. This is a price-contract pair, not digit Over/Under.';
+      ? `<b>PAIR ON:</b> one qualified signal submits <b>Higher</b> (DIGITOVER) and <b>Lower</b> (DIGITUNDER) back-to-back with barrier <b>${botConfig.pairBarrier}</b> for <b>${botConfig.pairTicks}</b> tick${botConfig.pairTicks>1?'s':''}. Stake is <b>$${Number(botConfig.defaultStake||0.35).toFixed(2)} per leg</b>.`
+      : 'Pair mode is off. Select <b>Higher + Lower Together</b> to submit DIGITOVER and DIGITUNDER using the same barrier and tick duration. The existing strategy/signal engine remains the entry trigger.';
   }
 }
 function updateExecutionModeUI(){
@@ -2519,8 +2487,8 @@ function evaluateBotOnTick(){
     if(!candidateIsFresh(chosen))return;
     if(placeStrategyContract(chosen.strat,chosen.symbol,{candidate:chosen,stakeOverride:adaptiveStake(chosen.strat,chosen)})){
       markCandidateFired(chosen);
-      lastAction=`Adaptive → ${chosen.marketShort} · ${chosen.label} · score ${chosen.adaptiveConfidence.toFixed(1)}`;
-      setAdaptiveGate(true,'ok',`Entry accepted on ${chosen.marketShort}; historical raw win rate ${Math.round(chosen.learnedWinRate*100)}% over ${chosen.model.trials} settled outcomes (not a forecast).`);
+      lastAction=`Adaptive → ${chosen.marketShort} · ${chosen.label} · ${chosen.adaptiveConfidence.toFixed(1)}%`;
+      setAdaptiveGate(true,'ok',`Entry accepted on ${chosen.marketShort}; learned win rate ${Math.round(chosen.learnedWinRate*100)}% over ${chosen.model.trials} samples.`);
       updateEngineStatus();
     }
     return;
@@ -2560,8 +2528,8 @@ function evaluateBotOnTick(){
   const stake=adaptiveStake(chosen.strat,chosen);
   if(placeStrategyContract(chosen.strat,chosen.symbol,{candidate:chosen,stakeOverride:stake})){ 
     markCandidateFired(chosen);
-    lastAction=`${recoveryActive?'Adaptive recovery':'Adaptive entry'} → ${chosen.marketShort} · ${getStrategyLabel(chosen.strat)} · score ${chosen.adaptiveConfidence.toFixed(1)}`;
-    setAdaptiveGate(true,'ok',`Trade accepted: ${chosen.marketShort} ${chosen.signalLabel} · ${Math.round(chosen.learnedWinRate*100)}% raw learned win rate (${chosen.model.trials} samples; not guaranteed).`);
+    lastAction=`${recoveryActive?'Adaptive recovery':'Adaptive entry'} → ${chosen.marketShort} · ${getStrategyLabel(chosen.strat)} · ${chosen.adaptiveConfidence.toFixed(1)}%`;
+    setAdaptiveGate(true,'ok',`Trade accepted: ${chosen.marketShort} ${chosen.signalLabel} · ${Math.round(chosen.learnedWinRate*100)}% learned win rate (${chosen.model.trials} samples).`);
     updateEngineStatus();
   }
 }
@@ -2620,10 +2588,8 @@ function placeStrategyContract(strat, marketOverride=null, options={}){
   const candidate = options.candidate || null;
   const purpose = options.purpose || 'bot';
   const contractLabel = options.labelOverride || getStrategyLabel(strat);
-  const contractType = options.contractTypeOverride || def.contract;
-  const learningType = options.learningTypeOverride || strat.type;
-  if(purpose==='bot'||purpose==='hunter'){
-    const gate=purpose==='bot'?accountRiskGate(candidate,true,true):accountRiskGate(null,false,false);
+  if(purpose==='bot'){
+    const gate=accountRiskGate(candidate);
     if(!gate.allowed){setAdaptiveGate(false,gate.reason,gate.detail);return false;}
   }
   if(!wsConnected){
@@ -2634,21 +2600,14 @@ function placeStrategyContract(strat, marketOverride=null, options={}){
     setAdaptiveGate(false,'gap','Entry pacing gate is active after the previous request.');
     return false;
   }
-  const rawStake=Number(options.stakeOverride ?? adaptiveStake(strat,candidate));
-  const maxRiskStake=accountStakeCap();
-  const availableRisk=maxRiskStake-totalCommittedStake();
-  if(!Number.isFinite(rawStake)||rawStake<0.35||rawStake>availableRisk+1e-9){
-    setAdaptiveGate(false,'stake_cap',`Entry blocked: $${Number.isFinite(rawStake)?rawStake.toFixed(2):'—'} requested with only $${Math.max(0,availableRisk).toFixed(2)} of the shared account exposure budget remaining.`);
-    return false;
-  }
-  const stakeData = stakeForApi(rawStake);
+  const stakeData = stakeForApi(options.stakeOverride ?? adaptiveStake(strat,candidate));
   const stake = stakeData.number;
   const stakeText = stakeData.text;
-  const isTickCt = contractType==='TICKHIGH' || contractType==='TICKLOW';
-  const duration = isTickCt ? 5 : Math.max(1,Math.min(10,Math.round(Number(options.durationOverride ?? strat.duration ?? def.duration)||1)));
+  const isTickCt = def.contract==='TICKHIGH' || def.contract==='TICKLOW';
+  const duration = isTickCt ? 5 : (strat.duration || def.duration);
   const params = {
-    amount: stake, basis:'stake', contract_type: contractType,
-    currency:(accountInfo&&accountInfo.currency)||'USD', duration, duration_unit:'t', underlying_symbol: marketSymbol,
+    amount: stake, basis:'stake', contract_type: def.contract,
+    currency:'USD', duration, duration_unit:'t', underlying_symbol: marketSymbol,
     subscribe:1
   };
   const roundTrip = Number(Number(params.amount).toFixed(2));
@@ -2659,9 +2618,7 @@ function placeStrategyContract(strat, marketOverride=null, options={}){
   }
   let digitArg = strat.prediction;
   if(strat.type==='MATCHES' && candidate && candidate.meta && candidate.meta.predictionDigit!=null) digitArg = candidate.meta.predictionDigit;
-  if(options.barrierOverride!==undefined && options.barrierOverride!==null){
-    params.barrier=String(options.barrierOverride);
-  } else if(isTickCt){
+  if(isTickCt){
     const st = candidate && candidate.meta && candidate.meta.selectedTick ? candidate.meta.selectedTick : digitArg;
     params.selected_tick = Math.max(1, Math.min(5, Math.round(Number(st)||1)));
   } else if(def.needsDigit && digitArg != null) params.barrier = String(digitArg);
@@ -2673,18 +2630,16 @@ function placeStrategyContract(strat, marketOverride=null, options={}){
   updateEngineStatus();
   const id = wsReqId++;
   const slotIdx = selectedStrategies.indexOf(strat);
-  const lm = getLearningModel(learningType, market || {code:marketSymbol});
+  const lm = getLearningModel(strat.type, market || {code:marketSymbol});
   const context={
     accountKey:learningAccountKey(), modelKey:lm.key, regime:lm.regime,
-    strategyType:learningType, marketSymbol, marketName:market?.name||marketSymbol,
-    signalLabel:candidate?.signalLabel || strat.hunterSignal || contractLabel,
-    confidence:Number(candidate?.adaptiveConfidence || candidate?.confidence || strat.hunterPct*100 || botConfig.confidenceFloor),
-    rawConfidence:Number(candidate?.confidence||strat.hunterPct*100||0), stake, stakeText, tradeMode:MODE, createdAt:Date.now(), purpose,
-    pairId:options.pairId || null, pairLeg:options.pairLeg || null,
-    pairBarrier:options.pairId ? Number(options.barrierOffset) : null, pairTicks:options.pairId ? Number(duration) : null
+    strategyType:strat.type, marketSymbol, marketName:market?.name||marketSymbol,
+    signalLabel:candidate?.signalLabel || contractLabel, confidence:Number(candidate?.adaptiveConfidence || candidate?.confidence || botConfig.confidenceFloor),
+    rawConfidence:Number(candidate?.confidence||0), stake, stakeText, createdAt:Date.now(), purpose,
+    pairId:options.pairId || null, pairLeg:options.pairLeg || null, pairBarrier:options.pairId ? Number(strat.prediction) : null, pairTicks:options.pairId ? Number(duration) : null
   };
-  const payload={purpose,slotIdx,strategyRef:strat,marketSymbol,contractType,label:contractLabel,stake,stakeText,adaptiveContext:context,
-    candidate,pairId:options.pairId || null,pairLeg:options.pairLeg || null,cancelled:false};
+  const payload={purpose,slotIdx,strategyRef:strat,marketSymbol,contractType:def.contract,label:contractLabel,stake,stakeText,adaptiveContext:context,
+    pairId:options.pairId || null,pairLeg:options.pairLeg || null};
   pendingProposalMap.set(id,payload);
   adaptiveEngine.pendingContexts.set(id,context);
   ws.send(JSON.stringify({ proposal:1, ...params, req_id:id }));
@@ -2728,38 +2683,11 @@ function finalizeHigherLowerPair(batch){
     updateStatsDisplay();updateProfitDisplay();updateEngineStatus();refreshBrainStatus();
   }
 }
-function proposalEvidenceGate(t, proposal){
-  const ctx=t&&t.adaptiveContext;
-  const tradeMode=ctx?.tradeMode || t?.tradeMode || MODE;
-  if(tradeMode!=='REAL') return {allowed:true,reason:'demo',detail:'Demo exploration — recording outcomes for prospective validation.'};
-  const model=ctx&&adaptiveEngine.models.get(ctx.modelKey);
-  const n=Number(model?.demoTrials||0), wins=Number(model?.demoWins||0), demoPL=Number(model?.demoPL||0);
-  const ask=Number(proposal?.ask_price), payout=Number(proposal?.payout);
-  if(!ctx||!model) return {allowed:false,reason:'no_model',detail:'REAL entry blocked: no validated learning context exists for this strategy/market/regime.'};
-  if(!Number.isFinite(ask)||!Number.isFinite(payout)||ask<=0||payout<=ask)
-    return {allowed:false,reason:'invalid_quote',detail:'REAL entry blocked: Deriv proposal did not provide a valid stake/payout quote.'};
-  const minN=Math.max(100,Number(botConfig.liveMinTrades)||100);
-  if(n<minN) return {allowed:false,reason:'insufficient_evidence',detail:`REAL entry blocked: ${n}/${minN} settled DEMO outcomes for ${ctx.strategyType} on this market/regime; continue demo validation.`};
-  if(demoPL<=0) return {allowed:false,reason:'demo_not_profitable',detail:`REAL entry blocked: the last ${n} matching DEMO outcomes have non-positive net P/L ($${demoPL.toFixed(2)}).`};
-  const be=ask/payout, lower=wilsonBounds(wins,n).low, required=be+0.02;
-  if(lower<=required) return {allowed:false,reason:'no_verified_edge',detail:`REAL entry blocked: 95% Wilson lower bound ${(lower*100).toFixed(1)}% does not clear quoted break-even ${(be*100).toFixed(1)}% plus 2% safety margin.`};
-  return {allowed:true,reason:'validated',detail:`Evidence gate passed: ${n} outcomes; Wilson lower bound ${(lower*100).toFixed(1)}% vs ${(be*100).toFixed(1)}% quote break-even.`};
-}
-function forgetProposal(t){
-  if(t?.proposalSub && ws && ws.readyState===1){try{ws.send(JSON.stringify({forget:t.proposalSub,req_id:wsReqId++}));}catch(e){}}
-}
 function onProposalReceived(data){
   const t = pendingProposalMap.get(data.req_id);
   if(!t) return;
   pendingProposalMap.delete(data.req_id);
   adaptiveEngine.pendingContexts.delete(data.req_id);
-  t.proposalSub = data.subscription ? data.subscription.id : null;
-  const engineStopped=(t.purpose==='bot'&&!botRunning)||(t.purpose==='premium'&&!PX.running)||(t.cancelled===true);
-  if(engineStopped){
-    forgetProposal(t);
-    if(t.pairId) resolvePairLegFailure(t,'Engine stopped before proposal returned; contract not bought.');
-    lastAction='Entry cancelled before buy because its engine stopped.';updateEngineStatus();return;
-  }
   if(data.error){
     lastAction=`Proposal rejected · ${data.error.message || 'unknown error'}`;
     const rejectedStake=Number(t.stake||0).toFixed(2);
@@ -2770,48 +2698,21 @@ function onProposalReceived(data){
     updateEngineStatus();
     return;
   }
-  if(!data.proposal){
-    forgetProposal(t);
-    if(t.pairId) resolvePairLegFailure(t,'Deriv returned no proposal object.');
-    setAdaptiveGate(false,'empty_proposal','Entry blocked: Deriv returned an empty proposal.');updateEngineStatus();return;
-  }
-  if(t.purpose==='bot'||t.purpose==='hunter'||t.purpose==='premium'){
-    const ctx=t.adaptiveContext;
-    if(ctx && (ctx.tradeMode!==MODE || ctx.accountKey!==learningAccountKey())){
-      forgetProposal(t);
-      const detail='Entry cancelled: active Deriv account changed while the proposal was pending. Reconnect and request a fresh signal.';
-      if(t.purpose==='premium') premiumOnTradeError(t,detail);
-      if(t.pairId) resolvePairLegFailure(t,detail);
-      setAdaptiveGate(false,'account_changed',detail);updateEngineStatus();return;
-    }
-    const safety=accountRiskGate(null,t.purpose==='bot',false);
-    const cap=accountStakeCap(), projected=totalCommittedStake()+Math.max(0,Number(t.stake)||0);
-    if(!safety.allowed||projected>cap+1e-9){
-      const reason=!safety.allowed?safety:{allowed:false,reason:'stake_cap',detail:`Entry blocked: projected committed stake $${projected.toFixed(2)} exceeds the $${cap.toFixed(2)} account-wide exposure cap.`};
-      forgetProposal(t);
-      if(t.purpose==='premium') premiumOnTradeError(t,reason.detail);
-      if(t.pairId) resolvePairLegFailure(t,reason.detail);
-      if(t.purpose==='hunter'){const hs=document.getElementById('hunterExecStatus');if(hs){hs.className='hunter-exec-status warn';hs.textContent=reason.detail;}}
-      lastAction=reason.detail;setAdaptiveGate(false,reason.reason,reason.detail);updateEngineStatus();return;
-    }
-    const evidence=proposalEvidenceGate(t,data.proposal);
-    if(!evidence.allowed){
-      forgetProposal(t);
-      if(t.purpose==='premium') premiumOnTradeError(t,evidence.detail);
-      if(t.pairId) resolvePairLegFailure(t,evidence.detail);
-      lastAction=evidence.detail;setAdaptiveGate(false,evidence.reason,evidence.detail);updateEngineStatus();return;
-    }
-    if(MODE==='REAL') setAdaptiveGate(true,'edge_validated',evidence.detail);
+  if(!data.proposal) return;
+  t.proposalSub = data.subscription ? data.subscription.id : null;
+  if(t.purpose==='premium' && !premiumGuard(t, data.proposal)){
+    if(t.proposalSub && ws && ws.readyState===1){ try{ ws.send(JSON.stringify({forget:t.proposalSub,req_id:wsReqId++})); }catch(e){} }
+    return;
   }
   const buyId = wsReqId++;
   pendingBuyMap.set(buyId, t);
-  ws.send(JSON.stringify({ buy: data.proposal.id, price: Number(data.proposal.ask_price), req_id: buyId }));
+  ws.send(JSON.stringify({ buy: data.proposal.id, price: Number(data.proposal.ask_price) || t.stake, req_id: buyId }));
 }
 function onBuyReceived(data){
   const t = pendingBuyMap.get(data.req_id);
   if(!t) return;
   pendingBuyMap.delete(data.req_id);
-  forgetProposal(t);
+  if(t.proposalSub && ws && ws.readyState===1){ try{ ws.send(JSON.stringify({forget:t.proposalSub,req_id:wsReqId++})); }catch(e){} }
   if(data.error){
     lastAction=`Buy rejected · ${data.error.message || 'unknown error'}`;
     toast(`⚠️ Buy rejected — ${data.error.message || 'unknown error'}`,'error');
@@ -2987,15 +2888,9 @@ function selectPairTriggerCandidate(){
 function placeHigherLowerPair(candidate){
   const marketSymbol=candidate.symbol || getSymbol(botConfig.market);
   const market=engineState.markets.get(marketSymbol);
-  const offset=Math.max(0.01,Math.min(1000,Number(botConfig.pairBarrier)||1));
+  const barrier=Math.max(1,Math.min(8,Math.round(Number(botConfig.pairBarrier)||2)));
   const ticks=Math.max(1,Math.min(10,Math.round(Number(botConfig.pairTicks)||1)));
-  const proposedStake=Number(botConfig.defaultStake)||0.35;
-  const stake=normalizeStake(proposedStake);
-  const totalRiskCap=Math.max(0,Number(balance||0))*clamp(Number(botConfig.maxStakePctBalance)||0.02,0.001,0.10);
-  if(totalCommittedStake()+stake*2>totalRiskCap+1e-9){
-    setAdaptiveGate(false,'pair_stake_cap',`Pair blocked: existing exposure plus two legs exceeds the $${totalRiskCap.toFixed(2)} account-wide risk cap.`);
-    return false;
-  }
+  const stake=normalizeStake(Number(botConfig.defaultStake)||0.35);
   const tick=market?.tickCount||0;
   const signalKey=`${candidate.symbol}|${candidate.key||candidate.label}|${tick}`;
   if(signalKey===lastPairSignalKey) return false;
@@ -3012,23 +2907,23 @@ function placeHigherLowerPair(candidate){
 
   const pairId=`HLPAIR-${Date.now()}-${++pairSeq}`;
   const batch={pairId,expected:0,resolved:0,settled:0,bought:0,failed:0,errors:[],results:[],totalProfit:0,
-    triggerStrategy:candidate.strat,marketSymbol,marketShort:market?.short||marketSymbol,barrier:offset,ticks,stake,createdAt:Date.now(),finalized:false};
+    triggerStrategy:candidate.strat,marketSymbol,marketShort:market?.short||marketSymbol,barrier,ticks,stake,createdAt:Date.now(),finalized:false};
   pairBatches.set(pairId,batch);
 
-  const higher={type:'RISE',stake,duration:ticks,prediction:null,wins:0,losses:0,pl:0,pair:true,labelOverride:`Higher −${offset.toFixed(2)}`};
-  const lower={type:'FALL',stake,duration:ticks,prediction:null,wins:0,losses:0,pl:0,pair:true,labelOverride:`Lower +${offset.toFixed(2)}`};
-  const sentHigher=placeStrategyContract(higher,marketSymbol,{purpose:'bot',candidate,stakeOverride:stake,bypassGap:true,pairId,pairLeg:'HIGHER',contractTypeOverride:'CALL',barrierOverride:`-${offset}`,durationOverride:ticks,learningTypeOverride:'HL_PAIR_HIGHER',barrierOffset:offset,labelOverride:`Higher −${offset.toFixed(2)}`});
+  const higher={type:'OVER',stake,duration:ticks,prediction:barrier,wins:0,losses:0,pl:0,pair:true,labelOverride:`Higher > ${barrier}`};
+  const lower={type:'UNDER',stake,duration:ticks,prediction:barrier,wins:0,losses:0,pl:0,pair:true,labelOverride:`Lower < ${barrier}`};
+  const sentHigher=placeStrategyContract(higher,marketSymbol,{purpose:'bot',candidate,stakeOverride:stake,bypassGap:true,pairId,pairLeg:'HIGHER',labelOverride:`Higher > ${barrier}`});
   if(sentHigher) batch.expected++;
-  const sentLower=placeStrategyContract(lower,marketSymbol,{purpose:'bot',candidate,stakeOverride:stake,bypassGap:true,pairId,pairLeg:'LOWER',contractTypeOverride:'PUT',barrierOverride:`+${offset}`,durationOverride:ticks,learningTypeOverride:'HL_PAIR_LOWER',barrierOffset:offset,labelOverride:`Lower +${offset.toFixed(2)}`});
+  const sentLower=placeStrategyContract(lower,marketSymbol,{purpose:'bot',candidate,stakeOverride:stake,bypassGap:true,pairId,pairLeg:'LOWER',labelOverride:`Lower < ${barrier}`});
   if(sentLower) batch.expected++;
   if(batch.expected===0){pairBatches.delete(pairId);return false;}
   lastPairSignalKey=signalKey;
   adaptiveEngine.session.currentMarket=market?.short||marketSymbol;
-  adaptiveEngine.session.currentStrategy=`Higher + Lower · ±${offset.toFixed(2)}`;
-  lastAction=`⚡ Price pair submitted → Higher −${offset.toFixed(2)} + Lower +${offset.toFixed(2)} · ${ticks} tick${ticks>1?'s':''}`;
-  setAdaptiveGate(true,'pair_submitted',`CALL and PUT relative price barriers submitted on ${market?.short||marketSymbol}; total stake $${(stake*2).toFixed(2)}.`);
+  adaptiveEngine.session.currentStrategy=`Higher + Lower @ ${barrier}`;
+  lastAction=`⚡ Pair submitted → Higher > ${barrier} + Lower < ${barrier} · ${ticks} tick${ticks>1?'s':''}`;
+  setAdaptiveGate(true,'pair_submitted',`Higher and Lower pair submitted back-to-back on ${market?.short||marketSymbol}; $${stake.toFixed(2)} per leg.`);
   updateEngineStatus();
-  toast(`⚡ Higher + Lower price pair submitted · ±${offset.toFixed(2)} · ${ticks} tick${ticks>1?'s':''}`,'success');
+  toast(`⚡ Higher + Lower submitted · barrier ${barrier} · ${ticks} tick${ticks>1?'s':''}`,'success');
   return true;
 }
 function evaluateHigherLowerPairOnTick(){
@@ -3052,7 +2947,7 @@ function evaluateHigherLowerPairOnTick(){
   if(!candidateIsFresh(chosen)) return false;
   if(placeHigherLowerPair(chosen)){
     markCandidateFired(chosen);
-    lastAction=`Paired execution → ${chosen.marketShort} · ${chosen.signalLabel} · score ${chosen.adaptiveConfidence.toFixed(1)}`;
+    lastAction=`Paired execution → ${chosen.marketShort} · ${chosen.signalLabel} · ${chosen.adaptiveConfidence.toFixed(1)}%`;
     updateEngineStatus();
     return true;
   }
@@ -3061,7 +2956,6 @@ function evaluateHigherLowerPairOnTick(){
 
 function startBot(){
   if(botRunning) return;
-  if(botOpenCount()>0 || pairBatches.size>0){toast('Resolve all open/pending EMRON contracts before starting a new session. Existing contract tracking has been preserved.','error');return;}
   if(PX.running){ toast('Stop EMRON Auto before running the Trading Hub bot.','error'); return; }
   if(!accessToken || !wsConnected){
     toast('🔐 Connect a valid Deriv PAT before running the bot.', 'error');
@@ -3094,7 +2988,7 @@ function startBot(){
   roundsRemaining = botConfig.rounds;
   sessionStake = 0; sessionPayout = 0; sessionWins = 0; sessionLosses = 0; sessionPL = 0;
   selectedStrategies.forEach(s => { s.wins = 0; s.losses = 0; s.pl = 0; });
-  // Never clear activeContracts here: unsettled contracts must remain tracked.
+  activeContracts.clear();
   botFiredSignalKeys.clear();
   currentStrategyIndex = 0;
   lossAccumulator = 0;
@@ -3129,7 +3023,6 @@ function startBot(){
 function stopBot(reason){
   if(!botRunning) return;
   botRunning = false;
-  pendingProposalMap.forEach(t=>{if(t&&t.purpose==='bot') t.cancelled=true;});
   statusBadge.className = 'status-badge inactive';
   statusText.textContent = 'INACTIVE';
   activateBtn.disabled = false;
@@ -3273,7 +3166,7 @@ function renderConfirmBanner(){
   if(active.length === 0){ banner.style.display = 'none'; return; }
   const latest = active[active.length - 1];
   const dirClass = latest.direction === 'up' ? 'up' : 'down';
-  detail.innerHTML = `<span class="cf-label ${dirClass}">${latest.direction==='up'?'▲':'▼'} ${latest.label}</span> on <b>${latest.marketName}</b> · ${latest.confidence} score`;
+  detail.innerHTML = `<span class="cf-label ${dirClass}">${latest.direction==='up'?'▲':'▼'} ${latest.label}</span> on <b>${latest.marketName}</b> · ${latest.confidence}%`;
   banner.style.display = 'flex';
 }
 function renderPulsePanel(){
@@ -3301,7 +3194,7 @@ function renderPulsePanel(){
     eyebrow.classList.add('acquired');
     label.className = 'ret-label ' + confirmed.direction;
     label.textContent = (confirmed.direction === 'up' ? '↑ ' : '↓ ') + confirmed.label;
-    retSub.textContent = `${confirmed.confidence} signal score`;
+    retSub.textContent = `${confirmed.confidence}% confidence`;
     return;
   }
   reticle.classList.remove('confirmed');
@@ -3347,7 +3240,7 @@ function renderPulsePanel(){
   eyebrow.classList.toggle('acquired', !!tier);
   label.className = 'ret-label ' + r.direction + (tier ? '' : ' soft');
   label.textContent = (r.direction === 'up' ? '↑ ' : '↓ ') + r.label;
-  retSub.textContent = tier ? `${confidenceOf(r)} score · ${tier}` : 'No confirmed edge.';
+  retSub.textContent = tier ? `${confidenceOf(r)}% · ${tier}` : 'No confirmed edge.';
 
   const condList = document.getElementById('condList');
   if(r.meta){
@@ -3369,7 +3262,7 @@ function renderHistory(){
     const mkt = engineState.markets.get(e.symbol);
     const short = mkt ? mkt.short : e.symbol;
     const pill = e.status === 'hit' ? 'hit' : e.status === 'miss' ? 'miss' : 'pending';
-    return `<tr><td>${short}</td><td>${e.label}</td><td>${e.baseConfidence}</td><td><span class="pill ${pill}">${e.status}</span></td></tr>`;
+    return `<tr><td>${short}</td><td>${e.label}</td><td>${e.baseConfidence}%</td><td><span class="pill ${pill}">${e.status}</span></td></tr>`;
   }).join('');
   const resolved = engineState.history.filter(e => e.status !== 'pending');
   const hits = resolved.filter(e => e.status === 'hit').length;
@@ -3424,7 +3317,7 @@ function renderAIScan(){
     market.textContent = top.marketName;
     label.className = 'ret-label ' + top.direction;
     label.textContent = (top.direction==='up'?'↑ ':'↓ ') + top.label;
-    sub.textContent = `${confidenceOf(top)} score · ${top.category} · ${top.n} ticks`;
+    sub.textContent = `${confidenceOf(top)}% · ${top.category} · ${top.n} ticks`;
   }
 
   const list = document.getElementById('runnerList');
@@ -3435,7 +3328,7 @@ function renderAIScan(){
     return `<div class="runner${i===0?' best':''}">
       <span class="r-sym">${short}</span>
       <span class="r-label ${dirCls}">${r.label}</span>
-      <span class="r-conf">score ${confidenceOf(r)} · ${r.category}</span>
+      <span class="r-conf">${confidenceOf(r)}% · ${r.category}</span>
       ${i===0 ? '<span class="r-star">★</span>' : ''}
     </div>`;
   }).join('');
@@ -3870,8 +3763,8 @@ document.getElementById('botPairMode').addEventListener('change', e => {
   toast(botConfig.pairMode ? '↕️ Higher + Lower paired execution ON' : '↕️ Single contract execution restored','info');
 });
 document.getElementById('botPairBarrier').addEventListener('change', e => {
-  botConfig.pairBarrier = Math.max(0.01, Math.min(1000, Number(e.target.value)||1));
-  e.target.value = botConfig.pairBarrier.toFixed(2);
+  botConfig.pairBarrier = Math.max(1, Math.min(8, parseInt(e.target.value,10)||2));
+  e.target.value = botConfig.pairBarrier;
   updateExecutionModeUI();
 });
 document.getElementById('botPairTicks').addEventListener('change', e => {
@@ -3910,7 +3803,7 @@ document.getElementById('botRecoverySelection').addEventListener('change', e => 
   updateExecutionModeUI();
 });
 document.getElementById('botConfidenceFloor').addEventListener('change', e => {
-  botConfig.confidenceFloor = Math.max(50, Math.min(99, parseInt(e.target.value,10)||80));
+  botConfig.confidenceFloor = Math.max(50, Math.min(99, parseInt(e.target.value,10)||65));
   updateExecutionModeUI();
 });
 document.getElementById('botTP').addEventListener('change', e => {
@@ -4029,11 +3922,6 @@ document.getElementById('topModeToggleBtn').addEventListener('click', () => {
   document.getElementById('modeConfirmModal').classList.add('active');
 });
 document.getElementById('modeConfirmBtn').addEventListener('click', () => {
-  if(botRunning || PX.running || pendingProposalMap.size || pendingBuyMap.size || activeContracts.size){
-    document.getElementById('modeConfirmModal').classList.remove('active');
-    toast('Account switch blocked: stop both engines and wait for pending requests and open contracts to settle first.','error');
-    return;
-  }
   MODE = MODE === 'DEMO' ? 'REAL' : 'DEMO';
   document.getElementById('topModeLabel').textContent = MODE;
   document.getElementById('modeLabel').textContent = MODE;
@@ -4130,7 +4018,13 @@ const HUNTER = {
   tab: 'evenodd',
   best: null,
   lastRender: 0,
-  extraSymbols: []
+  extraSymbols: [
+    { code:"JD10", short:"JD10", name:"Jump 10 Index", decimals:2 },
+    { code:"JD25", short:"JD25", name:"Jump 25 Index", decimals:2 },
+    { code:"JD50", short:"JD50", name:"Jump 50 Index", decimals:2 },
+    { code:"JD75", short:"JD75", name:"Jump 75 Index", decimals:2 },
+    { code:"JD100", short:"JD100", name:"Jump 100 Index", decimals:2 }
+  ]
 };
 HUNTER.extraSymbols.forEach(s => {
   if(!engineState.markets.has(s.code)){
@@ -4318,7 +4212,7 @@ function hunterExecuteAll(){
     return;
   }
 
-  const submitted=[]; let skipped=0;
+  const submitted=[];
   rows.forEach(r=>{
     const c=hunterContractFor(r);
     if(!c) return;
@@ -4326,17 +4220,17 @@ function hunterExecuteAll(){
       type:c.type, stake:botConfig.defaultStake, duration:c.duration||1, prediction:c.prediction,
       wins:0, losses:0, pl:0, hunter:true, hunterMarket:r.market.short, hunterSignal:r.label, hunterPct:r.pct
     };
-    if(placeStrategyContract(strat, r.market.code, {purpose:'hunter', bypassGap:true})) submitted.push(`${r.market.short} ${r.label}`);
-    else skipped++;
+    placeStrategyContract(strat, r.market.code, {purpose:'hunter', bypassGap:true});
+    submitted.push(`${r.market.short} ${r.label}`);
   });
 
-  lastAction=`${hunterModeLabel()} → ${submitted.length} proposal request(s) submitted; ${skipped} skipped by safety/preflight`;
+  lastAction=`${hunterModeLabel()} → ${submitted.length} markets submitted together`;
   updateEngineStatus();
   if(status){
-    status.className='hunter-exec-status '+(submitted.length?'live':'warn');
-    status.textContent=`Submitted ${submitted.length} proposal request(s)${skipped?`; skipped ${skipped} due to risk/execution gates`:''}${submitted.length?`: ${submitted.join(' · ')}`:'. No new trade requests were sent.'}`;
+    status.className='hunter-exec-status live';
+    status.textContent=`⚡ Submitted ${submitted.length} market signals together: ${submitted.join(' · ')}`;
   }
-  toast(`⚡ ${submitted.length} ${hunterModeLabel()} proposal request(s) sent · ${skipped} skipped`, submitted.length?'success':'error');
+  toast(`⚡ ${submitted.length} ${hunterModeLabel()} signals submitted together`, 'success');
 }
 function hunterExecute(r){
   const c=hunterContractFor(r);
@@ -4444,7 +4338,7 @@ const PX_OU={
 const PX_OU_FLIP={OVER3:'UNDER3',UNDER3:'OVER3',UNDER6:'OVER6',OVER6:'UNDER6'};
 const PX_KEY='emron_px_cfg_v2';
 const PX={
-  cfg:{engine:'strike',market:'ALL',stake:1,target:20,maxLoss:10,recovery:1.6,families:['risefall','evenodd','matches','overunder','onlyupdown','highlow']},
+  cfg:{engine:'strike',market:'ALL',stake:1,target:20,maxLoss:10,recovery:1.6,steps:4,guard:'warn',families:['risefall','evenodd','matches','overunder','onlyupdown','highlow']},
   running:false,scanning:false,finished:false,sid:1,seq:0,open:null,
   rows:[],stats:{stake:0,payout:0,runs:0,lost:0,won:0,pl:0},lossStreak:0,recovery:null,
   errStreak:0,nextAt:0,dark:false,scanTimer:null,logTimer:null,lastStatus:'',bad:new Map()
@@ -4553,14 +4447,11 @@ function pxScan(){
 
 /* ---------- stake / limits ---------- */
 function pxComputeStake(){
-  if(!(Number(balance)>0)) return 0;
-  const cap=Math.floor(Math.max(0,accountStakeCap()-totalCommittedStake())*100+1e-8)/100;
-  if(cap<0.35) return 0;
   let s=normalizeStake(PX.cfg.stake);
-  for(let i=0;i<Math.min(PX.lossStreak,4);i++) s=normalizeStake(s*PX.cfg.recovery);
+  for(let i=0;i<Math.min(PX.lossStreak,PX.cfg.steps);i++) s=normalizeStake(s*PX.cfg.recovery);   // x1.6 after each loss, win resets
   const left=PX.cfg.maxLoss+PX.stats.pl;
-  s=Math.min(s,cap,Math.floor(left*100+1e-8)/100);
-  return s>=0.35?Math.floor(s*100+1e-8)/100:0;
+  if(s>left) s=Math.floor(left*100)/100;
+  return s;
 }
 
 /* ---------- trading loop ---------- */
@@ -4575,32 +4466,16 @@ function premiumOnTick(){
   }
   pxPlace(list[0]);
 }
-function pxStrategyType(c){
-  if(c.family==='risefall') return c.contract.type==='CALL'?'RISE':'FALL';
-  if(c.family==='evenodd') return c.contract.type==='DIGITEVEN'?'EVEN':'ODD';
-  if(c.family==='matches') return 'MATCHES';
-  if(c.family==='overunder') return c.contract.type==='DIGITOVER'?'OVER':'UNDER';
-  if(c.family==='onlyupdown') return c.contract.type==='RUNHIGH'?'ONLY_UPS':'ONLY_DOWNS';
-  if(c.family==='highlow') return c.contract.type==='TICKHIGH'?'HIGH_TICK':'LOW_TICK';
-  return String(c.family||'PREMIUM');
-}
 function pxPlace(c){
-  const safety=accountRiskGate(null,false,false);
-  if(!safety.allowed){pxStop(`Risk guard: ${safety.detail}`);return;}
   const stake=pxComputeStake();
-  if(stake<0.35){ pxStop('Risk guard: remaining shared exposure budget is below the $0.35 minimum stake.'); return; }
-  const riskCap=Math.max(0,accountStakeCap()-totalCommittedStake());
-  if(stake>riskCap+1e-9){pxSetStatus(`Entry blocked: $${pxFmt(stake)} stake exceeds the remaining shared risk cap of $${pxFmt(riskCap)}.`);return;}
+  if(stake<0.35){ pxFinish('maxloss'); return; }
   const sd=stakeForApi(stake), id=++PX.seq, reqId=wsReqId++;
   const params={amount:sd.number,basis:'stake',contract_type:c.contract.type,currency:(accountInfo&&accountInfo.currency)||'USD',
     duration:c.contract.duration,duration_unit:'t',underlying_symbol:c.symbol,subscribe:1};
   if(c.contract.barrier!=null) params.barrier=String(c.contract.barrier);
   if(c.contract.selectedTick!=null) params.selected_tick=c.contract.selectedTick;
-  const mkt=engineState.markets.get(c.symbol), type=pxStrategyType(c), lm=getLearningModel(type,mkt||{code:c.symbol});
-  const adaptiveContext={accountKey:learningAccountKey(),modelKey:lm.key,regime:lm.regime,strategyType:type,marketSymbol:c.symbol,
-    marketName:mkt?.name||c.symbol,signalLabel:c.label,confidence:Number(c.conf||50),rawConfidence:Number(c.conf||50),stake:sd.number,stakeText:sd.text,tradeMode:MODE,createdAt:Date.now(),purpose:'premium'};
   pendingProposalMap.set(reqId,{purpose:'premium',premiumId:id,sid:PX.sid,slotIdx:-1,strategyRef:null,marketSymbol:c.symbol,
-    contractType:c.contract.type,label:c.label,stake:sd.number,stakeText:sd.text,adaptiveContext,pairId:null,pairLeg:null,pxCand:c,pxParams:params,cancelled:false});
+    contractType:c.contract.type,label:c.label,stake:sd.number,stakeText:sd.text,adaptiveContext:null,pairId:null,pairLeg:null,pxCand:c,pxParams:params});
   PX.open={id,cand:c};
   pxSetStatus(`Signal ${c.short} · ${c.label} (${c.conf}%) — ${c.why}`);
   ws.send(JSON.stringify({proposal:1,...params,req_id:reqId}));
@@ -4620,7 +4495,7 @@ function premiumOnBought(cid,t){
   if(t.sid!==PX.sid) return;
   PX.errStreak=0;
   const m=engineState.markets.get(t.marketSymbol), c=t.pxCand;
-  PX.rows.unshift({id:t.premiumId,cid,name:m?m.name:t.marketSymbol,label:t.label,ts:Date.now(),stake:t.stake,value:t.stake,profit:0,status:'open',
+  PX.rows.unshift({id:t.premiumId,cid,name:m?m.name:t.marketSymbol,label:t.label,ts:Date.now(),stake:t.stake,value:t.stake,profit:0,status:'open',ev:t.ev,
     dir:(t.contractType==='RUNHIGH'||t.contractType==='TICKHIGH'||t.contractType==='DIGITOVER'||t.contractType==='CALL')?'up':'down'});
   if(PX.rows.length>120) PX.rows.length=120;
   pxRenderRows();
@@ -4632,7 +4507,6 @@ function premiumOnContractUpdate(c,rec){
   activeContracts.delete(c.contract_id);
   const profit=Number(c.profit)||0, won=profit>0, payout=Math.max(0,rec.stake+profit), cand=rec.pxCand;
   if(row){ row.status=won?'won':'lost'; row.profit=profit; row.value=payout; }
-  if(rec.adaptiveContext) updateLearningFromSettlement(rec.adaptiveContext,won,profit);
   const s=PX.stats; s.stake+=rec.stake; s.payout+=payout; s.runs++; s.pl+=profit; if(won) s.won++; else s.lost++;
   PX.open=null;
   if(won){ PX.lossStreak=0; PX.recovery=null; }
@@ -4656,7 +4530,9 @@ function pxReadInputs(){
   PX.cfg.maxLoss=Math.max(stake,parseFloat($px('pxMaxLoss').value)||10);
   PX.cfg.market=$px('pxMarket').value||'ALL';
   $px('pxStake').value=pxFmt(PX.cfg.stake); $px('pxTarget').value=pxFmt(PX.cfg.target); $px('pxMaxLoss').value=pxFmt(PX.cfg.maxLoss);
-  pxSaveCfg();
+  PX.cfg.steps=Math.max(0,Math.min(6,parseInt($px('pxSteps').value,10)||0)); $px('pxSteps').value=PX.cfg.steps;
+  PX.cfg.guard=$px('pxGuard').value||'warn';
+  pxSaveCfg(); pxRenderRisk();
 }
 function pxStart(){
   if(PX.running||PX.scanning) return;
@@ -4675,9 +4551,7 @@ function pxStart(){
 }
 function pxStop(msg){
   if(!PX.running) return;
-  PX.running=false;
-  pendingProposalMap.forEach(t=>{if(t&&t.purpose==='premium')t.cancelled=true;});
-  pxSetStatus(msg||'Stopped. Any open contract settles automatically.'); pxRenderAll();
+  PX.running=false; pxSetStatus(msg||'Stopped. Any open contract settles automatically.'); pxRenderAll();
 }
 function pxReset(silent){
   PX.running=false; PX.sid++; PX.open=null; PX.rows=[]; PX.stats={stake:0,payout:0,runs:0,lost:0,won:0,pl:0};
@@ -4743,7 +4617,8 @@ function pxRenderRows(){
   if(!PX.rows.length){ el.innerHTML='<div class="px-empty">No trades yet.<br>Start auto-trading to scan all markets.</div>'; return; }
   el.innerHTML=PX.rows.slice(0,60).map(r=>{
     const open=r.status==='open', cls=r.profit>=0?'p':'n';
-    const sub=open?`${r.label} · Stake ${pxFmt(r.stake)} · Value ${pxFmt(r.value)}`:`${pxDate(r.ts)} · ${r.label} · Stake ${pxFmt(r.stake)}`;
+    const evT=r.ev!=null?` · EV ${(r.ev*100).toFixed(1)}%`:'';
+    const sub=open?`${r.label} · Stake ${pxFmt(r.stake)} · Value ${pxFmt(r.value)}${evT}`:`${pxDate(r.ts)} · ${r.label} · Stake ${pxFmt(r.stake)}${evT}`;
     return `<div class="px-row"><span class="px-ico ${r.dir}">${PX_ARROW[r.dir]}</span><div class="px-rm"><div class="px-rt">${r.name}</div><div class="px-rs">${sub}</div></div><span class="px-rp ${cls}">${pxSigned(r.profit)}</span>${open?`<button class="px-sell" data-sell="${r.cid}">× Sell</button>`:''}</div>`;
   }).join('');
 }
@@ -4781,12 +4656,14 @@ function pxLoadCfg(){
     if(r.engine==='strike'||r.engine==='switcher') PX.cfg.engine=r.engine;
     if(r.market==='ALL'||PULSE_SYMBOLS.some(s=>s.code===r.market)||HUNTER.extraSymbols.some(s=>s.code===r.market)) PX.cfg.market=r.market;
     ['stake','target','maxLoss'].forEach(k=>{const v=Number(r[k]); if(Number.isFinite(v)&&v>0) PX.cfg[k]=v;});
+    if(Number.isInteger(r.steps)&&r.steps>=0&&r.steps<=6) PX.cfg.steps=r.steps;
+    if(['off','warn','block'].includes(r.guard)) PX.cfg.guard=r.guard;
     if(Array.isArray(r.families)){ const f=r.families.filter(x=>PX_FAMS.some(p=>p[0]===x)); if(f.length) PX.cfg.families=f; }
     if(r.rfAdded!==true && !PX.cfg.families.includes('risefall')) PX.cfg.families.unshift('risefall');
     PX.dark=!!r.dark;
   }catch(e){}
 }
-function pxSaveCfg(){ try{ localStorage.setItem(PX_KEY,JSON.stringify({engine:PX.cfg.engine,market:PX.cfg.market,stake:PX.cfg.stake,target:PX.cfg.target,maxLoss:PX.cfg.maxLoss,families:PX.cfg.families,rfAdded:true,dark:PX.dark})); }catch(e){} }
+function pxSaveCfg(){ try{ localStorage.setItem(PX_KEY,JSON.stringify({engine:PX.cfg.engine,market:PX.cfg.market,stake:PX.cfg.stake,target:PX.cfg.target,maxLoss:PX.cfg.maxLoss,steps:PX.cfg.steps,guard:PX.cfg.guard,families:PX.cfg.families,rfAdded:true,dark:PX.dark})); }catch(e){} }
 function pxRenderFams(){
   const el=$px('pxFams'); el.innerHTML=PX_FAMS.map(f=>`<button class="px-fam${PX.cfg.families.includes(f[0])?' on':''}" data-fam="${f[0]}">${f[1]}</button>`).join('');
 }
@@ -4794,7 +4671,7 @@ function setupPremiumUI(){
   pxLoadCfg();
   const sel=$px('pxMarket');
   sel.innerHTML='<option value="ALL">All markets (auto)</option>'+PULSE_SYMBOLS.concat(HUNTER.extraSymbols).map(s=>`<option value="${s.code}">${s.name.replace(' Index','')}</option>`).join('');
-  sel.value=PX.cfg.market; $px('pxStake').value=pxFmt(PX.cfg.stake); $px('pxTarget').value=pxFmt(PX.cfg.target); $px('pxMaxLoss').value=pxFmt(PX.cfg.maxLoss);
+  sel.value=PX.cfg.market; $px('pxStake').value=pxFmt(PX.cfg.stake); $px('pxTarget').value=pxFmt(PX.cfg.target); $px('pxMaxLoss').value=pxFmt(PX.cfg.maxLoss); $px('pxSteps').value=PX.cfg.steps; $px('pxGuard').value=PX.cfg.guard;
   const setEngine=e=>{ PX.cfg.engine=e; document.querySelectorAll('.px-engine').forEach(b=>b.classList.toggle('sel',b.dataset.engine===e)); pxSaveCfg(); };
   setEngine(PX.cfg.engine); pxRenderFams(); pxApplyTheme();
   document.querySelectorAll('.px-engine').forEach(b=>b.addEventListener('click',()=>setEngine(b.dataset.engine)));
@@ -4803,7 +4680,7 @@ function setupPremiumUI(){
     if(a.includes(f)){ if(a.length>1) a.splice(a.indexOf(f),1); else toast('Keep at least one strategy on.','info'); } else a.push(f);
     pxRenderFams(); pxSaveCfg();
   });
-  ['pxStake','pxTarget','pxMaxLoss','pxMarket'].forEach(id=>$px(id).addEventListener('change',pxReadInputs));
+  ['pxStake','pxTarget','pxMaxLoss','pxMarket','pxSteps','pxGuard'].forEach(id=>$px(id).addEventListener('change',pxReadInputs));
   $px('pxCollapseBtn').addEventListener('click',()=>{ const o=$px('pxConfig').classList.toggle('open'); $px('pxCollapseBtn').classList.toggle('open',o); });
   $px('pxThemeBtn').addEventListener('click',()=>{ PX.dark=!PX.dark; pxApplyTheme(); pxSaveCfg(); });
   $px('pxMenuBtn').addEventListener('click',()=>document.getElementById('hamburger').click());
@@ -4815,7 +4692,170 @@ function setupPremiumUI(){
   const closeM=()=>$px('pxModal').classList.remove('on');
   $px('pxModalOk').addEventListener('click',closeM); $px('pxModalX').addEventListener('click',closeM);
   document.querySelectorAll('.px-bot [data-go]').forEach(b=>b.addEventListener('click',()=>{ const t=document.querySelector(`.tab[data-tab="${b.dataset.go}"]`); if(t) t.click(); }));
-  pxSetStatus('Ready — set your limits and start.'); pxRenderAll(); pxRenderChips();
+  pxSetStatus('Ready — set your limits and start.'); pxRenderAll(); pxRenderChips(); pxRenderRisk();
+}
+
+/* ============================================================
+   EDGE LAB — walk-forward test of every strategy against a "same contract at random times" control,
+   plus a per-market bias scan. Honest accuracy instead of assumed accuracy.
+   ============================================================ */
+const LAB={running:false,res:null,ctrl:{},bias:null,ranAt:0,markets:0,ticks:0};
+const labSpecKey=c=>`${c.type}|${c.barrier??''}|${c.selectedTick??''}|${c.duration}`;
+function labOutcome(c,q0,qf,df){
+  const t=c.type;
+  if(t==='DIGITEVEN') return df[0]%2===0;
+  if(t==='DIGITODD') return df[0]%2===1;
+  if(t==='DIGITMATCH') return df[0]===c.barrier;
+  if(t==='DIGITOVER') return df[0]>c.barrier;
+  if(t==='DIGITUNDER') return df[0]<c.barrier;
+  if(t==='CALL') return qf[0]>q0;
+  if(t==='PUT') return qf[0]<q0;
+  if(t==='RUNHIGH'||t==='RUNLOW'){ const up=t==='RUNHIGH'; let p=q0; for(let i=0;i<c.duration;i++){ if(up?!(qf[i]>p):!(qf[i]<p)) return false; p=qf[i]; } return true; }
+  if(t==='TICKHIGH'||t==='TICKLOW'){ const seg=qf.slice(0,5), ex=t==='TICKHIGH'?Math.max(...seg):Math.min(...seg), i=seg.indexOf(ex); return seg.lastIndexOf(ex)===i&&i===c.selectedTick-1; }
+  return false;
+}
+const LAB_SPECS=(()=>{
+  const a=[{type:'DIGITEVEN',duration:1},{type:'DIGITODD',duration:1},{type:'DIGITOVER',barrier:3,duration:1},{type:'DIGITUNDER',barrier:6,duration:1},
+    {type:'DIGITUNDER',barrier:3,duration:1},{type:'DIGITOVER',barrier:6,duration:1},{type:'CALL',duration:1},{type:'PUT',duration:1},
+    {type:'RUNHIGH',duration:2},{type:'RUNLOW',duration:2},{type:'RUNHIGH',duration:3},{type:'RUNLOW',duration:3}];
+  for(let d=0;d<10;d++) a.push({type:'DIGITMATCH',barrier:d,duration:1});
+  for(let k=1;k<=5;k++){ a.push({type:'TICKHIGH',selectedTick:k,duration:5}); a.push({type:'TICKLOW',selectedTick:k,duration:5}); }
+  return a;
+})();
+function labTheory(c){
+  if(c.type==='DIGITEVEN'||c.type==='DIGITODD') return .5;
+  if(c.type==='DIGITMATCH') return .1;
+  if(c.type==='DIGITOVER') return (9-c.barrier)/10;
+  if(c.type==='DIGITUNDER') return c.barrier/10;
+  if(c.type==='TICKHIGH'||c.type==='TICKLOW') return PXR.hlBase[c.selectedTick-1];
+  return null;
+}
+function labTail(z){   // P(Z > z)
+  const t=1/(1+0.2316419*Math.abs(z)), d=0.3989423*Math.exp(-z*z/2);
+  const p=d*t*(0.3193815+t*(-0.3565638+t*(1.781478+t*(-1.821256+t*1.330274))));
+  return z>0?p:1-p;
+}
+const labTick=()=>new Promise(r=>setTimeout(r,0));
+async function labRun(){
+  if(LAB.running) return; LAB.running=true;
+  const btn=document.getElementById('labRun'), prog=document.getElementById('labProg');
+  if(btn) btn.disabled=true;
+  const mk=Array.from(engineState.markets.values()).filter(m=>m.digits.length>=500&&m.digits.length===m.quotes.length);
+  if(!mk.length){ if(prog) prog.textContent='Not enough tick history yet — keep the page open a few minutes (needs 500+ ticks per market).'; LAB.running=false; if(btn) btn.disabled=false; return; }
+  const sig=[], ctrl={}, bias=[]; let ticks=0;
+  for(let mi=0;mi<mk.length;mi++){
+    const m=mk[mi], D=m.digits.slice(), Q=m.quotes.slice(), N=D.length, mc={}; ticks+=N;
+    for(let t=300;t<N-6;t+=5){
+      const fm={code:m.code,short:m.short,decimals:m.decimals,tickCount:t,digits:D.slice(Math.max(0,t-600),t),quotes:Q.slice(Math.max(0,t-600),t)};
+      const q0=Q[t-1], qf=Q.slice(t,t+6), df=D.slice(t,t+6);
+      LAB_SPECS.forEach(sp=>{ const k=labSpecKey(sp), h=labOutcome(sp,q0,qf,df);
+        const c=(ctrl[k]=ctrl[k]||{n:0,h:0}); c.n++; if(h) c.h++;
+        const x=(mc[k]=mc[k]||{n:0,h:0,sp}); x.n++; if(h) x.h++; });
+      PX_FAMS.forEach(([fam])=>{ const c=pxAnalyze(fm,fam,null); if(c) sig.push({fam,k:labSpecKey(c.contract),hit:labOutcome(c.contract,q0,qf,df)}); });
+    }
+    bias.push({m,mc});
+    if(prog) prog.textContent=`Testing… ${mi+1}/${mk.length} markets`;
+    await labTick();
+  }
+  const fam={}; PX_FAMS.forEach(([f])=>fam[f]={n:0,h:0,E:0,V:0});
+  sig.forEach(s=>{ const c=ctrl[s.k]; if(!c||!c.n) return; const p=c.h/c.n, f=fam[s.fam]; f.n++; if(s.hit) f.h++; f.E+=p; f.V+=p*(1-p); });
+  const M=PX_FAMS.length, res={};
+  PX_FAMS.forEach(([f,label])=>{
+    const r=fam[f], z=r.V>0?(r.h-r.E)/Math.sqrt(r.V):0, p=labTail(z), pAdj=1-Math.pow(1-p,M);
+    res[f]={label,n:r.n,hit:r.n?r.h/r.n:0,exp:r.n?r.E/r.n:0,excess:r.n?(r.h-r.E)/r.n:0,z,pAdj,
+      ci:r.n&&r.V>0?1.96*Math.sqrt(r.V)/r.n:0};
+  });
+  const tests=[]; bias.forEach(b=>Object.keys(b.mc).forEach(k=>{
+    const x=b.mc[k], p0=labTheory(x.sp); if(p0==null||x.n<200) return;
+    const z=(x.h-x.n*p0)/Math.sqrt(x.n*p0*(1-p0));
+    tests.push({m:b.m.short,sp:x.sp,rate:x.h/x.n,p0,z,pAdj:Math.min(1,0)});
+  }));
+  tests.forEach(t=>{ t.pAdj=Math.min(1,tests.length*2*labTail(Math.abs(t.z))); });
+  tests.sort((a,b)=>Math.abs(b.z)-Math.abs(a.z));
+  Object.assign(LAB,{res,ctrl,bias:{tests:tests.slice(0,5),count:tests.length},ranAt:Date.now(),markets:mk.length,ticks,running:false});
+  if(btn) btn.disabled=false; if(prog) prog.textContent=`Done · ${mk.length} markets · ${ticks.toLocaleString()} ticks · ${sig.length.toLocaleString()} signals tested`;
+  labRender();
+}
+const labSpecName=sp=>sp.type==='DIGITEVEN'?'Even':sp.type==='DIGITODD'?'Odd':sp.type==='DIGITMATCH'?`Matches ${sp.barrier}`:sp.type==='DIGITOVER'?`Over ${sp.barrier}`:sp.type==='DIGITUNDER'?`Under ${sp.barrier}`:sp.type==='TICKHIGH'?`High tick #${sp.selectedTick}`:`Low tick #${sp.selectedTick}`;
+function labRender(){
+  const body=document.getElementById('labBody'); if(!body||!LAB.res) return;
+  body.innerHTML=PX_FAMS.map(([f])=>{
+    const r=LAB.res[f]; let v,cls;
+    if(r.n<60){ v='Need more signals'; cls='pending'; }
+    else if(r.pAdj<0.05&&r.excess>0){ v='Edge — verify out-of-sample'; cls='hit'; }
+    else if(1-Math.pow(1-labTail(-r.z),PX_FAMS.length)<0.05){ v='Worse than random'; cls='miss'; }
+    else { v='No measurable edge'; cls='pending'; }
+    return `<tr><td>${r.label}</td><td>${r.n}</td><td>${(r.hit*100).toFixed(1)}%</td><td>${(r.exp*100).toFixed(1)}%</td><td class="${r.excess>=0?'profit':'loss'}">${r.excess>=0?'+':''}${(r.excess*100).toFixed(1)} ±${(r.ci*100).toFixed(1)}</td><td>${r.z.toFixed(2)}</td><td>${r.pAdj<0.001?'<0.001':r.pAdj.toFixed(3)}</td><td><span class="pill ${cls}">${v}</span></td></tr>`;
+  }).join('');
+  const b=LAB.bias, el=document.getElementById('labBias');
+  if(el&&b){
+    const top=b.tests[0], sig=top&&top.pAdj<0.05;
+    el.innerHTML=`<b>Market bias scan</b> — ${b.count} market × contract tests. Strongest deviation: ${top?`${top.m} · ${labSpecName(top.sp)} hit ${(top.rate*100).toFixed(1)}% vs ${(top.p0*100).toFixed(1)}% fair (z ${top.z.toFixed(2)}, adjusted p ${top.pAdj<0.001?'<0.001':top.pAdj.toFixed(3)})`:'—'}. ${sig?'<span style="color:var(--accent-yellow)">This one survives the multiple-testing correction — re-run later to see whether it persists.</span>':'Nothing survives the multiple-testing correction, i.e. every market looks like a fair random generator.'}`;
+  }
+  const n=document.getElementById('labNote');
+  if(n) n.textContent=`Last run ${new Date(LAB.ranAt).toLocaleTimeString()}. "Expected" is how often the same contract would have won if entered at random times on the same markets (so market bias and ties are already priced in). Excess = what the signal adds on top. p-values are Šidák-adjusted for testing ${PX_FAMS.length} strategies.`;
+  pxRenderRisk();
+}
+function setupLabUI(){
+  const b=document.getElementById('labRun'); if(!b) return;
+  b.addEventListener('click',labRun);
+  const t=document.querySelector('.tab[data-tab="lab"]');
+  if(t) t.addEventListener('click',()=>{ if(!LAB.ranAt||Date.now()-LAB.ranAt>600000) setTimeout(labRun,50); });
+}
+
+/* ---------- Value guard + risk preview (Premium) ---------- */
+function pxNullProb(c){
+  const t=c.type, sp=LAB.ctrl[labSpecKey(c)];
+  if(sp&&sp.n>=500) return sp.h/sp.n;                       // measured base rate of this exact contract
+  if(t==='DIGITEVEN'||t==='DIGITODD') return .5;
+  if(t==='DIGITMATCH') return .1;
+  if(t==='DIGITOVER') return (9-c.barrier)/10;
+  if(t==='DIGITUNDER') return c.barrier/10;
+  if(t==='CALL'||t==='PUT') return .5;
+  if(t==='RUNHIGH'||t==='RUNLOW') return Math.pow(.5,c.duration);
+  if(t==='TICKHIGH'||t==='TICKLOW') return PXR.hlBase[c.selectedTick-1];
+  return .5;
+}
+function pxEstProb(cand){
+  const p0=pxNullProb(cand.contract), r=LAB.res&&LAB.res[cand.family];
+  if(r&&r.pAdj<0.05&&r.excess>0) return Math.min(.99,p0+r.excess*r.n/(r.n+500));   // only credit an edge that survived the Lab
+  return p0;
+}
+function premiumGuard(t,proposal){
+  const mode=PX.cfg.guard||'warn', c=t.pxCand; if(!c||mode==='off') return true;
+  const payout=Number(proposal&&proposal.payout), ask=Number(proposal&&proposal.ask_price)||t.stake;
+  if(!(payout>0)||!(ask>0)) return true;
+  const ev=pxEstProb(c)*payout/ask-1; t.ev=ev;
+  if(mode==='block'&&ev<0){
+    PX.bad.set(pxKey(c),Date.now()+120000);
+    PX.open=null; PX.nextAt=Date.now()+300;
+    pxSetStatus(`Value guard skipped ${c.short} · ${c.label}: expected value ${(ev*100).toFixed(1)}% (house margin). Looking for a better price…`);
+    return false;
+  }
+  return true;
+}
+function pxRiskSim(){
+  const base=normalizeStake(PX.cfg.stake), tgt=PX.cfg.target, ml=PX.cfg.maxLoss, steps=PX.cfg.steps, mult=PX.cfg.recovery;
+  const p=0.5, net=0.975/p-1; let win=0,loss=0,trades=0,pl=0; const S=3000;
+  for(let s=0;s<S;s++){
+    let bal=0,streak=0,n=0;
+    while(n<3000){
+      let st=base; for(let i=0;i<Math.min(streak,steps);i++) st=normalizeStake(st*mult);
+      const left=ml+bal; if(st>left) st=Math.floor(left*100)/100; if(st<0.35){ loss++; break; }
+      n++; if(Math.random()<p){ bal+=st*net; streak=0; } else { bal-=st; streak++; }
+      if(bal>=tgt){ win++; break; } if(bal<=-ml){ loss++; break; }
+    }
+    trades+=n; pl+=bal;
+  }
+  let chain=0,st=base,parts=[]; for(let i=0;i<=steps;i++){ chain+=st; parts.push(st.toFixed(2)); st=normalizeStake(st*mult); }
+  return {win:win/S,loss:loss/S,trades:trades/S,pl:pl/S,chain,parts};
+}
+function pxRenderRisk(){
+  const el=document.getElementById('pxRisk'); if(!el) return;
+  const r=pxRiskSim();
+  el.innerHTML=`<b>Risk preview</b> <span>(fair 50/50 contract, ~2.5% house margin, no edge assumed)</span><br>`+
+    `Hit target first: <b class="g">${(r.win*100).toFixed(0)}%</b> · Hit max loss: <b class="r">${(r.loss*100).toFixed(0)}%</b> · Average result: <b class="${r.pl>=0?'g':'r'}">${r.pl>=0?'+':'-'}$${Math.abs(r.pl).toFixed(2)}</b> over ~${Math.round(r.trades)} trades<br>`+
+    `Longest losing chain stakes: ${r.parts.join(' → ')} = $${r.chain.toFixed(2)}${r.chain>PX.cfg.maxLoss?' <span class="r">(more than your max loss — the limit will clip it)</span>':''}`;
 }
 
 /* ============================================================
@@ -4826,6 +4866,7 @@ setupModals();
 setupNavMenu();
 setupHunterUI();
 setupPremiumUI();
+setupLabUI();
 loadAdaptiveState();
 getDailyRecord();
 refreshBrainStatus();
