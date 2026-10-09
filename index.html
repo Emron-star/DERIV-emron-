@@ -4298,7 +4298,7 @@ const PXR = {
   z:{ evenodd:1.65, overunder:1.28, onlyupdown:1.0, highlow:1.5, recover:0 },
   hlBase:[0.2734,0.1563,0.1406,0.1563,0.2734]   // P(tick k of 5 is the max/min) for a driftless random walk
 };
-const PX_FAMS=[['evenodd','Even/Odd'],['matches','Matches'],['overunder','Over/Under'],['onlyupdown','Only Ups/Downs'],['highlow','High/Low Tick']];
+const PX_FAMS=[['risefall','Rise/Fall'],['evenodd','Even/Odd'],['matches','Matches'],['overunder','Over/Under'],['onlyupdown','Only Ups/Downs'],['highlow','High/Low Tick']];
 const PX_OU={
   OVER3:{type:'DIGITOVER', barrier:3,base:.6,label:'Over 3', hit:d=>d>=4},
   UNDER6:{type:'DIGITUNDER',barrier:6,base:.6,label:'Under 6',hit:d=>d<=5},
@@ -4308,7 +4308,7 @@ const PX_OU={
 const PX_OU_FLIP={OVER3:'UNDER3',UNDER3:'OVER3',UNDER6:'OVER6',OVER6:'UNDER6'};
 const PX_KEY='emron_px_cfg_v2';
 const PX={
-  cfg:{engine:'strike',market:'ALL',stake:1,target:20,maxLoss:10,recovery:1.6,families:['evenodd','matches','overunder','onlyupdown','highlow']},
+  cfg:{engine:'strike',market:'ALL',stake:1,target:20,maxLoss:10,recovery:1.6,families:['risefall','evenodd','matches','overunder','onlyupdown','highlow']},
   running:false,scanning:false,finished:false,sid:1,seq:0,open:null,
   rows:[],stats:{stake:0,payout:0,runs:0,lost:0,won:0,pl:0},lossStreak:0,recovery:null,
   errStreak:0,nextAt:0,dark:false,scanTimer:null,logTimer:null,lastStatus:'',bad:new Map()
@@ -4321,6 +4321,15 @@ const pxMoney=n=>Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,ma
 const pxConf=z=>Math.round(50+45*Math.tanh(Math.max(0,z)/3));
 
 /* ---------- analysis (all cached per market tick) ---------- */
+function pxRiseFall(m,rec){ return cached(m,'pxrf'+(rec?1:0),()=>{
+  const r=evaluateRiseFall(m,100); if(!r) return null;
+  // normal entry needs a trending regime and a medium-or-better score; recovery only needs a clear lean
+  if(r.absScore<(rec?0.2:0.46) || (!rec && !r.meta.regimeTrending)) return null;
+  const up=r.direction==='up';
+  return {family:'risefall',kind:up?'RISE':'FALL',label:up?'Rise':'Fall',z:r.absScore*4,conf:r.confidence,
+    why:`${r.meta.regime.toLowerCase()} · momentum ${r.meta.momentumGlyph} · ER ${r.meta.er.toFixed(2)} · score ${r.absScore.toFixed(2)}`,
+    contract:{type:up?'CALL':'PUT',duration:1}};
+});}
 function pxEvenOdd(m,rec){ return cached(m,'pxeo'+(rec?1:0),()=>{
   const d=m.digits.slice(-100); if(d.length<60) return null;
   const n=d.length, e=d.reduce((a,x)=>a+(x%2===0?1:0),0), z=wilsonZ(e,n,.5), even=z>=0, az=Math.abs(z);
@@ -4384,6 +4393,7 @@ function pxHighLow(m,rec){
     contract:{type:b.type==='HIGH'?'TICKHIGH':'TICKLOW',duration:5,selectedTick:b.k}};   // 5 ticks, selected tick 1-5
 }
 function pxAnalyze(m,fam,rec){
+  if(fam==='risefall') return pxRiseFall(m,rec);
   if(fam==='evenodd') return pxEvenOdd(m,rec);
   if(fam==='matches') return pxMatches(m,rec);
   if(fam==='overunder') return pxOverUnder(m,rec);
@@ -4456,7 +4466,7 @@ function premiumOnBought(cid,t){
   PX.errStreak=0;
   const m=engineState.markets.get(t.marketSymbol), c=t.pxCand;
   PX.rows.unshift({id:t.premiumId,cid,name:m?m.name:t.marketSymbol,label:t.label,ts:Date.now(),stake:t.stake,value:t.stake,profit:0,status:'open',
-    dir:(t.contractType==='RUNHIGH'||t.contractType==='TICKHIGH'||t.contractType==='DIGITOVER')?'up':'down'});
+    dir:(t.contractType==='RUNHIGH'||t.contractType==='TICKHIGH'||t.contractType==='DIGITOVER'||t.contractType==='CALL')?'up':'down'});
   if(PX.rows.length>120) PX.rows.length=120;
   pxRenderRows();
 }
@@ -4538,7 +4548,7 @@ function pxLogLine(matrix){
   const mk=Array.from(engineState.markets.values()), m=mk[Math.floor(R()*mk.length)];
   const T=[
     ['INFO','Authenticating API key... [OK]'],['INFO','Fetching market data...'],['INFO',`Streaming ${m.short} · ${m.digits.length} ticks buffered`],
-    ['INFO','Analysing volatility index...'],['INFO','Scoring Even/Odd · Matches · Over/Under...'],['INFO','Scoring Only Ups/Downs · High/Low Tick...'],
+    ['INFO','Analysing volatility index...'],['INFO','Scoring Rise/Fall · Even/Odd · Matches...'],['INFO','Scoring Over/Under · Only Ups/Downs · High/Low...'],
     ['SUCCESS','Data stream established...'],['WARNING','High market volatility detected...'],['INFO','Compiling results...'],
     ['SECURITY','Encryption enabled...'],['INFO','Data transmission complete...'],['INFO',`Ranking ${mk.length} markets...`]];
   let s=''; for(let i=0;i<3;i++){ const t=T[Math.floor(R()*T.length)]; s+=`[${t[0]}] ${t[1]}  `; } return s;
@@ -4614,10 +4624,11 @@ function pxLoadCfg(){
     if(r.market==='ALL'||PULSE_SYMBOLS.some(s=>s.code===r.market)||HUNTER.extraSymbols.some(s=>s.code===r.market)) PX.cfg.market=r.market;
     ['stake','target','maxLoss'].forEach(k=>{const v=Number(r[k]); if(Number.isFinite(v)&&v>0) PX.cfg[k]=v;});
     if(Array.isArray(r.families)){ const f=r.families.filter(x=>PX_FAMS.some(p=>p[0]===x)); if(f.length) PX.cfg.families=f; }
+    if(r.rfAdded!==true && !PX.cfg.families.includes('risefall')) PX.cfg.families.unshift('risefall');
     PX.dark=!!r.dark;
   }catch(e){}
 }
-function pxSaveCfg(){ try{ localStorage.setItem(PX_KEY,JSON.stringify({engine:PX.cfg.engine,market:PX.cfg.market,stake:PX.cfg.stake,target:PX.cfg.target,maxLoss:PX.cfg.maxLoss,families:PX.cfg.families,dark:PX.dark})); }catch(e){} }
+function pxSaveCfg(){ try{ localStorage.setItem(PX_KEY,JSON.stringify({engine:PX.cfg.engine,market:PX.cfg.market,stake:PX.cfg.stake,target:PX.cfg.target,maxLoss:PX.cfg.maxLoss,families:PX.cfg.families,rfAdded:true,dark:PX.dark})); }catch(e){} }
 function pxRenderFams(){
   const el=$px('pxFams'); el.innerHTML=PX_FAMS.map(f=>`<button class="px-fam${PX.cfg.families.includes(f[0])?' on':''}" data-fam="${f[0]}">${f[1]}</button>`).join('');
 }
