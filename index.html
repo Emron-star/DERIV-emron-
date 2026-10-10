@@ -654,6 +654,11 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .px-two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .px-risk{background:var(--px-row);border:1px solid var(--px-line);border-radius:12px;padding:9px 11px;font-size:10.5px;line-height:1.6;color:var(--px-text);margin:2px 0 8px}
 .px-risk span{color:var(--px-mut)}.px-risk b.g{color:var(--px-green)}.px-risk b.r,.px-risk span.r{color:var(--px-red)}
+
+.px-pairbox{background:var(--px-row);border:1px solid var(--px-line);border-radius:12px;padding:10px;margin-bottom:9px}
+.px-note{font-size:10px;color:var(--px-mut);line-height:1.5}
+.px-fam.pair.on{border-color:var(--px-red);color:var(--px-red)!important;background:rgba(225,29,72,.08)}
+.px-fam.dim{opacity:.35}
 </style>
 </head>
 <body>
@@ -1148,6 +1153,13 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
       <button class="px-engine" data-engine="switcher"><svg viewBox="0 0 24 24"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg><b>Auto Switcher</b><small>Scans all markets and moves to the strongest signal.</small></button>
     </div>
     <div class="px-field"><span>Strategies</span><div class="px-fams" id="pxFams"></div></div>
+    <div class="px-pairbox" id="pxPairBox" style="display:none">
+      <div class="px-two"><label class="px-field"><span>Barrier offset</span><div class="px-input"><input id="pxPOffset" type="number" inputmode="decimal" min="0.01" step="0.01"></div></label>
+      <label class="px-field"><span>Duration (ticks)</span><div class="px-input"><input id="pxPTicks" type="number" inputmode="numeric" min="1" max="10" step="1"></div></label></div>
+      <div class="px-two"><label class="px-field"><span>Confirmation (ticks)</span><div class="px-input"><input id="pxPConfirm" type="number" inputmode="numeric" min="0" max="10" step="1"></div></label>
+      <label class="px-field"><span>Barrier layout</span><select id="pxPLayout"><option value="outside">Outside: Higher +offset / Lower −offset</option><option value="inside">Inside: Higher −offset / Lower +offset</option></select></label></div>
+      <div class="px-note">Buys a Higher and a Lower together every cycle (same stake each), like the Deriv Bot "Both" setup. Stake is per leg; recovery steps are set to 0 by default to match the videos.</div>
+    </div>
     <label class="px-field"><span>Market</span><select id="pxMarket"></select></label>
     <label class="px-field"><span>Stake per trade</span><div class="px-input"><input id="pxStake" type="number" inputmode="decimal" min="0.35" step="0.01"><em>USD</em></div></label>
     <label class="px-field"><span>Profit target</span><div class="px-input"><input id="pxTarget" type="number" inputmode="decimal" min="0.01" step="0.01"><em>USD</em></div></label>
@@ -2685,7 +2697,7 @@ function finalizeHigherLowerPair(batch){
 }
 function onProposalReceived(data){
   const t = pendingProposalMap.get(data.req_id);
-  if(!t) return;
+  if(!t){ if(data.subscription&&data.subscription.id&&ws&&ws.readyState===1){ try{ ws.send(JSON.stringify({forget:data.subscription.id,req_id:wsReqId++})); }catch(e){} } return; }
   pendingProposalMap.delete(data.req_id);
   adaptiveEngine.pendingContexts.delete(data.req_id);
   if(data.error){
@@ -2700,6 +2712,7 @@ function onProposalReceived(data){
   }
   if(!data.proposal) return;
   t.proposalSub = data.subscription ? data.subscription.id : null;
+  if(t.purpose==='premium' && t.pxPair){ premiumPairProposal(t, data); return; }
   if(t.purpose==='premium' && !premiumGuard(t, data.proposal)){
     if(t.proposalSub && ws && ws.readyState===1){ try{ ws.send(JSON.stringify({forget:t.proposalSub,req_id:wsReqId++})); }catch(e){} }
     return;
@@ -2728,7 +2741,7 @@ function onBuyReceived(data){
     slotIdx: t.slotIdx, strategyRef:t.strategyRef || null, marketSymbol:t.marketSymbol || null,
     contractType:t.contractType, label:t.label, stake:t.stake, purpose:t.purpose||'bot',
     adaptiveContext:t.adaptiveContext||null, pairId:t.pairId||null, pairLeg:t.pairLeg||null,
-    premiumId:t.premiumId||null, sid:t.sid||null, pxCand:t.pxCand||null
+    premiumId:t.premiumId||null, sid:t.sid||null, pxCand:t.pxCand||null, pxPair:t.pxPair||null
   });
   if(t.purpose==='premium') premiumOnBought(cid,t);
   if(t.pairId){
@@ -4338,10 +4351,10 @@ const PX_OU={
 const PX_OU_FLIP={OVER3:'UNDER3',UNDER3:'OVER3',UNDER6:'OVER6',OVER6:'UNDER6'};
 const PX_KEY='emron_px_cfg_v2';
 const PX={
-  cfg:{engine:'strike',market:'ALL',stake:1,target:20,maxLoss:10,recovery:1.6,steps:4,guard:'warn',families:['risefall','evenodd','matches','overunder','onlyupdown','highlow']},
+  cfg:{engine:'strike',market:'ALL',stake:1,target:20,maxLoss:10,recovery:1.6,steps:4,guard:'warn',pair:{on:false,offset:0.3,ticks:5,confirm:3,layout:'outside'},families:['risefall','evenodd','matches','overunder','onlyupdown','highlow']},
   running:false,scanning:false,finished:false,sid:1,seq:0,open:null,
   rows:[],stats:{stake:0,payout:0,runs:0,lost:0,won:0,pl:0},lossStreak:0,recovery:null,
-  errStreak:0,nextAt:0,dark:false,scanTimer:null,logTimer:null,lastStatus:'',bad:new Map()
+  errStreak:0,nextAt:0,dark:false,scanTimer:null,logTimer:null,lastStatus:'',bad:new Map(),pair:null
 };
 const pxKey=c=>`${c.symbol}|${c.contract.type}|${c.contract.barrier??''}|${c.contract.selectedTick??''}|${c.contract.duration}`;
 const $px=id=>document.getElementById(id);
@@ -4456,6 +4469,7 @@ function pxComputeStake(){
 
 /* ---------- trading loop ---------- */
 function premiumOnTick(){
+  if(PX.cfg.pair.on){ pxPairTick(); return; }
   if(!PX.running||PX.open||Date.now()<PX.nextAt||!wsConnected) return;
   if(PX.recovery && Date.now()-PX.recovery.since>120000){ PX.recovery=null; }
   const list=pxScan();
@@ -4482,6 +4496,7 @@ function pxPlace(c){
 }
 function premiumOnTradeError(t,msg){
   if(t.sid!==PX.sid) return;
+  if(t.pxPair){ pxPairError(t,msg); return; }
   PX.open=null; PX.errStreak++; PX.nextAt=Date.now()+300;
   const c=t.pxCand;
   if(c){
@@ -4506,8 +4521,9 @@ function premiumOnContractUpdate(c,rec){
   if(!c.is_sold){ if(row){ row.value=Number(c.bid_price)||0; row.profit=Number(c.profit)||0; pxRenderRows(); } return; }
   activeContracts.delete(c.contract_id);
   const profit=Number(c.profit)||0, won=profit>0, payout=Math.max(0,rec.stake+profit), cand=rec.pxCand;
-  if(row){ row.status=won?'won':'lost'; row.profit=profit; row.value=payout; }
+  if(row){ row.status=won?'won':'lost'; row.profit=profit; row.value=payout; row.entry=c.entry_tick??c.entry_spot; row.exit=c.exit_tick??c.exit_spot; }
   const s=PX.stats; s.stake+=rec.stake; s.payout+=payout; s.runs++; s.pl+=profit; if(won) s.won++; else s.lost++;
+  if(rec.pxPair){ pxPairLegDone(rec,profit,won); return; }
   PX.open=null;
   if(won){ PX.lossStreak=0; PX.recovery=null; }
   else { PX.lossStreak++; if(cand) PX.recovery={family:cand.family,kind:cand.kind,symbol:cand.symbol,since:Date.now()}; }
@@ -4532,6 +4548,9 @@ function pxReadInputs(){
   $px('pxStake').value=pxFmt(PX.cfg.stake); $px('pxTarget').value=pxFmt(PX.cfg.target); $px('pxMaxLoss').value=pxFmt(PX.cfg.maxLoss);
   PX.cfg.steps=Math.max(0,Math.min(6,parseInt($px('pxSteps').value,10)||0)); $px('pxSteps').value=PX.cfg.steps;
   PX.cfg.guard=$px('pxGuard').value||'warn';
+  const pp=PX.cfg.pair; pp.offset=Math.max(0.01,parseFloat($px('pxPOffset').value)||0.3); pp.ticks=Math.max(1,Math.min(10,parseInt($px('pxPTicks').value,10)||5));
+  pp.confirm=Math.max(0,Math.min(10,parseInt($px('pxPConfirm').value,10)||0)); pp.layout=$px('pxPLayout').value==='inside'?'inside':'outside';
+  $px('pxPOffset').value=pp.offset; $px('pxPTicks').value=pp.ticks; $px('pxPConfirm').value=pp.confirm;
   pxSaveCfg(); pxRenderRisk();
 }
 function pxStart(){
@@ -4555,7 +4574,7 @@ function pxStop(msg){
 }
 function pxReset(silent){
   PX.running=false; PX.sid++; PX.open=null; PX.rows=[]; PX.stats={stake:0,payout:0,runs:0,lost:0,won:0,pl:0};
-  PX.lossStreak=0; PX.recovery=null; PX.finished=false; PX.errStreak=0; PX.bad.clear();
+  PX.lossStreak=0; PX.recovery=null; PX.finished=false; PX.errStreak=0; PX.bad.clear(); PX.pair=null;
   const tk=$px('pxTicker'); if(tk) tk.className='px-ticker';
   if(!silent){ $px('pxConfig').classList.add('open'); $px('pxCollapseBtn').classList.add('open'); pxSetStatus('Ready — set your limits and start.'); }
   pxRenderAll();
@@ -4618,7 +4637,7 @@ function pxRenderRows(){
   el.innerHTML=PX.rows.slice(0,60).map(r=>{
     const open=r.status==='open', cls=r.profit>=0?'p':'n';
     const evT=r.ev!=null?` · EV ${(r.ev*100).toFixed(1)}%`:'';
-    const sub=open?`${r.label} · Stake ${pxFmt(r.stake)} · Value ${pxFmt(r.value)}${evT}`:`${pxDate(r.ts)} · ${r.label} · Stake ${pxFmt(r.stake)}${evT}`;
+    const sub=open?`${r.label} · Stake ${pxFmt(r.stake)} · Value ${pxFmt(r.value)}${evT}`:`${pxDate(r.ts)} · ${r.label} · Stake ${pxFmt(r.stake)}${r.entry!=null&&r.exit!=null?` · ${r.entry}→${r.exit}`:''}${evT}`;
     return `<div class="px-row"><span class="px-ico ${r.dir}">${PX_ARROW[r.dir]}</span><div class="px-rm"><div class="px-rt">${r.name}</div><div class="px-rs">${sub}</div></div><span class="px-rp ${cls}">${pxSigned(r.profit)}</span>${open?`<button class="px-sell" data-sell="${r.cid}">× Sell</button>`:''}</div>`;
   }).join('');
 }
@@ -4637,6 +4656,7 @@ function pxRenderControls(){
 }
 function pxRenderChips(){
   const el=$px('pxChips'); if(!el) return;
+  if(PX.cfg.pair.on){ el.innerHTML=pxPairChips(); return; }
   const pool=pxPool(), cnt={}; PX.cfg.families.forEach(f=>cnt[f]=0);
   pool.forEach(m=>PX.cfg.families.forEach(f=>{ if(pxAnalyze(m,f,null)) cnt[f]++; }));
   el.innerHTML=`<span>${pool.length} markets analysed</span>`+PX_FAMS.filter(f=>cnt[f[0]]!==undefined).map(f=>`<span class="${cnt[f[0]]?'on':''}">${f[1]} ${cnt[f[0]]}</span>`).join('');
@@ -4658,29 +4678,41 @@ function pxLoadCfg(){
     ['stake','target','maxLoss'].forEach(k=>{const v=Number(r[k]); if(Number.isFinite(v)&&v>0) PX.cfg[k]=v;});
     if(Number.isInteger(r.steps)&&r.steps>=0&&r.steps<=6) PX.cfg.steps=r.steps;
     if(['off','warn','block'].includes(r.guard)) PX.cfg.guard=r.guard;
+    if(r.pair&&typeof r.pair==='object'){ const q=r.pair; ['offset','ticks','confirm'].forEach(k=>{const v=Number(q[k]); if(Number.isFinite(v)&&v>=0) PX.cfg.pair[k]=v;}); if(q.layout==='inside'||q.layout==='outside') PX.cfg.pair.layout=q.layout; PX.cfg.pair.on=!!q.on; }
     if(Array.isArray(r.families)){ const f=r.families.filter(x=>PX_FAMS.some(p=>p[0]===x)); if(f.length) PX.cfg.families=f; }
     if(r.rfAdded!==true && !PX.cfg.families.includes('risefall')) PX.cfg.families.unshift('risefall');
     PX.dark=!!r.dark;
   }catch(e){}
 }
-function pxSaveCfg(){ try{ localStorage.setItem(PX_KEY,JSON.stringify({engine:PX.cfg.engine,market:PX.cfg.market,stake:PX.cfg.stake,target:PX.cfg.target,maxLoss:PX.cfg.maxLoss,steps:PX.cfg.steps,guard:PX.cfg.guard,families:PX.cfg.families,rfAdded:true,dark:PX.dark})); }catch(e){} }
+function pxSaveCfg(){ try{ localStorage.setItem(PX_KEY,JSON.stringify({engine:PX.cfg.engine,market:PX.cfg.market,stake:PX.cfg.stake,target:PX.cfg.target,maxLoss:PX.cfg.maxLoss,steps:PX.cfg.steps,guard:PX.cfg.guard,pair:PX.cfg.pair,families:PX.cfg.families,rfAdded:true,dark:PX.dark})); }catch(e){} }
 function pxRenderFams(){
-  const el=$px('pxFams'); el.innerHTML=PX_FAMS.map(f=>`<button class="px-fam${PX.cfg.families.includes(f[0])?' on':''}" data-fam="${f[0]}">${f[1]}</button>`).join('');
+  const el=$px('pxFams'), pr=PX.cfg.pair.on;
+  el.innerHTML=`<button class="px-fam pair${pr?' on':''}" data-fam="hl">↕ Higher/Lower (pair)</button>`+PX_FAMS.map(f=>`<button class="px-fam${PX.cfg.families.includes(f[0])&&!pr?' on':''}${pr?' dim':''}" data-fam="${f[0]}">${f[1]}</button>`).join('');
+  const box=$px('pxPairBox'); if(box) box.style.display=pr?'block':'none';
+}
+function pxSetPair(on){
+  PX.cfg.pair.on=on;
+  if(on){ PX.cfg.steps=0; $px('pxSteps').value=0; if(PX.cfg.market==='ALL'){ PX.cfg.market='1HZ100V'; $px('pxMarket').value='1HZ100V'; } toast('↕ Higher + Lower pair mode ON — stake is per leg.','info'); }
+  else toast('Pair mode off — back to single-signal trading.','info');
+  pxRenderFams(); pxSaveCfg(); pxRenderRisk(); pxRenderChips();
 }
 function setupPremiumUI(){
   pxLoadCfg();
   const sel=$px('pxMarket');
   sel.innerHTML='<option value="ALL">All markets (auto)</option>'+PULSE_SYMBOLS.concat(HUNTER.extraSymbols).map(s=>`<option value="${s.code}">${s.name.replace(' Index','')}</option>`).join('');
   sel.value=PX.cfg.market; $px('pxStake').value=pxFmt(PX.cfg.stake); $px('pxTarget').value=pxFmt(PX.cfg.target); $px('pxMaxLoss').value=pxFmt(PX.cfg.maxLoss); $px('pxSteps').value=PX.cfg.steps; $px('pxGuard').value=PX.cfg.guard;
+  const pq=PX.cfg.pair; $px('pxPOffset').value=pq.offset; $px('pxPTicks').value=pq.ticks; $px('pxPConfirm').value=pq.confirm; $px('pxPLayout').value=pq.layout;
   const setEngine=e=>{ PX.cfg.engine=e; document.querySelectorAll('.px-engine').forEach(b=>b.classList.toggle('sel',b.dataset.engine===e)); pxSaveCfg(); };
   setEngine(PX.cfg.engine); pxRenderFams(); pxApplyTheme();
   document.querySelectorAll('.px-engine').forEach(b=>b.addEventListener('click',()=>setEngine(b.dataset.engine)));
   $px('pxFams').addEventListener('click',e=>{
     const b=e.target.closest('[data-fam]'); if(!b) return; const f=b.dataset.fam, a=PX.cfg.families;
+    if(f==='hl'){ if(PX.running||PX.pair){ toast('Stop the bot before switching modes.','error'); return; } pxSetPair(!PX.cfg.pair.on); return; }
+    if(PX.cfg.pair.on){ if(PX.running||PX.pair){ toast('Stop the bot before switching modes.','error'); return; } pxSetPair(false); }
     if(a.includes(f)){ if(a.length>1) a.splice(a.indexOf(f),1); else toast('Keep at least one strategy on.','info'); } else a.push(f);
     pxRenderFams(); pxSaveCfg();
   });
-  ['pxStake','pxTarget','pxMaxLoss','pxMarket','pxSteps','pxGuard'].forEach(id=>$px(id).addEventListener('change',pxReadInputs));
+  ['pxStake','pxTarget','pxMaxLoss','pxMarket','pxSteps','pxGuard','pxPOffset','pxPTicks','pxPConfirm','pxPLayout'].forEach(id=>$px(id).addEventListener('change',pxReadInputs));
   $px('pxCollapseBtn').addEventListener('click',()=>{ const o=$px('pxConfig').classList.toggle('open'); $px('pxCollapseBtn').classList.toggle('open',o); });
   $px('pxThemeBtn').addEventListener('click',()=>{ PX.dark=!PX.dark; pxApplyTheme(); pxSaveCfg(); });
   $px('pxMenuBtn').addEventListener('click',()=>document.getElementById('hamburger').click());
@@ -4693,6 +4725,136 @@ function setupPremiumUI(){
   $px('pxModalOk').addEventListener('click',closeM); $px('pxModalX').addEventListener('click',closeM);
   document.querySelectorAll('.px-bot [data-go]').forEach(b=>b.addEventListener('click',()=>{ const t=document.querySelector(`.tab[data-tab="${b.dataset.go}"]`); if(t) t.click(); }));
   pxSetStatus('Ready — set your limits and start.'); pxRenderAll(); pxRenderChips(); pxRenderRisk();
+}
+
+/* ============================================================
+   HIGHER / LOWER PAIR MODE — mirrors the Deriv Bot "Both" setup from the videos:
+   every cycle buys a Higher AND a Lower together (same stake, same duration, barrier offset each side),
+   waits for both to finish, then repeats. "Confirmation" = the HL PRO same-direction tick streak counter.
+   ============================================================ */
+function pxPairMarket(){ const s=PX.cfg.market; return engineState.markets.get(s==='ALL'?'1HZ100V':s); }
+function pxStreak(m){
+  const q=m.quotes; let dir=0,n=0;
+  for(let i=q.length-1;i>0;i--){ const d=q[i]-q[i-1], sg=d>0?1:d<0?-1:0; if(!sg) break; if(!dir) dir=sg; if(sg!==dir) break; n++; }
+  return {dir:dir===1?'up':dir===-1?'down':null,n};
+}
+/* empirical frequency of the n-tick move beyond +/-offset on this market's stored history */
+function pxPairStats(m){ return cached(m,'pxpair|'+PX.cfg.pair.ticks+'|'+PX.cfg.pair.offset+'|'+PX.cfg.pair.layout,()=>{
+  const k=PX.cfg.pair.ticks, off=PX.cfg.pair.offset, q=m.quotes.slice(-2500), n=q.length-k; if(n<150) return null;
+  let up=0,dn=0,sum=0,sq=0;
+  for(let i=0;i<n;i++){ const d=q[i+k]-q[i]; if(d>off) up++; else if(d<-off) dn++; sum+=d; sq+=d*d; }
+  up/=n; dn/=n; const out=PX.cfg.pair.layout==='outside';
+  const high=Math.max(0.002,out?up:1-dn), low=Math.max(0.002,out?dn:1-up);   // chance each leg wins
+  return {n,up,dn,high,low,sigma:Math.sqrt(Math.max(0,sq/n-Math.pow(sum/n,2)))};
+});}
+function pxPairBarrier(m,sign){
+  const dec=m.decimals>0?m.decimals:2, off=Math.max(Math.pow(10,-dec),PX.cfg.pair.offset);
+  return sign+off.toFixed(dec);
+}
+function pxPairTick(){
+  const P=PX.pair;
+  if(P&&P.stage==='proposing'&&Date.now()-P.startedAt>8000) pxPairAbort('Pair timed out waiting for prices — trying again.');
+  if(!PX.running||PX.pair||Date.now()<PX.nextAt||!wsConnected) return;
+  const m=pxPairMarket();
+  if(!m||m.quotes.length<60){ pxSetStatus('Higher/Lower pair: waiting for ticks on '+(m?m.short:'the market')+'…'); return; }
+  const need=PX.cfg.pair.confirm, st=pxStreak(m);
+  if(need>0&&st.n<need){ pxSetStatus(`HL PRO signal: SCANNING — ${st.n?st.n+'× '+st.dir:'no streak'} (needs ${need} same-direction ticks)`); return; }
+  pxPairPlace(m,st);
+}
+function pxPairPlace(m,st){
+  let stake=pxComputeStake(); const left=PX.cfg.maxLoss+PX.stats.pl;
+  if(stake*2>left) stake=Math.floor(left*100/2)/100;                 // both legs must fit in the remaining loss buffer
+  if(stake<0.35){ pxFinish('maxloss'); return; }
+  const sd=stakeForApi(stake), out=PX.cfg.pair.layout==='outside', ticks=PX.cfg.pair.ticks, id=++PX.seq;
+  const batch={id,sid:PX.sid,stage:'proposing',startedAt:Date.now(),symbol:m.code,legs:{},got:0,net:0,settled:0,failed:0,expected:2,ev:null,
+    signal:st.n?`${st.n}× ${st.dir}`:'no streak'};
+  PX.pair=batch;
+  [['HIGHER','CALL',out?'+':'-'],['LOWER','PUT',out?'-':'+']].forEach(([leg,type,sg])=>{
+    const reqId=wsReqId++, barrier=pxPairBarrier(m,sg);
+    const params={amount:sd.number,basis:'stake',contract_type:type,currency:(accountInfo&&accountInfo.currency)||'USD',
+      duration:ticks,duration_unit:'t',underlying_symbol:m.code,barrier,subscribe:1};
+    const t={purpose:'premium',premiumId:++PX.seq,sid:PX.sid,slotIdx:-1,strategyRef:null,marketSymbol:m.code,contractType:type,
+      label:`${leg==='HIGHER'?'Higher':'Lower'} ${barrier} · ${ticks}t`,stake:sd.number,stakeText:sd.text,adaptiveContext:null,pairId:null,pairLeg:null,
+      pxCand:null,pxPair:id,pxLeg:leg,pxParams:params};
+    batch.legs[leg]={t,reqId}; pendingProposalMap.set(reqId,t);
+  });
+  pxSetStatus(`HL PRO signal: CONFIRMED (${batch.signal}) — requesting Higher + Lower on ${m.short}…`);
+  Object.values(batch.legs).forEach(l=>ws.send(JSON.stringify({proposal:1,...l.t.pxParams,req_id:l.reqId})));   // both requests go out back-to-back
+}
+function pxForgetSub(t){ if(t&&t.proposalSub&&ws&&ws.readyState===1){ try{ ws.send(JSON.stringify({forget:t.proposalSub,req_id:wsReqId++})); }catch(e){} } }
+function premiumPairProposal(t,data){
+  const P=PX.pair;
+  if(!P||P.id!==t.pxPair||t.sid!==PX.sid){ pxForgetSub(t); return; }
+  const leg=P.legs[t.pxLeg]; leg.proposal=data.proposal; P.got++;
+  if(P.got<2) return;
+  const H=P.legs.HIGHER, L=P.legs.LOWER, m=engineState.markets.get(P.symbol), s=m?pxPairStats(m):null;
+  const ask=x=>Number(x.proposal.ask_price)||x.t.stake, pay=x=>Number(x.proposal.payout);
+  const ev=(s&&pay(H)>0&&pay(L)>0)?(s.high*pay(H)+s.low*pay(L))/(ask(H)+ask(L))-1:null;
+  P.ev=ev; H.t.ev=ev; L.t.ev=ev;
+  if((PX.cfg.guard||'warn')==='block'&&ev!=null&&ev<0){ pxPairAbort(`Value guard skipped the pair: expected value ${(ev*100).toFixed(1)}% (house margin). Waiting for the next cycle…`); return; }
+  P.stage='buying';
+  [H,L].forEach(l=>{ const bid=wsReqId++; pendingBuyMap.set(bid,l.t); ws.send(JSON.stringify({buy:l.proposal.id,price:ask(l),req_id:bid})); });   // buy both back-to-back
+  pxSetStatus(`Pair bought · payouts ${pay(H)>0?pay(H).toFixed(2):'?'} / ${pay(L)>0?pay(L).toFixed(2):'?'}${ev!=null?` · EV ${(ev*100).toFixed(1)}%`:''}`);
+}
+function pxPairAbort(msg){
+  const P=PX.pair; if(!P) return;
+  Object.values(P.legs).forEach(l=>{ pendingProposalMap.delete(l.reqId); pxForgetSub(l.t); });
+  PX.pair=null; PX.nextAt=Date.now()+2000; PX.errStreak++; pxSetStatus(msg);
+  if(PX.errStreak>=6) pxStop('Stopped: 6 pair attempts failed in a row. Check the market, offset and duration.');
+}
+function pxPairError(t,msg){
+  const P=PX.pair; if(!P||P.id!==t.pxPair) return;
+  console.warn('EMRON Auto pair: Deriv rejected',t.pxParams,msg);
+  if(P.stage==='proposing'){ pxPairAbort(`Deriv rejected ${t.label}: ${msg}. Trying again…`); return; }
+  P.failed++; P.settled++; pxSetStatus(`Pair leg failed: ${msg}`); pxPairMaybeFinish(P);
+}
+function pxPairLegDone(rec,profit,won){
+  const P=PX.pair;
+  if(P&&P.id===rec.pxPair){ P.net+=profit; P.settled++; }
+  const tk=$px('pxTicker'); if(tk){ tk.className='px-ticker on '+(won?'win':'loss');
+    $px('pxTickerTxt').innerHTML=`${won?'Leg won':'Leg lost'} <b>$${pxFmt(Math.abs(profit))}</b>`; }
+  pxRenderAll();
+  if(wsConnected) ws.send(JSON.stringify({balance:1,req_id:wsReqId++}));
+  if(P&&P.id===rec.pxPair) pxPairMaybeFinish(P);
+}
+function pxPairMaybeFinish(P){
+  if(PX.pair!==P||P.settled<P.expected) return;
+  PX.pair=null; PX.nextAt=Date.now()+600;
+  if(P.failed===P.expected){ pxSetStatus('Both legs failed to open — nothing was bought.'); return; }
+  const won=P.net>0; if(won) PX.lossStreak=0; else PX.lossStreak++;
+  const s=PX.stats;
+  if(s.pl>=PX.cfg.target) { pxFinish('target'); return; }
+  if(s.pl<=-PX.cfg.maxLoss||Math.floor((PX.cfg.maxLoss+s.pl)*50)/100<0.35){ pxFinish('maxloss'); return; }
+  if(PX.running) pxSetStatus(`Cycle ${won?'won':'lost'} ${P.net>=0?'+':'-'}$${pxFmt(Math.abs(P.net))} — next signal…`);
+}
+function pxPairChips(){
+  const m=pxPairMarket(); if(!m) return '';
+  const s=pxPairStats(m), st=pxStreak(m), p=PX.cfg.pair, c=[`<span>${m.short} · ${p.ticks}-tick moves</span>`];
+  if(s) c.push(`<span>σ ${s.sigma.toFixed(2)}</span><span>Higher wins ${(s.high*100).toFixed(1)}% ≈ ${(0.975/s.high).toFixed(2)}×</span><span>Lower wins ${(s.low*100).toFixed(1)}% ≈ ${(0.975/s.low).toFixed(2)}×</span>`);
+  else c.push('<span>collecting history…</span>');
+  c.push(`<span class="${p.confirm>0&&st.n>=p.confirm?'on':''}">signal ${st.n}/${p.confirm}${st.dir?' '+st.dir:''}</span>`);
+  return c.join('');
+}
+function pxPairRiskSim(){
+  const m=pxPairMarket(), s=m?pxPairStats(m):null; if(!s) return null;
+  const base=normalizeStake(PX.cfg.stake), tgt=PX.cfg.target, ml=PX.cfg.maxLoss, steps=PX.cfg.steps, mult=PX.cfg.recovery, out=PX.cfg.pair.layout==='outside';
+  const rH=0.975/s.high, rL=0.975/s.low; let win=0,loss=0,cycles=0,pl=0; const S=3000;
+  for(let i=0;i<S;i++){
+    let bal=0,streak=0,n=0;
+    while(n<3000){
+      let st=base; for(let k=0;k<Math.min(streak,steps);k++) st=normalizeStake(st*mult);
+      const left=ml+bal; if(st*2>left) st=Math.floor(left*50)/100; if(st<0.35){ loss++; break; }
+      n++; const u=Math.random(); let hw,lw;
+      if(out){ hw=u<s.up; lw=!hw&&u<s.up+s.dn; }
+      else if(u<s.up){ hw=true; lw=false; }
+      else if(u<s.up+s.dn){ hw=false; lw=true; }
+      else { hw=true; lw=true; }
+      const net=(hw?st*(rH-1):-st)+(lw?st*(rL-1):-st); bal+=net; streak=net>0?0:streak+1;
+      if(bal>=tgt){ win++; break; } if(bal<=-ml){ loss++; break; }
+    }
+    cycles+=n; pl+=bal;
+  }
+  return {win:win/S,loss:loss/S,cycles:cycles/S,pl:pl/S,s,rH,rL};
 }
 
 /* ============================================================
@@ -4852,6 +5014,14 @@ function pxRiskSim(){
 }
 function pxRenderRisk(){
   const el=document.getElementById('pxRisk'); if(!el) return;
+  if(PX.cfg.pair.on){
+    const r=pxPairRiskSim();
+    el.innerHTML=!r?'<b>Risk preview</b> <span>— waiting for enough tick history on the pair market…</span>':
+      `<b>Risk preview</b> <span>(pair priced at ~2.5% house margin from this market's own ${PX.cfg.pair.ticks}-tick moves)</span><br>`+
+      `A cycle costs <b>$${(normalizeStake(PX.cfg.stake)*2).toFixed(2)}</b> · Higher wins ${(r.s.high*100).toFixed(1)}% (≈${r.rH.toFixed(2)}×) · Lower wins ${(r.s.low*100).toFixed(1)}% (≈${r.rL.toFixed(2)}×)<br>`+
+      `Hit target first: <b class="g">${(r.win*100).toFixed(0)}%</b> · Hit max loss: <b class="r">${(r.loss*100).toFixed(0)}%</b> · Average result: <b class="${r.pl>=0?'g':'r'}">${r.pl>=0?'+':'-'}$${Math.abs(r.pl).toFixed(2)}</b> over ~${Math.round(r.cycles)} cycles`;
+    return;
+  }
   const r=pxRiskSim();
   el.innerHTML=`<b>Risk preview</b> <span>(fair 50/50 contract, ~2.5% house margin, no edge assumed)</span><br>`+
     `Hit target first: <b class="g">${(r.win*100).toFixed(0)}%</b> · Hit max loss: <b class="r">${(r.loss*100).toFixed(0)}%</b> · Average result: <b class="${r.pl>=0?'g':'r'}">${r.pl>=0?'+':'-'}$${Math.abs(r.pl).toFixed(2)}</b> over ~${Math.round(r.trades)} trades<br>`+
