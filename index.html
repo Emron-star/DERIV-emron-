@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
-<title>EMRON AI — Auto-Trader | Trading Dashboard</title>
+<title>EMRON AI — Strategy Row + Pulse Switch-on-Loss Engine</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -659,102 +659,43 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .px-note{font-size:10px;color:var(--px-mut);line-height:1.5}
 .px-fam.pair.on{border-color:var(--px-red);color:var(--px-red)!important;background:rgba(225,29,72,.08)}
 .px-fam.dim{opacity:.35}
-
-/* ===== EMRON AI AUTO-TRADER v3: replacement module ===== */
-#premium .px-shell{max-width:480px;margin:0 auto;position:relative;overflow:hidden;border-radius:22px;padding:10px 12px 8px;background:#eef2fb;color:#1b2030;border:1px solid #dfe5f3;box-shadow:0 10px 40px rgba(0,0,0,.28);font-family:'Poppins','Inter',system-ui,sans-serif}
-#premium .px-shell[data-theme=dark]{background:#0f1219;color:#e8ecf4;border-color:#2a3040}
-#premium .px-brand{display:flex;flex-direction:column;line-height:1.15;min-width:68px}
-#premium .px-brand b{font-size:12px;font-weight:800;letter-spacing:.015em}
-#premium .px-brand small{font-size:9px;color:var(--px-mut)}
-#premium .px-head{gap:7px}
-#premium .px-acct{border:1px solid var(--px-line);background:var(--px-card);cursor:pointer;min-width:0;max-width:150px;padding:5px 7px}
-#premium .px-acct-t b{font-size:11px}.px-acct-chevron{font-size:15px;color:var(--px-mut)}
-#premium .px-title-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:2px 0 12px}
-#premium .px-title-row h2{font-size:17px;line-height:1.2;margin:2px 0 0;font-weight:700;letter-spacing:-.025em}
-#premium .px-kicker{font-size:8px;letter-spacing:.15em;font-weight:700;color:#64748b}
-#premium .px-tier-pill{font-size:8px;font-weight:800;letter-spacing:.06em;padding:5px 8px;border-radius:30px;background:#e0f2fe;color:#0369a1;border:1px solid #bae6fd;white-space:nowrap}
-#premium .px-bot-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:14px}
-#premium .px-engine{position:relative;min-width:0;min-height:112px;padding:11px 10px;text-align:left;align-items:flex-start;gap:5px;background:var(--px-card);border:1.5px solid var(--px-line);border-radius:14px;color:var(--px-text);box-shadow:none}
-#premium .px-engine .px-bot-emoji{font-size:18px;line-height:1.05}
-#premium .px-engine b{font-size:11px;line-height:1.3}
-#premium .px-engine small{font-size:9px;line-height:1.45;color:var(--px-mut)}
-#premium .px-engine .px-bot-badge{font-size:7px;font-weight:800;letter-spacing:.05em;color:var(--px-mut);margin-top:2px}
-#premium .px-engine.sel{border-color:#14b8a6;background:linear-gradient(145deg,var(--px-card),rgba(20,184,166,.1));box-shadow:0 0 0 2px rgba(20,184,166,.13)}
-#premium .px-engine.locked{opacity:.55}
-#premium .px-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px 9px}
-#premium .px-field{margin-bottom:9px;min-width:0}
-#premium .px-field-wide{grid-column:1/-1}
-#premium .px-field>span{font-size:10px;font-weight:600;color:var(--px-mut);margin-bottom:4px}
-#premium .px-input{height:40px;padding:0 10px}
-#premium .px-input input,#premium .px-input select{font-size:13px;min-width:0;min-height:0;width:100%}
-#premium .px-input em{font-size:10px;white-space:nowrap}
-#premium .px-field>select{height:40px;font-size:13px}
-#premium .px-risk{font-size:9.5px;line-height:1.55;padding:10px 11px;margin:0 0 9px}
-#premium .px-risk-notice{font-size:9px;line-height:1.5;color:var(--px-mut);margin:9px 2px 1px}
-#premium .px-statusrow{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;padding:8px 2px;font-size:10px}
-#premium .px-status-copy{display:flex;align-items:flex-start;gap:7px;min-width:0;line-height:1.5}
-#premium #pxStatus{min-width:0;color:var(--px-mut)}
-#premium .px-status-dot{width:7px;height:7px;flex:none;border-radius:50%;background:#94a3b8;margin-top:4px}
-#premium .px-status-dot.live{background:#14b8a6;box-shadow:0 0 9px #14b8a6;animation:pulse 1.4s infinite}
-#premium .px-statusrow #pxPL{font-size:12px;white-space:nowrap;font-weight:700;font-variant-numeric:tabular-nums}
-#premium .px-start{height:46px;font-size:14px;margin-top:0;border-radius:13px;background:#16a34a;color:#fff!important;box-shadow:0 5px 12px rgba(22,163,74,.18)}
-#premium .px-start.is-stop{background:#e11d48;box-shadow:0 5px 12px rgba(225,29,72,.2)}
-#premium .px-start:disabled{opacity:.6}
-#premium .px-tx{padding:10px;border-radius:14px;margin-top:12px}
-#premium .px-tx-h{gap:5px;margin-bottom:8px;flex-wrap:nowrap}
-#premium .px-tx-title{display:flex;align-items:center;gap:6px;flex:1;min-width:0;text-align:left;font-family:inherit;color:var(--px-text)}
-#premium .px-tx-title strong{font-size:12px;flex:initial;white-space:nowrap}
-#premium .px-tx-title #pxTransactionsPL{font-size:10px;font-weight:700;color:var(--px-green);white-space:nowrap}
-#premium #pxTxChevron{color:var(--px-mut);margin-left:auto}
-#premium .px-stop,#premium .px-reset{flex:none;height:30px;padding:0 8px;font-size:10px}
-#premium .px-list{gap:6px;max-height:340px}
-#premium .px-row{gap:7px;padding:9px 8px;border-radius:11px}
-#premium .px-rm{min-width:0}
-#premium .px-rt{font-size:10px;line-height:1.4;white-space:normal}
-#premium .px-rs{font-size:9px;line-height:1.5;overflow-wrap:anywhere}
-#premium .px-rp{font-size:11px;white-space:nowrap}
-#premium .px-sell{padding:0 8px;flex:none}
-#premium .px-no-trades{font-size:9px;color:var(--px-mut);padding:4px 1px 0;line-height:1.4}
-#premium .px-stats{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:9px}
-#premium .px-st{padding:8px 7px;min-width:0}
-#premium .px-st small{font-size:7.5px;letter-spacing:.03em;line-height:1.3}
-#premium .px-st b{font-size:11px;overflow-wrap:anywhere}
-#premium .px-detail-card{background:var(--px-card);border:1px solid var(--px-line);border-radius:14px;padding:10px;margin-top:9px;min-width:0}
-#premium .px-detail-top{display:flex;align-items:center;justify-content:space-between;gap:5px;flex-wrap:wrap}
-#premium .px-detail-tabs{display:flex;gap:3px;min-width:0}
-#premium .px-detail-tabs button{padding:6px 8px;font-size:9px;border-radius:8px;color:var(--px-mut);border:1px solid transparent;white-space:nowrap}
-#premium .px-detail-tabs button.active{color:var(--px-text);background:var(--px-row);border-color:var(--px-line)}
-#premium .px-detail-actions{display:flex;gap:4px}
-#premium .px-mini-action{padding:6px 8px;border-radius:8px;border:1px solid var(--px-line);font-size:8.5px;background:var(--px-row);white-space:nowrap}
-#premium .px-detail-body{margin-top:10px;min-width:0}
-#premium .px-state-strip{display:flex;align-items:center;gap:7px;font-size:9px;background:var(--px-row);border:1px solid var(--px-line);border-radius:8px;padding:8px}
-#premium .px-state-led{width:6px;height:6px;border-radius:50%;background:#94a3b8;flex:none}
-#premium .px-state-led.live{background:#16a34a;box-shadow:0 0 7px #16a34a}
-#premium .px-detail-why{margin-left:auto;color:var(--px-mut);cursor:help;white-space:nowrap}
-#premium .px-detail-caption{font-size:9px;line-height:1.5;color:var(--px-mut);margin-top:8px}
-#premium .px-detail-table-wrap{overflow:auto;max-width:100%;margin-top:8px}
-#premium .px-detail-table{min-width:320px;font-size:9px}
-#premium .px-detail-table th{font-size:8px;padding:7px 5px}
-#premium .px-detail-table td{font-size:9px;padding:7px 5px;white-space:nowrap}
-#premium .px-journal-list{display:flex;flex-direction:column;gap:5px;max-height:260px;overflow:auto}
-#premium .px-journal-item{display:grid;grid-template-columns:65px 1fr;gap:7px;font-size:8.5px;line-height:1.45;padding:7px;background:var(--px-row);border-radius:7px;overflow-wrap:anywhere}
-#premium .px-journal-time{color:var(--px-mut);font-family:'JetBrains Mono',monospace}
-#premium .px-journal-item.error .px-journal-msg{color:var(--px-red)}
-#premium .px-journal-item.success .px-journal-msg{color:var(--px-green)}
-#premium .px-pricing-panel{margin-top:9px;border:1px solid var(--px-line);border-radius:12px;background:var(--px-card);padding:12px;font-size:10px;line-height:1.6}
-#premium .px-pricing-panel p{color:var(--px-mut);margin:5px 0 9px}
-#premium .px-bot{margin-top:11px}
-#premium .px-bot button{min-width:0;padding:7px 2px;font-size:8px}
-#premium .px-bot button svg{width:16px;height:16px}
-#premium .px-bot button.act{color:var(--px-acc)!important}
-#premium .px-ai-orb{position:fixed;right:max(15px,calc((100vw - 480px)/2 - 12px));bottom:72px;width:35px;height:35px;border-radius:50%;display:none;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;background:radial-gradient(circle at 30% 25%,#8b5cf6,#0ea5e9 70%);box-shadow:0 0 20px rgba(14,165,233,.5);z-index:10;pointer-events:none}
-#premium .px-ai-orb.on{display:flex;animation:pulse 1.8s infinite}
-#premium .px-config input:disabled,#premium .px-config select:disabled{opacity:.6}
-#premium .px-engine .px-lock-tag{position:absolute;top:6px;right:7px;font-size:8px;color:var(--px-red)}
-.px-scan{pointer-events:none}
-@media(max-width:380px){#premium .px-shell{padding:8px;border-radius:17px}#premium .px-head{gap:5px}#premium .px-acct{padding:4px 5px;max-width:125px}#premium .px-acct-t b{font-size:10px}#premium .px-engine{padding:9px 8px;min-height:116px}#premium .px-detail-actions{width:100%;justify-content:flex-end}#premium .px-detail-top{align-items:flex-start}}
-
-#premium .px-plugin-row{margin:-3px 0 13px;padding:9px 10px;background:var(--px-row);border:1px solid var(--px-line);border-radius:11px;display:flex;flex-direction:column;gap:5px}#premium .px-plugin-row .px-field{margin:0}#premium .px-plugin-select{width:100%;height:38px;border:1px solid var(--px-line);border-radius:9px;padding:0 10px;background:var(--px-card);color:var(--px-text);font:500 12px 'Poppins','Inter',sans-serif}#premium .px-plugin-row small{font-size:9px;line-height:1.4;color:var(--px-mut)}#premium .px-plugin-select:disabled{opacity:.55}
+/* ===== EMRON AUTO (Premium) — strategy cards, advanced panel, decision log ===== */
+.px-prem{display:flex;align-items:center;gap:8px;margin:2px 0 10px}
+.px-prem h2{font-size:16px;font-weight:700;margin:0}
+.px-badge{font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:3px 8px;border-radius:10px;background:linear-gradient(90deg,#f97316,#a855f7);color:#fff}
+.px-rd{margin-left:auto;font-size:9px;font-weight:600;color:var(--px-mut);border:1px solid var(--px-line);border-radius:8px;padding:3px 7px}
+.px-cards{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.px-card{position:relative;text-align:left;background:var(--px-card);border:1.5px solid var(--px-line);border-radius:14px;padding:11px 10px 10px;display:flex;flex-direction:column;gap:2px;transition:border-color .15s,box-shadow .15s,opacity .15s}
+.px-card svg{color:#a855f7;margin-bottom:3px}
+.px-card b{font-size:12.5px;font-weight:700}
+.px-card em{font-style:normal;font-size:10px;color:var(--px-mut)}
+.px-card small{font-size:9.5px;color:var(--px-mut);line-height:1.4;margin-top:3px}
+.px-card .px-ck{position:absolute;top:9px;right:9px;width:16px;height:16px;border-radius:50%;border:1.5px solid var(--px-line)}
+.px-card.sel{border-color:#a855f7;box-shadow:0 0 0 3px rgba(168,85,247,.16)}
+.px-card.sel .px-ck{border-color:transparent;background:linear-gradient(135deg,#f97316,#a855f7)}
+.px-card.sel .px-ck::after{content:'';position:absolute;left:4.5px;top:2px;width:4px;height:8px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
+.px-card.dim{opacity:.4}
+.px-adv-t{width:100%;display:flex;align-items:center;justify-content:space-between;padding:9px 12px;margin:2px 0 8px;border:1px solid var(--px-line);border-radius:12px;background:var(--px-card);font-size:12px;font-weight:600}
+.px-adv-t svg{transition:transform .2s}.px-adv-t.open svg{transform:rotate(180deg)}
+.px-adv{display:none}.px-adv.open{display:block}
+.px-adv-h{font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--px-mut);margin:4px 0 6px}
+.px-start{background:linear-gradient(90deg,#f97316,#a855f7)!important;box-shadow:0 6px 18px rgba(168,85,247,.28)}
+.px-dot{width:8px;height:8px;border-radius:50%;background:var(--px-red);display:inline-block}
+.px-dot.on{background:var(--px-green)}
+.px-demo{color:var(--px-acc)!important;font-weight:600}.px-real{color:var(--px-red)!important;font-weight:700}
+.px-chips span.wide{flex-basis:100%;text-align:center;line-height:1.45;white-space:normal}
+.px-logbox{background:var(--px-card);border:1px solid var(--px-line);border-radius:12px;padding:8px 10px;margin-bottom:10px;font-size:11px}
+.px-logbox summary{cursor:pointer;font-weight:600;color:var(--px-text)}
+.px-log{max-height:190px;overflow-y:auto;margin-top:6px;display:flex;flex-direction:column;gap:3px}
+.px-lg{display:flex;gap:6px;font:10px/1.4 'JetBrains Mono',monospace;color:var(--px-mut)}
+.px-lg time{flex-shrink:0}.px-lg b{flex-shrink:0;width:50px;color:var(--px-text)}.px-lg span{min-width:0;word-break:break-word}
+.px-lg.error b,.px-lg.risk b{color:var(--px-red)}.px-lg.settled b,.px-lg.order b{color:var(--px-green)}.px-lg.signal b,.px-lg.switch b{color:#a855f7}
+.px-row.open{border-style:dashed}
+.px-rp.o{color:var(--px-mut)}
+.px-pill{font-style:normal;font-size:8px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:2px 6px;border-radius:8px;background:rgba(168,85,247,.14);color:#a855f7;margin-right:2px}
+.px-more{width:100%;margin-top:8px;padding:8px;font-size:11px;font-weight:600;color:var(--px-acc)!important;border:1px dashed var(--px-line);border-radius:10px}
+.px-scan-step{color:#22d3ee;font:11px/1.4 'JetBrains Mono',monospace;margin-top:8px;max-width:300px}
+.px-scan-x{margin-top:10px;font-size:11px;color:#9ca3af!important;text-decoration:underline}
 </style>
 </head>
 <body>
@@ -767,7 +708,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
     <button class="tab active" data-tab="trading-hub" role="tab">Trading Hub</button>
     <button class="tab" data-tab="pulse" role="tab">📡 EMRON Pulse</button>
     <button class="tab" data-tab="hunter" role="tab">🎯 AI Hunter</button>
-    <button class="tab" data-tab="premium" role="tab">⚡ Auto-Trader</button>
+    <button class="tab" data-tab="premium" role="tab">⚡ EMRON Auto</button>
     <button class="tab" data-tab="lab" role="tab">🧪 Edge Lab</button>
     <button class="tab" data-tab="api-playground" role="tab">API Playground</button>
     <button class="tab" data-tab="help" role="tab">Help</button>
@@ -1234,72 +1175,74 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 <div class="tab-content" id="premium">
  <div class="px-shell" id="pxShell" data-theme="light">
   <header class="px-head">
-   <button class="px-ib" id="pxMenuBtn" aria-label="Open main menu"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
-   <div class="px-logo" aria-hidden="true">🔷</div>
-   <div class="px-brand"><b>EMRON AI</b><small>Auto-Trader</small></div>
-   <div class="px-sp"></div>
-   <button class="px-ib" id="pxThemeBtn" aria-label="Toggle light or dark theme"><svg viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
-   <button class="px-acct" id="pxAcctBtn" title="Switch account using the EMRON account selector"><span id="pxAcctFlag" style="font-size:18px">🌐</span><span class="px-acct-t"><b id="pxBal">— USD</b><small id="pxAcctLbl">Not connected</small></span><span class="px-acct-chevron">⌄</span></button>
+    <button class="px-ib" id="pxMenuBtn" aria-label="Menu"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+    <div class="px-logo">🔷</div>
+    <div class="px-sp"></div>
+    <button class="px-ib" id="pxThemeBtn" aria-label="Toggle theme"><svg viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+    <div class="px-acct"><i class="px-dot" id="pxDot" title="Deriv disconnected"></i><span class="px-acct-t"><b id="pxBal">— USD</b><small id="pxAcctLbl">Not connected</small></span></div>
   </header>
-  <button class="px-collapse open" id="pxCollapseBtn" aria-label="Collapse trading settings"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
-  <div class="px-ticker" id="pxTicker"><span id="pxTickerTxt"></span><button class="px-ib" id="pxTickerX" style="width:22px;height:22px" aria-label="Dismiss notification">✕</button></div>
+  <button class="px-collapse open" id="pxCollapseBtn" aria-label="Toggle settings"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
+  <div class="px-ticker" id="pxTicker"><span id="pxTickerTxt"></span><button class="px-ib" id="pxTickerX" style="width:22px;height:22px" aria-label="Dismiss">✕</button></div>
 
   <section class="px-config open" id="pxConfig">
-   <div class="px-title-row"><div><div class="px-kicker">AUTONOMOUS EXECUTION</div><h2>Choose your trading bot</h2></div><span class="px-tier-pill" id="pxTierPill">PREMIUM</span></div>
-   <div class="px-engines px-bot-grid" id="pxBotGrid">
-    <button class="px-engine sel" data-auto-bot="matches"><span class="px-bot-emoji">🎯</span><b>Matches Printer</b><small>Digit Matches using stable 50 / 100 / 200 tick digit counts.</small><span class="px-bot-badge">DIGIT MATCH</span></button>
-    <button class="px-engine" data-auto-bot="over8"><span class="px-bot-emoji">8️⃣</span><b>Over 8 Killer</b><small>Digit Over 8 with a measured last-digit frequency check.</small><span class="px-bot-badge">OVER 8</span></button>
-    <button class="px-engine" data-auto-bot="tickstrike"><span class="px-bot-emoji">⚡</span><b>TickStrike Pro</b><small>Short tick-momentum plays using observed up/down runs.</small><span class="px-bot-badge">TICK MOMENTUM</span></button>
-    <button class="px-engine" data-auto-bot="switcher"><span class="px-bot-emoji">⇅</span><b>Auto Switcher</b><small>Selects Only Ups or Only Downs from observed two-tick run rates.</small><span class="px-bot-badge">UPS / DOWNS</span></button>
-   </div>
-   <div class="px-plugin-row">
-    <label class="px-field"><span>Matches strategy engine (optional)</span><select class="px-plugin-select" id="pxStrategyPlugin"><option value="native">Built-in Matches Printer</option><option value="videoMatch">Reuse existing EMRON Video-Match rule</option></select></label>
-    <small id="pxPluginNote">The existing Video-Match engine remains available as a plugin. This option is applied only while Matches Printer is selected.</small>
-   </div>
-   <div class="px-form-grid">
-    <label class="px-field px-field-wide"><span>Market</span><select id="pxMarket"></select></label>
-    <label class="px-field"><span>Stake per trade</span><div class="px-input"><input id="pxStake" type="number" inputmode="decimal" min="0.35" step="0.01" value="1.00"><em>USD</em></div></label>
-    <label class="px-field"><span>Profit target</span><div class="px-input"><input id="pxTarget" type="number" inputmode="decimal" min="0.01" step="0.01" value="10.00"><em>USD</em></div></label>
-    <label class="px-field px-field-wide"><span>Max loss</span><div class="px-input"><input id="pxMaxLoss" type="number" inputmode="decimal" min="0.35" step="0.01" value="5.00"><em>USD</em></div></label>
-   </div>
-   <div class="px-risk" id="pxRisk"><b>Risk controls</b><br>Recovery ×1.6, maximum 3 recovery steps, stake cap 10× base stake and 25% of current balance. The live proposal payout is checked before every buy.</div>
-   <div class="px-statusrow"><div class="px-status-copy"><span class="px-status-dot" id="pxStatusDot"></span><span id="pxStatus">Ready — connect a Deriv account, set limits, then start.</span></div><b id="pxPL">+0.00 USD</b></div>
-   <button class="px-start" id="pxStartBtn">▶ Start</button>
-   <p class="px-risk-notice">Synthetic indices carry a high risk of loss. Past session results do not guarantee future results. EMRON AI does not remove trading risk.</p>
+    <div class="px-prem"><h2>EMRON Auto</h2><span class="px-badge">Premium</span><span class="px-rd">REAL &amp; DEMO</span></div>
+    <div class="px-cards" id="pxCards"></div>
+    <button class="px-fam pair" id="pxPairBtn" type="button" style="margin-bottom:10px">↕ Higher/Lower hedge pair mode</button>
+    <div class="px-pairbox" id="pxPairBox" style="display:none">
+      <div class="px-two"><label class="px-field"><span>Barrier offset</span><div class="px-input"><input id="pxPOffset" type="number" inputmode="decimal" min="0.01" step="0.01"></div></label>
+      <label class="px-field"><span>Duration (ticks)</span><div class="px-input"><input id="pxPTicks" type="number" inputmode="numeric" min="1" max="10" step="1"></div></label></div>
+      <div class="px-two"><label class="px-field"><span>Confirmation (ticks)</span><div class="px-input"><input id="pxPConfirm" type="number" inputmode="numeric" min="0" max="10" step="1"></div></label>
+      <label class="px-field"><span>Barrier layout</span><select id="pxPLayout"><option value="outside">Outside: Higher +offset / Lower −offset</option><option value="inside">Inside: Higher −offset / Lower +offset</option></select></label></div>
+      <div class="px-note">Buys a Higher and a Lower together every cycle (same stake each), like the Deriv Bot "Both" setup. Stake is per leg. Both legs count toward the same risk limits.</div>
+    </div>
+    <label class="px-field"><span>Market</span><select id="pxMarket"></select></label>
+    <label class="px-field"><span>Stake per trade</span><div class="px-input"><input id="pxStake" type="number" inputmode="decimal" min="0.35" step="0.01"><em>USD</em></div></label>
+    <label class="px-field"><span>Profit target (session)</span><div class="px-input"><input id="pxTarget" type="number" inputmode="decimal" min="0.01" step="0.01"><em>USD</em></div></label>
+    <label class="px-field"><span>Max loss (session)</span><div class="px-input"><input id="pxMaxLoss" type="number" inputmode="decimal" min="0.35" step="0.01"><em>USD</em></div></label>
+    <button class="px-adv-t" id="pxAdvBtn" type="button" aria-expanded="false"><span>Advanced settings</span><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
+    <div class="px-adv" id="pxAdv">
+      <div id="pxSpBox"></div>
+      <div class="px-adv-h">Risk controls (enforced for every strategy)</div>
+      <div class="px-two"><label class="px-field"><span>Cooldown between entries (s)</span><div class="px-input"><input id="pxCool" type="number" inputmode="numeric" min="0" max="3600" step="1"></div></label>
+      <label class="px-field"><span>Max trades per session</span><div class="px-input"><input id="pxMaxTrades" type="number" inputmode="numeric" min="1" max="10000" step="1"></div></label></div>
+      <div class="px-two"><label class="px-field"><span>Max losses in a row</span><div class="px-input"><input id="pxMaxConsec" type="number" inputmode="numeric" min="1" max="50" step="1"></div></label>
+      <label class="px-field"><span>Max daily loss</span><div class="px-input"><input id="pxMaxDaily" type="number" inputmode="decimal" min="0.35" step="0.01"><em>USD</em></div></label></div>
+      <label class="px-field"><span>Value guard</span><select id="pxGuard"><option value="off">Off</option><option value="warn">Warn (show EV)</option><option value="block">Block negative EV</option></select></label>
+      <div class="px-note" style="margin-bottom:8px">One contract is open at a time. The stake is flat: no martingale, no doubling after a loss. The stake is also capped by the room left under the session and daily loss limits.</div>
+    </div>
+    <div class="px-risk" id="pxRisk"></div>
+    <div class="px-pl"><span>Total P/L</span><b id="pxPL">+0.00 USD</b></div>
+    <button class="px-start" id="pxStartBtn">Run EMRON Auto</button>
   </section>
+  <div class="px-status" id="pxStatus">Ready — set your limits and run.</div>
+  <div class="px-chips" id="pxChips"></div>
+  <details class="px-logbox" id="pxLogBox"><summary>Decision log <small id="pxLogCount"></small></summary><div class="px-log" id="pxLog"></div></details>
 
-  <section class="px-tx" id="pxTxSection">
-   <div class="px-tx-h">
-    <button class="px-tx-title" id="pxTxToggle" aria-expanded="true"><strong>Transactions</strong><span id="pxTransactionsPL">+0.00 USD</span><span id="pxTxChevron">⌄</span></button>
-    <button class="px-stop" id="pxStopBtn"><i></i><span>Stop</span></button>
-    <button class="px-reset" id="pxResetBtn"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5"/></svg>Reset</button>
-   </div>
-   <div id="pxTxBody"><div class="px-list" id="pxList"></div><div class="px-no-trades" id="pxRowsHint">Latest trade appears first. An open contract can be sold at its current market value.</div></div>
+  <section class="px-tx">
+    <div class="px-tx-h">
+      <strong><svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Transactions</strong>
+      <button class="px-stop" id="pxStopBtn"><i></i><span>Stop</span></button>
+      <button class="px-reset" id="pxResetBtn"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5"/></svg>Reset</button>
+    </div>
+    <div class="px-note" id="pxOpenCap" style="margin-bottom:6px"></div>
+    <div class="px-list" id="pxList"></div>
+    <button class="px-more" id="pxMore" type="button" style="display:none">Show more</button>
   </section>
-
   <section class="px-stats">
-   <div class="px-st"><small>Total stake</small><b id="pxSStake">0.00 USD</b></div>
-   <div class="px-st"><small>Total payout</small><b id="pxSPayout">0.00 USD</b></div>
-   <div class="px-st"><small>No. of runs</small><b id="pxSRuns">0</b></div>
-   <div class="px-st"><small>Contracts lost</small><b id="pxSLost">0</b></div>
-   <div class="px-st"><small>Contracts won</small><b id="pxSWon">0</b></div>
-   <div class="px-st"><small>Total P/L</small><b id="pxSPL">+0.00 USD</b></div>
+    <div class="px-st"><small>Total stake</small><b id="pxSStake">0.00 USD</b></div>
+    <div class="px-st"><small>Total payout</small><b id="pxSPayout">0.00 USD</b></div>
+    <div class="px-st"><small>Completed trades</small><b id="pxSRuns">0</b></div>
+    <div class="px-st"><small>Contracts lost</small><b id="pxSLost">0</b></div>
+    <div class="px-st"><small>Contracts won</small><b id="pxSWon">0</b></div>
+    <div class="px-st"><small>Total P/L</small><b id="pxSPL">+0.00 USD</b></div>
   </section>
-
-  <section class="px-detail-card">
-   <div class="px-detail-top"><nav class="px-detail-tabs" aria-label="Auto-Trader details"><button class="active" data-px-detail="summary">Summary</button><button data-px-detail="transactions">Transactions</button><button data-px-detail="journal">Journal</button></nav><div class="px-detail-actions"><button class="px-mini-action" id="pxDownloadBtn">↓ Download CSV</button><button class="px-mini-action" id="pxDetailBtn">View Detail</button></div></div>
-   <div class="px-detail-body" id="pxDetailSummary"><div class="px-state-strip"><span class="px-state-led"></span><span id="pxTradeStateStrip">Bot is not running</span><span class="px-detail-why" title="Win probability is estimated from the selected market's observed tick history. The actual proposal payout is checked before a trade.">What's this? ⓘ</span></div><p class="px-detail-caption">Session summary is calculated from the transaction rows above, including the live floating result of an open contract.</p><div class="px-detail-table-wrap" id="pxDetailTableWrap" hidden><table class="px-detail-table"><thead><tr><th>Type</th><th>Entry / Exit spot</th><th>Buy price</th><th>P/L</th></tr></thead><tbody id="pxDetailTableBody"></tbody></table></div></div>
-   <div class="px-detail-body" id="pxDetailTransactions" hidden><div class="px-detail-table-wrap"><table class="px-detail-table"><thead><tr><th>Type</th><th>Market / Time</th><th>Buy price</th><th>P/L</th></tr></thead><tbody id="pxTransactionsTableBody"></tbody></table></div></div>
-   <div class="px-detail-body" id="pxDetailJournal" hidden><div class="px-journal-list" id="pxJournal"></div></div>
-  </section>
-  <div class="px-pricing-panel" id="pxPricingPanel" hidden><b>EMRON AI access tiers</b><p id="pxPricingText">Tier access is controlled in the EMRON_AUTO_CONFIG object inside this file.</p><button class="px-mini-action" id="pxPricingClose">Close</button></div>
+  <div class="px-note" id="pxSessNote" style="margin-top:8px;text-align:center"></div>
   <nav class="px-bot">
-   <button data-go="trading-hub"><svg viewBox="0 0 24 24"><path d="M5 21V10M12 21V3M19 21v-7"/></svg>Manual Trading</button>
-   <button data-auto-tier="free"><svg viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg>EMRON AI Free</button>
-   <button class="act" data-auto-tier="premium"><svg viewBox="0 0 24 24"><path d="M3 18l2-10 5 5 2-8 2 8 5-5 2 10zM3 21h18"/></svg>EMRON AI Premium</button>
-   <button id="pxPricingBtn"><svg viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7H14a3.5 3.5 0 0 1 0 7H6"/></svg>AI Pricing</button>
+    <button data-go="trading-hub"><svg viewBox="0 0 24 24"><path d="M5 21V10M12 21V3M19 21v-7"/></svg>Manual<br>Trading</button>
+    <button data-go="pulse"><svg viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8zM19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8z"/></svg>EMRON AI<br>Free</button>
+    <button class="act"><svg viewBox="0 0 24 24"><path d="M3 18l2-10 5 5 2-8 2 8 5-5 2 10zM3 21h18"/></svg>EMRON AI<br>Premium</button>
+    <button data-go="help"><svg viewBox="0 0 24 24"><path d="M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8zM7.5 7.5h.01"/></svg>Help<br>Center</button>
   </nav>
-  <div class="px-ai-orb" id="pxAiOrb" aria-hidden="true">AI</div>
  </div>
 </div>
 
@@ -1487,7 +1430,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
   <div class="nav-item active" data-nav-tab="trading-hub" role="menuitem"><span class="nav-icon">📊</span><span>Trading Hub</span></div>
   <div class="nav-item" data-nav-tab="pulse" role="menuitem"><span class="nav-icon">📡</span><span>EMRON Pulse</span></div>
   <div class="nav-item" data-nav-tab="hunter" role="menuitem"><span class="nav-icon">🎯</span><span>AI Hunter</span></div>
-  <div class="nav-item" data-nav-tab="premium" role="menuitem"><span class="nav-icon">⚡</span><span>Auto-Trader</span></div>
+  <div class="nav-item" data-nav-tab="premium" role="menuitem"><span class="nav-icon">⚡</span><span>EMRON Auto</span></div>
   <div class="nav-item" data-nav-tab="lab" role="menuitem"><span class="nav-icon">🧪</span><span>Edge Lab</span></div>
   <div class="nav-item" data-nav-tab="api-playground" role="menuitem"><span class="nav-icon">🧪</span><span>API Playground</span></div>
   <div class="nav-item" data-nav-tab="help" role="menuitem"><span class="nav-icon">❓</span><span>Help Center</span></div>
@@ -1548,6 +1491,8 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
     <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><path d="M12 3v4M12 17v4M3 12h4M17 12h4"/></svg>
     <div class="px-scan-t">Scanning the market</div>
     <div class="px-dots"><i></i><i></i><i></i></div>
+    <div class="px-scan-step" id="pxScanStep">Starting…</div>
+    <button class="px-scan-x" id="pxScanCancel" type="button">Cancel</button>
   </div>
 </div>
 <div class="px-mo" id="pxModal">
@@ -1972,11 +1917,11 @@ function ingestHistory(d){
   const pip=Number(d.pip_size); if(Number.isInteger(pip)&&pip>=0&&pip<=6) mkt.decimals=pip;
   const dig=[],q=[];
   prices.forEach(p=>{ const n=parseFloat(p); if(isNaN(n)) return; const s=n.toFixed(mkt.decimals); dig.push(parseInt(s.charAt(s.length-1),10)); q.push(n); });
-  mkt.digits=dig.concat(mkt.digits).slice(-MAX_BUFFER); mkt.quotes=q.concat(mkt.quotes).slice(-MAX_BUFFER); mkt.tickCount=Math.max(Number(mkt.tickCount)||0,mkt.digits.length); mkt._ev=null;
+  mkt.digits=dig.concat(mkt.digits).slice(-MAX_BUFFER); mkt.quotes=q.concat(mkt.quotes).slice(-MAX_BUFFER); mkt._ev=null;
 }
 function pxConnectionLost(){
   [pendingProposalMap,pendingBuyMap].forEach(map=>{
-    Array.from(map.entries()).forEach(([k,t])=>{ if(t&&t.purpose==='premium'){ map.delete(k); premiumOnTradeError(t,'connection lost'); } });
+    Array.from(map.entries()).forEach(([k,t])=>{ if(t&&t.purpose==='premium'){ map.delete(k); premiumOnTradeError(t,'connection lost',map===pendingBuyMap); } });
   });
 }
 
@@ -2000,7 +1945,7 @@ function onPulseTick(symbolCode, quote, epoch=null, pipSize=null){
   const lastDigit = parseInt(qStr.charAt(qStr.length-1), 10);
   mkt.digits.push(lastDigit); if(mkt.digits.length>MAX_BUFFER) mkt.digits.shift();
   mkt.quotes.push(num); if(mkt.quotes.length>MAX_BUFFER) mkt.quotes.shift();
-  mkt.lastQuote = qStr; mkt.lastDigit = lastDigit; mkt.tickCount++;
+  mkt.lastQuote = qStr; mkt.lastDigit = lastDigit; mkt.tickCount++; mkt._at = Date.now();
   resolvePending(mkt);
 
   const parity = lastDigit%2===0?'even':'odd';
@@ -2823,10 +2768,6 @@ function onProposalReceived(data){
     return;
   }
   const buyId = wsReqId++;
-  if(t.purpose==='premium'){
-    t.buyReqId=buyId;
-    if(typeof PX!=='undefined' && PX.open){ PX.open.stage='buying'; PX.open.rec=t; PX.open.buyReqId=buyId; PX.state='BUYING'; }
-  }
   pendingBuyMap.set(buyId, t);
   ws.send(JSON.stringify({ buy: data.proposal.id, price: Number(data.proposal.ask_price) || t.stake, req_id: buyId }));
 }
@@ -3516,7 +3457,6 @@ async function connectWebSocket(token){
       ws.send(JSON.stringify({ balance:1, subscribe:1, req_id: wsReqId++ }));
       subscribeTicks();
       activeContracts.forEach((v,cid)=>{ try{ ws.send(JSON.stringify({proposal_open_contract:1,contract_id:cid,subscribe:1})); }catch(e){} });
-      try { if(typeof PX!=='undefined' && (PX.reconcileRequired || PX.reconciling || PX.rows.some(r=>r.status==='open' && !activeContracts.has(Number(r.cid))))){ PX.reconciling=true; ws.send(JSON.stringify({portfolio:1,req_id:wsReqId++})); } } catch(e) { console.warn('Auto-Trader portfolio reconcile request failed',e); }
 
       if(window.wsPing) clearInterval(window.wsPing);
       window.wsPing = setInterval(() => {
@@ -3716,79 +3656,37 @@ function subscribeTicks(){
 function handleWsMessage(ev){
   let data;
   try { data = JSON.parse(ev.data); } catch(e){ return; }
-  try {
-    switch(data.msg_type){
-      case 'balance':
-        if(data.balance){
-          balance = parseFloat(data.balance.balance);
-          document.getElementById('balanceValue').textContent = balance.toFixed(2);
-          document.getElementById('patBalance').textContent = `${data.balance.currency || 'USD'} ${balance.toFixed(2)}`;
-          if(MODE === 'DEMO') document.getElementById('demoBalance').textContent = `$${balance.toFixed(2)}`;
-          else document.getElementById('realBalance').textContent = `$${balance.toFixed(2)}`;
-          if(adaptiveEngine.session.startBalance>0 && balance>adaptiveEngine.session.peakBalance) adaptiveEngine.session.peakBalance=balance;
-          getDailyRecord();
-          refreshBrainStatus();
-          checkAccountSurvival();
-          pxRenderHeader();
-        }
-        break;
-      case 'tick':
-        if(data.tick && data.tick.quote){
-          if(data.subscription) tickSubIds.add(data.subscription.id);
-          onPulseTick(data.tick.symbol, parseFloat(data.tick.quote), data.tick.epoch, data.tick.pip_size);
-        }
-        break;
-      case 'proposal': onProposalReceived(data); break;
-      case 'buy': onBuyReceived(data); break;
-      case 'proposal_open_contract': {
-        const c=data.proposal_open_contract;if(c&&data.subscription?.id){const rec=activeContracts.get(c.contract_id);if(rec&&rec.purpose==='premium')rec.pocSub=data.subscription.id;}
-        onContractUpdate(data);break;
+  switch(data.msg_type){
+    case 'balance':
+      if(data.balance){
+        balance = parseFloat(data.balance.balance);
+        document.getElementById('balanceValue').textContent = balance.toFixed(2);
+        document.getElementById('patBalance').textContent = `${data.balance.currency || 'USD'} ${balance.toFixed(2)}`;
+        if(MODE === 'DEMO') document.getElementById('demoBalance').textContent = `$${balance.toFixed(2)}`;
+        else document.getElementById('realBalance').textContent = `$${balance.toFixed(2)}`;
+        if(adaptiveEngine.session.startBalance>0 && balance>adaptiveEngine.session.peakBalance) adaptiveEngine.session.peakBalance=balance;
+        getDailyRecord();
+        refreshBrainStatus();
+        checkAccountSurvival();
+        pxRenderHeader();
       }
-      case 'portfolio': premiumReconcilePortfolio(data); break;
-      case 'error': {
-        console.error('API error', data.error);
-        const reason=String(data.error?.message||data.error?.code||'Unknown WebSocket API error');
-        const rid=Number(data.req_id??data.echo_req?.req_id);
-        if(Number.isFinite(rid)&&pendingProposalMap.has(rid)){
-          const rec=pendingProposalMap.get(rid);pendingProposalMap.delete(rid);
-          if(rec?.purpose==='premium')premiumOnTradeError(rec,reason);
-          else{toast('❌ '+reason,'error');setAdaptiveGate(false,'proposal_error',reason);}
-          pxJournal('error','Deriv proposal error',reason);
-        }else if(Number.isFinite(rid)&&pendingBuyMap.has(rid)){
-          const rec=pendingBuyMap.get(rid);pendingBuyMap.delete(rid);
-          if(rec?.purpose==='premium')premiumOnTradeError(rec,reason);
-          else toast('❌ '+reason,'error');
-          pxJournal('error','Deriv buy error',reason);
-        }else if(data.echo_req?.portfolio && (PX.reconcileRequired||PX.reconciling)){
-          PX.running=false;PX.reconciling=false;PX.reconcileRequired=false;PX.open=null;PX.tradeInFlight=false;PX.hardRecoveryLock=true;PX.state='ERROR';pxHideScan();
-          pxJournal('error','Portfolio reconciliation request failed',reason);pxSetStatus('Could not verify open contracts after reconnect. Automation remains locked; inspect Deriv account history before restarting.');pxRenderAll();
-        }else{
-          if(data.echo_req?.sell){const row=PX.rows.find(r=>String(r.cid)===String(data.echo_req.sell));if(row)row.selling=false;pxRenderRows();}
-          if(PX.running||PX.reconciling)pxJournal('error','Deriv API error',reason);
-          toast('❌ '+reason,'error');
-        }
-        break;
+      break;
+    case 'tick':
+      if(data.tick && data.tick.quote){
+        if(data.subscription) tickSubIds.add(data.subscription.id);
+        onPulseTick(data.tick.symbol, parseFloat(data.tick.quote), data.tick.epoch, data.tick.pip_size);
       }
-    }
-  } catch(e) {
-    console.error('EMRON WebSocket callback failed', e);
-    try {
-      pxJournal('error','WebSocket callback exception',`${data.msg_type||'unknown'} · ${e?.message||String(e)}`);
-      if(data.msg_type==='proposal' && PX.open?.stage==='proposal'){
-        premiumOnTradeError(PX.open.rec,'Proposal callback exception: '+(e?.message||String(e)));
-      } else if(data.msg_type==='buy' || (data.msg_type==='proposal' && PX.open?.stage==='buying')) {
-        // The buy response may mean a contract was opened. Never release the lock and retry blindly.
-        PX.running=false;PX.reconciling=true;PX.reconcileRequired=true;PX.resumeAfterReconcile=false;PX.state='SETTLING';
-        PX.ambiguousOrder={t:PX.open?.rec||null,marketSymbol:PX.open?.marketSymbol,stake:PX.open?.stake,startedAt:Date.now()};PX.tradeInFlight=true;
-        pxSetStatus('Buy callback failed — verifying the Deriv Portfolio before allowing another order.');
-        if(ws&&ws.readyState===WebSocket.OPEN)ws.send(JSON.stringify({portfolio:1,req_id:wsReqId++}));
-      } else if(data.msg_type==='proposal_open_contract') {
-        PX.running=false;PX.tradeInFlight=!!PX.open;PX.state='ERROR';pxSetStatus('Open-contract callback failed. Automation paused; check the Journal and Deriv Portfolio.');
-      }
-    } catch(fallbackError) { console.error('WebSocket failure recovery also failed',fallbackError); }
+      break;
+    case 'proposal': onProposalReceived(data); break;
+    case 'buy': onBuyReceived(data); break;
+    case 'portfolio': pxOnPortfolio(data); break;
+    case 'proposal_open_contract': onContractUpdate(data); break;
+    case 'error':
+      console.error('API error', data.error);
+      toast('❌ ' + (data.error.message || 'API error'), 'error');
+      break;
   }
 }
-
 function updateConnectionStatus(connected){
   const dot = document.querySelector('#internetStatus .status-dot');
   const lbl = document.querySelector('#internetStatus span');
@@ -4502,12 +4400,23 @@ const PX_OU={
   OVER6:{type:'DIGITOVER', barrier:6,base:.3,label:'Over 6', hit:d=>d>=7}
 };
 const PX_OU_FLIP={OVER3:'UNDER3',UNDER3:'OVER3',UNDER6:'OVER6',OVER6:'UNDER6'};
-const PX_KEY='emron_px_cfg_v2';
+const PX_KEY='emron_px_cfg_v3', PX_KEY_OLD='emron_px_cfg_v2', PX_SESS_KEY='emron_px_sess_v1', PX_DAILY_KEY='emron_px_daily_v1', PX_AUDIT_KEY='emron_px_audit_v1';
+const PX_SP_DEFAULT={
+  matches:{window:300,mode:'MATCH',policy:'second',maxGap:0.3,minConf:50},
+  over8:{window:100,side:'OVER',barrier:8,minZ:1.0,minConf:60},
+  tickstrike:{lookback:10,threshold:0.6,minConf:60,ticks:3},
+  switcher:{threshold:0.46,minConf:60,cooldown:30,ticks:1}
+};
 const PX={
-  cfg:{engine:'strike',market:'ALL',stake:1,target:20,maxLoss:10,recovery:1.6,steps:4,guard:'warn',pair:{on:false,offset:0.3,ticks:5,confirm:3,layout:'outside'},families:['risefall','evenodd','matches','overunder','onlyupdown','highlow']},
-  running:false,scanning:false,finished:false,sid:1,seq:0,open:null,
-  rows:[],stats:{stake:0,payout:0,runs:0,lost:0,won:0,pl:0},lossStreak:0,recovery:null,
-  errStreak:0,nextAt:0,dark:false,scanTimer:null,logTimer:null,lastStatus:'',bad:new Map(),pair:null
+  cfg:{strategy:'matches',market:'1HZ100V',stake:1,target:20,maxLoss:10,steps:0,recovery:1.6,guard:'warn',
+    cooldown:3,maxTrades:50,maxConsec:3,maxDaily:30,
+    sp:JSON.parse(JSON.stringify(PX_SP_DEFAULT)),
+    pair:{on:false,offset:0.3,ticks:5,confirm:3,layout:'outside'}},
+  running:false,scanning:false,finished:false,sid:1,seq:0,open:null,recon:null,
+  rows:[],stats:{stake:0,payout:0,runs:0,lost:0,won:0,pl:0},lossStreak:0,
+  errStreak:0,nextAt:0,dark:false,lastStatus:'',bad:new Map(),pair:null,
+  sw:{dir:null,lastSwitch:0,switches:0},startedAt:null,sessMode:null,showRows:30,
+  logs:[],lastRejAt:0,connLogged:false,scanAbort:null
 };
 const pxKey=c=>`${c.symbol}|${c.contract.type}|${c.contract.barrier??''}|${c.contract.selectedTick??''}|${c.contract.duration}`;
 const $px=id=>document.getElementById(id);
@@ -4515,6 +4424,7 @@ const pxFmt=n=>Number(n||0).toFixed(2);
 const pxSigned=n=>{n=Number(n||0);return (n>=0?'+':'-')+Math.abs(n).toFixed(2);};
 const pxMoney=n=>Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
 const pxConf=z=>Math.round(50+45*Math.tanh(Math.max(0,z)/3));
+const pxEsc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
 /* ---------- analysis (all cached per market tick) ---------- */
 function pxRiseFall(m,rec){ return cached(m,'pxrf'+(rec?1:0),()=>{
@@ -4597,179 +4507,485 @@ function pxAnalyze(m,fam,rec){
   if(fam==='highlow') return pxHighLow(m,rec);
   return null;
 }
+/* ============================================================
+   EMRON AUTO — four transparent strategy modules + an independent risk layer.
+   Every strategy returns {ok:true,cand} or {ok:false,why}; nothing trades without a valid signal AND a passed risk gate.
+   Historical frequency / momentum are observations, not proof of an edge (see Edge Lab).
+   ============================================================ */
+const pxDay=()=>{const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();};
+const pxHMS=t=>new Date(t).toTimeString().slice(0,8);
+function pxDailyGet(){ try{ const r=JSON.parse(localStorage.getItem(PX_DAILY_KEY)||'{}'); return r.day===pxDay()?r:{day:pxDay()}; }catch(e){ return {day:pxDay()}; } }
+function pxDailyPL(){ return Number(pxDailyGet()[MODE])||0; }
+function pxDailyAdd(p){ const r=pxDailyGet(); r[MODE]=(Number(r[MODE])||0)+p; try{ localStorage.setItem(PX_DAILY_KEY,JSON.stringify(r)); }catch(e){} }
+function pxAudit(type,msg){
+  const e={t:Date.now(),type,msg,mode:MODE};
+  PX.logs.unshift(e); if(PX.logs.length>80) PX.logs.length=80;
+  try{ const a=JSON.parse(localStorage.getItem(PX_AUDIT_KEY)||'[]'); a.unshift(e); localStorage.setItem(PX_AUDIT_KEY,JSON.stringify(a.slice(0,300))); }catch(_){}
+  pxRenderLog();
+}
+function pxPersist(){
+  try{ localStorage.setItem(PX_SESS_KEY,JSON.stringify({mode:PX.sessMode,day:pxDay(),startedAt:PX.startedAt,stats:PX.stats,lossStreak:PX.lossStreak,sw:PX.sw,rows:PX.rows.filter(r=>r.status!=='open').slice(0,120)})); }catch(e){}
+}
+function pxRestore(){
+  try{
+    const r=JSON.parse(localStorage.getItem(PX_SESS_KEY)||'null'); if(!r||r.day!==pxDay()||!r.stats||!r.stats.runs) return;
+    PX.stats=Object.assign({stake:0,payout:0,runs:0,lost:0,won:0,pl:0},r.stats); PX.lossStreak=r.lossStreak|0; PX.rows=Array.isArray(r.rows)?r.rows:[];
+    PX.sessMode=r.mode||null; PX.startedAt=r.startedAt||null; if(r.sw) PX.sw=Object.assign(PX.sw,r.sw);
+    PX.restored=true;
+  }catch(e){}
+}
+
+const PX_POLICY={second:'2nd most frequent',top:'most frequent',least:'least frequent'};
+const PX_ICON={
+  matches:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg>',
+  over8:'<svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/><path d="M5 21h14"/></svg>',
+  tickstrike:'<svg viewBox="0 0 24 24"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg>',
+  switcher:'<svg viewBox="0 0 24 24"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>'
+};
+const PX_STRATS={
+  matches:{ name:'Matches Printer', tag:'Digit Matches / Differs', family:'matches',
+    summary:sp=>`${sp.mode==='DIFF'?'Differs':'Matches'} the ${PX_POLICY[sp.policy]} digit · ${sp.window}-tick window`,
+    need:sp=>sp.window,
+    analyze(m,sp){
+      const d=m.digits.slice(-sp.window), n=d.length;
+      if(n<sp.window) return {ok:false,why:`collecting ticks ${n}/${sp.window}`};
+      const c=new Array(10).fill(0); d.forEach(x=>c[x]++);
+      const rows=c.map((count,digit)=>({digit,count,pct:count*100/n})).sort((a,b)=>b.count-a.count||a.digit-b.digit);
+      const first=rows[0], second=rows[1], gap=first.pct-second.pct;
+      const pick=sp.policy==='top'?first:sp.policy==='least'?rows[9]:second;
+      const dist=`top ${first.digit} ${first.pct.toFixed(1)}% · 2nd ${second.digit} ${second.pct.toFixed(1)}% · gap ${gap.toFixed(2)} pts · n=${n}`;
+      if(sp.policy==='second' && gap>sp.maxGap+1e-9) return {ok:false,why:`top-two gap ${gap.toFixed(2)} pts is above the ${sp.maxGap} limit (${dist})`};
+      const z=Math.abs(wilsonZ(pick.count,n,.1)), conf=pxConf(z), diff=sp.mode==='DIFF';
+      if(conf<sp.minConf) return {ok:false,why:`confidence ${conf}% is below ${sp.minConf}% (digit ${pick.digit} ${pick.pct.toFixed(1)}% vs 10% fair)`};
+      return {ok:true,cand:{family:'matches',kind:(diff?'DIFF':'MATCH')+pick.digit,label:`${diff?'Differs':'Matches'} ${pick.digit}`,z,conf,
+        why:`${PX_POLICY[sp.policy]} digit ${pick.digit} (${pick.pct.toFixed(1)}%) · ${dist}`,
+        contract:{type:diff?'DIGITDIFF':'DIGITMATCH',duration:1,barrier:pick.digit}}};
+    }
+  },
+  over8:{ name:'Over 8 Killer', tag:'Digit Over / Under', family:'overunder',
+    summary:sp=>{ const o=sp.side==='OVER'; return `${o?'Over':'Under'} ${sp.barrier} · wins on ${o?(9-sp.barrier)+' digit'+(9-sp.barrier===1?'':'s'):sp.barrier+' digit'+(sp.barrier===1?'':'s')} · min z ${sp.minZ}`; },
+    need:sp=>sp.window,
+    analyze(m,sp){
+      const d=m.digits.slice(-sp.window), n=d.length;
+      if(n<sp.window) return {ok:false,why:`collecting ticks ${n}/${sp.window}`};
+      const over=sp.side==='OVER', b=sp.barrier;
+      if(over&&(b<0||b>8)||!over&&(b<1||b>9)) return {ok:false,why:`barrier ${b} is not valid for ${over?'Over (0-8)':'Under (1-9)'}`};
+      const base=over?(9-b)/10:b/10, hits=d.reduce((a,x)=>a+((over?x>b:x<b)?1:0),0), z=wilsonZ(hits,n,base), conf=pxConf(z);
+      const obs=`${over?'Over':'Under'} ${b} hit ${(hits*100/n).toFixed(1)}% vs ${(base*100).toFixed(0)}% fair over ${n} ticks · z ${z.toFixed(2)}`;
+      if(z<sp.minZ) return {ok:false,why:`${obs} — needs z ≥ ${sp.minZ}`};
+      if(conf<sp.minConf) return {ok:false,why:`confidence ${conf}% is below ${sp.minConf}% — ${obs}`};
+      return {ok:true,cand:{family:'overunder',kind:(over?'OVER':'UNDER')+b,label:`${over?'Over':'Under'} ${b}`,z,conf,why:obs,
+        contract:{type:over?'DIGITOVER':'DIGITUNDER',duration:1,barrier:b}}};
+    }
+  },
+  tickstrike:{ name:'TickStrike Pro', tag:'Tick momentum Rise / Fall', family:'risefall',
+    summary:sp=>`${sp.lookback}-tick momentum ≥ ${sp.threshold} · ${sp.ticks}-tick Rise/Fall`,
+    need:sp=>Math.max(sp.lookback+1,60),
+    analyze(m,sp){
+      const q=m.quotes, L=sp.lookback, base=Math.max(L+1,60);
+      if(q.length<base) return {ok:false,why:`collecting ticks ${q.length}/${base}`};
+      let ups=0,dn=0; for(let i=q.length-L;i<q.length;i++){ const x=q[i]-q[i-1]; if(x>0) ups++; else if(x<0) dn++; }
+      const score=(ups-dn)/L, net=q[q.length-1]-q[q.length-1-L];
+      const ch=[]; for(let i=Math.max(1,q.length-100);i<q.length;i++) ch.push(q[i]-q[i-1]);
+      const mean=ch.reduce((a,x)=>a+x,0)/ch.length, sd=Math.sqrt(ch.reduce((a,x)=>a+(x-mean)*(x-mean),0)/ch.length)||1e-9;
+      const z=Math.abs(net)/(sd*Math.sqrt(L)), up=score>0, conf=pxConf(z);
+      const obs=`${ups}↑ ${dn}↓ in last ${L} ticks · score ${score>=0?'+':''}${score.toFixed(2)} (min ${sp.threshold}) · net ${net>=0?'+':''}${net.toFixed(m.decimals)} = z ${z.toFixed(2)}`;
+      if(Math.abs(score)<sp.threshold) return {ok:false,why:`momentum too weak — ${obs}`};
+      if(net===0||(net>0)!==(score>0)) return {ok:false,why:`tick counts and net move disagree — ${obs}`};
+      if(conf<sp.minConf) return {ok:false,why:`confidence ${conf}% is below ${sp.minConf}% — ${obs}`};
+      return {ok:true,cand:{family:'risefall',kind:up?'RISE':'FALL',label:`${up?'Rise':'Fall'} · ${sp.ticks}t`,z,conf,why:obs,
+        contract:{type:up?'CALL':'PUT',duration:sp.ticks}}};
+    }
+  },
+  switcher:{ name:'Auto Switcher', tag:'Rule-based Rise / Fall', family:'risefall',
+    summary:sp=>`Rise/Fall · score ≥ ${sp.threshold} · ${sp.cooldown}s switch cooldown`,
+    need:()=>RF.MIN_TICKS,
+    analyze(m,sp){
+      const r=evaluateRiseFall(m,100);
+      if(!r) return {ok:false,why:`collecting ticks (needs ${RF.MIN_TICKS})`};
+      const dir=r.direction, up=dir==='up', S=PX.sw;
+      const info=`${r.meta.regime.toLowerCase()} · momentum ${r.meta.momentumGlyph} · ER ${r.meta.er.toFixed(2)} · score ${r.score>=0?'+':''}${r.score.toFixed(2)} (min ${sp.threshold}) · conf ${r.confidence}%`;
+      if(r.absScore<sp.threshold) return {ok:false,why:`neither Rise nor Fall is eligible — ${info}`};
+      if(!r.meta.regimeTrending) return {ok:false,why:`market is choppy — ${info}`};
+      if(r.confidence<sp.minConf) return {ok:false,why:`confidence ${r.confidence}% is below ${sp.minConf}% — ${info}`};
+      const flip=S.dir&&S.dir!==dir;
+      if(flip){
+        if(PX.lossStreak>0) return {ok:false,why:`holding ${S.dir.toUpperCase()}: direction changes are locked while on a losing streak (${PX.lossStreak}) — ${info}`};
+        const left=sp.cooldown-(Date.now()-S.lastSwitch)/1000;
+        if(left>0) return {ok:false,why:`switch to ${dir.toUpperCase()} waits for the cooldown (${Math.ceil(left)}s) — ${info}`};
+      }
+      return {ok:true,cand:{family:'risefall',kind:up?'RISE':'FALL',label:`${up?'Rise':'Fall'} · ${sp.ticks}t`,z:r.absScore*4,conf:r.confidence,
+        why:(flip?`switch ${S.dir.toUpperCase()}→${dir.toUpperCase()} · `:'')+info,contract:{type:up?'CALL':'PUT',duration:sp.ticks},sw:dir}};
+    }
+  }
+};
+const PX_SP_FIELDS={
+  matches:[
+    {k:'mode',label:'Contract',type:'sel',opts:[['MATCH','Matches'],['DIFF','Differs']]},
+    {k:'policy',label:'Digit selection',type:'sel',opts:[['second','2nd most frequent'],['top','Most frequent'],['least','Least frequent']]},
+    {k:'window',label:'Analysis window (ticks)',min:50,max:1000,step:10,int:true},
+    {k:'maxGap',label:'Max top-two gap (pts)',min:0.05,max:5,step:0.05,show:sp=>sp.policy==='second'},
+    {k:'minConf',label:'Min confidence %',min:50,max:95,step:1,int:true}],
+  over8:[
+    {k:'side',label:'Contract',type:'sel',opts:[['OVER','Over'],['UNDER','Under']]},
+    {k:'barrier',label:'Barrier digit',min:0,max:9,step:1,int:true},
+    {k:'window',label:'Analysis window (ticks)',min:30,max:1000,step:10,int:true},
+    {k:'minZ',label:'Min z-score',min:0,max:5,step:0.1},
+    {k:'minConf',label:'Min confidence %',min:50,max:95,step:1,int:true}],
+  tickstrike:[
+    {k:'lookback',label:'Tick lookback',min:3,max:50,step:1,int:true},
+    {k:'threshold',label:'Min momentum score (0-1)',min:0.1,max:1,step:0.05},
+    {k:'ticks',label:'Trade duration (ticks)',min:1,max:10,step:1,int:true},
+    {k:'minConf',label:'Min confidence %',min:50,max:95,step:1,int:true}],
+  switcher:[
+    {k:'threshold',label:'Entry / switch score (0-1)',min:0.2,max:0.95,step:0.02},
+    {k:'minConf',label:'Min confidence %',min:50,max:95,step:1,int:true},
+    {k:'cooldown',label:'Switch cooldown (s)',min:5,max:900,step:5,int:true},
+    {k:'ticks',label:'Trade duration (ticks)',min:1,max:10,step:1,int:true}]
+};
+function pxClampSp(id){
+  const sp=PX.cfg.sp[id];
+  if(id==='over8'){ if(sp.side==='OVER') sp.barrier=Math.min(8,sp.barrier); else sp.barrier=Math.max(1,sp.barrier); }
+}
+
+/* ---------- market pool, live-data check, evaluation ---------- */
 function pxPool(){
+  if(PX.cfg.pair.on){ const m=pxPairMarket(); return m?[m]:[]; }
   if(PX.cfg.market==='ALL') return Array.from(engineState.markets.values());
   const m=engineState.markets.get(PX.cfg.market); return m?[m]:[];
 }
-function pxScan(){
-  const rec=PX.recovery, fams=rec?[rec.family]:PX.cfg.families;
-  let pool=pxPool();
-  if(rec && PX.cfg.engine==='strike'){ const lm=engineState.markets.get(rec.symbol); if(lm) pool=[lm]; }
-  const out=[];
-  pool.forEach(m=>fams.forEach(f=>{ const c=pxAnalyze(m,f,rec); if(c){ c.symbol=m.code; c.short=m.short; out.push(c); } }));
-  const now=Date.now();
-  return out.filter(c=>!(PX.bad.get(pxKey(c))>now)).sort((a,b)=>b.conf-a.conf||b.z-a.z);
+const pxFresh=m=>!!(m&&m._at&&Date.now()-m._at<20000);
+function pxSpec(){
+  if(PX.cfg.pair.on) return {S:{name:'Higher/Lower pair',need:()=>60},sp:null};
+  return {S:PX_STRATS[PX.cfg.strategy],sp:PX.cfg.sp[PX.cfg.strategy]};
+}
+function pxEvaluate(){
+  const S=PX_STRATS[PX.cfg.strategy], sp=PX.cfg.sp[PX.cfg.strategy], ok=[], rej=[];
+  pxPool().forEach(m=>{
+    if(!pxFresh(m)){ rej.push({m,why:'no live ticks in the last 20 seconds'}); return; }
+    const r=S.analyze(m,sp);
+    if(!r.ok){ rej.push({m,why:r.why}); return; }
+    const c=r.cand; c.symbol=m.code; c.short=m.short; c.strategy=PX.cfg.strategy;
+    if(PX.bad.get(pxKey(c))>Date.now()) rej.push({m,why:`${c.label} was recently refused by Deriv on this market`});
+    else ok.push(c);
+  });
+  ok.sort((a,b)=>b.conf-a.conf||b.z-a.z);
+  return {best:ok[0]||null,ok,rej};
+}
+function pxWhyText(ev){
+  const n=pxPool().length, r=ev.rej[0];
+  if(!r) return 'market not available';
+  return n===1?`${r.m.short}: ${r.why}`:`0/${n} markets qualify (e.g. ${r.m.short}: ${r.why})`;
 }
 
-/* ---------- stake / limits ---------- */
+/* ---------- independent risk layer (never trusts the strategy) ---------- */
 function pxComputeStake(){
-  let s=normalizeStake(PX.cfg.stake);
-  for(let i=0;i<Math.min(PX.lossStreak,PX.cfg.steps);i++) s=normalizeStake(s*PX.cfg.recovery);   // x1.6 after each loss, win resets
-  const left=PX.cfg.maxLoss+PX.stats.pl;
-  if(s>left) s=Math.floor(left*100)/100;
+  let s=normalizeStake(PX.cfg.stake);                                   // flat stake — no martingale / recovery doubling
+  const left=PX.cfg.maxLoss+PX.stats.pl, leftDay=PX.cfg.maxDaily+pxDailyPL();
+  s=Math.min(s,Math.floor(left*100)/100,Math.floor(leftDay*100)/100);   // never risk more than the room left under either loss limit
   return s;
+}
+function pxRiskGate(stake){
+  const C=PX.cfg, s=PX.stats;
+  if(!accessToken||!wsConnected) return {kind:'conn',why:'the Deriv session is not connected/authorized'};
+  if(s.pl>=C.target) return {kind:'target',fatal:true};
+  if(s.pl<=-C.maxLoss) return {kind:'maxloss',fatal:true};
+  if(pxDailyPL()<=-C.maxDaily) return {kind:'daily',fatal:true};
+  if(PX.lossStreak>=C.maxConsec) return {kind:'consec',fatal:true};
+  if(s.runs+(PX.open?1:0)>=C.maxTrades) return {kind:'maxtrades',fatal:true};
+  if(stake<0.35) return {kind:(pxDailyPL()+C.maxDaily<C.maxLoss+s.pl)?'daily':'maxloss',fatal:true};
+  if(Number(balance)>0&&stake>Number(balance)) return {kind:'balance',fatal:true};
+  return null;
+}
+const PX_GATE_TXT={
+  conn:'Deriv is not connected — connect your token first.',
+  target:'The profit target is already reached for this session — Reset to start a new one.',
+  maxloss:'The session max loss is reached — Reset to start a new session.',
+  daily:'The daily loss limit is reached for today on this account type.',
+  consec:'Paused after the maximum consecutive losses — Reset the session to continue.',
+  maxtrades:'The session trade limit is reached — Reset the session to continue.',
+  balance:'The stake is larger than your available balance.'
+};
+function pxHalt(g){
+  pxAudit('risk',`Risk stop · ${g.kind}${g.why?' — '+g.why:''}`);
+  if(g.fatal) pxFinish(g.kind); else pxStop(`Stopped: ${g.why}.`);
 }
 
 /* ---------- trading loop ---------- */
 function premiumOnTick(){
   if(PX.cfg.pair.on){ pxPairTick(); return; }
-  if(!PX.running||PX.open||Date.now()<PX.nextAt||!wsConnected) return;
-  if(PX.recovery && Date.now()-PX.recovery.since>120000){ PX.recovery=null; }
-  const list=pxScan();
-  if(!list.length){
-    const n=pxPool().length;
-    pxSetStatus(PX.recovery?`Recovery: waiting for the ${PX.recovery.family} analysis to confirm…`:`Analyzing ${n} market${n===1?'':'s'} · ${PX.cfg.families.length} strategies — scanning for the next signal…`);
+  if(!PX.running||PX.open||PX.recon||Date.now()<PX.nextAt) return;
+  if(!wsConnected){
+    pxSetStatus('Connection interrupted — no new orders until Deriv reconnects.');
+    if(!PX.connLogged){ PX.connLogged=true; pxAudit('error','Deriv connection interrupted — order placement suspended'); }
     return;
   }
-  pxPlace(list[0]);
+  if(PX.connLogged){ PX.connLogged=false; pxAudit('system','Deriv connection restored'); }
+  const ev=pxEvaluate();
+  if(!ev.best){
+    const t=pxWhyText(ev); pxSetStatus('Waiting for the next valid signal — '+t);
+    if(Date.now()-PX.lastRejAt>15000){ PX.lastRejAt=Date.now(); pxAudit('skip','No trade · '+t); }
+    return;
+  }
+  pxPlace(ev.best);
 }
 function pxPlace(c){
-  const stake=pxComputeStake();
-  if(stake<0.35){ pxFinish('maxloss'); return; }
+  const stake=pxComputeStake(), g=pxRiskGate(stake);
+  if(g){ pxHalt(g); return; }
   const sd=stakeForApi(stake), id=++PX.seq, reqId=wsReqId++;
   const params={amount:sd.number,basis:'stake',contract_type:c.contract.type,currency:(accountInfo&&accountInfo.currency)||'USD',
     duration:c.contract.duration,duration_unit:'t',underlying_symbol:c.symbol,subscribe:1};
   if(c.contract.barrier!=null) params.barrier=String(c.contract.barrier);
   if(c.contract.selectedTick!=null) params.selected_tick=c.contract.selectedTick;
-  pendingProposalMap.set(reqId,{purpose:'premium',premiumId:id,sid:PX.sid,slotIdx:-1,strategyRef:null,marketSymbol:c.symbol,
-    contractType:c.contract.type,label:c.label,stake:sd.number,stakeText:sd.text,adaptiveContext:null,pairId:null,pairLeg:null,pxCand:c,pxParams:params});
-  PX.open={id,cand:c};
-  pxSetStatus(`Signal ${c.short} · ${c.label} (${c.conf}%) — ${c.why}`);
+  const t={purpose:'premium',premiumId:id,sid:PX.sid,slotIdx:-1,strategyRef:null,marketSymbol:c.symbol,
+    contractType:c.contract.type,label:c.label,stake:sd.number,stakeText:sd.text,adaptiveContext:null,pairId:null,pairLeg:null,pxCand:c,pxParams:params};
+  pendingProposalMap.set(reqId,t);
+  PX.open={id,cand:c,t,at:Date.now(),bought:false};
+  if(!PX.startedAt) PX.startedAt=Date.now();
+  PX.sessMode=MODE;
+  pxAudit('signal',`${PX_STRATS[c.strategy].name} · ${c.short} · ${c.label} (${c.conf}%) — ${c.why}`);
+  pxSetStatus(`Checking the proposed contract — ${c.short} · ${c.label}`);
   ws.send(JSON.stringify({proposal:1,...params,req_id:reqId}));
 }
-function premiumOnTradeError(t,msg){
+function premiumOnTradeError(t,msg,ambiguous){
   if(t.sid!==PX.sid) return;
   if(t.pxPair){ pxPairError(t,msg); return; }
+  if(ambiguous){                                  // a buy was sent but we never saw the answer: do NOT retry, reconcile first
+    PX.running=false; PX.recon={id:t.premiumId,t,at:(PX.open&&PX.open.at)||Date.now(),wait:true};
+    pxAudit('error','Connection lost while an order was in flight — trading halted until the account portfolio is checked');
+    pxSetStatus('Order state unknown — will check your open contracts once reconnected…'); pxRenderAll(); return;
+  }
   PX.open=null; PX.errStreak++; PX.nextAt=Date.now()+300;
-  const c=t.pxCand;
+  const c=t.pxCand, lost=/connection lost/i.test(msg);
   if(c){
-    PX.bad.set(pxKey(c),Date.now()+(/no return/i.test(msg)?600000:60000));      // skip this exact contract for a while
-    pxSetStatus(`Skipped ${c.short} · ${c.label} — ${msg}. Trying the next best signal…`);
+    if(!lost) PX.bad.set(pxKey(c),Date.now()+(/no return/i.test(msg)?600000:60000));
+    pxAudit('error',`${c.short} · ${c.label} refused: ${msg}${lost?'':' — skipping it for a while (this contract may not be offered on this market)'}`);
+    pxSetStatus(`Skipped ${c.short} · ${c.label} — ${msg}`);
     console.warn('EMRON Auto: Deriv rejected',t.pxParams,msg);
   } else pxSetStatus(`Order rejected: ${msg}`);
-  if(PX.errStreak>=8) pxStop('Stopped: 8 rejected orders in a row. Check the strategy toggles / market.');
+  if(!lost&&PX.cfg.market!=='ALL'&&PX.errStreak>=3) pxStop(`Stopped: Deriv refused ${c?c.label:'the order'} 3 times on ${c?c.short:'this market'} (${msg}). That contract may not be available here — pick another market or strategy.`);
+  else if(PX.errStreak>=8) pxStop('Stopped: 8 rejected orders in a row. Check the strategy settings / market.');
 }
 function premiumOnBought(cid,t){
   if(t.sid!==PX.sid) return;
   PX.errStreak=0;
+  if(PX.open&&PX.open.id===t.premiumId){ PX.open.bought=true; PX.open.cid=cid; }
+  if(PX.recon&&PX.recon.id===t.premiumId) PX.recon=null;
   const m=engineState.markets.get(t.marketSymbol), c=t.pxCand;
-  PX.rows.unshift({id:t.premiumId,cid,name:m?m.name:t.marketSymbol,label:t.label,ts:Date.now(),stake:t.stake,value:t.stake,profit:0,status:'open',ev:t.ev,
+  PX.rows.unshift({id:t.premiumId,cid,name:m?m.name:t.marketSymbol,label:t.label,strat:c&&c.strategy?PX_STRATS[c.strategy].name:'',ts:Date.now(),stake:t.stake,value:t.stake,profit:0,status:'open',ev:t.ev,canSell:false,
     dir:(t.contractType==='RUNHIGH'||t.contractType==='TICKHIGH'||t.contractType==='DIGITOVER'||t.contractType==='CALL')?'up':'down'});
-  if(PX.rows.length>120) PX.rows.length=120;
-  pxRenderRows();
+  if(PX.rows.length>200) PX.rows.length=200;
+  if(c&&c.sw){ const S=PX.sw; if(S.dir!==c.sw){ pxAudit('switch',S.dir?`Direction switched ${S.dir.toUpperCase()} → ${c.sw.toUpperCase()}`:`Initial direction ${c.sw.toUpperCase()}`); if(S.dir) S.switches++; S.dir=c.sw; S.lastSwitch=Date.now(); } }
+  pxAudit('order',`Order accepted · ${t.label} · stake ${pxFmt(t.stake)} · contract #${cid}`);
+  pxSetStatus(`Monitoring an open contract — ${t.label} #${cid}`);
+  pxRenderRows(); pxRenderStats();
 }
 function premiumOnContractUpdate(c,rec){
   const row=PX.rows.find(r=>r.cid===c.contract_id);
   if(rec.sid!==PX.sid){ if(c.is_sold) activeContracts.delete(c.contract_id); return; }
-  if(!c.is_sold){ if(row){ row.value=Number(c.bid_price)||0; row.profit=Number(c.profit)||0; pxRenderRows(); } return; }
+  if(!c.is_sold){ if(row){ row.value=Number(c.bid_price)||0; row.profit=Number(c.profit)||0; row.canSell=!!c.is_valid_to_sell; pxRenderRows(); } return; }
   activeContracts.delete(c.contract_id);
-  const profit=Number(c.profit)||0, won=profit>0, payout=Math.max(0,rec.stake+profit), cand=rec.pxCand;
-  if(row){ row.status=won?'won':'lost'; row.profit=profit; row.value=payout; row.entry=c.entry_tick??c.entry_spot; row.exit=c.exit_tick??c.exit_spot; }
-  const s=PX.stats; s.stake+=rec.stake; s.payout+=payout; s.runs++; s.pl+=profit; if(won) s.won++; else s.lost++;
-  if(rec.pxPair){ pxPairLegDone(rec,profit,won); return; }
+  if(row&&row.status!=='open') return;               // duplicate settlement delivery — already counted
+  const profit=Number(c.profit)||0, won=profit>0, stake=Number(c.buy_price)>0?Number(c.buy_price):rec.stake;
+  const sp=Number(c.sell_price), payout=Number.isFinite(sp)&&c.sell_price!=null?sp:Math.max(0,stake+profit), cand=rec.pxCand;
+  if(row){ row.status=won?'won':'lost'; row.profit=profit; row.value=payout; row.canSell=false; row.entry=c.entry_tick??c.entry_spot; row.exit=c.exit_tick??c.exit_spot; }
+  const s=PX.stats; s.stake+=stake; s.payout+=payout; s.runs++; s.pl+=profit; if(won) s.won++; else s.lost++;
+  pxDailyAdd(profit);
+  pxAudit('settled',`${rec.label} #${c.contract_id} ${won?'won':'lost'} ${pxSigned(profit)} (stake ${pxFmt(stake)}, payout ${pxFmt(payout)})`);
+  if(rec.pxPair){ pxPairLegDone(rec,profit,won); pxPersist(); return; }
   PX.open=null;
-  if(won){ PX.lossStreak=0; PX.recovery=null; }
-  else { PX.lossStreak++; if(cand) PX.recovery={family:cand.family,kind:cand.kind,symbol:cand.symbol,since:Date.now()}; }
-  PX.nextAt=Date.now()+(won?600:900);
+  if(won) PX.lossStreak=0; else PX.lossStreak++;
+  PX.nextAt=Date.now()+Math.max(600,PX.cfg.cooldown*1000);
   const tk=$px('pxTicker'); if(tk){ tk.className='px-ticker on '+(won?'win':'loss');
-    $px('pxTickerTxt').innerHTML=`${won?'You made':'You lost'} <b>$${pxFmt(Math.abs(profit))}</b> on ${row?row.name.replace(' Index',''):'a contract'}`; }
-  pxRenderAll();
+    $px('pxTickerTxt').innerHTML=`${won?'You made':'You lost'} <b>$${pxFmt(Math.abs(profit))}</b> on ${row?pxEsc(row.name.replace(' Index','')):'a contract'}`; }
+  pxPersist(); pxRenderAll();
   if(wsConnected) ws.send(JSON.stringify({balance:1,req_id:wsReqId++}));
-  if(s.pl>=PX.cfg.target) pxFinish('target');
-  else if(s.pl<=-PX.cfg.maxLoss || pxComputeStake()<0.35) pxFinish('maxloss');
-  else if(PX.running) pxSetStatus(won?'Win — scanning for the next signal…':`Loss — recovery stake $${pxFmt(pxComputeStake())}, waiting for the analysis…`);
+  const g=pxRiskGate(pxComputeStake());
+  if(g&&g.fatal) pxHalt(g);
+  else if(PX.running) pxSetStatus(won?'Processed confirmed settlement — waiting for the next valid signal…':`Loss ${PX.lossStreak}/${PX.cfg.maxConsec} — waiting for the next valid signal…`);
 }
-function pxSell(cid){ if(wsConnected) ws.send(JSON.stringify({sell:cid,price:0,req_id:wsReqId++})); }
+function pxSell(cid){ const r=PX.rows.find(x=>x.cid===cid); if(wsConnected&&r&&r.canSell){ pxAudit('order',`Early sell requested · #${cid}`); ws.send(JSON.stringify({sell:cid,price:0,req_id:wsReqId++})); } }
+
+/* ---------- ambiguous-order reconciliation (buy sent, answer never seen) ---------- */
+function pxWatchdog(){
+  const o=PX.open;
+  if(o&&!o.bought&&!PX.recon&&!PX.cfg.pair.on&&Date.now()-o.at>12000){
+    PX.running=false; PX.recon={id:o.id,t:o.t,at:o.at,wait:!wsConnected};
+    pxAudit('error','No confirmation for the last order after 12s — trading halted while the account portfolio is checked');
+    pxSetStatus('Order not confirmed — checking your open contracts…'); pxRenderAll();
+  }
+  const R=PX.recon;
+  if(R&&wsConnected&&!R.sent){ R.sent=true; R.wait=false; ws.send(JSON.stringify({portfolio:1,req_id:wsReqId++})); }
+}
+function pxOnPortfolio(data){
+  const R=PX.recon; if(!R) return; PX.recon=null;
+  const o=PX.open;
+  if(!o||o.id!==R.id||o.bought){ pxRenderAll(); return; }
+  const known=new Set(PX.rows.map(r=>r.cid));
+  const list=((data.portfolio&&data.portfolio.contracts)||[]).filter(k=>!known.has(k.contract_id)&&!activeContracts.has(k.contract_id)&&Number(k.purchase_time)*1000>=R.at-5000);
+  const t=R.t;
+  [pendingProposalMap,pendingBuyMap].forEach(map=>Array.from(map.entries()).forEach(([k,v])=>{ if(v===t) map.delete(k); }));
+  pxForgetSub(t);
+  if(list.length){
+    const k=list[0], cid=k.contract_id;
+    activeContracts.set(cid,{slotIdx:-1,strategyRef:null,marketSymbol:t.marketSymbol,contractType:t.contractType,label:t.label,stake:Number(k.buy_price)||t.stake,
+      purpose:'premium',adaptiveContext:null,pairId:null,pairLeg:null,premiumId:t.premiumId,sid:t.sid,pxCand:t.pxCand,pxPair:null});
+    premiumOnBought(cid,t);
+    ws.send(JSON.stringify({proposal_open_contract:1,contract_id:cid,subscribe:1}));
+    pxAudit('system',`Reconciled: the order was filled — contract #${cid} is now being monitored`);
+    pxSetStatus('Reconciled an unconfirmed order — monitoring it. Press Run to resume trading.');
+  } else {
+    PX.open=null;
+    pxAudit('system','Reconciled: no matching contract in the portfolio — nothing was purchased');
+    pxSetStatus('Nothing was purchased. Press Run to resume trading.');
+  }
+  pxRenderAll();
+}
 
 /* ---------- start / stop / reset ---------- */
 function pxReadInputs(){
-  const stake=normalizeStake(parseFloat($px('pxStake').value)||1);
-  PX.cfg.stake=stake;
-  PX.cfg.target=Math.max(0.01,parseFloat($px('pxTarget').value)||20);
-  PX.cfg.maxLoss=Math.max(stake,parseFloat($px('pxMaxLoss').value)||10);
-  PX.cfg.market=$px('pxMarket').value||'ALL';
-  $px('pxStake').value=pxFmt(PX.cfg.stake); $px('pxTarget').value=pxFmt(PX.cfg.target); $px('pxMaxLoss').value=pxFmt(PX.cfg.maxLoss);
-  PX.cfg.steps=Math.max(0,Math.min(6,parseInt($px('pxSteps').value,10)||0)); $px('pxSteps').value=PX.cfg.steps;
-  PX.cfg.guard=$px('pxGuard').value||'warn';
-  const pp=PX.cfg.pair; pp.offset=Math.max(0.01,parseFloat($px('pxPOffset').value)||0.3); pp.ticks=Math.max(1,Math.min(10,parseInt($px('pxPTicks').value,10)||5));
+  const C=PX.cfg, num=(id,def,min,max,int)=>{ let v=parseFloat($px(id).value); if(!Number.isFinite(v)) v=def; v=Math.max(min,Math.min(max,v)); return int?Math.round(v):v; };
+  C.stake=normalizeStake(num('pxStake',1,0.35,100000));
+  C.target=num('pxTarget',20,0.01,1e6);
+  C.maxLoss=Math.max(C.stake,num('pxMaxLoss',10,0.35,1e6));
+  C.market=$px('pxMarket').value||'1HZ100V';
+  C.cooldown=num('pxCool',3,0,3600,true); C.maxTrades=num('pxMaxTrades',50,1,10000,true);
+  C.maxConsec=num('pxMaxConsec',3,1,50,true); C.maxDaily=Math.max(0.35,num('pxMaxDaily',30,0.35,1e6));
+  C.guard=$px('pxGuard').value||'warn';
+  const pp=C.pair; pp.offset=Math.max(0.01,parseFloat($px('pxPOffset').value)||0.3); pp.ticks=Math.max(1,Math.min(10,parseInt($px('pxPTicks').value,10)||5));
   pp.confirm=Math.max(0,Math.min(10,parseInt($px('pxPConfirm').value,10)||0)); pp.layout=$px('pxPLayout').value==='inside'?'inside':'outside';
-  $px('pxPOffset').value=pp.offset; $px('pxPTicks').value=pp.ticks; $px('pxPConfirm').value=pp.confirm;
-  pxSaveCfg(); pxRenderRisk();
+  const id=C.strategy, sp=C.sp[id];
+  document.querySelectorAll('#pxSpBox [data-sp]').forEach(el=>{
+    const f=PX_SP_FIELDS[id].find(x=>x.k===el.dataset.sp); if(!f) return;
+    if(f.type==='sel'){ if(f.opts.some(o=>o[0]===el.value)) sp[f.k]=el.value; return; }
+    let v=parseFloat(el.value); if(!Number.isFinite(v)) v=PX_SP_DEFAULT[id][f.k];
+    v=Math.max(f.min,Math.min(f.max,v)); sp[f.k]=f.int?Math.round(v):Math.round(v*1000)/1000;
+  });
+  pxClampSp(id);
+  pxWriteInputs(); pxRenderSp(); pxRenderCards(); pxSaveCfg(); pxRenderRisk();
+}
+function pxWriteInputs(){
+  const C=PX.cfg, p=C.pair, set=(id,v)=>{ const e=$px(id); if(e) e.value=v; };
+  set('pxMarket',C.market); set('pxStake',pxFmt(C.stake)); set('pxTarget',pxFmt(C.target)); set('pxMaxLoss',pxFmt(C.maxLoss));
+  set('pxCool',C.cooldown); set('pxMaxTrades',C.maxTrades); set('pxMaxConsec',C.maxConsec); set('pxMaxDaily',pxFmt(C.maxDaily)); set('pxGuard',C.guard);
+  set('pxPOffset',p.offset); set('pxPTicks',p.ticks); set('pxPConfirm',p.confirm); set('pxPLayout',p.layout);
+}
+function pxValidate(){
+  const C=PX.cfg;
+  if(!(C.stake>=0.35)) return 'Stake must be at least 0.35.';
+  if(!(C.target>0)) return 'Profit target must be above zero.';
+  if(C.maxLoss<C.stake) return 'Max loss must be at least one stake.';
+  if(!pxPool().length) return 'The selected market is not available.';
+  if(Number(balance)>0&&C.stake>Number(balance)) return 'Stake is larger than your balance.';
+  return null;
 }
 function pxStart(){
   if(PX.running||PX.scanning) return;
-  if(botRunning){ toast('Stop the Trading Hub bot before using Premium Auto.','error'); return; }
+  if(botRunning){ toast('Stop the Trading Hub bot before using EMRON Auto.','error'); return; }
   if(!accessToken||!wsConnected){ toast('🔐 Connect a Deriv PAT first.','error'); connectBtn.click(); return; }
+  if(PX.open||PX.pair||PX.recon){ toast('An earlier order is still open or being verified — wait for it to settle.','error'); return; }
   pxReadInputs();
+  const err=pxValidate(); if(err){ toast(err,'error'); return; }
   if(!(Number(balance)>0)){ ws.send(JSON.stringify({balance:1,req_id:wsReqId++})); toast('⏳ Waiting for your account balance…','info'); return; }
   if(PX.finished) pxReset(true);
-  if(MODE==='REAL' && !window.confirm(`Premium Auto will place REAL-money trades.\nStake $${pxFmt(PX.cfg.stake)} · target $${pxFmt(PX.cfg.target)} · max loss $${pxFmt(PX.cfg.maxLoss)}.\nContinue?`)) return;
-  pxShowScan().then(()=>{
-    if(!wsConnected){ toast('Connection lost during the scan.','error'); return; }
-    PX.running=true; PX.nextAt=0; PX.errStreak=0;
+  if(PX.sessMode&&PX.sessMode!==MODE&&(PX.rows.length||PX.stats.runs)){ pxReset(true); toast(`Switched to a ${MODE} account — session counters were reset so demo and real results never mix.`,'info'); }
+  const pre=pxRiskGate(pxComputeStake());
+  if(pre){ toast(PX_GATE_TXT[pre.kind]||'Risk limits prevent starting.','error'); return; }
+  if(MODE==='REAL' && !window.confirm(`EMRON Auto will place REAL-money trades on your real account.\nStake $${pxFmt(PX.cfg.stake)} · target $${pxFmt(PX.cfg.target)} · max loss $${pxFmt(PX.cfg.maxLoss)} · daily loss $${pxFmt(PX.cfg.maxDaily)}.\nNo profit is guaranteed. Continue?`)) return;
+  pxShowScan().then(ok=>{
+    if(!ok||!wsConnected) return;
+    PX.running=true; PX.nextAt=0; PX.errStreak=0; PX.connLogged=false;
+    if(!PX.startedAt) PX.startedAt=Date.now();
+    pxAudit('system',`Run started · ${PX.cfg.pair.on?'Higher/Lower pair':PX_STRATS[PX.cfg.strategy].name} · ${PX.cfg.market==='ALL'?'all markets':PX.cfg.market} · stake ${pxFmt(PX.cfg.stake)} · ${MODE}`);
     $px('pxConfig').classList.remove('open'); $px('pxCollapseBtn').classList.remove('open');
-    pxSetStatus('Scanning market for the next signal…'); pxRenderAll();
+    pxSetStatus('Waiting for the next valid signal…'); pxRenderAll();
   });
 }
 function pxStop(msg){
   if(!PX.running) return;
-  PX.running=false; pxSetStatus(msg||'Stopped. Any open contract settles automatically.'); pxRenderAll();
+  PX.running=false; pxAudit('system',msg||'Stopped by user — no new orders; open contracts settle on their own');
+  pxSetStatus(msg||'Stopped. Any open contract settles automatically.'); pxRenderAll();
 }
 function pxReset(silent){
-  PX.running=false; PX.sid++; PX.open=null; PX.rows=[]; PX.stats={stake:0,payout:0,runs:0,lost:0,won:0,pl:0};
-  PX.lossStreak=0; PX.recovery=null; PX.finished=false; PX.errStreak=0; PX.bad.clear(); PX.pair=null;
+  if(!silent){
+    if(PX.open||PX.pair||PX.recon){ toast('Wait for the open contract to settle before resetting.','error'); return; }
+    if(!window.confirm('Reset this session?\nCounters, loss streak and strategy state are cleared. Your Deriv account history and balance are NOT affected.')) return;
+  }
+  PX.running=false; PX.sid++; PX.open=null; PX.recon=null; PX.rows=[]; PX.stats={stake:0,payout:0,runs:0,lost:0,won:0,pl:0};
+  PX.lossStreak=0; PX.finished=false; PX.errStreak=0; PX.bad.clear(); PX.pair=null; PX.sw={dir:null,lastSwitch:0,switches:0};
+  PX.startedAt=null; PX.sessMode=null; PX.showRows=30; PX.restored=false;
+  try{ localStorage.removeItem(PX_SESS_KEY); }catch(e){}
   const tk=$px('pxTicker'); if(tk) tk.className='px-ticker';
-  if(!silent){ $px('pxConfig').classList.add('open'); $px('pxCollapseBtn').classList.add('open'); pxSetStatus('Ready — set your limits and start.'); }
+  if(!silent){ pxAudit('system','Session reset (counters and strategy state only)'); $px('pxConfig').classList.add('open'); $px('pxCollapseBtn').classList.add('open'); pxSetStatus('Ready — set your limits and run.'); }
   pxRenderAll();
 }
+const PX_FIN={
+  target:{ico:'🎉',title:'Congratulations! 🎉',text:"You've reached your target profit. EMRON Auto has stopped opening trades to lock in your gains.",ok:'Awesome',done:true,status:'Profit target reached — trading stopped.'},
+  maxloss:{ico:'🛡️',title:'Max loss reached',text:'EMRON Auto has stopped opening trades to protect your balance.',ok:'Got it',done:true,status:'Max loss reached — trading stopped.'},
+  daily:{ico:'🛡️',title:'Daily loss limit reached',text:'Your configured daily loss limit for this account type is used up. EMRON Auto will not open new trades until tomorrow.',ok:'Got it',status:'Daily loss limit reached — trading stopped.'},
+  consec:{ico:'⏸️',title:'Paused after consecutive losses',text:'The maximum number of losses in a row was reached. Reset the session when you are ready to continue.',ok:'Got it',status:'Paused after the maximum consecutive losses.'},
+  maxtrades:{ico:'⏸️',title:'Trade limit reached',text:'The configured maximum number of trades for this session was reached.',ok:'Got it',status:'Trade limit reached — trading stopped.'},
+  balance:{ico:'⚠️',title:'Insufficient balance',text:'Your balance is lower than the stake, so no new order was placed.',ok:'Got it',status:'Stopped — stake exceeds balance.'}
+};
 function pxFinish(kind){
-  PX.running=false; PX.finished=true;
-  const s=PX.stats, win=kind==='target';
-  pxSetStatus(win?'Profit target reached — trading stopped.':'Max loss reached — trading stopped.');
-  $px('pxModalIco').textContent=win?'🎉':'🛡️';
-  $px('pxModalTitle').textContent=win?'Congratulations! 🎉':'Max loss reached';
-  $px('pxModalText').textContent=win?"You've reached your target profit. EMRON Auto has stopped trading to lock in your gains. Great session!":'EMRON Auto has stopped trading to protect your balance.';
+  const F=PX_FIN[kind]||PX_FIN.maxloss, s=PX.stats;
+  PX.running=false; PX.finished=!!F.done;
+  pxSetStatus(F.status); pxAudit('risk',F.status);
+  $px('pxModalIco').textContent=F.ico; $px('pxModalTitle').textContent=F.title; $px('pxModalText').textContent=F.text;
   const net=$px('pxModalNet'); net.textContent=`${s.pl>=0?'+':'-'}${pxMoney(Math.abs(s.pl))} USD`; net.className=s.pl<0?'neg':'';
   $px('pxModalTrades').textContent=s.runs; $px('pxModalWins').textContent=s.won; $px('pxModalLosses').textContent=s.lost;
-  $px('pxModalOk').textContent=win?'Awesome':'Got it';
-  $px('pxModal').classList.add('on'); pxRenderAll();
+  $px('pxModalOk').textContent=F.ok; $px('pxModal').classList.add('on'); pxPersist(); pxRenderAll();
 }
 
-/* ---------- scanning overlay ---------- */
-function pxLogLine(matrix){
-  const R=()=>Math.random();
-  if(matrix){ let s=''; const ch='01ABCDEF#%$@&*+=<>'; for(let i=0;i<90;i++) s+=ch[Math.floor(R()*ch.length)]; return s; }
-  const mk=Array.from(engineState.markets.values()), m=mk[Math.floor(R()*mk.length)];
-  const T=[
-    ['INFO','Authenticating API key... [OK]'],['INFO','Fetching market data...'],['INFO',`Streaming ${m.short} · ${m.digits.length} ticks buffered`],
-    ['INFO','Analysing volatility index...'],['INFO','Scoring Rise/Fall · Even/Odd · Matches...'],['INFO','Scoring Over/Under · Only Ups/Downs · High/Low...'],
-    ['SUCCESS','Data stream established...'],['WARNING','High market volatility detected...'],['INFO','Compiling results...'],
-    ['SECURITY','Encryption enabled...'],['INFO','Data transmission complete...'],['INFO',`Ranking ${mk.length} markets...`]];
-  let s=''; for(let i=0;i<3;i++){ const t=T[Math.floor(R()*T.length)]; s+=`[${t[0]}] ${t[1]}  `; } return s;
-}
+/* ---------- scanning overlay: every line is a real event (connection, ticks, evaluation, risk check) ---------- */
 function pxShowScan(){
   return new Promise(resolve=>{
-    PX.scanning=true; const ov=$px('pxScan'), log=$px('pxScanLog'); ov.classList.add('on');
-    const rows=Math.ceil(window.innerHeight/12.5)+2, t0=Date.now(), lines=[];
-    const push=()=>{ lines.push(pxLogLine(Date.now()-t0<700)); if(lines.length>rows) lines.shift(); log.textContent=lines.join('\n'); };
-    for(let i=0;i<rows;i++) push();
-    PX.logTimer=setInterval(push,75);
-    const ready=()=>pxPool().some(m=>m.digits.length>=60);
-    PX.scanTimer=setInterval(()=>{
-      const el=Date.now()-t0;
-      if((el>=3200&&ready())||el>=20000){
-        clearInterval(PX.scanTimer); clearInterval(PX.logTimer); ov.classList.remove('on'); PX.scanning=false; resolve();
-      }
+    PX.scanning=true; pxRenderControls();
+    const ov=$px('pxScan'), log=$px('pxScanLog'), step=$px('pxScanStep'); ov.classList.add('on'); ov.setAttribute('aria-hidden','false');
+    const {S,sp}=pxSpec(), pool=pxPool(), need=S.need(sp), single=pool.length===1;
+    const rows=Math.ceil(window.innerHeight/12.5)+2, lines=[], seen=new Map(pool.map(m=>[m.code,m.tickCount]));
+    let phase=0, nextAt=0, lastProg=0, done=false, t0=Date.now();
+    const emit=t=>{ lines.push(t); if(lines.length>rows) lines.shift(); log.textContent=lines.join('\n'); };
+    const L=(lvl,msg)=>{ emit(`[${pxHMS(Date.now())}] [${lvl}] ${msg}`); step.textContent=msg; };
+    const finish=(ok,msg)=>{ if(done) return; done=true; clearInterval(tm); ov.classList.remove('on'); ov.setAttribute('aria-hidden','true'); PX.scanning=false; PX.scanAbort=null; if(msg) pxSetStatus(msg); pxRenderControls(); resolve(ok); };
+    const fail=msg=>{ L('ERROR',msg); phase=99; setTimeout(()=>finish(false,msg),1800); };
+    PX.scanAbort=()=>{ if(phase!==99) finish(false,'Scan cancelled — trading not started.'); };
+    const C=PX.cfg, name=C.pair.on?'Higher/Lower pair':S.name;
+    L('INFO',`Validating ${MODE} account · ${name} · ${C.market==='ALL'&&!C.pair.on?'all markets':(pool[0]?pool[0].short:'?')} · stake ${pxFmt(C.stake)}`);
+    L('INFO',`Risk limits · target +${pxFmt(C.target)} · max loss -${pxFmt(C.maxLoss)} · daily loss -${pxFmt(C.maxDaily)} (today ${pxSigned(pxDailyPL())}) · ${C.maxTrades} trades · pause after ${C.maxConsec} losses`);
+    L('INFO','Connecting to Deriv…');
+    const tm=setInterval(()=>{
+      if(done) return;
+      const now=Date.now(), el=now-t0;
+      pool.forEach(m=>{                                  // live tick tape: only real ticks received since the scan began
+        const d=m.tickCount-(seen.get(m.code)||0); if(d<=0) return; seen.set(m.code,m.tickCount);
+        for(let j=Math.min(d,3)-1;j>=0;j--){ const i=m.quotes.length-1-j; if(i>=0) emit(`[${pxHMS(now)}] [TICK] ${m.short.padEnd(9)} ${m.quotes[i].toFixed(m.decimals)}  digit ${m.digits[i]}`); }
+      });
+      if(phase===99) return;
+      if(el>25000){ fail(phase<2?'Market data unavailable — no live ticks received. Trading not started.':'Not enough market data to build the analysis window. Trading not started.'); return; }
+      if(now<nextAt) return;
+      if(phase===0){
+        if(!wsConnected||!accessToken){ if(el>8000) fail('Deriv session is not connected/authorized. Trading not started.'); return; }
+        L('SUCCESS',`Deriv session authorized · ${MODE} balance ${pxMoney(balance)}`); phase=1; nextAt=now+350;
+      } else if(phase===1){
+        const live=pool.filter(pxFresh).length; if(!live) return;
+        L('SUCCESS',`Receiving live market data · ${live}/${pool.length} market${pool.length===1?'':'s'} streaming`); phase=2; nextAt=now+350;
+      } else if(phase===2){
+        const have=Math.max(0,...pool.filter(pxFresh).map(m=>Math.min(m.digits.length,m.quotes.length)));
+        if(have>=need){ L('SUCCESS',`Analysis window ready · ${have}/${need} ticks`); phase=3; nextAt=now+350; }
+        else if(now-lastProg>1200){ lastProg=now; L('INFO',`Building the analysis window ${have}/${need} ticks`); }
+      } else if(phase===3){
+        L('INFO','Evaluating strategy conditions');
+        if(C.pair.on) L('INFO','Pair mode waits for its tick-streak confirmation before buying');
+        else { const ev=pxEvaluate(); L(ev.best?'SUCCESS':'INFO',ev.best?`Eligible now: ${ev.best.short} · ${ev.best.label} — ${ev.best.why}`:`No eligible signal yet — ${pxWhyText(ev)}`); }
+        phase=4; nextAt=now+450;
+      } else if(phase===4){
+        const g=pxRiskGate(pxComputeStake());
+        if(g){ fail(PX_GATE_TXT[g.kind]||'Risk limits prevent trading.'); return; }
+        L('SUCCESS',`Risk limits validated · stake ${pxFmt(pxComputeStake())} per trade`); phase=5; nextAt=now+450;
+      } else if(phase===5){
+        L('INFO','Scan complete — live trading starts. Orders are placed only when a valid signal passes the risk check.'); phase=6; nextAt=now+800;
+      } else if(phase===6){ finish(true); }
     },120);
   });
 }
@@ -4779,93 +4995,137 @@ const PX_ARROW={up:'<svg viewBox="0 0 24 24"><path d="M7 17L17 7M9 7h8v8"/></svg
 function pxSetStatus(t){ if(PX.lastStatus===t) return; PX.lastStatus=t; const el=$px('pxStatus'); if(el) el.textContent=t; }
 function pxRenderHeader(){
   const b=$px('pxBal'), l=$px('pxAcctLbl'); if(!b) return;
-  b.textContent=(accessToken&&Number(balance)>0)?`${pxMoney(balance)} USD`:'— USD';
-  l.textContent=!accessToken?'Not connected':(MODE==='REAL'?'Real account':'Demo account');
+  b.textContent=(accessToken&&Number(balance)>0)?`${pxMoney(balance)} ${(accountInfo&&accountInfo.currency)||'USD'}`:'— USD';
+  l.textContent=!accessToken?'Not connected':(MODE==='REAL'?'REAL account':'DEMO account');
+  l.className=!accessToken?'':(MODE==='REAL'?'px-real':'px-demo');
+  const d=$px('pxDot'); if(d){ d.className='px-dot'+(wsConnected?' on':''); d.title=wsConnected?'Deriv connected':'Deriv disconnected'; }
 }
 function pxDate(ts){ const d=new Date(ts),M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   return `${d.getDate()} ${M[d.getMonth()]}, ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; }
 function pxRenderRows(){
   const el=$px('pxList'); if(!el) return;
-  if(!PX.rows.length){ el.innerHTML='<div class="px-empty">No trades yet.<br>Start auto-trading to scan all markets.</div>'; return; }
-  el.innerHTML=PX.rows.slice(0,60).map(r=>{
-    const open=r.status==='open', cls=r.profit>=0?'p':'n';
+  const more=$px('pxMore'), open=PX.rows.filter(r=>r.status==='open');
+  const cap=$px('pxOpenCap'); if(cap) cap.textContent=open.length?`${open.length} open · ${pxFmt(open.reduce((a,r)=>a+r.stake,0))} USD at stake (not counted in payout or P/L until settled)`:'';
+  if(!PX.rows.length){ el.innerHTML='<div class="px-empty">No trades yet.<br>Run EMRON Auto to start a monitored session.</div>'; if(more) more.style.display='none'; return; }
+  el.innerHTML=PX.rows.slice(0,PX.showRows).map(r=>{
+    const isOpen=r.status==='open', cls=isOpen?'o':(r.profit>=0?'p':'n');
     const evT=r.ev!=null?` · EV ${(r.ev*100).toFixed(1)}%`:'';
-    const sub=open?`${r.label} · Stake ${pxFmt(r.stake)} · Value ${pxFmt(r.value)}${evT}`:`${pxDate(r.ts)} · ${r.label} · Stake ${pxFmt(r.stake)}${r.entry!=null&&r.exit!=null?` · ${r.entry}→${r.exit}`:''}${evT}`;
-    return `<div class="px-row"><span class="px-ico ${r.dir}">${PX_ARROW[r.dir]}</span><div class="px-rm"><div class="px-rt">${r.name}</div><div class="px-rs">${sub}</div></div><span class="px-rp ${cls}">${pxSigned(r.profit)}</span>${open?`<button class="px-sell" data-sell="${r.cid}">× Sell</button>`:''}</div>`;
+    const sub=`${pxDate(r.ts)} · ${pxEsc(r.strat?r.strat+' · ':'')}${pxEsc(r.label)} · Stake ${pxFmt(r.stake)}${isOpen?` · Value ${pxFmt(r.value)}`:(r.entry!=null&&r.exit!=null?` · ${pxEsc(r.entry)}→${pxEsc(r.exit)}`:'')}${r.cid?` · #${r.cid}`:''}${evT}`;
+    return `<div class="px-row${isOpen?' open':''}"><span class="px-ico ${r.dir}">${PX_ARROW[r.dir]}</span><div class="px-rm"><div class="px-rt">${pxEsc(r.name)}</div><div class="px-rs">${sub}</div></div><span class="px-rp ${cls}">${isOpen?'<i class="px-pill">Open</i> ':''}${pxSigned(r.profit)}</span>${isOpen&&r.canSell?`<button class="px-sell" data-sell="${r.cid}">× Sell</button>`:''}</div>`;
   }).join('');
+  if(more){ more.style.display=PX.rows.length>PX.showRows?'block':'none'; more.textContent=`Show more (${PX.rows.length-PX.showRows} older)`; }
 }
 function pxRenderStats(){
-  const s=PX.stats, set=(id,v)=>{const e=$px(id); if(e) e.textContent=v;};
-  set('pxSStake',`${pxFmt(s.stake)} USD`); set('pxSPayout',`${pxFmt(s.payout)} USD`); set('pxSRuns',s.runs);
+  const s=PX.stats, set=(id,v)=>{const e=$px(id); if(e) e.textContent=v;}, cur=(accountInfo&&accountInfo.currency)||'USD';
+  set('pxSStake',`${pxFmt(s.stake)} ${cur}`); set('pxSPayout',`${pxFmt(s.payout)} ${cur}`); set('pxSRuns',s.runs);
   set('pxSLost',s.lost); set('pxSWon',s.won);
-  const t=`${pxSigned(s.pl)} USD`; set('pxSPL',t); set('pxPL',t);
+  const t=`${pxSigned(s.pl)} ${cur}`; set('pxSPL',t); set('pxPL',t);
   ['pxSPL','pxPL'].forEach(id=>{const e=$px(id); if(e) e.style.color=s.pl>0?'var(--px-green)':s.pl<0?'var(--px-red)':'';});
+  set('pxSessNote',`${PX.sessMode||MODE} session${PX.startedAt?' · since '+pxHMS(PX.startedAt):''} · today's ${MODE} P/L ${pxSigned(pxDailyPL())} ${cur} · losses in a row ${PX.lossStreak}/${PX.cfg.maxConsec}${PX.restored?' · restored after refresh':''}`);
 }
 function pxRenderControls(){
   const b=$px('pxStopBtn'); if(!b) return;
   b.className='px-stop'+(PX.running?'':' go'); b.querySelector('span').textContent=PX.running?'Stop':'Start';
   $px('pxStartBtn').disabled=PX.running||PX.scanning;
-  $px('pxStartBtn').textContent=PX.running?'Auto-trading…':(PX.finished?'▶ Start a new session':'▶ Start auto-trading');
+  $px('pxStartBtn').textContent=PX.running?'EMRON Auto is running…':(PX.scanning?'Scanning…':(PX.finished?'▶ Run a new session':'Run EMRON Auto'));
 }
 function pxRenderChips(){
   const el=$px('pxChips'); if(!el) return;
   if(PX.cfg.pair.on){ el.innerHTML=pxPairChips(); return; }
-  const pool=pxPool(), cnt={}; PX.cfg.families.forEach(f=>cnt[f]=0);
-  pool.forEach(m=>PX.cfg.families.forEach(f=>{ if(pxAnalyze(m,f,null)) cnt[f]++; }));
-  el.innerHTML=`<span>${pool.length} markets analysed</span>`+PX_FAMS.filter(f=>cnt[f[0]]!==undefined).map(f=>`<span class="${cnt[f[0]]?'on':''}">${f[1]} ${cnt[f[0]]}</span>`).join('');
+  const pool=pxPool(), {S,sp}=pxSpec(), need=S.need(sp), m=pool[0], c=[];
+  if(PX.cfg.market==='ALL') c.push(`<span>${pool.filter(pxFresh).length}/${pool.length} markets live</span>`);
+  else if(m) c.push(`<span>${m.short}</span><span class="${m.digits.length>=need?'on':''}">${Math.min(m.digits.length,need)}/${need} ticks</span><span class="${pxFresh(m)?'on':''}">${pxFresh(m)?'live':'no live ticks'}</span>`);
+  const ev=pxEvaluate();
+  c.push(ev.best?`<span class="wide on">✓ ${pxEsc(ev.best.short)} · ${pxEsc(ev.best.label)} (${ev.best.conf}%) — ${pxEsc(ev.best.why)}</span>`:`<span class="wide">✗ ${pxEsc(pxWhyText(ev))}</span>`);
+  el.innerHTML=c.join('');
+}
+function pxRenderLog(){
+  const el=$px('pxLog'); if(!el) return;
+  const T={signal:'SIGNAL',skip:'SKIP',risk:'RISK',order:'ORDER',settled:'RESULT',switch:'SWITCH',error:'ERROR',system:'SYSTEM',quote:'QUOTE'};
+  el.innerHTML=PX.logs.slice(0,40).map(e=>`<div class="px-lg ${e.type}"><time>${pxHMS(e.t)}</time><b>${T[e.type]||e.type}</b><span>${pxEsc(e.msg)}</span></div>`).join('')||'<div class="px-empty">No events yet.</div>';
+  const c=$px('pxLogCount'); if(c) c.textContent=PX.logs.length?`(${PX.logs.length})`:'';
 }
 function pxRenderAll(){ pxRenderHeader(); pxRenderRows(); pxRenderStats(); pxRenderControls(); }
 let pxChipsAt=0;
 function premiumIdleRender(){
   if(!$px('premium')||!$px('premium').classList.contains('active')) return;
-  const n=Date.now(); if(n-pxChipsAt<700) return; pxChipsAt=n; pxRenderChips();
+  const n=Date.now(); if(n-pxChipsAt<700) return; pxChipsAt=n; pxRenderChips(); pxRenderHeader();
 }
-function pxApplyTheme(){
-  $px('pxShell').dataset.theme=PX.dark?'dark':'light';
-}
+function pxApplyTheme(){ $px('pxShell').dataset.theme=PX.dark?'dark':'light'; }
+
+/* ---------- config persistence ---------- */
+function pxKnownMarket(c){ return c==='ALL'||PULSE_SYMBOLS.some(s=>s.code===c)||HUNTER.extraSymbols.some(s=>s.code===c); }
 function pxLoadCfg(){
+  const C=PX.cfg;
   try{
-    const r=JSON.parse(localStorage.getItem(PX_KEY)||'{}');
-    if(r.engine==='strike'||r.engine==='switcher') PX.cfg.engine=r.engine;
-    if(r.market==='ALL'||PULSE_SYMBOLS.some(s=>s.code===r.market)||HUNTER.extraSymbols.some(s=>s.code===r.market)) PX.cfg.market=r.market;
-    ['stake','target','maxLoss'].forEach(k=>{const v=Number(r[k]); if(Number.isFinite(v)&&v>0) PX.cfg[k]=v;});
-    if(Number.isInteger(r.steps)&&r.steps>=0&&r.steps<=6) PX.cfg.steps=r.steps;
-    if(['off','warn','block'].includes(r.guard)) PX.cfg.guard=r.guard;
-    if(r.pair&&typeof r.pair==='object'){ const q=r.pair; ['offset','ticks','confirm'].forEach(k=>{const v=Number(q[k]); if(Number.isFinite(v)&&v>=0) PX.cfg.pair[k]=v;}); if(q.layout==='inside'||q.layout==='outside') PX.cfg.pair.layout=q.layout; PX.cfg.pair.on=!!q.on; }
-    if(Array.isArray(r.families)){ const f=r.families.filter(x=>PX_FAMS.some(p=>p[0]===x)); if(f.length) PX.cfg.families=f; }
-    if(r.rfAdded!==true && !PX.cfg.families.includes('risefall')) PX.cfg.families.unshift('risefall');
+    let r=JSON.parse(localStorage.getItem(PX_KEY)||'null'), fresh=!!r;
+    if(!r){ r=JSON.parse(localStorage.getItem(PX_KEY_OLD)||'{}'); delete r.market; }      // migrate stake/limits/theme from the previous version
+    ['stake','target','maxLoss','maxDaily'].forEach(k=>{const v=Number(r[k]); if(Number.isFinite(v)&&v>0) C[k]=v;});
+    ['cooldown','maxTrades','maxConsec'].forEach(k=>{const v=Number(r[k]); if(Number.isInteger(v)&&v>=0) C[k]=v;});
+    if(C.maxTrades<1) C.maxTrades=50; if(C.maxConsec<1) C.maxConsec=3;
+    if(fresh&&pxKnownMarket(r.market)) C.market=r.market;
+    if(PX_STRATS[r.strategy]) C.strategy=r.strategy;
+    if(['off','warn','block'].includes(r.guard)) C.guard=r.guard;
+    if(r.sp&&typeof r.sp==='object') Object.keys(PX_SP_DEFAULT).forEach(id=>{
+      const src=r.sp[id]; if(!src||typeof src!=='object') return;
+      PX_SP_FIELDS[id].forEach(f=>{
+        if(f.type==='sel'){ if(f.opts.some(o=>o[0]===src[f.k])) C.sp[id][f.k]=src[f.k]; }
+        else { const v=Number(src[f.k]); if(Number.isFinite(v)&&v>=f.min&&v<=f.max) C.sp[id][f.k]=v; }
+      });
+      pxClampSp(id);
+    });
+    if(r.pair&&typeof r.pair==='object'){ const q=r.pair; ['offset','ticks','confirm'].forEach(k=>{const v=Number(q[k]); if(Number.isFinite(v)&&v>=0) C.pair[k]=v;}); if(q.layout==='inside'||q.layout==='outside') C.pair.layout=q.layout; C.pair.on=!!q.on; }
     PX.dark=!!r.dark;
   }catch(e){}
+  C.steps=0;
 }
-function pxSaveCfg(){ try{ localStorage.setItem(PX_KEY,JSON.stringify({engine:PX.cfg.engine,market:PX.cfg.market,stake:PX.cfg.stake,target:PX.cfg.target,maxLoss:PX.cfg.maxLoss,steps:PX.cfg.steps,guard:PX.cfg.guard,pair:PX.cfg.pair,families:PX.cfg.families,rfAdded:true,dark:PX.dark})); }catch(e){} }
+function pxSaveCfg(){ const C=PX.cfg; try{ localStorage.setItem(PX_KEY,JSON.stringify({strategy:C.strategy,market:C.market,stake:C.stake,target:C.target,maxLoss:C.maxLoss,guard:C.guard,cooldown:C.cooldown,maxTrades:C.maxTrades,maxConsec:C.maxConsec,maxDaily:C.maxDaily,sp:C.sp,pair:C.pair,dark:PX.dark})); }catch(e){} }
+
+function pxRenderCards(){
+  const el=$px('pxCards'); if(!el) return; const pr=PX.cfg.pair.on;
+  el.innerHTML=Object.entries(PX_STRATS).map(([id,S])=>{
+    const sel=PX.cfg.strategy===id&&!pr;
+    return `<button type="button" class="px-card${sel?' sel':''}${pr?' dim':''}" data-strat="${id}" aria-pressed="${sel}"><span class="px-ck"></span>${PX_ICON[id]}<b>${S.name}</b><em>${S.tag}</em><small>${pxEsc(S.summary(PX.cfg.sp[id]))}</small></button>`;
+  }).join('');
+}
+function pxRenderSp(){
+  const box=$px('pxSpBox'); if(!box) return; const id=PX.cfg.strategy, sp=PX.cfg.sp[id];
+  const note={matches:'Digit frequency is an observation, not proof the digit is more likely next. Confidence is a statistical-strength score, not a win probability.',
+    over8:'Over 8 only wins when the last digit is 9 (fair chance 10%): payouts are large, losses are frequent. Barrier rules: Over 0-8, Under 1-9.',
+    tickstrike:'Momentum score = (up ticks − down ticks) ÷ lookback, confirmed by the net move measured in tick volatility. Short-term momentum may not persist.',
+    switcher:'Uses the Rise/Fall trend model. The direction only changes when its score clears the threshold AND the cooldown has passed; direction changes are locked while on a losing streak.'}[id];
+  box.innerHTML=`<div class="px-adv-h">${PX_STRATS[id].name} settings</div><div class="px-two">`+PX_SP_FIELDS[id].filter(f=>!f.show||f.show(sp)).map(f=>{
+    if(f.type==='sel') return `<label class="px-field"><span>${f.label}</span><select data-sp="${f.k}">${f.opts.map(o=>`<option value="${o[0]}"${sp[f.k]===o[0]?' selected':''}>${o[1]}</option>`).join('')}</select></label>`;
+    return `<label class="px-field"><span>${f.label}</span><div class="px-input"><input data-sp="${f.k}" type="number" inputmode="decimal" min="${f.min}" max="${f.max}" step="${f.step}" value="${sp[f.k]}"></div></label>`;
+  }).join('')+`</div><div class="px-note" style="margin-bottom:8px">${note}</div>`;
+}
 function pxRenderFams(){
-  const el=$px('pxFams'), pr=PX.cfg.pair.on;
-  el.innerHTML=`<button class="px-fam pair${pr?' on':''}" data-fam="hl">↕ Higher/Lower (pair)</button>`+PX_FAMS.map(f=>`<button class="px-fam${PX.cfg.families.includes(f[0])&&!pr?' on':''}${pr?' dim':''}" data-fam="${f[0]}">${f[1]}</button>`).join('');
+  const pr=PX.cfg.pair.on, b=$px('pxPairBtn'); if(b) b.classList.toggle('on',pr);
   const box=$px('pxPairBox'); if(box) box.style.display=pr?'block':'none';
+  pxRenderCards();
 }
 function pxSetPair(on){
   PX.cfg.pair.on=on;
-  if(on){ PX.cfg.steps=0; $px('pxSteps').value=0; if(PX.cfg.market==='ALL'){ PX.cfg.market='1HZ100V'; $px('pxMarket').value='1HZ100V'; } toast('↕ Higher + Lower pair mode ON — stake is per leg.','info'); }
-  else toast('Pair mode off — back to single-signal trading.','info');
+  if(on){ if(PX.cfg.market==='ALL'){ PX.cfg.market='1HZ100V'; $px('pxMarket').value='1HZ100V'; } toast('↕ Higher + Lower pair mode ON — stake is per leg.','info'); }
+  else toast('Pair mode off — back to the strategy cards.','info');
   pxRenderFams(); pxSaveCfg(); pxRenderRisk(); pxRenderChips();
 }
 function setupPremiumUI(){
-  pxLoadCfg();
+  pxLoadCfg(); pxRestore();
   const sel=$px('pxMarket');
-  sel.innerHTML='<option value="ALL">All markets (auto)</option>'+PULSE_SYMBOLS.concat(HUNTER.extraSymbols).map(s=>`<option value="${s.code}">${s.name.replace(' Index','')}</option>`).join('');
-  sel.value=PX.cfg.market; $px('pxStake').value=pxFmt(PX.cfg.stake); $px('pxTarget').value=pxFmt(PX.cfg.target); $px('pxMaxLoss').value=pxFmt(PX.cfg.maxLoss); $px('pxSteps').value=PX.cfg.steps; $px('pxGuard').value=PX.cfg.guard;
-  const pq=PX.cfg.pair; $px('pxPOffset').value=pq.offset; $px('pxPTicks').value=pq.ticks; $px('pxPConfirm').value=pq.confirm; $px('pxPLayout').value=pq.layout;
-  const setEngine=e=>{ PX.cfg.engine=e; document.querySelectorAll('.px-engine').forEach(b=>b.classList.toggle('sel',b.dataset.engine===e)); pxSaveCfg(); };
-  setEngine(PX.cfg.engine); pxRenderFams(); pxApplyTheme();
-  document.querySelectorAll('.px-engine').forEach(b=>b.addEventListener('click',()=>setEngine(b.dataset.engine)));
-  $px('pxFams').addEventListener('click',e=>{
-    const b=e.target.closest('[data-fam]'); if(!b) return; const f=b.dataset.fam, a=PX.cfg.families;
-    if(f==='hl'){ if(PX.running||PX.pair){ toast('Stop the bot before switching modes.','error'); return; } pxSetPair(!PX.cfg.pair.on); return; }
-    if(PX.cfg.pair.on){ if(PX.running||PX.pair){ toast('Stop the bot before switching modes.','error'); return; } pxSetPair(false); }
-    if(a.includes(f)){ if(a.length>1) a.splice(a.indexOf(f),1); else toast('Keep at least one strategy on.','info'); } else a.push(f);
-    pxRenderFams(); pxSaveCfg();
+  sel.innerHTML=PULSE_SYMBOLS.concat(HUNTER.extraSymbols).map(s=>`<option value="${s.code}">${s.name.replace(' Index','')}</option>`).join('')+'<option value="ALL">All markets (best signal)</option>';
+  if(!pxKnownMarket(PX.cfg.market)) PX.cfg.market='1HZ100V';
+  pxWriteInputs(); pxRenderSp(); pxRenderFams(); pxApplyTheme();
+  $px('pxCards').addEventListener('click',e=>{
+    const b=e.target.closest('[data-strat]'); if(!b) return;
+    if(PX.running||PX.scanning||PX.pair){ toast('Stop EMRON Auto before changing the strategy.','error'); return; }
+    if(PX.cfg.pair.on) pxSetPair(false);
+    PX.cfg.strategy=b.dataset.strat; pxRenderSp(); pxRenderCards(); pxSaveCfg(); pxRenderChips(); pxRenderRisk();
   });
-  ['pxStake','pxTarget','pxMaxLoss','pxMarket','pxSteps','pxGuard','pxPOffset','pxPTicks','pxPConfirm','pxPLayout'].forEach(id=>$px(id).addEventListener('change',pxReadInputs));
+  $px('pxPairBtn').addEventListener('click',()=>{ if(PX.running||PX.scanning||PX.pair){ toast('Stop the bot before switching modes.','error'); return; } pxSetPair(!PX.cfg.pair.on); });
+  ['pxStake','pxTarget','pxMaxLoss','pxMarket','pxGuard','pxCool','pxMaxTrades','pxMaxConsec','pxMaxDaily','pxPOffset','pxPTicks','pxPConfirm','pxPLayout'].forEach(id=>$px(id).addEventListener('change',pxReadInputs));
+  $px('pxSpBox').addEventListener('change',pxReadInputs);
+  $px('pxAdvBtn').addEventListener('click',()=>{ const o=$px('pxAdv').classList.toggle('open'); $px('pxAdvBtn').classList.toggle('open',o); $px('pxAdvBtn').setAttribute('aria-expanded',o); });
   $px('pxCollapseBtn').addEventListener('click',()=>{ const o=$px('pxConfig').classList.toggle('open'); $px('pxCollapseBtn').classList.toggle('open',o); });
   $px('pxThemeBtn').addEventListener('click',()=>{ PX.dark=!PX.dark; pxApplyTheme(); pxSaveCfg(); });
   $px('pxMenuBtn').addEventListener('click',()=>document.getElementById('hamburger').click());
@@ -4873,11 +5133,15 @@ function setupPremiumUI(){
   $px('pxStartBtn').addEventListener('click',pxStart);
   $px('pxStopBtn').addEventListener('click',()=>{ if(PX.running) pxStop(); else pxStart(); });
   $px('pxResetBtn').addEventListener('click',()=>pxReset(false));
+  $px('pxMore').addEventListener('click',()=>{ PX.showRows+=30; pxRenderRows(); });
+  $px('pxScanCancel').addEventListener('click',()=>{ if(PX.scanAbort) PX.scanAbort(); });
   $px('pxList').addEventListener('click',e=>{ const b=e.target.closest('[data-sell]'); if(b) pxSell(Number(b.dataset.sell)); });
   const closeM=()=>$px('pxModal').classList.remove('on');
   $px('pxModalOk').addEventListener('click',closeM); $px('pxModalX').addEventListener('click',closeM);
   document.querySelectorAll('.px-bot [data-go]').forEach(b=>b.addEventListener('click',()=>{ const t=document.querySelector(`.tab[data-tab="${b.dataset.go}"]`); if(t) t.click(); }));
-  pxSetStatus('Ready — set your limits and start.'); pxRenderAll(); pxRenderChips(); pxRenderRisk();
+  setInterval(pxWatchdog,2000);
+  pxSetStatus(PX.restored?`Session restored (${PX.stats.runs} settled trades, ${pxSigned(PX.stats.pl)}). Reset to start fresh.`:'Ready — set your limits and run.');
+  pxRenderAll(); pxRenderChips(); pxRenderRisk(); pxRenderLog();
 }
 
 /* ============================================================
@@ -4909,7 +5173,7 @@ function pxPairTick(){
   if(P&&P.stage==='proposing'&&Date.now()-P.startedAt>8000) pxPairAbort('Pair timed out waiting for prices — trying again.');
   if(!PX.running||PX.pair||Date.now()<PX.nextAt||!wsConnected) return;
   const m=pxPairMarket();
-  if(!m||m.quotes.length<60){ pxSetStatus('Higher/Lower pair: waiting for ticks on '+(m?m.short:'the market')+'…'); return; }
+  if(!m||m.quotes.length<60||!pxFresh(m)){ pxSetStatus('Higher/Lower pair: waiting for ticks on '+(m?m.short:'the market')+'…'); return; }
   const need=PX.cfg.pair.confirm, st=pxStreak(m);
   if(need>0&&st.n<need){ pxSetStatus(`HL PRO signal: SCANNING — ${st.n?st.n+'× '+st.dir:'no streak'} (needs ${need} same-direction ticks)`); return; }
   pxPairPlace(m,st);
@@ -4917,7 +5181,7 @@ function pxPairTick(){
 function pxPairPlace(m,st){
   let stake=pxComputeStake(); const left=PX.cfg.maxLoss+PX.stats.pl;
   if(stake*2>left) stake=Math.floor(left*100/2)/100;                 // both legs must fit in the remaining loss buffer
-  if(stake<0.35){ pxFinish('maxloss'); return; }
+  { const g=pxRiskGate(Math.max(0,stake)*2); if(g){ pxHalt(g); return; } }
   const sd=stakeForApi(stake), out=PX.cfg.pair.layout==='outside', ticks=PX.cfg.pair.ticks, id=++PX.seq;
   const batch={id,sid:PX.sid,stage:'proposing',startedAt:Date.now(),symbol:m.code,legs:{},got:0,net:0,settled:0,failed:0,expected:2,ev:null,
     signal:st.n?`${st.n}× ${st.dir}`:'no streak'};
@@ -4976,8 +5240,7 @@ function pxPairMaybeFinish(P){
   if(P.failed===P.expected){ pxSetStatus('Both legs failed to open — nothing was bought.'); return; }
   const won=P.net>0; if(won) PX.lossStreak=0; else PX.lossStreak++;
   const s=PX.stats;
-  if(s.pl>=PX.cfg.target) { pxFinish('target'); return; }
-  if(s.pl<=-PX.cfg.maxLoss||Math.floor((PX.cfg.maxLoss+s.pl)*50)/100<0.35){ pxFinish('maxloss'); return; }
+  { const g=pxRiskGate(Math.min(pxComputeStake(),Math.floor((PX.cfg.maxLoss+s.pl)*50)/100)); if(g&&g.fatal){ pxHalt(g); return; } }
   if(PX.running) pxSetStatus(`Cycle ${won?'won':'lost'} ${P.net>=0?'+':'-'}$${pxFmt(Math.abs(P.net))} — next signal…`);
 }
 function pxPairChips(){
@@ -5124,6 +5387,7 @@ function pxNullProb(c){
   if(sp&&sp.n>=500) return sp.h/sp.n;                       // measured base rate of this exact contract
   if(t==='DIGITEVEN'||t==='DIGITODD') return .5;
   if(t==='DIGITMATCH') return .1;
+  if(t==='DIGITDIFF') return .9;
   if(t==='DIGITOVER') return (9-c.barrier)/10;
   if(t==='DIGITUNDER') return c.barrier/10;
   if(t==='CALL'||t==='PUT') return .5;
@@ -5137,6 +5401,8 @@ function pxEstProb(cand){
   return p0;
 }
 function premiumGuard(t,proposal){
+  { const c0=t.pxCand, p=Number(proposal&&proposal.payout), a=Number(proposal&&proposal.ask_price);
+    if(c0&&p>0&&a>0){ t.quote={payout:p,ask:a}; pxAudit('quote',`Proposal ${c0.short} · ${c0.label}: stake ${a.toFixed(2)} → payout ${p.toFixed(2)} (profit ${(p-a).toFixed(2)}, reward:risk ${((p-a)/a).toFixed(2)}:1) · max loss ${a.toFixed(2)}`); pxSetStatus(`Placing an authorized trade — ${c0.short} · ${c0.label}`); } }
   const mode=PX.cfg.guard||'warn', c=t.pxCand; if(!c||mode==='off') return true;
   const payout=Number(proposal&&proposal.payout), ask=Number(proposal&&proposal.ask_price)||t.stake;
   if(!(payout>0)||!(ask>0)) return true;
@@ -5178,364 +5444,7 @@ function pxRenderRisk(){
   const r=pxRiskSim();
   el.innerHTML=`<b>Risk preview</b> <span>(fair 50/50 contract, ~2.5% house margin, no edge assumed)</span><br>`+
     `Hit target first: <b class="g">${(r.win*100).toFixed(0)}%</b> · Hit max loss: <b class="r">${(r.loss*100).toFixed(0)}%</b> · Average result: <b class="${r.pl>=0?'g':'r'}">${r.pl>=0?'+':'-'}$${Math.abs(r.pl).toFixed(2)}</b> over ~${Math.round(r.trades)} trades<br>`+
-    `Longest losing chain stakes: ${r.parts.join(' → ')} = $${r.chain.toFixed(2)}${r.chain>PX.cfg.maxLoss?' <span class="r">(more than your max loss — the limit will clip it)</span>':''}`;
-}
-
-/* ============================================================
-   EMRON AI AUTO-TRADER v3 — new engine replacing the previous Auto screen.
-   Uses the site's authenticated Deriv WebSocket and existing tick ring buffers.
-   ============================================================ */
-const EMRON_AUTO_CONFIG = {
-  version: 3,
-  deriv: { appId: DERIV_APP_ID, publicWs: WS_PUBLIC, accountAuth: 'existing-pat-otp-session' },
-  tiers: {
-    active: 'free',
-    free: { label: 'Free', bots: ['matches'], maxStake: 5 },
-    premium: { label: 'Premium', bots: ['matches','over8','tickstrike','switcher'], maxStake: 100 }
-  },
-  defaults: { bot: 'matches', market: '1HZ100V', stake: 1, profitTarget: 10, maxLoss: 5 },
-  risk: { recoveryMultiplier: 1.6, maxRecoverySteps: 3, maxStakeMultiplier: 10, maxBalanceFraction: 0.25, minStake: 0.35, proposalEdgeMargin: 0.02, minSamples: 200, scanLogEveryTicks: 5 },
-  runtime: { maxJournalRows: 6000, maxTransactions: 5000, maxProposalFailures: 6, reconnectPolicy: 'reconcile-before-next-buy' },
-  plugins: { videoMatch: { enabled: true, label: 'Existing EMRON Video-Match Engine', source: 'matchesSpec() / MATCHES constants already used by EMRON' } }
-};
-
-class EMRONRiskManager {
-  constructor(config=EMRON_AUTO_CONFIG.risk){ this.config=config; }
-  calculateStake({baseStake,balance,lossStreak=0,maxLoss,sessionPL=0}) {
-    const c=this.config, base=Number(baseStake), bal=Number(balance), pl=Number(sessionPL), ml=Number(maxLoss);
-    if(!Number.isFinite(base)||!Number.isFinite(bal)||!Number.isFinite(ml)||base<=0||bal<=0||ml<=0) return 0;
-    const steps=Math.max(0,Math.floor(Number(lossStreak)||0));
-    if(steps>c.maxRecoverySteps)return 0;
-    const stepped=base*Math.pow(c.recoveryMultiplier,steps);
-    const remainingLoss=ml+pl;
-    const cap=Math.min(base*c.maxStakeMultiplier,bal*c.maxBalanceFraction,bal,remainingLoss);
-    const cents=Math.floor((Math.min(stepped,cap)+1e-9)*100)/100;
-    return cents+1e-9>=c.minStake?cents:0;
-  }
-  stopReason(sessionPL,target,maxLoss){
-    if(Number(sessionPL)>=Number(target)) return 'target';
-    if(Number(sessionPL)<=-Number(maxLoss)) return 'maxloss';
-    return null;
-  }
-  probability(successes,total,z=1.281551565545){
-    const n=Number(total), k=Number(successes);
-    if(!(n>0)||!Number.isFinite(k)) return 0;
-    const p=Math.max(0,Math.min(1,k/n)), z2=z*z, den=1+z2/n;
-    const center=p+z2/(2*n), spread=z*Math.sqrt((p*(1-p)+z2/(4*n))/n);
-    return Math.max(0,Math.min(1,(center-spread)/den));
-  }
-}
-const EMRON_AUTO_RISK = new EMRONRiskManager();
-
-function pxDigitsForMarket(m,n=200){ return Array.isArray(m?.digits)?m.digits.slice(-n):[]; }
-function pxQuotesForMarket(m,n=201){ return Array.isArray(m?.quotes)?m.quotes.slice(-n):[]; }
-function pxCountDigits(digits){ const counts=Array(10).fill(0); digits.forEach(d=>{if(Number.isInteger(d)&&d>=0&&d<=9)counts[d]++;}); return counts; }
-function pxModeDigit(digits){ const c=pxCountDigits(digits); return c.map((count,digit)=>({digit,count})).sort((a,b)=>b.count-a.count||a.digit-b.digit)[0]||{digit:0,count:0}; }
-function pxWindowStats(m){
-  const digits=pxDigitsForMarket(m,200), quotes=pxQuotesForMarket(m,201), counts=pxCountDigits(digits);
-  const w50=pxDigitsForMarket(m,50), w100=pxDigitsForMarket(m,100), w200=digits;
-  const modes=[pxModeDigit(w50),pxModeDigit(w100),pxModeDigit(w200)];
-  let ups=0,downs=0,flat=0; const deltas=[];
-  for(let i=Math.max(1,quotes.length-100);i<quotes.length;i++){const d=quotes[i]-quotes[i-1];deltas.push(d);if(d>0)ups++;else if(d<0)downs++;else flat++;}
-  let streakDir=null,streak=0;
-  for(let i=quotes.length-1;i>0;i--){const d=quotes[i]-quotes[i-1],dir=d>0?'up':d<0?'down':null;if(!dir)break;if(!streakDir)streakDir=dir;if(dir!==streakDir)break;streak++;}
-  const pos=counts.map((count,digit)=>({digit,count,pct:digits.length?count/digits.length:0})).sort((a,b)=>b.count-a.count||a.digit-b.digit);
-  const sum=deltas.reduce((a,b)=>a+b,0), gross=deltas.reduce((a,b)=>a+Math.abs(b),0);
-  return {digits,quotes,counts,modes,n:digits.length,ups,downs,flat,upRatio:(ups+downs)?ups/(ups+downs):.5,downRatio:(ups+downs)?downs/(ups+downs):.5,streakDir,streak,momentum:gross?sum/gross:0,topDigits:pos.slice(0,3)};
-}
-function pxStrategyResult(action,contractType,barrier,confidence,reason,extras={}){
-  return {action,contractType:contractType||null,barrier:barrier==null?null:barrier,confidence:Math.max(0,Math.min(1,Number(confidence)||0)),reason:String(reason||''),...extras};
-}
-class EMRONBaseStrategy {
-  constructor(id,label){this.id=id;this.label=label;}
-  evaluate({ticks,payout=null,stake}) { return pxStrategyResult('skip',null,null,0,`No evaluation rule for ${this.label}.`); }
-}
-class MatchesPrinterStrategy extends EMRONBaseStrategy {
-  constructor(){super('matches','Matches Printer');}
-  evaluate({ticks,payout=null,stake}){
-    const s=pxWindowStats(ticks); if(s.n<200||ticks.tickCount<200)return pxStrategyResult('skip',null,null,0,`Collecting ticks: ${s.n}/200 available.`);
-    const modes=[pxModeDigit(s.digits.slice(-50)),pxModeDigit(s.digits.slice(-100)),pxModeDigit(s.digits.slice(-200))];
-    if(!(modes[0].digit===modes[1].digit&&modes[1].digit===modes[2].digit))return pxStrategyResult('skip',null,null,0,`No stable mode across 50 / 100 / 200 ticks (modes ${modes.map(x=>x.digit).join(' / ')}).`,{stats:s});
-    const digit=modes[2].digit, hits=s.counts[digit], prob=hits/s.n, conservative=EMRON_AUTO_RISK.probability(hits,s.n);
-    if(prob<=0.10)return pxStrategyResult('skip',null,digit,prob,`Digit ${digit} is ${Math.round(prob*1000)/10}% of the 200-tick window, not above the 10% uniform baseline.`,{stats:s,estimatedProbability:prob,gateProbability:conservative});
-    return pxStrategyResult('trade','DIGITMATCH',digit,prob,`Digit ${digit} is the most frequent in all 50 / 100 / 200 tick windows; observed ${hits}/${s.n} (${(prob*100).toFixed(1)}%).`,{stats:s,estimatedProbability:prob,gateProbability:conservative,score:prob-.1});
-  }
-}
-class Over8KillerStrategy extends EMRONBaseStrategy {
-  constructor(){super('over8','Over 8 Killer');}
-  evaluate({ticks,payout=null,stake}){
-    const s=pxWindowStats(ticks); if(s.n<200)return pxStrategyResult('skip','DIGITOVER',8,0,`Collecting digit history: ${s.n}/200 ticks.`,{stats:s});
-    const hits=s.counts[9], prob=hits/s.n, recent=pxDigitsForMarket(ticks,50), recentHits=recent.filter(d=>d>8).length, recentP=recent.length?recentHits/recent.length:0;
-    if(prob<=.10||recentHits===0)return pxStrategyResult('skip','DIGITOVER',8,prob,`Over 8 (digit 9) observed ${(prob*100).toFixed(1)}% over 200 ticks; recent 50-tick hits ${recentHits}. No confirmed frequency lift.`,{stats:s,estimatedProbability:prob,gateProbability:EMRON_AUTO_RISK.probability(hits,s.n)});
-    const lower=EMRON_AUTO_RISK.probability(hits,s.n);
-    return pxStrategyResult('trade','DIGITOVER',8,prob,`Digit 9 appeared ${hits}/${s.n} ticks (${(prob*100).toFixed(1)}%); last 50 ticks ${recentHits}/${recent.length} (${(recentP*100).toFixed(1)}%).`,{stats:s,estimatedProbability:prob,gateProbability:lower,score:prob-.1});
-  }
-}
-function pxRunRates(s){
-  const q=s.quotes, transitions=[]; for(let i=1;i<q.length;i++){const d=q[i]-q[i-1];transitions.push(d>0?'up':d<0?'down':'flat');}
-  const pairs=Math.max(0,transitions.length-1); let high=0,low=0;
-  for(let i=1;i<transitions.length;i++){if(transitions[i-1]==='up'&&transitions[i]==='up')high++;if(transitions[i-1]==='down'&&transitions[i]==='down')low++;}
-  return {pairs,high,low,pUp:pairs?high/pairs:0,pDown:pairs?low/pairs:0,transitions};
-}
-class TickStrikeProStrategy extends EMRONBaseStrategy {
-  constructor(){super('tickstrike','TickStrike Pro');}
-  evaluate({ticks,payout=null,stake}){
-    const s=pxWindowStats(ticks), r=pxRunRates(s); if(s.quotes.length<201||r.pairs<100)return pxStrategyResult('skip',null,null,0,`Collecting tick transitions: ${r.pairs}/100 pairs available.`,{stats:s});
-    const upAgree=s.streakDir==='up'||s.momentum>0.12, downAgree=s.streakDir==='down'||s.momentum<-.12;
-    const upOK=r.pUp>r.pDown&&r.pUp>.25&&upAgree, downOK=r.pDown>r.pUp&&r.pDown>.25&&downAgree;
-    if(!upOK&&!downOK)return pxStrategyResult('skip',null,null,Math.max(r.pUp,r.pDown),`Momentum not confirmed; 2-tick up-run ${(r.pUp*100).toFixed(1)}%, down-run ${(r.pDown*100).toFixed(1)}%, short-term momentum ${s.momentum.toFixed(2)}.`,{stats:s,rates:r});
-    const up=upOK, p=up?r.pUp:r.pDown, k=up?r.high:r.low, lower=EMRON_AUTO_RISK.probability(k,r.pairs);
-    return pxStrategyResult('trade',up?'RUNHIGH':'RUNLOW',null,p,`${up?'Only Ups':'Only Downs'} chosen: ${k}/${r.pairs} overlapping 2-tick ${up?'up':'down'} runs (${(p*100).toFixed(1)}%); recent momentum agrees.`,{stats:s,rates:r,estimatedProbability:p,gateProbability:lower,score:Math.abs(r.pUp-r.pDown)});
-  }
-}
-class AutoSwitcherStrategy extends EMRONBaseStrategy {
-  constructor(){super('switcher','Auto Switcher');}
-  evaluate({ticks,payout=null,stake}){
-    const s=pxWindowStats(ticks),r=pxRunRates(s); if(s.quotes.length<201||r.pairs<100)return pxStrategyResult('skip',null,null,0,`Collecting data for both directions: ${r.pairs}/100 pairs available.`,{stats:s,rates:r});
-    const up=r.pUp>=r.pDown, p=up?r.pUp:r.pDown, q=up?r.pDown:r.pUp, trendOk=up?(s.streakDir==='up'||s.momentum>.08):(s.streakDir==='down'||s.momentum<-.08);
-    if(p<=.25||p-q<.015||!trendOk)return pxStrategyResult('skip',null,null,p,`No clear side: Only Ups ${(r.pUp*100).toFixed(1)}%, Only Downs ${(r.pDown*100).toFixed(1)}%; momentum ${s.streakDir||'flat'} / ${s.momentum.toFixed(2)}.`,{stats:s,rates:r});
-    const k=up?r.high:r.low,lower=EMRON_AUTO_RISK.probability(k,r.pairs);
-    return pxStrategyResult('trade',up?'RUNHIGH':'RUNLOW',null,p,`Auto Switcher selected ${up?'Only Ups':'Only Downs'}: measured run rate ${(p*100).toFixed(1)}% versus ${(q*100).toFixed(1)}%, with momentum confirmation.`,{stats:s,rates:r,estimatedProbability:p,gateProbability:lower,score:p-q});
-  }
-}
-class ExistingVideoMatchStrategy extends EMRONBaseStrategy {
-  constructor(){super('videoMatch',EMRON_AUTO_CONFIG.plugins.videoMatch.label);}
-  evaluate({ticks,payout=null,stake}){
-    if(!EMRON_AUTO_CONFIG.plugins.videoMatch.enabled)return pxStrategyResult('skip',null,null,0,'The existing Video-Match plugin is disabled in EMRON_AUTO_CONFIG.plugins.');
-    const match=typeof matchesSpec==='function'?matchesSpec(ticks):null;
-    if(!match)return pxStrategyResult('skip',null,null,0,`Existing Video-Match engine is collecting its ${MATCHES.MIN_TICKS}-tick minimum (${ticks?.digits?.length||0} buffered digits).`);
-    if(!match.ready)return pxStrategyResult('skip',null,null,0,`Existing Video-Match rule is not ready: top-two digit gap ${match.gap.toFixed(3)} percentage points exceeds ${MATCHES.MAX_GAP_PCT}.`,{stats:match});
-    const digit=match.second.digit,hits=Number(match.second.count)||0,prob=match.n?hits/match.n:0,conservative=EMRON_AUTO_RISK.probability(hits,match.n);
-    return pxStrategyResult('trade','DIGITMATCH',digit,prob,`Reused existing EMRON Video-Match rule: digit ${digit} is second-most frequent in ${match.n} ticks; leader gap ${match.gap.toFixed(3)} percentage points is within ${MATCHES.MAX_GAP_PCT}.`,{stats:match,estimatedProbability:prob,gateProbability:conservative,score:-(match.gap||0),plugin:'videoMatch'});
-  }
-}
-const EMRON_AUTO_STRATEGIES={matches:new MatchesPrinterStrategy(),over8:new Over8KillerStrategy(),tickstrike:new TickStrikeProStrategy(),switcher:new AutoSwitcherStrategy(),videoMatch:new ExistingVideoMatchStrategy()};
-
-// A browser test harness can access the exact pure risk/strategy objects without exposing the token.
-window.EMRONAutoTraderTestHooks={config:EMRON_AUTO_CONFIG,RiskManager:EMRONRiskManager,strategies:EMRON_AUTO_STRATEGIES,windowStats:pxWindowStats,runRates:pxRunRates};
-
-Object.assign(PX.cfg,{bot:EMRON_AUTO_CONFIG.defaults.bot,plugin:'native',market:EMRON_AUTO_CONFIG.defaults.market,stake:EMRON_AUTO_CONFIG.defaults.stake,target:EMRON_AUTO_CONFIG.defaults.profitTarget,maxLoss:EMRON_AUTO_CONFIG.defaults.maxLoss,recovery:EMRON_AUTO_CONFIG.risk.recoveryMultiplier,steps:EMRON_AUTO_CONFIG.risk.maxRecoverySteps,guard:'block'});
-PX.state=PX.state||'IDLE'; PX.tradeInFlight=!!PX.tradeInFlight; PX.reconciling=!!PX.reconciling; PX.reconcileRequired=!!PX.reconcileRequired; PX.ambiguousOrder=PX.ambiguousOrder||null; PX.journal=Array.isArray(PX.journal)?PX.journal:[]; PX.detailView='summary'; PX.txCollapsed=false; PX.lastLoggedTick=-1; PX.lastDecision=''; PX.sessionStartedAt=0; PX.resumeAfterReconcile=false; PX.realConfirmedSession=false; PX.lastSavedAt=0;
-
-function pxEsc(v){return String(v==null?'':v).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
-function pxSetStatus(t){PX.lastStatus=String(t||'');const el=$px('pxStatus');if(el)el.textContent=PX.lastStatus;pxRenderStatus();}
-function pxJournal(level,event,detail){
-  const item={ts:Date.now(),level:String(level||'info'),event:String(event||'event'),detail:String(detail||'')};
-  PX.journal.unshift(item);if(PX.journal.length>EMRON_AUTO_CONFIG.runtime.maxJournalRows)PX.journal.length=EMRON_AUTO_CONFIG.runtime.maxJournalRows;
-  if(PX.journal.length>0){const log=$px('pxScanLog');if(log){log.textContent=PX.journal.slice(0,48).reverse().map(j=>`[${new Date(j.ts).toLocaleTimeString()}] ${j.level.toUpperCase()} ${j.event}: ${j.detail}`).join('\n');log.scrollTop=log.scrollHeight;}}
-  pxRenderJournal();pxPersistSession(true);
-}
-function pxPersistSession(throttle=false){
-  try{const now=Date.now();if(throttle&&now-(PX.lastSavedAt||0)<1200)return;PX.lastSavedAt=now;localStorage.setItem('emron_auto_v3_session',JSON.stringify({rows:PX.rows,journal:PX.journal.slice(0,EMRON_AUTO_CONFIG.runtime.maxJournalRows),stats:PX.stats,savedAt:now,sid:PX.sid}));}catch(e){}
-}
-function pxSaveCfg(){try{localStorage.setItem('emron_px_cfg_v2',JSON.stringify({bot:PX.cfg.bot,plugin:PX.cfg.plugin||'native',market:PX.cfg.market,stake:PX.cfg.stake,target:PX.cfg.target,maxLoss:PX.cfg.maxLoss,tier:EMRON_AUTO_CONFIG.tiers.active,dark:PX.dark}));}catch(e){}}
-function pxLoadCfg(){
-  try{const r=JSON.parse(localStorage.getItem('emron_px_cfg_v2')||'{}');if(['matches','over8','tickstrike','switcher'].includes(r.bot))PX.cfg.bot=r.bot;if(['native','videoMatch'].includes(r.plugin)&&EMRON_AUTO_CONFIG.plugins.videoMatch.enabled)PX.cfg.plugin=r.plugin;else if(r.plugin==='native')PX.cfg.plugin='native';if(PULSE_SYMBOLS.some(s=>s.code===r.market))PX.cfg.market=r.market;['stake','target','maxLoss'].forEach(k=>{const n=Number(r[k]);if(Number.isFinite(n)&&n>0)PX.cfg[k]=n;});if(['free','premium'].includes(r.tier))EMRON_AUTO_CONFIG.tiers.active=r.tier;PX.dark=!!r.dark;}catch(e){}
-  try{const r=JSON.parse(localStorage.getItem('emron_auto_v3_session')||'{}');if(Array.isArray(r.rows))PX.rows=r.rows.filter(x=>x&&typeof x==='object').slice(0,EMRON_AUTO_CONFIG.runtime.maxTransactions);if(Array.isArray(r.journal))PX.journal=r.journal.slice(0,EMRON_AUTO_CONFIG.runtime.maxJournalRows);}catch(e){}
-  pxRecalculateStats();
-  const open=PX.rows.find(r=>r.status==='open');if(open){PX.open={stage:'in_trade',cid:open.cid,rowId:open.id,marketSymbol:open.symbol,stake:open.stake,restored:true};PX.tradeInFlight=true;PX.reconciling=true;PX.reconcileRequired=true;PX.running=false;PX.state='SETTLING';}
-}
-function pxApplyTheme(){const e=$px('pxShell');if(e)e.dataset.theme=PX.dark?'dark':'light';}
-function pxCurrentTier(){return EMRON_AUTO_CONFIG.tiers[EMRON_AUTO_CONFIG.tiers.active]||EMRON_AUTO_CONFIG.tiers.premium;}
-function pxCanUseBot(bot){return pxCurrentTier().bots.includes(bot);}
-function pxSelectedStrategy(){return PX.cfg.bot==='matches'&&PX.cfg.plugin==='videoMatch'?EMRON_AUTO_STRATEGIES.videoMatch:EMRON_AUTO_STRATEGIES[PX.cfg.bot];}
-function pxRenderPluginControl(){const select=$px('pxStrategyPlugin'),note=$px('pxPluginNote');if(select){select.value=PX.cfg.plugin||'native';select.disabled=PX.running||PX.reconciling||PX.cfg.bot!=='matches'||!EMRON_AUTO_CONFIG.plugins.videoMatch.enabled;const opt=select.querySelector('option[value="videoMatch"]');if(opt)opt.disabled=!EMRON_AUTO_CONFIG.plugins.videoMatch.enabled;}if(note)note.textContent=PX.cfg.bot!=='matches'?'The Video-Match plugin is only used when Matches Printer is the selected bot.':PX.cfg.plugin==='videoMatch'?'Selected: reuses the existing EMRON Video-Match rule (500-tick window, 300-tick minimum, second-most frequent digit, leader-gap threshold). Live payout and risk checks still apply.':'Uses the new built-in Matches Printer logic. The existing Video-Match rule remains available above as a separate plugin.';}
-function pxRenderBotCards(){document.querySelectorAll('#pxBotGrid [data-auto-bot]').forEach(b=>{const id=b.dataset.autoBot,allowed=pxCanUseBot(id);b.classList.toggle('sel',id===PX.cfg.bot);b.classList.toggle('locked',!allowed);let lock=b.querySelector('.px-lock-tag');if(!allowed&&!lock){lock=document.createElement('span');lock.className='px-lock-tag';lock.textContent='🔒 Premium';b.appendChild(lock);}if(allowed&&lock)lock.remove();});const pill=$px('pxTierPill');if(pill)pill.textContent=pxCurrentTier().label.toUpperCase();document.querySelectorAll('[data-auto-tier]').forEach(b=>b.classList.toggle('act',b.dataset.autoTier===EMRON_AUTO_CONFIG.tiers.active));pxRenderPluginControl();}
-function pxCountryFlag(code){const c=String(code||'').trim().toUpperCase();if(!/^[A-Z]{2}$/.test(c))return '🌐';return String.fromCodePoint(...[...c].map(x=>0x1F1E6+x.charCodeAt(0)-65));}
-function pxRenderHeader(){const b=$px('pxBal'),l=$px('pxAcctLbl'),f=$px('pxAcctFlag');if(b)b.textContent=(accessToken&&Number.isFinite(Number(balance)))?`${pxMoney(balance)} ${accountInfo?.currency||'USD'}`:'— USD';if(l)l.textContent=!accessToken?'Not connected':MODE==='REAL'?'Real account':'Demo account';if(f)f.textContent=pxCountryFlag(accountInfo?.country_code||accountInfo?.country||accountInfo?.country_code_iso2);}
-function pxRenderStatus(){const pl=$px('pxPL'),dot=$px('pxStatusDot'),orb=$px('pxAiOrb'),strip=$px('pxTradeStateStrip'),led=document.querySelector('.px-state-led');const s=pxRecalculateStats();if(pl){pl.textContent=`${pxSigned(s.pl)} USD`;pl.style.color=s.pl>0?'var(--px-green)':s.pl<0?'var(--px-red)':'var(--px-text)';}if(dot)dot.classList.toggle('live',PX.running);if(orb)orb.classList.toggle('on',PX.running);if(strip)strip.textContent=PX.running?(PX.open?(PX.open.stage==='in_trade'?'Contract bought':PX.open.stage==='buying'?'Waiting for buy confirmation':'Preparing proposal'):'Bot is scanning'):PX.state==='ERROR'?'Automation paused — review Journal':PX.finished?'Bot stopped — session limit reached':'Bot is not running';if(led)led.classList.toggle('live',PX.running||!!PX.open);}
-function pxRecalculateStats(){const rows=Array.isArray(PX.rows)?PX.rows:[];const settled=rows.filter(r=>r.status!=='open');const s={stake:rows.reduce((a,r)=>a+(Number(r.stake)||0),0),payout:settled.reduce((a,r)=>a+(Number(r.payout)||0),0),runs:rows.length,lost:settled.filter(r=>r.status==='lost').length,won:settled.filter(r=>r.status==='won').length,pl:rows.reduce((a,r)=>a+(Number(r.profit)||0),0)};PX.stats=s;return s;}
-function pxDate(ts){const d=new Date(Number(ts)||Date.now());return `${d.getDate()} ${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()]}, ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;}
-function pxRenderRows(){
-  const el=$px('pxList');if(!el)return;const rows=PX.rows.slice(0,80);const hint=$px('pxRowsHint');if(hint)hint.style.display=rows.length?'none':'block';
-  el.innerHTML=rows.length?rows.map((r,i)=>{const open=r.status==='open',pos=Number(r.profit)>=0,icon=(r.contractType==='RUNHIGH'?'⇈':r.contractType==='RUNLOW'?'⇊':r.contractType==='DIGITMATCH'?'🎯':r.contractType==='DIGITOVER'?'8️⃣':'↗');const details=open?`Stake ${pxFmt(r.stake)} · Value ${pxFmt(r.value)}${r.entry!=null?` · Entry ${pxEsc(r.entry)}`:''}`:`${pxDate(r.ts)} · Stake ${pxFmt(r.stake)}${r.entry!=null||r.exit!=null?` · ${pxEsc(r.entry??'—')} → ${pxEsc(r.exit??'—')}`:''}`;return `<div class="px-row" style="opacity:${i>8?Math.max(.48,1-(i-8)*.035):1}"><span class="px-ico ${r.dir==='down'?'down':'up'}"><span>${icon}</span></span><div class="px-rm"><div class="px-rt">${pxEsc(r.name||r.symbol||'Volatility Index')} · ${pxEsc(r.label||r.contractType||'Contract')}</div><div class="px-rs">${pxEsc(details)}${r.confidence!=null?` · ${(Number(r.confidence)*100).toFixed(1)}% estimated`:''}</div></div><span class="px-rp ${Number(r.profit)>=0?'p':'n'}">${pxSigned(r.profit)}</span>${open?`<button class="px-sell" data-sell="${pxEsc(r.cid)}">Sell</button>`:''}</div>`;}).join(''):'<div class="px-empty">No transactions yet.<br>Start the Auto-Trader to scan the selected market.</div>';
-  const h=$px('pxTransactionsPL');if(h)h.textContent=`${pxSigned(pxRecalculateStats().pl)} USD`;
-}
-function pxRenderStats(){const s=pxRecalculateStats(),set=(id,v)=>{const e=$px(id);if(e)e.textContent=v;};set('pxSStake',`${pxFmt(s.stake)} USD`);set('pxSPayout',`${pxFmt(s.payout)} USD`);set('pxSRuns',s.runs);set('pxSLost',s.lost);set('pxSWon',s.won);set('pxSPL',`${pxSigned(s.pl)} USD`);const el=$px('pxSPL');if(el)el.style.color=s.pl>0?'var(--px-green)':s.pl<0?'var(--px-red)':'';}
-function pxRenderControls(){const running=PX.running;const b=$px('pxStartBtn');if(b){b.textContent=running?'■ Stop':PX.finished?'▶ Start new session':'▶ Start';b.classList.toggle('is-stop',running);b.disabled=PX.reconciling||PX.hardRecoveryLock||(!running&&PX.state==='ERROR'&&PX.open&&PX.open.stage==='buying');}const stop=$px('pxStopBtn');if(stop)stop.disabled=!running;if($px('pxConfig'))$px('pxConfig').querySelectorAll('input,select,button[data-auto-bot]').forEach(e=>{if(e.id==='pxThemeBtn'||e.id==='pxAcctBtn')return;e.disabled=running||PX.reconciling;});pxRenderBotCards();pxRenderStatus();}
-function pxRenderDetails(){
-  const makeRows=rows=>rows.slice(0,80).map(r=>`<tr><td>${pxEsc(r.label||r.contractType||'—')}</td><td>${pxEsc(r.entry??'—')} / ${pxEsc(r.exit??'—')}</td><td>${pxFmt(r.stake)}</td><td class="${Number(r.profit)>=0?'profit':'loss'}">${pxSigned(r.profit)}</td></tr>`).join('');
-  const tbody=$px('pxDetailTableBody'),tt=$px('pxTransactionsTableBody');if(tbody)tbody.innerHTML=makeRows(PX.rows);if(tt)tt.innerHTML=PX.rows.slice(0,80).map(r=>`<tr><td>${pxEsc(r.label||r.contractType)}</td><td>${pxEsc(r.name||r.symbol)}<br>${pxDate(r.ts)}</td><td>${pxFmt(r.stake)}</td><td class="${Number(r.profit)>=0?'profit':'loss'}">${pxSigned(r.profit)}</td></tr>`).join('')||'<tr><td colspan="4">No transactions yet.</td></tr>';
-  document.querySelectorAll('[data-px-detail]').forEach(b=>b.classList.toggle('active',b.dataset.pxDetail===PX.detailView));['summary','transactions','journal'].forEach(v=>{const e=$px('pxDetail'+v.charAt(0).toUpperCase()+v.slice(1));if(e)e.hidden=PX.detailView!==v;});
-}
-function pxRenderJournal(){const el=$px('pxJournal');if(!el)return;el.innerHTML=PX.journal.slice(0,180).map(j=>`<div class="px-journal-item ${pxEsc(j.level)}"><span class="px-journal-time">${new Date(j.ts).toLocaleTimeString()}</span><span class="px-journal-msg"><b>${pxEsc(j.event)}</b> — ${pxEsc(j.detail)}</span></div>`).join('')||'<div class="px-empty">Engine events will appear here.</div>';}
-function pxRenderAll(){pxRenderHeader();pxRenderRows();pxRenderStats();pxRenderDetails();pxRenderControls();}
-function pxRenderChips(){}
-function premiumIdleRender(){if(isTabActive('premium')){pxRenderHeader();pxRenderStats();pxRenderStatus();}}
-function pxShowScan(){const ov=$px('pxScan');if(ov){ov.classList.add('on');ov.setAttribute('aria-hidden','false');}PX.scanning=true;pxRenderControls();}
-function pxHideScan(){const ov=$px('pxScan');if(ov){ov.classList.remove('on');ov.setAttribute('aria-hidden','true');}PX.scanning=false;pxRenderControls();}
-function pxComputeStake(){const stake=EMRON_AUTO_RISK.calculateStake({baseStake:PX.cfg.stake,balance,maxLoss:PX.cfg.maxLoss,sessionPL:pxRecalculateStats().pl,lossStreak:PX.lossStreak});const capped=Math.min(Number(stake)||0,pxCurrentTier().maxStake);return capped+1e-9>=EMRON_AUTO_CONFIG.risk.minStake?Math.floor(capped*100)/100:0;}
-function pxReadInputs(){
-  const stake=Number($px('pxStake')?.value),target=Number($px('pxTarget')?.value),maxLoss=Number($px('pxMaxLoss')?.value),market=$px('pxMarket')?.value;
-  if(!Number.isFinite(stake)||stake<=0)throw new Error('Stake must be a positive amount.');if(stake>Number(balance))throw new Error('Stake cannot exceed your live account balance.');if(stake>Number(balance)*EMRON_AUTO_CONFIG.risk.maxBalanceFraction+0.001)throw new Error('Base stake cannot exceed 25% of the current account balance.');if(stake>pxCurrentTier().maxStake)throw new Error(`${pxCurrentTier().label} tier stake limit is $${pxCurrentTier().maxStake.toFixed(2)}.`);if(!Number.isFinite(target)||target<=0)throw new Error('Profit target must be a positive amount.');if(!Number.isFinite(maxLoss)||maxLoss<=0)throw new Error('Max loss must be a positive amount.');if(maxLoss<stake)throw new Error('Max loss must be equal to or greater than the base stake.');if(!PULSE_SYMBOLS.some(x=>x.code===market))throw new Error('Choose a valid Volatility Index market.');
-  PX.cfg.stake=normalizeStake(stake);PX.cfg.target=Math.round(target*100)/100;PX.cfg.maxLoss=Math.round(maxLoss*100)/100;PX.cfg.market=market;$px('pxStake').value=pxFmt(PX.cfg.stake);$px('pxTarget').value=pxFmt(PX.cfg.target);$px('pxMaxLoss').value=pxFmt(PX.cfg.maxLoss);pxSaveCfg();pxRenderRisk();
-}
-function pxRenderRisk(){const el=$px('pxRisk');if(!el)return;const cap=Math.min(PX.cfg.stake*EMRON_AUTO_CONFIG.risk.maxStakeMultiplier,Math.max(0,Number(balance))*EMRON_AUTO_CONFIG.risk.maxBalanceFraction);el.innerHTML=`<b>Risk controls active</b><br>Recovery ×${EMRON_AUTO_CONFIG.risk.recoveryMultiplier.toFixed(1)} (max ${EMRON_AUTO_CONFIG.risk.maxRecoverySteps} steps) · Next stake capped at $${pxFmt(cap)} or 25% of balance, whichever is lower. Each buy is blocked unless the conservative tick-history probability × <i>live proposal payout</i> exceeds stake by ${(EMRON_AUTO_CONFIG.risk.proposalEdgeMargin*100).toFixed(0)}%.`;
-}
-function pxEvaluateCandidate(m){const strat=pxSelectedStrategy();if(!strat)return pxStrategyResult('skip',null,null,0,'Unknown bot selected.');const stake=pxComputeStake();return strat.evaluate({ticks:m,payout:null,stake});}
-function pxLogMarketEvent(m,candidate,decision){
-  const s=pxWindowStats(m),logStats=m.tickCount-PX.lastLoggedTick>=EMRON_AUTO_CONFIG.risk.scanLogEveryTicks;
-  if(logStats){PX.lastLoggedTick=m.tickCount;pxJournal('info','Tick received',`${m.name||m.code} · quote ${m.lastQuote??m.quotes.at(-1)??'—'} · buffered ${m.digits.length} digits / ${m.quotes.length} prices.`);if(s.n>=50){const frequencies=s.counts.map((count,digit)=>`${digit}:${count}`).join(', ');pxJournal('info','Window analysis',`window ${s.n} ticks; digit frequencies ${frequencies}; up/down ratio ${(s.upRatio*100).toFixed(1)}% / ${(s.downRatio*100).toFixed(1)}%; streak ${s.streakDir||'flat'} ${s.streak}; momentum ${s.momentum.toFixed(3)}.`);}}
-  if(candidate)pxJournal(candidate.action==='trade'?'success':'info','Signal score',`${pxSelectedStrategy()?.label||PX.cfg.bot}: ${candidate.action.toUpperCase()} · estimated probability ${(candidate.confidence*100).toFixed(1)}%, conservative gate ${((candidate.gateProbability||0)*100).toFixed(1)}%, score ${Number(candidate.score??candidate.confidence??0).toFixed(3)}; ${candidate.reason}`);
-  if(!candidate||candidate.action!=='trade')pxJournal('info','Decision: skip',decision||candidate?.reason||'No valid candidate at this tick.');
-}
-function pxPlace(c,m){
-  if(!PX.running||PX.tradeInFlight||PX.open||PX.reconciling||!wsConnected)return;
-  const stake=pxComputeStake();if(!(stake>=EMRON_AUTO_CONFIG.risk.minStake)){PX.running=false;PX.finished=true;PX.state='STOPPED_USER';pxHideScan();pxJournal('warning','Risk safety stop','Calculated stake fell below the platform minimum after applying max-loss budget, balance and recovery caps. No further trade is safe; session target/max-loss modal was not shown because neither threshold was necessarily reached.');pxSetStatus('Risk safety stop — remaining loss budget is below the minimum stake. Review the Journal.');pxRenderAll();pxPersistSession();return;}
-  if(stake>balance||stake>PX.cfg.stake*EMRON_AUTO_CONFIG.risk.maxStakeMultiplier||stake>balance*EMRON_AUTO_CONFIG.risk.maxBalanceFraction+0.001){pxJournal('warning','RiskManager skip','Stake exceeds an active hard safety cap.');pxSetStatus('Risk cap blocked entry — scanning continues.');return;}
-  const sd=stakeForApi(stake), reqId=wsReqId++, def={amount:sd.number,basis:'stake',contract_type:c.contractType,currency:(accountInfo&&accountInfo.currency)||'USD',duration:c.contractType==='RUNHIGH'||c.contractType==='RUNLOW'?2:1,duration_unit:'t',underlying_symbol:m.code};if(c.barrier!=null)def.barrier=String(c.barrier);
-  const id=++PX.seq, rec={purpose:'premium',premiumId:id,sid:PX.sid,slotIdx:-1,strategyRef:null,marketSymbol:m.code,contractType:c.contractType,label:c.contractType==='DIGITMATCH'?`Matches ${c.barrier}`:c.contractType==='DIGITOVER'?'Over 8':c.contractType==='RUNHIGH'?'Only Ups':'Only Downs',stake:sd.number,stakeText:sd.text,pairId:null,pairLeg:null,pxCand:{...c,symbol:m.code,short:m.short||m.code,name:m.name},pxParams:def,reqIdProposal:reqId};
-  PX.open={stage:'proposal',id,cand:rec.pxCand,rec,reqId,marketSymbol:m.code,stake:sd.number};PX.tradeInFlight=true;PX.state='READY';pxHideScan();pxSetStatus(`Signal ready · ${rec.label} · ${(c.confidence*100).toFixed(1)}% estimated probability · checking live payout…`);pxJournal('info','Decision: trade',`${m.code} · ${rec.label} · estimate ${(c.confidence*100).toFixed(1)}% · ${c.reason}`);pendingProposalMap.set(reqId,rec);
-  try{if(!ws||ws.readyState!==WebSocket.OPEN)throw new Error('Deriv trading socket is not open.');ws.send(JSON.stringify({proposal:1,...def,subscribe:1,req_id:reqId}));PX.state='BUYING';pxRenderAll();}catch(e){premiumOnTradeError(rec,e?.message||'Could not request a proposal');}
-}
-function premiumOnTick(){
-  try{
-    if(!PX.running||PX.tradeInFlight||PX.open||PX.reconciling||!wsConnected||Date.now()<PX.nextAt)return;
-    if(PX.rows.length>=EMRON_AUTO_CONFIG.runtime.maxTransactions){PX.running=false;PX.finished=true;PX.state='STOPPED_USER';pxHideScan();pxJournal('warning','Session transaction capacity reached',`The session transaction cap (${EMRON_AUTO_CONFIG.runtime.maxTransactions}) was reached. The bot stopped rather than dropping older trades from the session totals.`);pxSetStatus('Session transaction capacity reached. Export the CSV and reset before starting another session.');pxRenderAll();pxPersistSession();return;}
-    const m=engineState.markets.get(PX.cfg.market);if(!m){pxShowScan();pxSetStatus('Scanning market — waiting for its tick stream…');return;}
-    pxShowScan();const c=pxEvaluateCandidate(m);pxLogMarketEvent(m,c,c?.reason||`Waiting for ${EMRON_AUTO_CONFIG.risk.minSamples} usable recent ticks.`);
-    if(!c||c.action!=='trade'){PX.state='SCANNING';pxSetStatus(`Scanning ${m.name||m.code} for the next signal… ${c?.reason||'Waiting for enough tick history.'}`);return;}
-    PX.state='READY';pxPlace(c,m);
-  }catch(e){pxJournal('error','Engine exception',e?.message||String(e));PX.state='ERROR';PX.running=false;pxHideScan();pxSetStatus('Auto-Trader paused after an engine error. Review Journal.');pxRenderAll();}
-}
-function premiumGuard(t,proposal){
-  try{
-    if(!t||t.sid!==PX.sid||!proposal||typeof proposal!=='object'){if(t)premiumOnTradeError(t,'Invalid proposal response.');return false;}
-    if(!PX.running || !wsConnected){PX.open=null;PX.tradeInFlight=false;PX.state='STOPPED_USER';pxJournal('info','Proposal cancelled','The user stopped or connection dropped before a buy request; no contract was purchased.');return false;}
-    const ask=Number(proposal.ask_price),payout=Number(proposal.payout),cand=t.pxCand,prob=Number(cand?.gateProbability);
-    const plannedStake=Math.min(Number(t.stake)||0,pxComputeStake(),pxCurrentTier().maxStake,Number(balance)*EMRON_AUTO_CONFIG.risk.maxBalanceFraction,Number(balance),Math.max(0,PX.cfg.maxLoss+pxRecalculateStats().pl));
-    if(!(ask>0)||!(payout>0)||!Number.isFinite(prob)||prob<0||prob>1){pxJournal('warning','Proposal skipped','Proposal omitted a valid ask_price, payout or calibrated probability.');PX.open=null;PX.tradeInFlight=false;PX.nextAt=Date.now()+1000;PX.state=PX.running?'SCANNING':'STOPPED_USER';pxSetStatus('Proposal data incomplete — waiting for the next signal.');pxShowScan();return false;}
-    if(ask>plannedStake+0.001){
-      pxJournal('warning','Proposal skipped by risk cap',`Deriv returned ask $${pxFmt(ask)}, above permitted stake $${pxFmt(plannedStake)} after recovery, tier, balance and max-loss caps. No buy sent.`);
-      PX.open=null;PX.tradeInFlight=false;PX.nextAt=Date.now()+500;PX.state=PX.running?'SCANNING':'STOPPED_USER';pxSetStatus('Live ask exceeded the allowed risk cap; skipped without buying.');if(PX.running)pxShowScan();pxRenderAll();return false;
-    }
-    const required=ask*(1+EMRON_AUTO_CONFIG.risk.proposalEdgeMargin), expected=prob*payout, edge=expected/ask-1;
-    if(!(expected>required)){
-      pxJournal('info','Decision: skip',`Live payout check failed: conservative p ${(prob*100).toFixed(1)}% × payout $${pxFmt(payout)} = $${pxFmt(expected)}, below required $${pxFmt(required)}. No buy sent.`);
-      PX.open=null;PX.tradeInFlight=false;PX.nextAt=Date.now()+350;PX.state=PX.running?'SCANNING':'STOPPED_USER';pxSetStatus(`Skipped: live proposal has insufficient estimated value (${(edge*100).toFixed(1)}% net edge). Scanning…`);if(PX.running)pxShowScan();pxRenderAll();return false;
-    }
-    t.ev=edge;t.livePayout=payout;t.stake=ask;t.stakeText=ask.toFixed(2);t.pxCand.payout=payout;
-    pxJournal('success','Proposal accepted',`Live ask $${pxFmt(ask)}, payout $${pxFmt(payout)}, conservative probability ${(prob*100).toFixed(1)}%, estimated net edge ${(edge*100).toFixed(2)}%.`);
-    PX.open.stage='buying';PX.open.rec=t;PX.state='BUYING';return true;
-  }catch(e){pxJournal('error','Proposal validation failed',e?.message||String(e));PX.open=null;PX.tradeInFlight=false;PX.nextAt=Date.now()+1000;return false;}
-}
-function premiumOnTradeError(t,msg){
-  try{
-    const reason=String(msg||'Unknown Deriv error');if(t?.proposalSub&&ws&&ws.readyState===WebSocket.OPEN){try{ws.send(JSON.stringify({forget:t.proposalSub,req_id:wsReqId++}));}catch(e){}}
-    const same=!!(t&&t.sid===PX.sid);if(!same){pxJournal('warning','Old request ignored',reason);return;}
-    PX.open=null;PX.tradeInFlight=false;PX.errStreak=(PX.errStreak||0)+1;
-    const low=reason.toLowerCase();if(low.includes('insufficientbalance')||low.includes('insufficient balance')){PX.running=false;PX.state='ERROR';pxHideScan();pxSetStatus('Insufficient balance — trading stopped. Lower the stake or switch account.');}
-    else if(low.includes('marketisclosed')||low.includes('market is closed')){PX.nextAt=Date.now()+15000;PX.state=PX.running?'SCANNING':'STOPPED_USER';pxSetStatus('Market closed — waiting before the next attempt.');}
-    else if(low.includes('rate')||low.includes('too many')||low.includes('limit exceeded')){PX.nextAt=Date.now()+10000;PX.state=PX.running?'SCANNING':'STOPPED_USER';pxSetStatus('Deriv rate limit — backing off for 10 seconds.');}
-    else if(low.includes('proposal')&&(low.includes('expired')||low.includes('invalid'))){PX.nextAt=Date.now()+1200;PX.state=PX.running?'SCANNING':'STOPPED_USER';pxSetStatus('Proposal expired — requesting a fresh price on the next signal.');}
-    else{PX.nextAt=Date.now()+Math.min(15000,500*Math.pow(2,Math.min(PX.errStreak,5)));PX.state=PX.running?'SCANNING':'STOPPED_USER';pxSetStatus(`Trade request failed: ${reason}. Journal updated.`);}
-    pxJournal('error','Deriv trade error',reason);
-    if(PX.errStreak>=EMRON_AUTO_CONFIG.runtime.maxProposalFailures){PX.running=false;PX.state='ERROR';pxHideScan();pxSetStatus(`${PX.errStreak} consecutive request errors — Auto-Trader paused. Review Journal.`);}
-    else if(PX.running)pxShowScan();
-    pxRenderAll();
-  }catch(e){console.error('EMRON Auto error handler failed',e);PX.running=false;PX.tradeInFlight=false;PX.state='ERROR';}
-}
-function premiumOnBought(cid,t){
-  try{
-    if(!t||t.sid!==PX.sid)return;PX.errStreak=0;const m=engineState.markets.get(t.marketSymbol),cand=t.pxCand||{};
-    let row=PX.rows.find(r=>String(r.cid)===String(cid));if(!row){row={id:t.premiumId||++PX.seq,cid,name:m?.name||t.marketSymbol,symbol:t.marketSymbol,label:t.label,contractType:t.contractType,ts:Date.now(),stake:Number(t.stake)||0,value:Number(t.stake)||0,payout:0,profit:0,status:'open',entry:null,exit:null,confidence:Number(cand.confidence)||0,dir:t.contractType==='RUNLOW'?'down':'up',reason:cand.reason||''};PX.rows.unshift(row);}
-    PX.open={stage:'in_trade',cid,rowId:row.id,marketSymbol:t.marketSymbol,stake:Number(t.stake)||row.stake,cand,rec:t};PX.tradeInFlight=true;PX.state='IN_TRADE';pxHideScan();pxSetStatus(`Trading ${t.label} · $${pxFmt(t.stake)} · ${(Number(cand.confidence||0)*100).toFixed(1)}% estimated confidence`);pxJournal('success','Contract bought',`${row.name} · ${row.label} · contract ${cid} · stake $${pxFmt(t.stake)} · quoted payout $${pxFmt(t.livePayout||cand.payout||0)}.`);pxRenderAll();pxPersistSession();
-  }catch(e){pxJournal('error','Buy acknowledgement handling failed',e?.message||String(e));PX.running=false;PX.state='ERROR';pxSetStatus('Buy was acknowledged but the UI could not reconcile it. Check Deriv Portfolio before restarting.');}
-}
-function premiumOnContractUpdate(c,rec){
-  try{
-    if(!c||typeof c!=='object'||c.contract_id==null)return;const row=PX.rows.find(r=>String(r.cid)===String(c.contract_id));
-    const isSettled=!!(c.is_sold||c.is_expired||['won','lost','sold','expired'].includes(String(c.status||c.contract_status||'').toLowerCase()));
-    if(rec?.sid!==PX.sid&&PX.open?.cid!=c.contract_id){if(isSettled){if(rec?.pocSub&&ws&&ws.readyState===WebSocket.OPEN)ws.send(JSON.stringify({forget:rec.pocSub,req_id:wsReqId++}));activeContracts.delete(c.contract_id);}return;}
-    if(!isSettled){if(row){row.value=Number(c.bid_price)||0;row.profit=Number(c.profit)||0;row.entry=c.entry_tick??c.entry_spot??row.entry;if(typeof c.is_valid_to_sell==='boolean')row.isValidToSell=c.is_valid_to_sell;pxRenderRows();pxRenderStats();pxRenderStatus();pxRenderDetails();pxPersistSession();const floating=pxRecalculateStats().pl;if(PX.running&&EMRON_AUTO_RISK.stopReason(floating,PX.cfg.target,PX.cfg.maxLoss)){PX.stopAfterOpen=EMRON_AUTO_RISK.stopReason(floating,PX.cfg.target,PX.cfg.maxLoss);PX.running=false;PX.state='SETTLING';pxSetStatus('Session limit approached by live P/L; no more entries. Waiting for contract settlement.');pxHideScan();}}return;}
-    if(rec?.pocSub&&ws&&ws.readyState===WebSocket.OPEN){try{ws.send(JSON.stringify({forget:rec.pocSub,req_id:wsReqId++}));}catch(e){pxJournal('warning','Subscription cleanup failed',e?.message||String(e));}}
-    activeContracts.delete(c.contract_id);const profit=Number(c.profit)||0,won=profit>0;const finalPayout=Number(c.sell_price??c.payout);const payout=won?(Number.isFinite(finalPayout)&&finalPayout>=0?finalPayout:Math.max(0,(Number(rec?.stake)||Number(row?.stake)||0)+profit)):((Number(c.sell_price)>0)?Number(c.sell_price):0);
-    if(row){row.status=won?'won':'lost';row.profit=profit;row.payout=payout;row.value=payout;row.entry=c.entry_tick??c.entry_spot??row.entry;row.exit=c.exit_tick??c.exit_spot??row.exit;row.sold=!!c.is_sold;}
-    PX.open=null;PX.tradeInFlight=false;PX.lossStreak=won?0:(PX.lossStreak||0)+1;PX.recovery=won?null:{family:PX.cfg.bot,symbol:rec?.marketSymbol||row?.symbol,since:Date.now()};PX.nextAt=Date.now()+(won?650:900);PX.state='SETTLING';pxRecalculateStats();pxJournal(won?'success':'warning','Contract settled',`${row?.name||rec?.marketSymbol||'Market'} · ${row?.label||rec?.label||'Contract'} · ${won?'win':'loss'} · P/L ${pxSigned(profit)} USD · payout $${pxFmt(payout)}.`);pxRenderAll();pxPersistSession();
-    if(wsConnected)try{ws.send(JSON.stringify({balance:1,req_id:wsReqId++}));}catch(e){}
-    const stop=EMRON_AUTO_RISK.stopReason(PX.stats.pl,PX.cfg.target,PX.cfg.maxLoss);if(stop){PX.stopAfterOpen=null;pxFinish(stop);return;}
-    if(!won&&PX.lossStreak>EMRON_AUTO_CONFIG.risk.maxRecoverySteps){PX.stopAfterOpen=null;PX.running=false;PX.finished=true;PX.state='STOPPED_USER';pxHideScan();pxJournal('warning','Recovery limit reached',`${EMRON_AUTO_CONFIG.risk.maxRecoverySteps} consecutive recovery steps were used. Automation stopped before placing another recovery stake.`);pxSetStatus(`Recovery limit reached after ${EMRON_AUTO_CONFIG.risk.maxRecoverySteps} recovery steps. No further stake will be placed; review the session and limits.`);pxRenderAll();pxPersistSession();return;}
-    if(PX.stopAfterOpen){PX.stopAfterOpen=null;PX.running=false;PX.finished=true;PX.state='STOPPED_USER';pxJournal('info','Floating limit not confirmed at settlement','The open contract crossed a session limit while live, but final settled P/L did not meet it. Automation remains stopped; no target/max-loss popup was shown.');}
-    if(PX.running){PX.state='SCANNING';pxSetStatus(won?'Win settled — scanning for the next signal…':`Loss settled — recovery stake $${pxFmt(pxComputeStake())}; scanning for the next signal…`);pxShowScan();}
-    else {PX.state=PX.finished?(PX.stats.pl>=PX.cfg.target?'STOPPED_TARGET':PX.stats.pl<=-PX.cfg.maxLoss?'STOPPED_MAXLOSS':'STOPPED_USER'):'STOPPED_USER';pxSetStatus('Stopped. The open contract has finished.');pxHideScan();}
-  }catch(e){pxJournal('error','Contract update failed',e?.message||String(e));PX.running=false;PX.state='ERROR';pxSetStatus('Contract update error — automation paused. Review Journal.');pxRenderAll();}
-}
-function pxSell(cid){
-  try{if(!wsConnected||!ws||ws.readyState!==WebSocket.OPEN){toast('Reconnect to Deriv before selling this contract.','error');return;}if(!cid){toast('Missing contract ID; cannot submit sell request.','error');return;}const row=PX.rows.find(r=>String(r.cid)===String(cid));if(row?.isValidToSell===false){toast('Deriv currently marks this contract as not sellable. It will continue to expiry.','info');pxJournal('warning','Sell blocked by contract status',`Deriv marked contract ${cid} as not valid to sell.`);return;}pxJournal('info','Sell requested',`Sell-at-market request submitted for contract ${cid}.`);ws.send(JSON.stringify({sell:cid,price:0,req_id:wsReqId++}));if(row)row.selling=true;pxRenderRows();}catch(e){pxJournal('error','Sell request failed',e?.message||String(e));toast('Sell request failed. Check the Journal.','error');}
-}
-function pxStop(msg){if(!PX.running&&!PX.scanning)return;PX.running=false;PX.state='STOPPED_USER';pxHideScan();pxSetStatus(msg|| (PX.open?'Stopped — the open contract will finish, or you can sell it.':'Stopped. No new contracts will be opened.'));pxJournal('info','Session stopped by user',PX.open?'No new orders; open contract left to settle or sell.':'No contract was open.');pxRenderAll();}
-function pxFinish(kind){
-  PX.running=false;PX.finished=true;PX.tradeInFlight=!!PX.open;PX.state=kind==='target'?'STOPPED_TARGET':kind==='maxloss'?'STOPPED_MAXLOSS':'STOPPED_USER';pxHideScan();const s=pxRecalculateStats(),win=kind==='target';
-  pxSetStatus(win?'Profit target reached — Auto-Trader stopped.':'Max loss reached — Auto-Trader stopped to protect the account.');pxJournal(win?'success':'warning',win?'Target hit':'Max loss hit',`Net P/L ${pxSigned(s.pl)} USD · ${s.runs} trades · ${s.won} wins · ${s.lost} losses. No new trades will be opened.`);
-  const title=$px('pxModalTitle'),body=$px('pxModalText'),ico=$px('pxModalIco'),net=$px('pxModalNet');if(title)title.textContent=win?'Congratulations!':'Max loss reached';if(body)body.textContent=win?"You've reached your target profit. EMRON AI has stopped trading to lock in your gains.":'Max loss reached. EMRON AI stopped trading to protect your balance.';if(ico)ico.textContent=win?'🎉':'🛡️';if(net){net.textContent=`${pxSigned(s.pl)} USD`;net.className=s.pl<0?'neg':'';}if($px('pxModalTrades'))$px('pxModalTrades').textContent=s.runs;if($px('pxModalWins'))$px('pxModalWins').textContent=s.won;if($px('pxModalLosses'))$px('pxModalLosses').textContent=s.lost;if($px('pxModalOk'))$px('pxModalOk').textContent='Awesome';$px('pxModal')?.classList.add('on');pxRenderAll();pxPersistSession();
-}
-function pxReset(silent=false){
-  if(PX.running||PX.scanning){toast('Stop the Auto-Trader before resetting the session.','error');return;}
-  if(PX.hardRecoveryLock&&!window.confirm('A previous buy could not be reconciled. Check your Deriv account transaction history first. Resetting only clears EMRON session data; it does not close any contract. Continue?'))return;
-  if(PX.open||PX.rows.some(r=>r.status==='open')){toast('A contract is still open. Sell it or let it settle before resetting stats.','error');return;}
-  PX.sid++;PX.open=null;PX.tradeInFlight=false;PX.rows=[];PX.journal=[];PX.stats={stake:0,payout:0,runs:0,lost:0,won:0,pl:0};PX.lossStreak=0;PX.recovery=null;PX.finished=false;PX.errStreak=0;PX.bad.clear();PX.pair=null;PX.state='IDLE';PX.lastLoggedTick=-1;PX.stopAfterOpen=null;PX.realConfirmedSession=false;PX.hardRecoveryLock=false;PX.reconciling=false;PX.reconcileRequired=false;PX.ambiguousOrder=null;try{localStorage.removeItem('emron_auto_v3_session');}catch(e){}const tk=$px('pxTicker');if(tk)tk.className='px-ticker';pxHideScan();if(!silent)pxSetStatus('Session reset. Ready to scan.');pxRenderAll();
-}
-function pxStart(){
-  if(PX.running){pxStop();return;}if(PX.hardRecoveryLock){toast('Session is locked after an ambiguous Deriv order. Check account history, then Reset the stopped session to unlock.','error');return;}if(PX.reconciling){toast('Reconciling the Deriv account before any new buy.','info');return;}if(PX.open||PX.tradeInFlight){toast('A previous trade is still being reconciled. No second buy will be sent.','error');return;}if(botRunning){toast('Stop the Trading Hub bot before using EMRON Auto-Trader.','error');return;}if(!accessToken||!wsConnected){toast('Connect a Deriv account first.','error');document.getElementById('connectBtn')?.click();return;}
-  try{pxReadInputs();}catch(e){toast(e.message||'Check the trading settings.','error');pxSetStatus(e.message||'Invalid settings.');return;}if(!(Number(balance)>0)){toast('Waiting for a verified live account balance.','error');return;}
-  if(!pxCanUseBot(PX.cfg.bot)){toast('This bot is locked by the current tier. Change tiers in EMRON_AUTO_CONFIG.','error');return;}
-  if(PX.finished)pxReset(true);
-  if(MODE==='REAL'&&!PX.realConfirmedSession){const ok=window.confirm(`REAL ACCOUNT CONFIRMATION\n\nEMRON AI will place real-money contracts.\nStake $${pxFmt(PX.cfg.stake)} · target $${pxFmt(PX.cfg.target)} · max loss $${pxFmt(PX.cfg.maxLoss)}.\nRecovery is capped and a live payout edge check is required.\n\nContinue with real trading?`);if(!ok)return;PX.realConfirmedSession=true;}
-  PX.running=true;PX.finished=false;PX.state='SCANNING';PX.sessionStartedAt=Date.now();PX.nextAt=0;PX.errStreak=0;PX.tradeInFlight=false;PX.stopAfterOpen=null;$px('pxConfig')?.classList.remove('open');$px('pxCollapseBtn')?.classList.remove('open');pxSetStatus('Scanning market for the next valid signal…');pxJournal('info','Session started',`${MODE} account · bot ${pxSelectedStrategy()?.label||PX.cfg.bot} · market ${PX.cfg.market} · base stake $${pxFmt(PX.cfg.stake)} · target $${pxFmt(PX.cfg.target)} · max loss $${pxFmt(PX.cfg.maxLoss)}.`);pxShowScan();pxRenderAll();
-}
-function premiumOnTradeErrorCompat(t,msg){premiumOnTradeError(t,msg);}
-function pxConnectionLost(){
-  try{
-    PX.connectionLostAt=Date.now();
-    if(PX.open?.stage==='proposal'){
-      if(PX.open.reqId)pendingProposalMap.delete(PX.open.reqId);PX.open=null;PX.tradeInFlight=false;PX.nextAt=Date.now()+1000;pxJournal('warning','Connection lost before buy','Pending proposal discarded; no buy had been confirmed. It is safe to scan again after reconnect.');if(PX.running){PX.state='SCANNING';pxSetStatus('Connection lost — waiting to reconnect before scanning again.');}
-    }else if(PX.open?.stage==='buying'){
-      PX.reconciling=true;PX.reconcileRequired=true;PX.resumeAfterReconcile=PX.running;PX.ambiguousOrder={t:PX.open.rec||PX.open.cand?.rec||PX.open.rec,marketSymbol:PX.open.marketSymbol,stake:PX.open.stake,startedAt:PX.connectionLostAt};PX.state='SETTLING';pxJournal('warning','Connection lost during buy','Buy result is ambiguous. Automation locked until Deriv Portfolio is checked; no retry will be sent.');PX.running=false;pxSetStatus('Connection lost during order — reconciling account before any further buy.');
-    }else if(PX.open?.stage==='in_trade'){
-      pxJournal('warning','Connection lost during open contract',`Contract ${PX.open.cid} will be reconciled and its stream resubscribed on reconnect.`);if(PX.state!=='STOPPED_USER')pxSetStatus('Connection lost during a live contract — reconnecting and resubscribing.');
-    }else if(PX.running){PX.state='SCANNING';pxSetStatus('Connection lost — reconnecting before any new order.');pxJournal('warning','Connection lost','No new contract will be opened while disconnected.');}
-  }catch(e){PX.running=false;PX.state='ERROR';console.error('Auto reconnect tracking failed',e);}
-}
-function premiumReconcilePortfolio(data){
-  try{
-    if(!PX.reconcileRequired&&!PX.reconciling)return;const list=Array.isArray(data?.portfolio?.contracts)?data.portfolio.contracts:[];const norm=s=>String(s||'').toUpperCase();
-    if(PX.ambiguousOrder?.t){const a=PX.ambiguousOrder,t=a.t,st=Number(t?.stake||a.stake||0),sym=norm(t?.marketSymbol||a.marketSymbol),type=norm(t?.contractType||t?.pxCand?.contractType);const now=Math.floor(Date.now()/1000),started=Math.floor(Number(a.startedAt||PX.connectionLostAt||Date.now())/1000);
-      const match=list.find(c=>{const pt=Number(c.purchase_time??c.start_time);return norm(c.underlying_symbol||c.symbol)===sym&&norm(c.contract_type)===type&&Math.abs(Number(c.buy_price||0)-st)<Math.max(.1,st*.03)&&Number.isFinite(pt)&&pt>=started-60&&pt<=now+10;});
-      if(match){pendingBuyMap.forEach((v,k)=>{if(v?.purpose==='premium'&&v.premiumId===t.premiumId)pendingBuyMap.delete(k);});const cid=match.contract_id;activeContracts.set(cid,{slotIdx:-1,strategyRef:null,marketSymbol:sym,contractType:type,label:t.label,stake:st,purpose:'premium',premiumId:t.premiumId,sid:t.sid,pxCand:t.pxCand});PX.ambiguousOrder=null;PX.reconcileRequired=false;PX.reconciling=false;PX.open={stage:'in_trade',cid,rowId:t.premiumId,marketSymbol:sym,stake:st,rec:t,cand:t.pxCand};PX.tradeInFlight=true;premiumOnBought(cid,t);ws.send(JSON.stringify({proposal_open_contract:1,contract_id:cid,subscribe:1,req_id:wsReqId++}));pxJournal('success','Buy reconciled',`Found matching open contract ${cid} in the Deriv Portfolio. Re-subscribed without sending a second buy.`);PX.running=!!PX.resumeAfterReconcile;PX.resumeAfterReconcile=false;if(PX.running){PX.state='IN_TRADE';pxSetStatus('Open contract recovered. Waiting for settlement before another entry.');}return;}
-      pendingBuyMap.forEach((v,k)=>{if(v?.purpose==='premium'&&v.premiumId===t.premiumId)pendingBuyMap.delete(k);});PX.ambiguousOrder=null;PX.reconcileRequired=false;PX.reconciling=false;PX.running=false;PX.tradeInFlight=false;PX.open=null;PX.hardRecoveryLock=true;PX.state='ERROR';pxJournal('error','Buy reconciliation unresolved','No matching open contract was returned. Automation remains stopped to prevent a duplicate order; inspect the Deriv account transaction history before restarting.');pxSetStatus('Order could not be reconciled safely. Trading is paused to prevent a duplicate buy.');pxRenderAll();return;
-    }
-    const opens=PX.rows.filter(r=>r.status==='open');let matched=0;
-    if(opens.length>1){PX.running=false;PX.reconciling=false;PX.reconcileRequired=false;PX.tradeInFlight=true;PX.hardRecoveryLock=true;PX.state='ERROR';pxJournal('error','Multiple saved open contracts','More than one Auto-Trader row was saved as open. Automation remains locked until the contracts are checked manually.');pxSetStatus('Multiple open rows found in saved session. Verify Deriv Portfolio and account history before restarting.');pxRenderAll();return;}
-    for(const row of opens){const contract=list.find(c=>String(c.contract_id)===String(row.cid));if(contract){matched++;activeContracts.set(contract.contract_id,{slotIdx:-1,strategyRef:null,marketSymbol:row.symbol,contractType:row.contractType,label:row.label,stake:row.stake,purpose:'premium',premiumId:row.id,sid:PX.sid,pxCand:{confidence:row.confidence}});ws.send(JSON.stringify({proposal_open_contract:1,contract_id:contract.contract_id,subscribe:1,req_id:wsReqId++}));}}
-    if(opens.length&&matched!==opens.length){PX.running=false;PX.reconciling=false;PX.reconcileRequired=false;PX.tradeInFlight=false;PX.open=null;PX.hardRecoveryLock=true;PX.state='ERROR';pxJournal('error','Open contract reconciliation failed','Saved open transaction was not found in Deriv Portfolio. Automation stopped; verify contract history before restarting.');pxSetStatus('Saved contract was not found in Portfolio — check Deriv history before restarting.');}
-    else{PX.reconciling=false;PX.reconcileRequired=false;if(PX.running){PX.state=PX.open?'IN_TRADE':'SCANNING';pxSetStatus(PX.open?'Recovered open trade. Waiting for it to finish.':'Reconnected and verified account Portfolio. Scanning can resume.');if(!PX.open)pxShowScan();}pxJournal('success','Account reconciled',`${list.length} open contract(s) found in the authorized Deriv account; existing session trades checked before automation resumes.`);}
-    pxRenderAll();
-  }catch(e){PX.running=false;PX.reconciling=false;PX.state='ERROR';pxJournal('error','Portfolio reconciliation exception',e?.message||String(e));pxSetStatus('Account reconciliation failed. Automation remains stopped.');}
-}
-function setupPremiumUI(){
-  pxLoadCfg();const sel=$px('pxMarket');if(sel)sel.innerHTML=PULSE_SYMBOLS.map(s=>`<option value="${s.code}">${pxEsc(s.name)}</option>`).join('');if(sel)sel.value=PULSE_SYMBOLS.some(s=>s.code===PX.cfg.market)?PX.cfg.market:EMRON_AUTO_CONFIG.defaults.market;
-  if($px('pxStake'))$px('pxStake').value=pxFmt(PX.cfg.stake);if($px('pxTarget'))$px('pxTarget').value=pxFmt(PX.cfg.target);if($px('pxMaxLoss'))$px('pxMaxLoss').value=pxFmt(PX.cfg.maxLoss);pxApplyTheme();pxRenderBotCards();pxRenderRisk();
-  document.querySelectorAll('#pxBotGrid [data-auto-bot]').forEach(b=>b.addEventListener('click',()=>{const bot=b.dataset.autoBot;if(PX.running)return;if(!pxCanUseBot(bot)){toast('This bot is not included in the selected tier. Update EMRON_AUTO_CONFIG to change access.','info');return;}PX.cfg.bot=bot;pxSaveCfg();pxRenderBotCards();pxJournal('info','Bot selected',EMRON_AUTO_STRATEGIES[bot].label);pxSetStatus(`${EMRON_AUTO_STRATEGIES[bot].label} selected. Ready to scan.`);}));
-  ['pxMarket','pxStake','pxTarget','pxMaxLoss'].forEach(id=>$px(id)?.addEventListener('change',()=>{try{pxReadInputs();pxSetStatus('Settings validated. Ready to scan.');}catch(e){pxSetStatus(e.message);toast(e.message,'error');}}));
-  $px('pxCollapseBtn')?.addEventListener('click',()=>{const open=$px('pxConfig').classList.toggle('open');$px('pxCollapseBtn').classList.toggle('open',open);});
-  $px('pxThemeBtn')?.addEventListener('click',()=>{PX.dark=!PX.dark;pxApplyTheme();pxSaveCfg();});
-  $px('pxMenuBtn')?.addEventListener('click',()=>document.getElementById('hamburger')?.click());
-  $px('pxAcctBtn')?.addEventListener('click',()=>{if(PX.running||PX.open){toast('Stop the Auto-Trader and settle or sell the open contract before switching accounts.','error');return;}document.getElementById('topModeToggleBtn')?.click();});
-  $px('pxTickerX')?.addEventListener('click',()=>{$px('pxTicker').className='px-ticker';});
-  $px('pxStartBtn')?.addEventListener('click',pxStart);$px('pxStopBtn')?.addEventListener('click',()=>pxStop());$px('pxResetBtn')?.addEventListener('click',()=>pxReset(false));$px('pxStrategyPlugin')?.addEventListener('change',e=>{if(PX.running)return;PX.cfg.plugin=e.target.value==='videoMatch'&&EMRON_AUTO_CONFIG.plugins.videoMatch.enabled?'videoMatch':'native';pxSaveCfg();pxRenderPluginControl();pxJournal('info','Strategy plugin selected',pxSelectedStrategy()?.label||PX.cfg.plugin);pxSetStatus(`${pxSelectedStrategy()?.label||PX.cfg.bot} selected. Ready to scan.`);});
-  $px('pxList')?.addEventListener('click',e=>{const b=e.target.closest('[data-sell]');if(b)pxSell(b.dataset.sell);});
-  $px('pxTxToggle')?.addEventListener('click',()=>{PX.txCollapsed=!PX.txCollapsed;$px('pxTxBody').hidden=PX.txCollapsed;$px('pxTxToggle').setAttribute('aria-expanded',String(!PX.txCollapsed));$px('pxTxChevron').textContent=PX.txCollapsed?'›':'⌄';});
-  document.querySelectorAll('[data-px-detail]').forEach(b=>b.addEventListener('click',()=>{PX.detailView=b.dataset.pxDetail;pxRenderDetails();}));
-  $px('pxDetailBtn')?.addEventListener('click',()=>{const w=$px('pxDetailTableWrap');w.hidden=!w.hidden;$px('pxDetailBtn').textContent=w.hidden?'View Detail':'Hide Detail';});
-  $px('pxDownloadBtn')?.addEventListener('click',pxDownloadCsv);
-  document.querySelectorAll('[data-auto-tier]').forEach(b=>b.addEventListener('click',()=>{if(PX.running){toast('Stop the Auto-Trader before switching access tier.','error');return;}EMRON_AUTO_CONFIG.tiers.active=b.dataset.autoTier;const allowed=pxCurrentTier().bots;if(!allowed.includes(PX.cfg.bot))PX.cfg.bot=allowed[0];pxSaveCfg();pxRenderBotCards();pxRenderControls();pxJournal('info','Tier selected',`${pxCurrentTier().label} tier selected.`);pxSetStatus(`${pxCurrentTier().label} tier active.`);}));
-  $px('pxPricingBtn')?.addEventListener('click',()=>{$px('pxPricingPanel').hidden=!$px('pxPricingPanel').hidden;$px('pxPricingText').textContent=`Free: ${EMRON_AUTO_CONFIG.tiers.free.bots.length} bot, stake cap $${EMRON_AUTO_CONFIG.tiers.free.maxStake}. Premium: ${EMRON_AUTO_CONFIG.tiers.premium.bots.length} bots, stake cap $${EMRON_AUTO_CONFIG.tiers.premium.maxStake}. Change both tiers in EMRON_AUTO_CONFIG.tiers when you define the commercial plans.`;});$px('pxPricingClose')?.addEventListener('click',()=>{$px('pxPricingPanel').hidden=true;});
-  document.querySelectorAll('.px-bot [data-go]').forEach(b=>b.addEventListener('click',()=>{const t=document.querySelector(`.tab[data-tab="${b.dataset.go}"]`);if(t)t.click();}));
-  const closeM=()=>$px('pxModal')?.classList.remove('on');$px('pxModalOk')?.addEventListener('click',closeM);$px('pxModalX')?.addEventListener('click',closeM);
-  pxRenderAll();pxRenderJournal();pxRenderRisk();pxSetStatus(PX.reconciling?'Restored session detected — checking Deriv Portfolio before trading.':'Ready — connect a Deriv account, set your limits, then start.');
-}
-function pxDownloadCsv(){
-  const head=['Timestamp','Market','Contract type','Label','Entry spot','Exit spot','Buy price','Payout','Profit/Loss','Status','Confidence'];const rows=PX.rows.map(r=>[new Date(r.ts).toISOString(),r.name||r.symbol,r.contractType,r.label,r.entry??'',r.exit??'',r.stake,r.payout||0,r.profit||0,r.status,(Number(r.confidence||0)*100).toFixed(2)+'%']);const quote=v=>`"${String(v==null?'':v).replace(/"/g,'""')}"`;const csv=[head,...rows].map(r=>r.map(quote).join(',')).join('\r\n');const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`emron-auto-trader-${new Date().toISOString().slice(0,10)}.csv`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);pxJournal('info','CSV downloaded',`${PX.rows.length} transaction rows exported.`);
+    `Flat stake — no martingale or doubling after losses. Largest possible session loss is capped at your max loss.`;
 }
 
 /* ============================================================
