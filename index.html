@@ -696,6 +696,45 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .px-more{width:100%;margin-top:8px;padding:8px;font-size:11px;font-weight:600;color:var(--px-acc)!important;border:1px dashed var(--px-line);border-radius:10px}
 .px-scan-step{color:#22d3ee;font:11px/1.4 'JetBrains Mono',monospace;margin-top:8px;max-width:300px}
 .px-scan-x{margin-top:10px;font-size:11px;color:#9ca3af!important;text-decoration:underline}
+
+/* ===== Even/Odd research scanner embedded in EMRON Auto ===== */
+#premium .eo-scanner{background:var(--px-card);border:1px solid var(--px-line);border-radius:14px;padding:12px;margin:10px 0}
+#premium .eo-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+#premium .eo-head h3{font-size:14px;font-weight:700}
+#premium .eo-sub{font-size:10px;color:var(--px-mut);line-height:1.5;margin-top:3px}
+#premium .eo-controls{display:grid;grid-template-columns:minmax(150px,1fr) auto auto;gap:7px;align-items:center;margin:10px 0}
+#premium .eo-select{height:36px;min-width:0;width:100%;border:1px solid var(--px-line);border-radius:9px;background:var(--px-row);color:var(--px-text);padding:0 9px;font:500 11px 'Poppins','Inter',sans-serif}
+#premium .eo-btn{min-height:34px;padding:7px 10px;border:1px solid var(--px-line);border-radius:9px;background:var(--px-row);font-size:10px;font-weight:700;white-space:nowrap}
+#premium .eo-btn.primary{background:#14b8a6;color:#fff;border-color:#14b8a6}
+#premium .eo-exec{display:flex;align-items:center;gap:8px;padding:9px 10px;border:1px solid var(--px-line);border-radius:10px;background:var(--px-row);margin:8px 0}
+#premium .eo-exec input{accent-color:#14b8a6;width:16px;height:16px;flex:none}
+#premium .eo-exec strong{font-size:11px}
+#premium .eo-exec small{display:block;color:var(--px-mut);font-size:9px;line-height:1.4;margin-top:2px}
+#premium .eo-status{font:10px/1.5 'JetBrains Mono',monospace;color:var(--px-mut);padding:5px 2px;min-height:25px;overflow-wrap:anywhere}
+#premium .eo-status.ok{color:var(--px-green)} #premium .eo-status.warn{color:#d97706} #premium .eo-status.bad{color:var(--px-red)}
+#premium .eo-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:9px 0}
+#premium .eo-metric{background:var(--px-row);border:1px solid var(--px-line);border-radius:9px;padding:8px;min-width:0}
+#premium .eo-metric small{display:block;color:var(--px-mut);font-size:8px;text-transform:uppercase;letter-spacing:.03em;margin-bottom:3px}
+#premium .eo-metric b{font:700 12px 'JetBrains Mono',monospace;overflow-wrap:anywhere}
+#premium .eo-table-wrap{overflow-x:auto}
+#premium .eo-table{width:100%;min-width:510px;border-collapse:collapse;font-size:10px}
+#premium .eo-table th{font-size:8px;text-align:left;color:var(--px-mut);padding:7px 5px;border-bottom:1px solid var(--px-line);text-transform:uppercase;letter-spacing:.03em;white-space:nowrap}
+#premium .eo-table td{padding:7px 5px;border-bottom:1px solid var(--px-line);font:10px 'JetBrains Mono',monospace;vertical-align:middle}
+#premium .eo-table td:first-child{font-family:'Poppins','Inter',sans-serif;font-weight:600}
+#premium .eo-state{display:inline-block;border-radius:8px;padding:3px 5px;font:700 8px 'JetBrains Mono',monospace;background:#f3f4f6;color:#6b7280;white-space:nowrap}
+#premium .eo-state.valid{background:rgba(22,163,74,.13);color:var(--px-green)}
+#premium .eo-state.control{background:rgba(107,114,128,.12);color:var(--px-mut)}
+#premium .eo-state.block{background:rgba(225,29,72,.1);color:var(--px-red)}
+#premium .eo-ledger{font-size:9px;color:var(--px-mut);line-height:1.55;margin:8px 1px 1px}
+#premium .eo-foot{border-top:1px solid var(--px-line);padding-top:8px;margin-top:8px;font-size:9px;color:var(--px-mut);line-height:1.55}
+#premium .eo-foot b{color:var(--px-text)}
+@media(max-width:520px){
+  #premium .eo-controls{grid-template-columns:1fr 1fr}
+  #premium .eo-controls label{grid-column:1/-1}
+  #premium .eo-controls .eo-btn{width:100%}
+  #premium .eo-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+
 </style>
 </head>
 <body>
@@ -1187,6 +1226,56 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
   <section class="px-config open" id="pxConfig">
     <div class="px-prem"><h2>EMRON Auto</h2><span class="px-badge">Premium</span><span class="px-rd">REAL &amp; DEMO</span></div>
     <div class="px-cards" id="pxCards"></div>
+
+    <section class="eo-scanner" id="eoScanner" aria-labelledby="eoTitle">
+      <div class="eo-head">
+        <div>
+          <h3 id="eoTitle">🧪 Even/Odd Research Scanner</h3>
+          <div class="eo-sub">Six independent profiles · historical Discovery vs live Forward measurements · real Deriv payout quotes. Signals are observations, not promises.</div>
+        </div>
+        <span class="px-pill">EV GATED</span>
+      </div>
+      <div class="eo-controls">
+        <label>
+          <span style="display:block;font-size:9px;color:var(--px-mut);margin:0 0 4px">PROFILE USED FOR EXECUTION</span>
+          <select class="eo-select" id="eoProfileSelect">
+            <option value="fade">Fade — opposite last parity</option>
+            <option value="follow">Follow — same as last parity</option>
+            <option value="bar">Bar gate — 10-tick 60% gate</option>
+            <option value="imbalance" selected>Imbalance — 50-tick 60/40 gate</option>
+            <option value="streak">Streak — follow 3+ same parity</option>
+            <option value="random">Random control — measurement only</option>
+          </select>
+        </label>
+        <button class="eo-btn" type="button" id="eoDiscoveryBtn">Run Discovery</button>
+        <button class="eo-btn" type="button" id="eoSelfTestBtn">Run Self-tests</button>
+      </div>
+      <label class="eo-exec" for="eoExecutionToggle">
+        <input id="eoExecutionToggle" type="checkbox">
+        <span><strong id="eoExecutionLabel">Enable auto-trading from this scanner</strong>
+          <small>OFF by default. When enabled, uses EMRON Auto risk limits and Deriv proposal quotes; only buys when the conservative live estimate is above the quoted break-even. Random control cannot trade.</small>
+        </span>
+      </label>
+      <div class="eo-status" id="eoStatus" role="status">Scanner initialising — live signals will be tagged UNVERIFIED until enough independent observations exist.</div>
+      <div class="eo-metrics">
+        <div class="eo-metric"><small>Discovery signals</small><b id="eoDiscCount">—</b></div>
+        <div class="eo-metric"><small>Discovery hit rate</small><b id="eoDiscRate">—</b></div>
+        <div class="eo-metric"><small>Forward outcomes</small><b id="eoFwdCount">0</b></div>
+        <div class="eo-metric"><small>Realised edge</small><b id="eoRealisedEdge">—</b></div>
+      </div>
+      <div class="eo-table-wrap">
+        <table class="eo-table">
+          <thead><tr><th>Profile</th><th>Live calls</th><th>Discovery</th><th>Forward</th><th>Live BE</th><th>State</th></tr></thead>
+          <tbody id="eoProfileBody"><tr><td colspan="6">Collecting tick history…</td></tr></tbody>
+        </table>
+      </div>
+      <div class="eo-ledger" id="eoLedger">Execution ledger: turnover $0.00 · realised P/L $0.00 · realised edge —</div>
+      <div class="eo-foot">
+        <b>How the profiles work:</b> Fade reverses the last digit's parity; Follow repeats it; Bar gate needs at least 6/10 even or odd digits; Imbalance needs at least 60%/40% parity in 50 ticks; Streak follows a parity run of at least 3; Random control uses a reproducible pseudo-random side and is never executable.
+        “Discovery” uses stored historical ticks. “Forward” counts next-tick outcomes only after the scanner starts observing live data. A live break-even is ask price ÷ payout from a Deriv proposal; no 95% payout is assumed. “VALIDATED” requires large Discovery and Forward samples whose conservative lower bounds both exceed that live break-even.
+      </div>
+    </section>
+
     <button class="px-fam pair" id="pxPairBtn" type="button" style="margin-bottom:10px">↕ Higher/Lower hedge pair mode</button>
     <div class="px-pairbox" id="pxPairBox" style="display:none">
       <div class="px-two"><label class="px-field"><span>Barrier offset</span><div class="px-input"><input id="pxPOffset" type="number" inputmode="decimal" min="0.01" step="0.01"></div></label>
@@ -1207,6 +1296,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
       <label class="px-field"><span>Max trades per session</span><div class="px-input"><input id="pxMaxTrades" type="number" inputmode="numeric" min="1" max="10000" step="1"></div></label></div>
       <div class="px-two"><label class="px-field"><span>Max losses in a row</span><div class="px-input"><input id="pxMaxConsec" type="number" inputmode="numeric" min="1" max="50" step="1"></div></label>
       <label class="px-field"><span>Max daily loss</span><div class="px-input"><input id="pxMaxDaily" type="number" inputmode="decimal" min="0.35" step="0.01"><em>USD</em></div></label></div>
+      <label class="px-field"><span>Maximum proposal buy price</span><div class="px-input"><input id="pxMaxBuy" type="number" inputmode="decimal" min="0.35" step="0.01"><em>USD</em></div></label>
       <label class="px-field"><span>Value guard</span><select id="pxGuard"><option value="off">Off</option><option value="warn">Warn (show EV)</option><option value="block">Block negative EV</option></select></label>
       <div class="px-note" style="margin-bottom:8px">One contract is open at a time. The stake is flat: no martingale, no doubling after a loss. The stake is also capped by the room left under the session and daily loss limits.</div>
     </div>
@@ -1911,13 +2001,48 @@ function startPublicFeed(){
     window.__pulseWs=w;
   }catch(e){ setTimeout(startPublicFeed,5000); }
 }
+
+/* Exact final-digit extraction. Deriv pip_size is normally decimal places; it may be absent. */
+function eoQuoteParts(quote,pipSize,fallbackDecimals){
+  const n=Number(quote); if(!Number.isFinite(n)) return null;
+  let decimals=Number.isInteger(fallbackDecimals)&&fallbackDecimals>=0&&fallbackDecimals<=8?fallbackDecimals:2;
+  const p=Number(pipSize);
+  if(Number.isInteger(p)&&p>=0&&p<=8) decimals=p;
+  else if(Number.isFinite(p)&&p>0&&p<1){
+    const dp=-Math.log10(p), nearest=Math.round(dp);
+    if(nearest>=0&&nearest<=8&&Math.abs(Math.pow(10,-nearest)-p)<1e-10) decimals=nearest;
+  }
+  const quoteString=n.toFixed(decimals);
+  const digitsOnly=quoteString.replace(/[^0-9]/g,'');
+  if(!digitsOnly.length) return null;
+  return {decimals,quoteString,digitString:digitsOnly.charAt(digitsOnly.length-1)};
+}
+
 function ingestHistory(d){
   const sym=d.echo_req&&d.echo_req.ticks_history, mkt=engineState.markets.get(sym);
   const prices=(d.history&&d.history.prices)||[]; if(!mkt||!prices.length||mkt.digits.length>=400) return;
-  const pip=Number(d.pip_size); if(Number.isInteger(pip)&&pip>=0&&pip<=6) mkt.decimals=pip;
-  const dig=[],q=[];
-  prices.forEach(p=>{ const n=parseFloat(p); if(isNaN(n)) return; const s=n.toFixed(mkt.decimals); dig.push(parseInt(s.charAt(s.length-1),10)); q.push(n); });
-  mkt.digits=dig.concat(mkt.digits).slice(-MAX_BUFFER); mkt.quotes=q.concat(mkt.quotes).slice(-MAX_BUFFER); mkt._ev=null;
+  const pip=d.pip_size, times=(d.history&&d.history.times)||[];
+  const historyRows=[];
+  prices.forEach((p,i)=>{
+    const n=Number(p), parts=eoQuoteParts(p,pip,mkt.decimals);
+    if(!Number.isFinite(n)||!parts) return;
+    historyRows.push({quote:n,digit:Number(parts.digitString),epoch:Number.isFinite(Number(times[i]))?Number(times[i]):null,decimals:parts.decimals});
+  });
+  if(historyRows.length){
+    mkt.decimals=historyRows[historyRows.length-1].decimals;
+    mkt.tickEpochs=mkt.tickEpochs||[];
+    const liveRows=[];
+    for(let i=0;i<(mkt.digits||[]).length;i++) liveRows.push({quote:mkt.quotes[i],digit:mkt.digits[i],epoch:mkt.tickEpochs[i]??null,decimals:mkt.decimals});
+    const merged=new Map();
+    historyRows.concat(liveRows).forEach((r,i)=>{
+      const key=r.epoch!=null?`${r.epoch}|${Number(r.quote).toFixed(r.decimals)}`:`noepoch|${i}|${r.quote}`;
+      merged.set(key,r);
+    });
+    const rows=Array.from(merged.values()).sort((a,b)=>(a.epoch??0)-(b.epoch??0)).slice(-MAX_BUFFER);
+    mkt.digits=rows.map(r=>r.digit); mkt.quotes=rows.map(r=>r.quote); mkt.tickEpochs=rows.map(r=>r.epoch);
+  }
+  mkt._ev=null;
+  if(typeof eoScheduleDiscovery==='function') eoScheduleDiscovery();
 }
 function pxConnectionLost(){
   [pendingProposalMap,pendingBuyMap].forEach(map=>{
@@ -1940,13 +2065,16 @@ function onPulseTick(symbolCode, quote, epoch=null, pipSize=null){
     if(prev===signature) return;
     adaptiveEngine.lastTickBySymbol.set(symbolCode,signature);
   }
-  if(pipSize!=null){ let pd=Number(pipSize); if(pd>0&&pd<1) pd=Math.round(-Math.log10(pd)); if(Number.isInteger(pd)&&pd>=0&&pd<=6) mkt.decimals=pd; }
-  const qStr = num.toFixed(mkt.decimals);
-  const lastDigit = parseInt(qStr.charAt(qStr.length-1), 10);
+  const parts=eoQuoteParts(quote,pipSize,mkt.decimals);
+  if(!parts) return;
+  mkt.decimals=parts.decimals;
+  const qStr=parts.quoteString, digitString=parts.digitString, lastDigit=Number(digitString);
   mkt.digits.push(lastDigit); if(mkt.digits.length>MAX_BUFFER) mkt.digits.shift();
   mkt.quotes.push(num); if(mkt.quotes.length>MAX_BUFFER) mkt.quotes.shift();
+  mkt.tickEpochs=mkt.tickEpochs||[]; mkt.tickEpochs.push(epoch==null?null:Number(epoch)); if(mkt.tickEpochs.length>MAX_BUFFER) mkt.tickEpochs.shift();
   mkt.lastQuote = qStr; mkt.lastDigit = lastDigit; mkt.tickCount++; mkt._at = Date.now();
   resolvePending(mkt);
+  if(typeof eoOnLiveTick==='function') eoOnLiveTick(mkt,digitString,epoch);
 
   const parity = lastDigit%2===0?'even':'odd';
   if(mkt.streak.dir===null) mkt.streak={dir:parity,len:1};
@@ -2746,6 +2874,7 @@ function finalizeHigherLowerPair(batch){
   }
 }
 function onProposalReceived(data){
+  if(eoHandleQuoteResponse(data)) return;
   const t = pendingProposalMap.get(data.req_id);
   if(!t){ if(data.subscription&&data.subscription.id&&ws&&ws.readyState===1){ try{ ws.send(JSON.stringify({forget:data.subscription.id,req_id:wsReqId++})); }catch(e){} } return; }
   pendingProposalMap.delete(data.req_id);
@@ -2791,7 +2920,7 @@ function onBuyReceived(data){
     slotIdx: t.slotIdx, strategyRef:t.strategyRef || null, marketSymbol:t.marketSymbol || null,
     contractType:t.contractType, label:t.label, stake:t.stake, purpose:t.purpose||'bot',
     adaptiveContext:t.adaptiveContext||null, pairId:t.pairId||null, pairLeg:t.pairLeg||null,
-    premiumId:t.premiumId||null, sid:t.sid||null, pxCand:t.pxCand||null, pxPair:t.pxPair||null
+    premiumId:t.premiumId||null, sid:t.sid||null, pxCand:t.pxCand||null, pxPair:t.pxPair||null, eoSignal:t.eoSignal||null
   });
   if(t.purpose==='premium') premiumOnBought(cid,t);
   if(t.pairId){
@@ -3398,8 +3527,37 @@ function renderAIScan(){
 }
 
 /* ============================================================
-   WEBSOCKET
+   WEBSOCKET — shared 330/min safety budget for proposal, open-contract,
+   buy and sell requests (Deriv's documented shared ceiling is 360/min).
    ============================================================ */
+const DERIV_REQ_BUDGET={sent:[],queue:[],timer:null,lastDispatch:0,cap:330,minGap:85};
+function installDerivRequestBudget(socket){
+  if(!socket||socket.__emronBudgetWrapped)return;
+  const native=socket.send.bind(socket);
+  socket.send=function(raw){
+    let obj=null;try{if(typeof raw==='string')obj=JSON.parse(raw);}catch(_){}
+    const limited=!!(obj&&(obj.proposal===1||obj.proposal_open_contract===1||Object.prototype.hasOwnProperty.call(obj,'buy')||Object.prototype.hasOwnProperty.call(obj,'sell')));
+    if(!limited)return native(raw);
+    DERIV_REQ_BUDGET.queue.push({socket,raw,native,at:Date.now()});
+    drainDerivRequestBudget();return;
+  };
+  socket.__emronBudgetWrapped=true;
+}
+function drainDerivRequestBudget(){
+  if(DERIV_REQ_BUDGET.timer)return;
+  const now=Date.now();
+  DERIV_REQ_BUDGET.sent=DERIV_REQ_BUDGET.sent.filter(t=>now-t<60000);
+  while(DERIV_REQ_BUDGET.queue.length&&DERIV_REQ_BUDGET.queue[0].socket.readyState!==WebSocket.OPEN)DERIV_REQ_BUDGET.queue.shift();
+  if(!DERIV_REQ_BUDGET.queue.length)return;
+  const waitRate=DERIV_REQ_BUDGET.sent.length>=DERIV_REQ_BUDGET.cap?Math.max(100,60010-(now-DERIV_REQ_BUDGET.sent[0])):0;
+  const waitGap=Math.max(0,DERIV_REQ_BUDGET.minGap-(now-DERIV_REQ_BUDGET.lastDispatch));
+  const wait=Math.max(waitRate,waitGap);
+  if(wait>0){DERIV_REQ_BUDGET.timer=setTimeout(()=>{DERIV_REQ_BUDGET.timer=null;drainDerivRequestBudget();},wait);return;}
+  const job=DERIV_REQ_BUDGET.queue.shift();
+  try{job.native(job.raw);DERIV_REQ_BUDGET.sent.push(Date.now());DERIV_REQ_BUDGET.lastDispatch=Date.now();}
+  catch(e){console.warn('Deriv request send failed',e);}
+  if(DERIV_REQ_BUDGET.queue.length){DERIV_REQ_BUDGET.timer=setTimeout(()=>{DERIV_REQ_BUDGET.timer=null;drainDerivRequestBudget();},DERIV_REQ_BUDGET.minGap);}
+}
 async function connectWebSocket(token){
   const account = MODE === 'REAL' ? accountSessions.real : accountSessions.demo;
   const accountId = account && account.account_id;
@@ -3438,6 +3596,7 @@ async function connectWebSocket(token){
     wsConnected = false;
 
     ws = new WebSocket(url);
+    installDerivRequestBudget(ws);
     ws.onopen = () => {
       wsConnected = true;
       updateConnectionStatus(true);
@@ -3468,6 +3627,7 @@ async function connectWebSocket(token){
     ws.onerror = () => setAuthStatus(`⚠️ WebSocket error on ${MODE.toLowerCase()} account`, true);
     ws.onclose = () => {
       wsConnected = false;
+      eoHandleDisconnect();
       pxConnectionLost();
       if(window.wsPing) clearInterval(window.wsPing);
       updateConnectionStatus(false);
@@ -3682,6 +3842,7 @@ function handleWsMessage(ev){
     case 'portfolio': pxOnPortfolio(data); break;
     case 'proposal_open_contract': onContractUpdate(data); break;
     case 'error':
+      if(eoHandleApiError(data)) break;
       console.error('API error', data.error);
       toast('❌ ' + (data.error.message || 'API error'), 'error');
       break;
@@ -4405,10 +4566,11 @@ const PX_SP_DEFAULT={
   matches:{window:300,mode:'MATCH',policy:'second',maxGap:0.3,minConf:50},
   over8:{window:100,side:'OVER',barrier:8,minZ:1.0,minConf:60},
   tickstrike:{lookback:10,threshold:0.6,minConf:60,ticks:3},
-  switcher:{threshold:0.46,minConf:60,cooldown:30,ticks:1}
+  switcher:{threshold:0.46,minConf:60,cooldown:30,ticks:1},
+  eoscanner:{profile:'imbalance',window:50}
 };
 const PX={
-  cfg:{strategy:'matches',market:'1HZ100V',stake:1,target:20,maxLoss:10,steps:0,recovery:1.6,guard:'warn',
+  cfg:{strategy:'matches',market:'1HZ100V',stake:1,target:20,maxLoss:10,maxBuyPrice:5,steps:0,recovery:1.6,guard:'warn',
     cooldown:3,maxTrades:50,maxConsec:3,maxDaily:30,
     sp:JSON.parse(JSON.stringify(PX_SP_DEFAULT)),
     pair:{on:false,offset:0.3,ticks:5,confirm:3,layout:'outside'}},
@@ -4418,6 +4580,309 @@ const PX={
   sw:{dir:null,lastSwitch:0,switches:0},startedAt:null,sessMode:null,showRows:30,
   logs:[],lastRejAt:0,connLogged:false,scanAbort:null
 };
+/* Even/Odd profile scanner + independent Discovery/Forward ledgers. */
+const EO_PROFILE_INFO={
+  fade:{name:'Fade',short:'Fade',detail:'Opposite last parity'},
+  follow:{name:'Follow',short:'Follow',detail:'Same as last parity'},
+  bar:{name:'Bar gate',short:'Bar gate',detail:'10-tick 60% gate'},
+  imbalance:{name:'Imbalance',short:'Imbalance',detail:'50-tick 60/40 gate'},
+  streak:{name:'Streak',short:'Streak',detail:'Follow parity run ≥3'},
+  random:{name:'Random control',short:'Random ctl',detail:'Pseudo-random baseline'}
+};
+const EO={
+  profile:'imbalance',autoTradeEnabled:false,testsPass:false,testsReport:'Not run',
+  discovery:new Map(),forward:new Map(),pending:new Map(),quotes:new Map(),
+  quotePending:new Map(),quoteQueued:new Set(),quoteQueue:[],quoteAsked:new Map(),
+  blockedSignals:new Map(),ledger:{turnover:0,realizedPL:0,trades:0,wins:0,losses:0},
+  logs:[],discoveryTimer:null,quoteTimer:null,lastRender:0,lastSave:0
+};
+const eoStatKey=(profile,symbol)=>`${profile}|${symbol}`;
+const eoQuoteKey=(symbol,type)=>`${symbol}|${type}`;
+const eoEmptyStat=()=>({n:0,h:0});
+function eoParity(d){return Number(d)%2===0?'even':'odd';}
+function eoHash(str){let h=2166136261;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
+function eoPredict(profile,history,symbol,index){
+  if(!history||!history.length) return null;
+  const last=eoParity(history[history.length-1]);
+  if(profile==='fade') return last==='even'?'odd':'even';
+  if(profile==='follow') return last;
+  if(profile==='bar'){
+    const w=history.slice(-10);if(w.length<10)return null;
+    const e=w.reduce((a,d)=>a+(Number(d)%2===0?1:0),0),o=w.length-e;
+    if(e>=6)return'even';if(o>=6)return'odd';return null;
+  }
+  if(profile==='imbalance'){
+    const w=history.slice(-50);if(w.length<50)return null;
+    const e=w.reduce((a,d)=>a+(Number(d)%2===0?1:0),0),o=w.length-e;
+    if(e/w.length>=.60)return'even';if(o/w.length>=.60)return'odd';return null;
+  }
+  if(profile==='streak'){
+    let n=0;for(let i=history.length-1;i>=0;i--){if(eoParity(history[i])!==last)break;n++;}
+    return n>=3?last:null;
+  }
+  if(profile==='random'){
+    const h=eoHash(`${symbol}|${Number(index)||history.length}|EMRON_EO_RANDOM_CONTROL`);
+    return h%2===0?'even':'odd';
+  }
+  return null;
+}
+function eoWilsonLower(h,n,z=1.96){
+  if(!(n>0))return 0;
+  const p=h/n,z2=z*z,den=1+z2/n;
+  return Math.max(0,(p+z2/(2*n)-z*Math.sqrt((p*(1-p)/n)+(z2/(4*n*n))))/den);
+}
+function eoBreakEven(ask,payout){ask=Number(ask);payout=Number(payout);return ask>0&&payout>0?ask/payout:null;}
+function eoEV(pEstimate,ask,payout){ask=Number(ask);payout=Number(payout);return ask>0&&payout>0&&Number.isFinite(pEstimate)?pEstimate*payout/ask-1:null;}
+function eoClassifyStats(profile,discovery,forward,be){
+  if(profile==='random')return'CONTROL';
+  if(!Number.isFinite(be)||be<=0)return'UNVERIFIED';
+  if(discovery.n<1000||forward.n<1000)return'UNVERIFIED';
+  return eoWilsonLower(discovery.h,discovery.n,3.1)>be&&eoWilsonLower(forward.h,forward.n,3.1)>be?'VALIDATED':'UNVERIFIED';
+}
+function eoGetStat(map,profile,symbol){return map.get(eoStatKey(profile,symbol))||eoEmptyStat();}
+function eoUpdateStat(map,profile,symbol,hit){
+  const k=eoStatKey(profile,symbol),s=map.get(k)||eoEmptyStat();s.n++;if(hit)s.h++;map.set(k,s);
+}
+function eoTotals(map,profile){
+  const t=eoEmptyStat();map.forEach((v,k)=>{if(k.startsWith(profile+'|')){t.n+=v.n;t.h+=v.h;}});return t;
+}
+function eoProfileCandidate(m,profile){
+  if(!m||!m.digits||!m.digits.length||!m._at||Date.now()-m._at>20000)return null;
+  if(profile==='random')return null; // control only; deliberately not executable
+  const prediction=eoPredict(profile,m.digits,m.code,m.tickCount);
+  if(!prediction)return null;
+  const key=`${profile}|${m.code}|${prediction}`;
+  if((EO.blockedSignals.get(key)||0)>Date.now())return null;
+  const f=eoGetStat(EO.forward,profile,m.code), d=eoGetStat(EO.discovery,profile,m.code);
+  const lo=eoWilsonLower(f.h,f.n,1.96);
+  const z=f.n?Math.max(0,(f.h/f.n-.5)/Math.sqrt(.25/f.n)):0;
+  const contractType=prediction==='even'?'DIGITEVEN':'DIGITODD';
+  return {family:'evenodd',kind:prediction.toUpperCase(),label:`${prediction.toUpperCase()} · ${EO_PROFILE_INFO[profile].name}`,
+    z,conf:Math.round(lo*100),why:`${EO_PROFILE_INFO[profile].detail} · Forward ${f.h}/${f.n} · conservative rate ${(lo*100).toFixed(1)}%`,
+    contract:{type:contractType,duration:1},eoMeta:{profile,symbol:m.code,prediction,contractType,forwardN:f.n,forwardHits:f.h,discoveryN:d.n,discoveryHits:d.h,lowerBound:lo}};
+}
+function eoLoadState(){
+  try{
+    const x=JSON.parse(localStorage.getItem('emron_eo_forward_v1')||'null');
+    if(x&&x.forward&&typeof x.forward==='object')Object.entries(x.forward).forEach(([k,v])=>{if(v&&Number.isFinite(v.n)&&Number.isFinite(v.h))EO.forward.set(k,{n:v.n,h:v.h});});
+    if(x&&x.ledger)EO.ledger=Object.assign(EO.ledger,x.ledger);
+  }catch(_){}
+}
+function eoSaveState(force=false){
+  const now=Date.now();if(!force&&now-EO.lastSave<10000)return;EO.lastSave=now;
+  try{localStorage.setItem('emron_eo_forward_v1',JSON.stringify({forward:Object.fromEntries(EO.forward),ledger:EO.ledger}));}catch(_){}
+}
+function eoLog(type,message){
+  EO.logs.unshift({t:Date.now(),type,message:String(message)});if(EO.logs.length>60)EO.logs.length=60;
+}
+function eoOnLiveTick(mkt,digitString,epoch){
+  const outcome=eoParity(digitString), idx=mkt.tickCount;
+  Object.keys(EO_PROFILE_INFO).forEach(profile=>{
+    const key=eoStatKey(profile,mkt.code),pending=EO.pending.get(key);
+    if(pending&&pending.tickCount<idx){
+      eoUpdateStat(EO.forward,profile,mkt.code,pending.prediction===outcome);
+      EO.pending.delete(key);
+    }
+    const prediction=eoPredict(profile,mkt.digits,mkt.code,idx);
+    if(prediction)EO.pending.set(key,{prediction,tickCount:idx,epoch:epoch??null,createdAt:Date.now()});
+  });
+  eoMaybeRequestQuotes(mkt);
+  eoRender(false);
+}
+function eoScheduleDiscovery(){
+  if(EO.discoveryTimer)clearTimeout(EO.discoveryTimer);
+  EO.discoveryTimer=setTimeout(()=>eoRunDiscovery(false),1200);
+}
+function eoBacktestRange(profile,digits,symbol,start,end){
+  const r=eoEmptyStat(), lo=Math.max(50,start|0), hi=Math.min(digits.length,end|0);
+  for(let i=lo;i<hi;i++){
+    const hist=digits.slice(Math.max(0,i-60),i),guess=eoPredict(profile,hist,symbol,i);
+    if(!guess)continue;r.n++;if(guess===eoParity(digits[i]))r.h++;
+  }
+  return r;
+}
+function eoRunDiscovery(showMessage=true){
+  const next=new Map();let all=eoEmptyStat(),markets=0;
+  const profiles=Object.keys(EO_PROFILE_INFO);
+  engineState.markets.forEach(m=>{
+    const D=(m.digits||[]).slice();
+    if(D.length<100) return;markets++;
+    profiles.forEach(profile=>{
+      const st=eoBacktestRange(profile,D,m.code,50,D.length);
+      next.set(eoStatKey(profile,m.code),st);
+      if(profile!=='random'){all.n+=st.n;all.h+=st.h;}
+    });
+  });
+  EO.discovery=next;
+  eoRender(true);
+  if(showMessage)eoLog('discovery',`Discovery backtest complete · ${markets} markets · ${all.n.toLocaleString()} non-control signals · ${(all.n?100*all.h/all.n:0).toFixed(2)}% combined hit rate`);
+  if(showMessage)eoRender(true);
+  return {markets,signals:all.n,hits:all.h};
+}
+function eoProfileSignals(profile){
+  const out=[];
+  engineState.markets.forEach(m=>{
+    const c=eoProfileCandidate(m,profile);
+    if(c)out.push({market:m,candidate:c,quote:EO.quotes.get(eoQuoteKey(m.code,c.eoMeta.contractType))||null});
+  });
+  return out.sort((a,b)=>{
+    const fa=eoGetStat(EO.forward,profile,a.market.code),fb=eoGetStat(EO.forward,profile,b.market.code);
+    return eoWilsonLower(fb.h,fb.n,1.96)-eoWilsonLower(fa.h,fa.n,1.96);
+  });
+}
+function eoMaybeRequestQuotes(mkt){
+  if(!wsConnected||!ws||ws.readyState!==WebSocket.OPEN||!accessToken||!mkt)return;
+  ['DIGITEVEN','DIGITODD'].forEach(type=>{
+    const key=eoQuoteKey(mkt.code,type),last=EO.quoteAsked.get(key)||0;
+    const q=EO.quotes.get(key);
+    if(Date.now()-last<60000||EO.quoteQueued.has(key)||(q&&Date.now()-q.at<60000))return;
+    EO.quoteQueued.add(key);EO.quoteQueue.push({key,symbol:mkt.code,type});eoDispatchQuoteQueue();
+  });
+}
+function eoDispatchQuoteQueue(){
+  if(EO.quoteTimer||!EO.quoteQueue.length)return;
+  EO.quoteTimer=setTimeout(()=>{
+    EO.quoteTimer=null;
+    if(!wsConnected||!ws||ws.readyState!==WebSocket.OPEN)return;
+    const job=EO.quoteQueue.shift();if(!job)return;
+    EO.quoteQueued.delete(job.key);EO.quoteAsked.set(job.key,Date.now());
+    const rid=wsReqId++;
+    EO.quotePending.set(rid,job);
+    const amount=stakeForApi(Math.max(.35,Number(PX.cfg.stake)||1)).number;
+    try{
+      ws.send(JSON.stringify({proposal:1,amount,basis:'stake',contract_type:job.type,currency:(accountInfo&&accountInfo.currency)||'USD',
+        duration:1,duration_unit:'t',underlying_symbol:job.symbol,req_id:rid}));
+    }catch(e){EO.quotePending.delete(rid);EO.quoteAsked.set(job.key,0);}
+    eoRender(false);
+    eoDispatchQuoteQueue();
+  },280);
+}
+function eoHandleQuoteResponse(data){
+  if(!data||data.req_id==null||!EO.quotePending.has(data.req_id))return false;
+  const job=EO.quotePending.get(data.req_id);EO.quotePending.delete(data.req_id);
+  if(data.error||!data.proposal){
+    EO.quotes.set(job.key,{error:data.error&&data.error.message||'No proposal returned',at:Date.now()});
+    eoLog('quote',`${job.symbol} ${job.type}: proposal unavailable`);
+  }else{
+    const p=data.proposal,ask=Number(p.ask_price),payout=Number(p.payout),be=eoBreakEven(ask,payout);
+    EO.quotes.set(job.key,{ask,payout,breakEven:be,at:Date.now(),id:p.id});
+  }
+  eoRender(false);return true;
+}
+function eoHandleApiError(data){
+  if(!data||data.req_id==null||!EO.quotePending.has(data.req_id))return false;
+  return eoHandleQuoteResponse(data);
+}
+function eoHandleDisconnect(){
+  EO.quotePending.clear();EO.quoteQueue=[];EO.quoteQueued.clear();EO.quoteAsked.clear();
+}
+function eoCanTradeSignal(meta,ask,payout){
+  if(!meta||meta.profile==='random')return {ok:false,why:'Random control is measurement-only.'};
+  const f=eoGetStat(EO.forward,meta.profile,meta.symbol),d=eoGetStat(EO.discovery,meta.profile,meta.symbol);
+  const be=eoBreakEven(ask,payout),lower=eoWilsonLower(f.h,f.n,1.96);
+  if(!be)return {ok:false,why:'Deriv did not return both ask price and payout; no assumed payout is allowed.'};
+  if(f.n<200||d.n<200)return {ok:false,why:`Insufficient samples (Discovery ${d.n}, Forward ${f.n}; need 200 each).`};
+  if(!(lower>be))return {ok:false,why:`Blocked: conservative Forward rate ${(lower*100).toFixed(2)}% does not beat live break-even ${(be*100).toFixed(2)}%.`};
+  if(!(d.h/d.n>be))return {ok:false,why:`Blocked: Discovery rate ${(100*d.h/d.n).toFixed(2)}% does not beat live break-even ${(be*100).toFixed(2)}%.`};
+  return {ok:true,be,lower,ev:eoEV(lower,ask,payout),discovery:d,forward:f};
+}
+function eoClassifyProfile(profile,signal){
+  if(profile==='random')return'CONTROL';
+  if(!signal||!signal.quote||!Number.isFinite(signal.quote.breakEven))return'UNVERIFIED';
+  const d=eoGetStat(EO.discovery,profile,signal.market.code),f=eoGetStat(EO.forward,profile,signal.market.code);
+  return eoClassifyStats(profile,d,f,signal.quote.breakEven);
+}
+function eoAggregateBreakEven(profile,signals){
+  const values=signals.map(s=>s.quote&&s.quote.breakEven).filter(Number.isFinite);
+  return values.length?values.reduce((a,b)=>a+b,0)/values.length:null;
+}
+function eoRender(force){
+  if(!document.getElementById('eoProfileBody'))return;
+  const now=Date.now();if(!force&&now-EO.lastRender<900)return;EO.lastRender=now;
+  const selected=$px('eoProfileSelect')&&$px('eoProfileSelect').value||EO.profile;
+  const disc=eoTotals(EO.discovery,selected),fwd=eoTotals(EO.forward,selected);
+  const dRate=disc.n?100*disc.h/disc.n:null;
+  const eDisc=$px('eoDiscCount'),eDr=$px('eoDiscRate'),eFn=$px('eoFwdCount'),eEdge=$px('eoRealisedEdge');
+  if(eDisc)eDisc.textContent=disc.n.toLocaleString();
+  if(eDr)eDr.textContent=dRate==null?'—':dRate.toFixed(2)+'%';
+  if(eFn)eFn.textContent=fwd.n.toLocaleString();
+  const edge=EO.ledger.turnover>0?100*EO.ledger.realizedPL/EO.ledger.turnover:null;
+  if(eEdge)eEdge.textContent=edge==null?'—':(edge>=0?'+':'')+edge.toFixed(2)+'%';
+  const body=$px('eoProfileBody');body.innerHTML=Object.keys(EO_PROFILE_INFO).map(profile=>{
+    const sigs=eoProfileSignals(profile),d=eoTotals(EO.discovery,profile),f=eoTotals(EO.forward,profile);
+    const best=sigs[0],quote=best&&best.quote&&Date.now()-best.quote.at<120000?best.quote:null,
+      be=eoAggregateBreakEven(profile,sigs.filter(x=>x.quote&&Date.now()-x.quote.at<120000));
+    let status='UNVERIFIED',stateCls='';
+    if(profile==='random'){status='CONTROL';stateCls='control';}
+    else if(best){status=eoClassifyProfile(profile,best);if(status==='VALIDATED')stateCls='valid';}
+    const call=best?`${best.market.short} ${best.candidate.eoMeta.prediction.toUpperCase()}${sigs.length>1?' (+'+(sigs.length-1)+')':''}`:'—';
+    const discTxt=d.n?`${(100*d.h/d.n).toFixed(1)}% · ${d.n}`:'—';
+    const fwdTxt=f.n?`${(100*f.h/f.n).toFixed(1)}% · ${f.n}`:'—';
+    const beTxt=be==null?'quote pending':(be*100).toFixed(2)+'%';
+    return `<tr><td title="${eoEsc(EO_PROFILE_INFO[profile].detail)}">${eoEsc(EO_PROFILE_INFO[profile].short)}</td><td>${eoEsc(call)}</td><td>${discTxt}</td><td>${fwdTxt}</td><td>${beTxt}</td><td><span class="eo-state ${stateCls}">${status}</span></td></tr>`;
+  }).join('');
+  const ledger=$px('eoLedger');
+  if(ledger){
+    const cur=(accountInfo&&accountInfo.currency)||'USD';
+    ledger.textContent=`Execution ledger · turnover ${pxMoney(EO.ledger.turnover)} ${cur} · realised P/L ${pxSigned(EO.ledger.realizedPL)} ${cur} · realised edge ${edge==null?'—':(edge>=0?'+':'')+edge.toFixed(2)+'%'} · ${EO.ledger.trades} settled scanner trades · losses ${EO.ledger.losses} · wins ${EO.ledger.wins}`;
+  }
+  const status=$px('eoStatus');
+  if(status){
+    if(EO.testsPass){status.className='eo-status ok';status.textContent=`Self-tests PASS · ${EO.testsReport}. Scanner measures live outcomes; strategy status is evidence-based.`;}
+    else{status.className='eo-status warn';status.textContent=`Self-tests not passed · ${EO.testsReport}. Auto-trading stays unavailable until tests pass.`;}
+    if(EO.autoTradeEnabled&&PX.running){status.className='eo-status ok';status.textContent=`AUTO-TRADE ACTIVE · ${PX.cfg.market==='ALL'?'all live markets':PX.cfg.market} · profile ${EO_PROFILE_INFO[selected].name}. New orders still require a positive quote-based EV and all risk gates.`;}
+  }
+  const toggle=$px('eoExecutionToggle');if(toggle)toggle.checked=EO.autoTradeEnabled;
+  const execLabel=$px('eoExecutionLabel');if(execLabel)execLabel.textContent=EO.autoTradeEnabled?'Auto-trading ENABLED — click to stop':'Enable auto-trading from this scanner';
+  if(toggle)toggle.disabled=!EO.testsPass||selected==='random';
+}
+function eoEsc(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function eoRecordSettlement(signal,profit,stake){
+  if(!signal)return;EO.ledger.turnover+=Math.max(0,Number(stake)||0);EO.ledger.realizedPL+=Number(profit)||0;
+  EO.ledger.trades++;if(Number(profit)>0)EO.ledger.wins++;else EO.ledger.losses++;
+  eoLog('settled',`${signal.symbol} ${signal.prediction.toUpperCase()} · ${Number(profit)>=0?'+':''}${Number(profit||0).toFixed(2)} · turnover ${Number(stake||0).toFixed(2)}`);
+  eoSaveState(true);eoRender(true);
+}
+function eoRunSelfTests(){
+  const fail=[];
+  const a=eoQuoteParts('123.456',3,2);
+  if(!a||a.digitString!=='6'||a.decimals!==3)fail.push('pip_size digit extraction');
+  if(Math.abs((eoBreakEven(1,1.95)||0)-(1/1.95))>1e-9)fail.push('proposal break-even');
+  if(Math.abs((eoEV(.5,1,1.95)||0)-(-.025))>1e-8)fail.push('EV arithmetic');
+  // Force eight losses against the actual EMRON stake calculator and assert stake never rises.
+  // State is restored before returning, so the self-test cannot change the user's session.
+  const savedFlat={stake:PX.cfg.stake,maxLoss:PX.cfg.maxLoss,maxDaily:PX.cfg.maxDaily,pl:PX.stats.pl,lossStreak:PX.lossStreak};
+  try{
+    const base=normalizeStake(Math.max(0.35,Number(PX.cfg.stake)||1)),daily=pxDailyPL();
+    PX.cfg.stake=base;PX.cfg.maxLoss=base*12;PX.cfg.maxDaily=base*12-daily;PX.stats.pl=0;
+    let previous=pxComputeStake();
+    for(let losses=0;losses<8;losses++){
+      PX.lossStreak=losses;
+      const stake=pxComputeStake();
+      if(stake>previous+1e-9||Math.abs(stake-base)>1e-9){fail.push(`8-loss flat-stake guard at loss ${losses+1}: ${stake} vs base ${base}`);break;}
+      PX.stats.pl-=stake;previous=stake;
+    }
+  }catch(e){fail.push('8-loss flat-stake guard threw an error');}
+  finally{
+    PX.cfg.stake=savedFlat.stake;PX.cfg.maxLoss=savedFlat.maxLoss;PX.cfg.maxDaily=savedFlat.maxDaily;
+    PX.stats.pl=savedFlat.pl;PX.lossStreak=savedFlat.lossStreak;
+  }
+  // Deterministic fair-RNG walk-forward tests. Any random sample classified VALIDATED fails the suite.
+  for(let seed=1;seed<=4;seed++){
+    let state=(seed*2654435761)>>>0;const digits=[];
+    for(let i=0;i<10000;i++){state^=state<<13;state^=state>>>17;state^=state<<5;state>>>=0;digits.push(state%10);}
+    for(const profile of Object.keys(EO_PROFILE_INFO)){
+      const split=5000,d=eoBacktestRange(profile,digits,'SELFTEST_'+seed,50,split),f=eoBacktestRange(profile,digits,'SELFTEST_'+seed,split,digits.length);
+      const label=eoClassifyStats(profile,d,f,.5128);
+      if(label==='VALIDATED')fail.push(`random data validated ${profile} seed ${seed}`);
+    }
+  }
+  EO.testsPass=fail.length===0;
+  EO.testsReport=fail.length?`FAIL: ${fail.join('; ')}`:'precision, proposal EV, 8-loss flat-stake and random-control checks passed';
+  eoLog(fail.length?'error':'system',EO.testsReport);
+  eoRender(true);
+  return EO.testsPass;
+}
 const pxKey=c=>`${c.symbol}|${c.contract.type}|${c.contract.barrier??''}|${c.contract.selectedTick??''}|${c.contract.duration}`;
 const $px=id=>document.getElementById(id);
 const pxFmt=n=>Number(n||0).toFixed(2);
@@ -4540,7 +5005,8 @@ const PX_ICON={
   matches:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg>',
   over8:'<svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/><path d="M5 21h14"/></svg>',
   tickstrike:'<svg viewBox="0 0 24 24"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg>',
-  switcher:'<svg viewBox="0 0 24 24"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>'
+  switcher:'<svg viewBox="0 0 24 24"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>',
+  eoscanner:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg>'
 };
 const PX_STRATS={
   matches:{ name:'Matches Printer', tag:'Digit Matches / Differs', family:'matches',
@@ -4617,6 +5083,16 @@ const PX_STRATS={
       return {ok:true,cand:{family:'risefall',kind:up?'RISE':'FALL',label:`${up?'Rise':'Fall'} · ${sp.ticks}t`,z:r.absScore*4,conf:r.confidence,
         why:(flip?`switch ${S.dir.toUpperCase()}→${dir.toUpperCase()} · `:'')+info,contract:{type:up?'CALL':'PUT',duration:sp.ticks},sw:dir}};
     }
+  },
+  eoscanner:{ name:'Even/Odd Research Scanner',tag:'Six profiles · proposal EV gate',family:'evenodd',
+    summary:sp=>`Profile ${EO_PROFILE_INFO[sp.profile]?.name||'Imbalance'} · observed Forward rates · quote-based EV`,
+    need:sp=>Math.max(60,Number(sp.window)||50),
+    analyze(m,sp){
+      const profile=sp.profile||'imbalance',cand=eoProfileCandidate(m,profile);
+      if(!cand)return {ok:false,why:`${EO_PROFILE_INFO[profile]?.name||profile}: no current gated signal`};
+      cand.strategy='eoscanner';cand.eoMeta.profile=profile;
+      return {ok:true,cand};
+    }
   }
 };
 const PX_SP_FIELDS={
@@ -4641,7 +5117,8 @@ const PX_SP_FIELDS={
     {k:'threshold',label:'Entry / switch score (0-1)',min:0.2,max:0.95,step:0.02},
     {k:'minConf',label:'Min confidence %',min:50,max:95,step:1,int:true},
     {k:'cooldown',label:'Switch cooldown (s)',min:5,max:900,step:5,int:true},
-    {k:'ticks',label:'Trade duration (ticks)',min:1,max:10,step:1,int:true}]
+    {k:'ticks',label:'Trade duration (ticks)',min:1,max:10,step:1,int:true}],
+  eoscanner:[]
 };
 function pxClampSp(id){
   const sp=PX.cfg.sp[id];
@@ -4738,7 +5215,9 @@ function pxPlace(c){
   if(c.contract.barrier!=null) params.barrier=String(c.contract.barrier);
   if(c.contract.selectedTick!=null) params.selected_tick=c.contract.selectedTick;
   const t={purpose:'premium',premiumId:id,sid:PX.sid,slotIdx:-1,strategyRef:null,marketSymbol:c.symbol,
-    contractType:c.contract.type,label:c.label,stake:sd.number,stakeText:sd.text,adaptiveContext:null,pairId:null,pairLeg:null,pxCand:c,pxParams:params};
+    contractType:c.contract.type,label:c.label,stake:sd.number,stakeText:sd.text,adaptiveContext:null,pairId:null,pairLeg:null,pxCand:c,pxParams:params,
+    eoSignal:c.eoMeta?{profile:c.eoMeta.profile,symbol:c.eoMeta.symbol,prediction:c.eoMeta.prediction,contractType:c.eoMeta.contractType}:null,
+    maxBuyPrice:Number(PX.cfg.maxBuyPrice)||5};
   pendingProposalMap.set(reqId,t);
   PX.open={id,cand:c,t,at:Date.now(),bought:false};
   if(!PX.startedAt) PX.startedAt=Date.now();
@@ -4790,6 +5269,7 @@ function premiumOnContractUpdate(c,rec){
   const sp=Number(c.sell_price), payout=Number.isFinite(sp)&&c.sell_price!=null?sp:Math.max(0,stake+profit), cand=rec.pxCand;
   if(row){ row.status=won?'won':'lost'; row.profit=profit; row.value=payout; row.canSell=false; row.entry=c.entry_tick??c.entry_spot; row.exit=c.exit_tick??c.exit_spot; }
   const s=PX.stats; s.stake+=stake; s.payout+=payout; s.runs++; s.pl+=profit; if(won) s.won++; else s.lost++;
+  if(rec.eoSignal) eoRecordSettlement(rec.eoSignal,profit,stake);
   pxDailyAdd(profit);
   pxAudit('settled',`${rec.label} #${c.contract_id} ${won?'won':'lost'} ${pxSigned(profit)} (stake ${pxFmt(stake)}, payout ${pxFmt(payout)})`);
   if(rec.pxPair){ pxPairLegDone(rec,profit,won); pxPersist(); return; }
@@ -4848,6 +5328,8 @@ function pxReadInputs(){
   C.stake=normalizeStake(num('pxStake',1,0.35,100000));
   C.target=num('pxTarget',20,0.01,1e6);
   C.maxLoss=Math.max(C.stake,num('pxMaxLoss',10,0.35,1e6));
+  C.maxBuyPrice=num('pxMaxBuy',5,0.35,100000);
+  if($px('eoProfileSelect')) C.sp.eoscanner.profile=$px('eoProfileSelect').value||C.sp.eoscanner.profile||'imbalance';
   C.market=$px('pxMarket').value||'1HZ100V';
   C.cooldown=num('pxCool',3,0,3600,true); C.maxTrades=num('pxMaxTrades',50,1,10000,true);
   C.maxConsec=num('pxMaxConsec',3,1,50,true); C.maxDaily=Math.max(0.35,num('pxMaxDaily',30,0.35,1e6));
@@ -4866,7 +5348,8 @@ function pxReadInputs(){
 }
 function pxWriteInputs(){
   const C=PX.cfg, p=C.pair, set=(id,v)=>{ const e=$px(id); if(e) e.value=v; };
-  set('pxMarket',C.market); set('pxStake',pxFmt(C.stake)); set('pxTarget',pxFmt(C.target)); set('pxMaxLoss',pxFmt(C.maxLoss));
+  set('pxMarket',C.market); set('pxStake',pxFmt(C.stake)); set('pxTarget',pxFmt(C.target)); set('pxMaxLoss',pxFmt(C.maxLoss)); set('pxMaxBuy',pxFmt(C.maxBuyPrice||5));
+  set('eoProfileSelect',C.sp.eoscanner.profile||EO.profile);
   set('pxCool',C.cooldown); set('pxMaxTrades',C.maxTrades); set('pxMaxConsec',C.maxConsec); set('pxMaxDaily',pxFmt(C.maxDaily)); set('pxGuard',C.guard);
   set('pxPOffset',p.offset); set('pxPTicks',p.ticks); set('pxPConfirm',p.confirm); set('pxPLayout',p.layout);
 }
@@ -4877,10 +5360,12 @@ function pxValidate(){
   if(C.maxLoss<C.stake) return 'Max loss must be at least one stake.';
   if(!pxPool().length) return 'The selected market is not available.';
   if(Number(balance)>0&&C.stake>Number(balance)) return 'Stake is larger than your balance.';
+  if(!(C.maxBuyPrice>=0.35)) return 'Maximum proposal buy price must be at least 0.35.';
   return null;
 }
 function pxStart(){
-  if(PX.running||PX.scanning) return;
+  if(PX.running||PX.scanning) return false;
+  if(PX.cfg.strategy==='eoscanner'&&!EO.autoTradeEnabled){toast('Even/Odd scanner is in research mode. Turn on its separate execution switch to place orders.','info');return false;}
   if(botRunning){ toast('Stop the Trading Hub bot before using EMRON Auto.','error'); return; }
   if(!accessToken||!wsConnected){ toast('🔐 Connect a Deriv PAT first.','error'); connectBtn.click(); return; }
   if(PX.open||PX.pair||PX.recon){ toast('An earlier order is still open or being verified — wait for it to settle.','error'); return; }
@@ -4892,18 +5377,22 @@ function pxStart(){
   const pre=pxRiskGate(pxComputeStake());
   if(pre){ toast(PX_GATE_TXT[pre.kind]||'Risk limits prevent starting.','error'); return; }
   if(MODE==='REAL' && !window.confirm(`EMRON Auto will place REAL-money trades on your real account.\nStake $${pxFmt(PX.cfg.stake)} · target $${pxFmt(PX.cfg.target)} · max loss $${pxFmt(PX.cfg.maxLoss)} · daily loss $${pxFmt(PX.cfg.maxDaily)}.\nNo profit is guaranteed. Continue?`)) return;
-  pxShowScan().then(ok=>{
-    if(!ok||!wsConnected) return;
+  return pxShowScan().then(ok=>{
+    /* Execution may have been disabled while preflight scanning was in progress. */
+    if(!ok||!wsConnected||(PX.cfg.strategy==='eoscanner'&&!EO.autoTradeEnabled)) return false;
     PX.running=true; PX.nextAt=0; PX.errStreak=0; PX.connLogged=false;
     if(!PX.startedAt) PX.startedAt=Date.now();
     pxAudit('system',`Run started · ${PX.cfg.pair.on?'Higher/Lower pair':PX_STRATS[PX.cfg.strategy].name} · ${PX.cfg.market==='ALL'?'all markets':PX.cfg.market} · stake ${pxFmt(PX.cfg.stake)} · ${MODE}`);
     $px('pxConfig').classList.remove('open'); $px('pxCollapseBtn').classList.remove('open');
-    pxSetStatus('Waiting for the next valid signal…'); pxRenderAll();
+    pxSetStatus('Waiting for the next valid signal…'); pxRenderAll();eoRender(true);
+    return true;
   });
 }
 function pxStop(msg){
   if(!PX.running) return;
-  PX.running=false; pxAudit('system',msg||'Stopped by user — no new orders; open contracts settle on their own');
+  PX.running=false;
+  if(PX.cfg.strategy==='eoscanner'){EO.autoTradeEnabled=false;if($px('eoExecutionToggle'))$px('eoExecutionToggle').checked=false;}
+  pxAudit('system',msg||'Stopped by user — no new orders; open contracts settle on their own');
   pxSetStatus(msg||'Stopped. Any open contract settles automatically.'); pxRenderAll();
 }
 function pxReset(silent){
@@ -4911,7 +5400,9 @@ function pxReset(silent){
     if(PX.open||PX.pair||PX.recon){ toast('Wait for the open contract to settle before resetting.','error'); return; }
     if(!window.confirm('Reset this session?\nCounters, loss streak and strategy state are cleared. Your Deriv account history and balance are NOT affected.')) return;
   }
-  PX.running=false; PX.sid++; PX.open=null; PX.recon=null; PX.rows=[]; PX.stats={stake:0,payout:0,runs:0,lost:0,won:0,pl:0};
+  PX.running=false;PX.sid++;PX.open=null;PX.recon=null;PX.rows=[];PX.stats={stake:0,payout:0,runs:0,lost:0,won:0,pl:0};
+  /* Preserve scanner opt-in during an internal, silent session rollover. */
+  if(!(silent&&PX.cfg.strategy==='eoscanner')){EO.autoTradeEnabled=false;if($px('eoExecutionToggle'))$px('eoExecutionToggle').checked=false;}
   PX.lossStreak=0; PX.finished=false; PX.errStreak=0; PX.bad.clear(); PX.pair=null; PX.sw={dir:null,lastSwitch:0,switches:0};
   PX.startedAt=null; PX.sessMode=null; PX.showRows=30; PX.restored=false;
   try{ localStorage.removeItem(PX_SESS_KEY); }catch(e){}
@@ -4929,7 +5420,9 @@ const PX_FIN={
 };
 function pxFinish(kind){
   const F=PX_FIN[kind]||PX_FIN.maxloss, s=PX.stats;
-  PX.running=false; PX.finished=!!F.done;
+  PX.running=false;
+  if(PX.cfg.strategy==='eoscanner'){EO.autoTradeEnabled=false;if($px('eoExecutionToggle'))$px('eoExecutionToggle').checked=false;}
+  PX.finished=!!F.done;
   pxSetStatus(F.status); pxAudit('risk',F.status);
   $px('pxModalIco').textContent=F.ico; $px('pxModalTitle').textContent=F.title; $px('pxModalText').textContent=F.text;
   const net=$px('pxModalNet'); net.textContent=`${s.pl>=0?'+':'-'}${pxMoney(Math.abs(s.pl))} USD`; net.className=s.pl<0?'neg':'';
@@ -5049,7 +5542,7 @@ function pxRenderAll(){ pxRenderHeader(); pxRenderRows(); pxRenderStats(); pxRen
 let pxChipsAt=0;
 function premiumIdleRender(){
   if(!$px('premium')||!$px('premium').classList.contains('active')) return;
-  const n=Date.now(); if(n-pxChipsAt<700) return; pxChipsAt=n; pxRenderChips(); pxRenderHeader();
+  const n=Date.now(); if(n-pxChipsAt<700) return; pxChipsAt=n; pxRenderChips(); pxRenderHeader(); eoRender(false);
 }
 function pxApplyTheme(){ $px('pxShell').dataset.theme=PX.dark?'dark':'light'; }
 
@@ -5060,7 +5553,7 @@ function pxLoadCfg(){
   try{
     let r=JSON.parse(localStorage.getItem(PX_KEY)||'null'), fresh=!!r;
     if(!r){ r=JSON.parse(localStorage.getItem(PX_KEY_OLD)||'{}'); delete r.market; }      // migrate stake/limits/theme from the previous version
-    ['stake','target','maxLoss','maxDaily'].forEach(k=>{const v=Number(r[k]); if(Number.isFinite(v)&&v>0) C[k]=v;});
+    ['stake','target','maxLoss','maxDaily','maxBuyPrice'].forEach(k=>{const v=Number(r[k]); if(Number.isFinite(v)&&v>0) C[k]=v;});
     ['cooldown','maxTrades','maxConsec'].forEach(k=>{const v=Number(r[k]); if(Number.isInteger(v)&&v>=0) C[k]=v;});
     if(C.maxTrades<1) C.maxTrades=50; if(C.maxConsec<1) C.maxConsec=3;
     if(fresh&&pxKnownMarket(r.market)) C.market=r.market;
@@ -5068,6 +5561,7 @@ function pxLoadCfg(){
     if(['off','warn','block'].includes(r.guard)) C.guard=r.guard;
     if(r.sp&&typeof r.sp==='object') Object.keys(PX_SP_DEFAULT).forEach(id=>{
       const src=r.sp[id]; if(!src||typeof src!=='object') return;
+      if(id==='eoscanner'&&Object.prototype.hasOwnProperty.call(EO_PROFILE_INFO,src.profile)) C.sp.eoscanner.profile=src.profile;
       PX_SP_FIELDS[id].forEach(f=>{
         if(f.type==='sel'){ if(f.opts.some(o=>o[0]===src[f.k])) C.sp[id][f.k]=src[f.k]; }
         else { const v=Number(src[f.k]); if(Number.isFinite(v)&&v>=f.min&&v<=f.max) C.sp[id][f.k]=v; }
@@ -5079,7 +5573,7 @@ function pxLoadCfg(){
   }catch(e){}
   C.steps=0;
 }
-function pxSaveCfg(){ const C=PX.cfg; try{ localStorage.setItem(PX_KEY,JSON.stringify({strategy:C.strategy,market:C.market,stake:C.stake,target:C.target,maxLoss:C.maxLoss,guard:C.guard,cooldown:C.cooldown,maxTrades:C.maxTrades,maxConsec:C.maxConsec,maxDaily:C.maxDaily,sp:C.sp,pair:C.pair,dark:PX.dark})); }catch(e){} }
+function pxSaveCfg(){ const C=PX.cfg; try{ localStorage.setItem(PX_KEY,JSON.stringify({strategy:C.strategy,market:C.market,stake:C.stake,target:C.target,maxLoss:C.maxLoss,maxBuyPrice:C.maxBuyPrice,guard:C.guard,cooldown:C.cooldown,maxTrades:C.maxTrades,maxConsec:C.maxConsec,maxDaily:C.maxDaily,sp:C.sp,pair:C.pair,dark:PX.dark})); }catch(e){} }
 
 function pxRenderCards(){
   const el=$px('pxCards'); if(!el) return; const pr=PX.cfg.pair.on;
@@ -5093,11 +5587,12 @@ function pxRenderSp(){
   const note={matches:'Digit frequency is an observation, not proof the digit is more likely next. Confidence is a statistical-strength score, not a win probability.',
     over8:'Over 8 only wins when the last digit is 9 (fair chance 10%): payouts are large, losses are frequent. Barrier rules: Over 0-8, Under 1-9.',
     tickstrike:'Momentum score = (up ticks − down ticks) ÷ lookback, confirmed by the net move measured in tick volatility. Short-term momentum may not persist.',
-    switcher:'Uses the Rise/Fall trend model. The direction only changes when its score clears the threshold AND the cooldown has passed; direction changes are locked while on a losing streak.'}[id];
+    switcher:'Uses the Rise/Fall trend model. The direction only changes when its score clears the threshold AND the cooldown has passed; direction changes are locked while on a losing streak.',
+    eoscanner:'The profile selector lives in the scanner panel. Discovery is historical; Forward is live. Random control is for measurement only. Auto-execution is separately disabled by default and requires positive EV from the actual proposal.'}[id];
   box.innerHTML=`<div class="px-adv-h">${PX_STRATS[id].name} settings</div><div class="px-two">`+PX_SP_FIELDS[id].filter(f=>!f.show||f.show(sp)).map(f=>{
     if(f.type==='sel') return `<label class="px-field"><span>${f.label}</span><select data-sp="${f.k}">${f.opts.map(o=>`<option value="${o[0]}"${sp[f.k]===o[0]?' selected':''}>${o[1]}</option>`).join('')}</select></label>`;
     return `<label class="px-field"><span>${f.label}</span><div class="px-input"><input data-sp="${f.k}" type="number" inputmode="decimal" min="${f.min}" max="${f.max}" step="${f.step}" value="${sp[f.k]}"></div></label>`;
-  }).join('')+`</div><div class="px-note" style="margin-bottom:8px">${note}</div>`;
+  }).join('')+`</div><div class="px-note" style="margin-bottom:8px">${note||'Scanner profile is configured in the Even/Odd Research Scanner panel.'}</div>`;
 }
 function pxRenderFams(){
   const pr=PX.cfg.pair.on, b=$px('pxPairBtn'); if(b) b.classList.toggle('on',pr);
@@ -5110,6 +5605,41 @@ function pxSetPair(on){
   else toast('Pair mode off — back to the strategy cards.','info');
   pxRenderFams(); pxSaveCfg(); pxRenderRisk(); pxRenderChips();
 }
+
+function eoToggleExecution(enabled){
+  const toggle=$px('eoExecutionToggle'), profile=$px('eoProfileSelect')?.value||EO.profile;
+  if(!enabled){
+    EO.autoTradeEnabled=false;
+    if(PX.cfg.strategy==='eoscanner'){
+      if(PX.scanning&&typeof PX.scanAbort==='function')PX.scanAbort();
+      if(PX.running)pxStop('Even/Odd scanner execution disabled — no new trades will be opened.');
+    }
+    eoRender(true);return;
+  }
+  if(!EO.testsPass){if(toggle)toggle.checked=false;EO.autoTradeEnabled=false;toast('Scanner self-tests must pass before auto-trading.','error');eoRender(true);return;}
+  if(profile==='random'){if(toggle)toggle.checked=false;toast('Random control is measurement-only and cannot execute trades.','error');return;}
+  if(botRunning||(PX.running&&PX.cfg.strategy!=='eoscanner')||PX.scanning){
+    if(toggle)toggle.checked=false;toast('Stop the other EMRON trading engine before enabling scanner execution.','error');return;
+  }
+  if(!accessToken||!wsConnected){
+    if(toggle)toggle.checked=false;toast('Connect a Deriv PAT with trade permission first. Scanner remains active in signal-only mode.','error');return;
+  }
+  const account=MODE==='REAL'?accountSessions.real:accountSessions.demo;
+  if(!account){if(toggle)toggle.checked=false;toast(`No ${MODE.toLowerCase()} account is available for this token.`,'error');return;}
+  /* pxStart performs the final REAL-account confirmation after its validation scan. */
+  EO.autoTradeEnabled=true;EO.profile=profile;
+  if(PX.cfg.pair.on)pxSetPair(false);
+  PX.cfg.strategy='eoscanner';PX.cfg.sp.eoscanner.profile=profile;PX.cfg.market='ALL';
+  if($px('pxMarket'))$px('pxMarket').value='ALL';
+  pxWriteInputs();pxRenderSp();pxRenderCards();pxSaveCfg();eoRender(true);
+  const result=pxStart();
+  Promise.resolve(result).then(()=>{
+    if(!PX.running&&!PX.scanning){EO.autoTradeEnabled=false;if(toggle)toggle.checked=false;eoRender(true);}
+  }).catch(()=>{
+    EO.autoTradeEnabled=false;if(toggle)toggle.checked=false;eoRender(true);
+  });
+}
+
 function setupPremiumUI(){
   pxLoadCfg(); pxRestore();
   const sel=$px('pxMarket');
@@ -5123,7 +5653,7 @@ function setupPremiumUI(){
     PX.cfg.strategy=b.dataset.strat; pxRenderSp(); pxRenderCards(); pxSaveCfg(); pxRenderChips(); pxRenderRisk();
   });
   $px('pxPairBtn').addEventListener('click',()=>{ if(PX.running||PX.scanning||PX.pair){ toast('Stop the bot before switching modes.','error'); return; } pxSetPair(!PX.cfg.pair.on); });
-  ['pxStake','pxTarget','pxMaxLoss','pxMarket','pxGuard','pxCool','pxMaxTrades','pxMaxConsec','pxMaxDaily','pxPOffset','pxPTicks','pxPConfirm','pxPLayout'].forEach(id=>$px(id).addEventListener('change',pxReadInputs));
+  ['pxStake','pxTarget','pxMaxLoss','pxMaxBuy','pxMarket','pxGuard','pxCool','pxMaxTrades','pxMaxConsec','pxMaxDaily','pxPOffset','pxPTicks','pxPConfirm','pxPLayout'].forEach(id=>$px(id).addEventListener('change',pxReadInputs));
   $px('pxSpBox').addEventListener('change',pxReadInputs);
   $px('pxAdvBtn').addEventListener('click',()=>{ const o=$px('pxAdv').classList.toggle('open'); $px('pxAdvBtn').classList.toggle('open',o); $px('pxAdvBtn').setAttribute('aria-expanded',o); });
   $px('pxCollapseBtn').addEventListener('click',()=>{ const o=$px('pxConfig').classList.toggle('open'); $px('pxCollapseBtn').classList.toggle('open',o); });
@@ -5132,6 +5662,17 @@ function setupPremiumUI(){
   $px('pxTickerX').addEventListener('click',()=>{ $px('pxTicker').className='px-ticker'; });
   $px('pxStartBtn').addEventListener('click',pxStart);
   $px('pxStopBtn').addEventListener('click',()=>{ if(PX.running) pxStop(); else pxStart(); });
+  if($px('eoProfileSelect')){
+    $px('eoProfileSelect').value=PX.cfg.sp.eoscanner.profile||'imbalance';
+    $px('eoProfileSelect').addEventListener('change',()=>{
+      if(PX.running||PX.scanning){$px('eoProfileSelect').value=PX.cfg.sp.eoscanner.profile||'imbalance';return;}
+      PX.cfg.sp.eoscanner.profile=$px('eoProfileSelect').value;EO.profile=$px('eoProfileSelect').value;
+      pxRenderCards();pxSaveCfg();eoRender(true);
+    });
+  }
+  $px('eoDiscoveryBtn').addEventListener('click',()=>{const r=eoRunDiscovery(true);$px('eoStatus').textContent=`Discovery complete · ${r.markets} markets · ${r.signals.toLocaleString()} signals tested. Forward remains live-only.`;});
+  $px('eoSelfTestBtn').addEventListener('click',()=>{eoRunSelfTests();});
+  $px('eoExecutionToggle').addEventListener('change',e=>eoToggleExecution(!!e.target.checked));
   $px('pxResetBtn').addEventListener('click',()=>pxReset(false));
   $px('pxMore').addEventListener('click',()=>{ PX.showRows+=30; pxRenderRows(); });
   $px('pxScanCancel').addEventListener('click',()=>{ if(PX.scanAbort) PX.scanAbort(); });
@@ -5141,7 +5682,8 @@ function setupPremiumUI(){
   document.querySelectorAll('.px-bot [data-go]').forEach(b=>b.addEventListener('click',()=>{ const t=document.querySelector(`.tab[data-tab="${b.dataset.go}"]`); if(t) t.click(); }));
   setInterval(pxWatchdog,2000);
   pxSetStatus(PX.restored?`Session restored (${PX.stats.runs} settled trades, ${pxSigned(PX.stats.pl)}). Reset to start fresh.`:'Ready — set your limits and run.');
-  pxRenderAll(); pxRenderChips(); pxRenderRisk(); pxRenderLog();
+  eoLoadState(); eoRunSelfTests(); eoRunDiscovery(false);
+  pxRenderAll(); pxRenderChips(); pxRenderRisk(); pxRenderLog(); eoRender(true);
 }
 
 /* ============================================================
@@ -5401,11 +5943,35 @@ function pxEstProb(cand){
   return p0;
 }
 function premiumGuard(t,proposal){
-  { const c0=t.pxCand, p=Number(proposal&&proposal.payout), a=Number(proposal&&proposal.ask_price);
-    if(c0&&p>0&&a>0){ t.quote={payout:p,ask:a}; pxAudit('quote',`Proposal ${c0.short} · ${c0.label}: stake ${a.toFixed(2)} → payout ${p.toFixed(2)} (profit ${(p-a).toFixed(2)}, reward:risk ${((p-a)/a).toFixed(2)}:1) · max loss ${a.toFixed(2)}`); pxSetStatus(`Placing an authorized trade — ${c0.short} · ${c0.label}`); } }
-  const mode=PX.cfg.guard||'warn', c=t.pxCand; if(!c||mode==='off') return true;
-  const payout=Number(proposal&&proposal.payout), ask=Number(proposal&&proposal.ask_price)||t.stake;
-  if(!(payout>0)||!(ask>0)) return true;
+  const c=t.pxCand,payout=Number(proposal&&proposal.payout),ask=Number(proposal&&proposal.ask_price);
+  if(!(payout>0)||!(ask>0)){
+    if(t.eoSignal){PX.open=null;PX.nextAt=Date.now()+3000;pxSetStatus('Scanner blocked the order: Deriv proposal did not include ask price and payout.');eoLog('risk','Order blocked: missing live proposal ask/payout.');eoRender(true);return false;}
+    return true;
+  }
+  const maxBuy=Number(t.maxBuyPrice||PX.cfg.maxBuyPrice||5);
+  if(ask>maxBuy){
+    PX.bad.set(pxKey(c),Date.now()+30000);PX.open=null;PX.nextAt=Date.now()+2500;
+    pxAudit('risk',`Blocked ${c&&c.short||t.marketSymbol}: proposal ask ${pxFmt(ask)} exceeds maximum buy price ${pxFmt(maxBuy)}.`);
+    if(t.eoSignal){EO.blockedSignals.set(`${t.eoSignal.profile}|${t.eoSignal.symbol}|${t.eoSignal.contractType}`,Date.now()+15000);eoLog('risk',`Price cap blocked ${t.eoSignal.symbol} ${t.eoSignal.prediction}: ask ${pxFmt(ask)} > cap ${pxFmt(maxBuy)}.`);}
+    pxSetStatus(`Price cap blocked ${c?c.label:'order'} — ask ${pxFmt(ask)} > max ${pxFmt(maxBuy)}.`);eoRender(true);return false;
+  }
+  if(t.eoSignal){
+    const gate=eoCanTradeSignal(t.eoSignal,ask,payout),be=eoBreakEven(ask,payout);
+    t.quote={payout,ask};t.ev=gate.ev;
+    EO.quotes.set(eoQuoteKey(t.eoSignal.symbol,t.eoSignal.contractType),{ask,payout,breakEven:be,at:Date.now()});
+    if(!gate.ok){
+      PX.open=null;PX.nextAt=Date.now()+2500;
+      EO.blockedSignals.set(`${t.eoSignal.profile}|${t.eoSignal.symbol}|${t.eoSignal.contractType}`,Date.now()+15000);
+      pxAudit('risk',`${t.eoSignal.symbol} ${t.eoSignal.prediction.toUpperCase()} blocked · ${gate.why}`);
+      pxSetStatus(gate.why);eoLog('risk',`${t.eoSignal.profile} · ${gate.why}`);eoRender(true);return false;
+    }
+    pxAudit('quote',`Live proposal ${c.short} ${c.label}: ask ${pxFmt(ask)} · payout ${pxFmt(payout)} · break-even ${(gate.be*100).toFixed(2)}% · conservative Forward ${(gate.lower*100).toFixed(2)}% · EV ${(gate.ev*100).toFixed(2)}%`);
+    pxSetStatus(`Positive proposal EV ${(gate.ev*100).toFixed(2)}% — placing ${c.short} ${c.label}.`);
+    eoLog('signal',`${c.short} ${c.label} passed live EV gate: BE ${(gate.be*100).toFixed(2)}%, conservative estimate ${(gate.lower*100).toFixed(2)}%, EV ${(gate.ev*100).toFixed(2)}%.`);
+    eoRender(true);return true;
+  }
+  if(c) { t.quote={payout,ask}; pxAudit('quote',`Proposal ${c.short} · ${c.label}: stake ${ask.toFixed(2)} → payout ${payout.toFixed(2)} (profit ${(payout-ask).toFixed(2)}, reward:risk ${((payout-ask)/ask).toFixed(2)}:1) · max loss ${ask.toFixed(2)}`); pxSetStatus(`Placing an authorized trade — ${c.short} · ${c.label}`); }
+  const mode=PX.cfg.guard||'warn'; if(!c||mode==='off') return true;
   const ev=pxEstProb(c)*payout/ask-1; t.ev=ev;
   if(mode==='block'&&ev<0){
     PX.bad.set(pxKey(c),Date.now()+120000);
