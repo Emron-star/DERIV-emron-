@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src data:; connect-src https://*.derivws.com wss://*.derivws.com https://*.deriv.com wss://*.deriv.com; base-uri 'none'; form-action 'none'; object-src 'none'">
 <title>EMRON AI — Strategy Row + Pulse Switch-on-Loss Engine</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -35,7 +36,7 @@ input,select,textarea{font-family:inherit;font-size:16px;touch-action:manipulati
 a{color:inherit;text-decoration:none}
 
 /* ===== APP SHELL — no sidebar column anymore ===== */
-.app{display:grid;grid-template-rows:var(--topbar-height) 1fr var(--footer-height);
+.app{display:grid;grid-template-rows:var(--topbar-height) 1fr auto;
   grid-template-columns:1fr;
   grid-template-areas:"topbar" "main" "footer";
   min-height:100vh;min-height:100dvh;position:relative;z-index:1;max-width:100vw;overflow:hidden}
@@ -401,7 +402,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
 @keyframes toastIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 .footer{grid-area:footer;padding:10px 20px;border-top:1px solid var(--border);text-align:center;
   font-size:10px;color:var(--text-muted);background:var(--bg-card);display:flex;align-items:center;
-  justify-content:center;flex-wrap:wrap;gap:6px;min-height:var(--footer-height);height:var(--footer-height)}
+  justify-content:center;flex-wrap:wrap;gap:6px;min-height:var(--footer-height);height:auto}
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);display:none;
   align-items:center;justify-content:center;z-index:1000;padding:12px}
 .modal-overlay.active{display:flex;animation:fadeIn .2s ease}
@@ -735,6 +736,9 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
   #premium .eo-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 
+#bulkAccountsInput{-webkit-text-security:disc;text-security:disc}
+.risk-strip{display:flex;gap:10px;align-items:flex-start;padding:10px 14px;margin-bottom:14px;border:1px solid var(--accent-yellow);border-radius:var(--radius-md);background:rgba(255,214,0,.07);font-size:11px;line-height:1.55}
+.risk-strip strong{color:var(--accent-yellow)}
 </style>
 </head>
 <body>
@@ -759,13 +763,15 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
       MODE: <strong id="topModeLabel">DEMO</strong>
     </button>
     <button class="btn btn-primary btn-sm" id="connectBtn">Connect</button>
-    <div class="avatar" id="avatar">JD</div>
+    <div class="avatar" id="avatar" title="Account">👤</div>
   </div>
 </header>
 
 <main class="main">
 
 <div class="tab-content active" id="trading-hub">
+
+  <div class="risk-strip" role="note"><span>⚠️</span><span><strong>Real money is at risk.</strong> Deriv's synthetic indices are random with a payout below fair odds, so every strategy loses money on average. Signals and confidence scores describe recent history, not the next tick. Practise on DEMO, keep stakes small, and never trade money you cannot afford to lose. Limits below run in this browser tab only — they stop if you close or sleep the tab.</span></div>
 
   <div class="card">
     <div class="card-header">
@@ -860,7 +866,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
       </div>
       <div class="form-group">
         <label>Session Take Profit ($)</label>
-        <input class="form-control" id="botTP" type="number" step="0.01" value="1000.00">
+        <input class="form-control" id="botTP" type="number" step="0.01" value="20.00">
       </div>
       <div class="form-group">
         <label>Stop Loss ($)</label>
@@ -896,8 +902,8 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
   <div class="card hl-pair-panel">
     <div class="card-header">
       <div>
-        <div class="card-title">↕️ Higher / Lower Pair Execution</div>
-        <div class="hl-pair-subtitle">Submit Higher and Lower contracts back-to-back from the same qualified signal. Both proposal requests are sent immediately; each contract is bought as soon as its proposal returns.</div>
+        <div class="card-title">↕️ Over + Under Digit Pair Execution</div>
+        <div class="hl-pair-subtitle">Submit Over and Under digit contracts back-to-back from the same qualified signal. Both proposal requests are sent immediately; each contract is bought as soon as its proposal returns.</div>
       </div>
       <span class="free-badge" id="pairStatusTag">PAIR OFF</span>
     </div>
@@ -907,7 +913,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
         <label>Contract Mode</label>
         <select class="form-control" id="botPairMode">
           <option value="OFF" selected>Single Contract</option>
-          <option value="HIGHER_LOWER">Higher + Lower Together</option>
+          <option value="HIGHER_LOWER">Over + Under (digits) Together</option>
         </select>
       </div>
       <div class="form-group">
@@ -924,11 +930,11 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
       </div>
       <div class="form-group">
         <label>Take Profit ($)</label>
-        <input class="form-control" id="botPairTP" type="number" min="0.35" step="0.01" value="1000.00">
+        <input class="form-control" id="botPairTP" type="number" min="0.35" step="0.01" value="20.00">
       </div>
     </div>
     <div class="hl-pair-note" id="pairModeHelp">
-      Pair mode is off. Select <b>Higher + Lower Together</b> to submit DIGITOVER and DIGITUNDER using the same barrier and tick duration. The existing strategy/signal engine remains the entry trigger.
+      Pair mode is off. Select <b>Over + Under (digits) Together</b> to submit DIGITOVER and DIGITUNDER using the same barrier and tick duration. The existing strategy/signal engine remains the entry trigger. <b>Note:</b> when the final digit equals the barrier, both legs lose.
     </div>
   </div>
 
@@ -939,7 +945,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
     </div>
     <div class="brain-grid">
       <div class="brain-box"><div class="brain-label">Daily EMRON P/L</div><div class="brain-value good" id="brainDailyPL">$0.00</div></div>
-      <div class="brain-box"><div class="brain-label">Daily Target</div><div class="brain-value cyan" id="brainDailyTarget">$1,000.00</div></div>
+      <div class="brain-box"><div class="brain-label">Daily Target</div><div class="brain-value cyan" id="brainDailyTarget">$20.00</div></div>
       <div class="brain-box"><div class="brain-label">Life Score</div><div class="brain-value cyan" id="brainLifeScore">50.0</div></div>
       <div class="brain-box"><div class="brain-label">Learning Updates</div><div class="brain-value" id="brainLearningUpdates">0</div></div>
     </div>
@@ -950,7 +956,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
       <div class="brain-box"><div class="brain-label">Entry Gate</div><div class="brain-value good" id="brainGate">WATCHING</div></div>
     </div>
     <div class="brain-gate"><span id="brainAction">Collecting evidence before the next entry…</span><strong id="brainState">TRAINING</strong></div>
-    <div class="brain-note">The engine learns from settled EMRON trades, raises the entry bar after weak conditions, reduces stake under drawdown, and can rotate across the configured markets/selected strategies when the current setup fails its adaptive gate. REAL mode is never enabled automatically; "LIVE-READY" is a validation state for manual review.</div>
+    <div class="brain-note">The engine learns from settled EMRON trades, raises the entry bar after weak conditions, reduces stake under drawdown, and can rotate across the configured markets/selected strategies when the current setup fails its adaptive gate. REAL mode is never enabled automatically; "DEMO-REVIEW" is only a flag that enough demo data exists to review manually — it is not evidence of future profit.</div>
   </div>
 
   <div class="card">
@@ -966,7 +972,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
     <div class="progress-container">
       <div class="progress-label">
         <span class="current">$<span id="windowProfit">0.00</span></span>
-        <span class="target">/ $<span id="profitTargetDisplay">1000.00</span> DAILY · $<span id="stopLossDisplay">20.00</span> SL</span>
+        <span class="target">/ $<span id="profitTargetDisplay">20.00</span> DAILY · $<span id="stopLossDisplay">20.00</span> SL</span>
       </div>
       <div class="progress-bar"><div class="progress-fill" id="profitFill" style="width:0%"></div></div>
     </div>
@@ -1182,6 +1188,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
       </button>
     </div>
     <div class="hunter-exec-status" id="hunterExecStatus">No executable signals yet.</div>
+    <button class="btn btn-ghost btn-sm" id="hunterResetBtn" type="button" style="margin:-4px 0 10px;">↺ Reset Hunter session P/L</button>
 
     <div class="hunter-tabs" id="hunterSignalTabs">
       <button class="hunter-tab active" data-htab="evenodd">Even / Odd</button>
@@ -1276,6 +1283,65 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
       </div>
     </section>
 
+    <section class="eo-scanner" id="oudScanner" aria-labelledby="oudTitle">
+      <div class="eo-head">
+        <div>
+          <h3 id="oudTitle">⇈ Only Ups / Only Downs Research Scanner</h3>
+          <div class="eo-sub">RUNHIGH / RUNLOW · causal tick rules · separate Discovery, Validation, Confirmation and live Forward outcomes · live quote EV gate.</div>
+        </div>
+        <span class="px-pill">OFF BY DEFAULT</span>
+      </div>
+      <div class="eo-controls" style="grid-template-columns:minmax(140px,1fr) minmax(90px,.6fr) auto auto">
+        <label>
+          <span style="display:block;font-size:9px;color:var(--px-mut);margin:0 0 4px">SIGNAL PROFILE</span>
+          <select class="eo-select" id="oudProfileSelect">
+            <option value="cont1">R1 · 1-tick continuation</option>
+            <option value="cont2" selected>R1 · 2-tick continuation</option>
+            <option value="cont3">R1 · 3-tick continuation</option>
+            <option value="cont4">R1 · 4-tick continuation</option>
+            <option value="rev2">R2 · 2-tick reversal</option>
+            <option value="rev3">R2 · 3-tick reversal</option>
+            <option value="rev4">R2 · 4-tick reversal</option>
+            <option value="trend">R3 · trend confluence</option>
+            <option value="lowvol">R4 · low-volatility trend</option>
+            <option value="share50">R5 · up-tick share (50)</option>
+            <option value="share100">R5 · up-tick share (100)</option>
+            <option value="share200">R5 · up-tick share (200)</option>
+            <option value="random">R6 · random control (no trading)</option>
+          </select>
+        </label>
+        <label>
+          <span style="display:block;font-size:9px;color:var(--px-mut);margin:0 0 4px">DURATION</span>
+          <select class="eo-select" id="oudDurationSelect"><option value="2" selected>2 ticks</option><option value="3">3 ticks</option><option value="5">5 ticks</option></select>
+        </label>
+        <button class="eo-btn" type="button" id="oudDiscoveryBtn">Run Discovery</button>
+        <button class="eo-btn" type="button" id="oudSelfTestBtn">Run Self-tests</button>
+      </div>
+      <label class="eo-exec" for="oudExecutionToggle">
+        <input id="oudExecutionToggle" type="checkbox" disabled>
+        <span><strong id="oudExecutionLabel">Enable auto-trading from Only Ups/Downs signals</strong>
+          <small>OFF by default. Uses the existing EMRON Auto order engine and flat-stake/session limits. A live RUNHIGH/RUNLOW proposal, fresh entry timing, enough independent outcomes, confidence-bound checks and false-discovery gates are mandatory. No martingale. Random control cannot trade.</small>
+        </span>
+      </label>
+      <div class="eo-status warn" id="oudStatus" role="status">Loading tick history. Run self-tests before enabling execution. Unverified setups remain watch-only.</div>
+      <div class="eo-metrics">
+        <div class="eo-metric"><small>Discovery outcomes</small><b id="oudDiscCount">—</b></div>
+        <div class="eo-metric"><small>Validation outcomes</small><b id="oudValCount">—</b></div>
+        <div class="eo-metric"><small>Live Forward outcomes</small><b id="oudFwdCount">0</b></div>
+        <div class="eo-metric"><small>Abstained markets</small><b id="oudAbstained">—</b></div>
+      </div>
+      <div class="eo-table-wrap">
+        <table class="eo-table" style="min-width:620px">
+          <thead><tr><th>Market</th><th>Candidate</th><th>Discovery</th><th>Validation</th><th>Forward</th><th>Live BE</th><th>State / reason</th></tr></thead>
+          <tbody id="oudBoard"><tr><td colspan="7">Waiting for history and live quotes…</td></tr></tbody>
+        </table>
+      </div>
+      <div class="eo-ledger" id="oudLedger">Execution is disabled. Realized order results are recorded in the EMRON Auto trade ledger.</div>
+      <div class="eo-foot">
+        <b>Research rules:</b> streak continuation/reversal, trend confluence, low-volatility trend, up-tick-share and random control run independently. A signal can appear as WATCH or UNPROVEN, but only a statistically qualified non-control signal can reach the order engine. Entry freshness is checked again when the proposal returns; actual contract entry spot is journalled. Symmetric or tie-heavy feeds can remain suppressed indefinitely.
+      </div>
+    </section>
+
     <button class="px-fam pair" id="pxPairBtn" type="button" style="margin-bottom:10px">↕ Higher/Lower hedge pair mode</button>
     <div class="px-pairbox" id="pxPairBox" style="display:none">
       <div class="px-two"><label class="px-field"><span>Barrier offset</span><div class="px-input"><input id="pxPOffset" type="number" inputmode="decimal" min="0.01" step="0.01"></div></label>
@@ -1350,7 +1416,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
     </table></div>
     <div class="hunter-note" id="labBias" style="margin-top:12px"></div>
     <div class="hunter-note" id="labNote"></div>
-    <div class="hunter-note"><strong>How to read this:</strong> Deriv states that its synthetic indices are driven by a cryptographically secure, independently audited random number generator, and no staking pattern (including the x1.6 recovery) can change the expected result of a fair or negative-edge game. A healthy result here is therefore "No measurable edge". If a row ever shows "Edge — verify", treat it as a lead, not a fact: re-run later and confirm it holds on fresh ticks before risking money.</div>
+    <div class="hunter-note"><strong>How to read this:</strong> Deriv states that its synthetic indices are driven by a cryptographically secure, independently audited random number generator, and no staking pattern (including any recovery or doubling scheme) can change the expected result of a fair or negative-edge game. A healthy result here is therefore "No measurable edge". If a row ever shows "Edge — verify", treat it as a lead, not a fact: re-run later and confirm it holds on fresh ticks before risking money.</div>
   </div>
 </div>
 <div class="tab-content" id="api-playground">
@@ -1451,7 +1517,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
       <h3>📡 EMRON Pulse</h3>
       <div class="faq-item">
         <div class="faq-question">What signals does Pulse produce?<span>+</span></div>
-        <div class="faq-answer">Pulse runs six engines in parallel: Rise/Fall (price momentum + structure + regime), Even/Odd (digit parity), Over/Under (digit threshold), Matches (Dollar Printer staged rules), High/Low Tick (barrier digit), and Only Ups/Downs (run-length probability).</div>
+        <div class="faq-answer">Pulse runs six engines in parallel: Rise/Fall (price momentum + structure + regime), Even/Odd (digit parity), Over/Under (digit threshold), Matches (digit-frequency rule), High/Low Tick (barrier digit), and Only Ups/Downs (run-length probability).</div>
       </div>
       <div class="faq-item">
         <div class="faq-question">How does the bot pick a signal?<span>+</span></div>
@@ -1488,12 +1554,12 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
         <div class="faq-answer">With Auto Market Switch enabled, EMRON evaluates the selected strategies across the live market set and can move to another market that clears both the live signal threshold and the adaptive learning gate. It can also rotate strategy during recovery.</div>
       </div>
       <div class="faq-item">
-        <div class="faq-question">How does the $1,000 target and survival lock work?<span>+</span></div>
-        <div class="faq-answer">The daily EMRON target defaults to $1,000 of recorded EMRON profit for the current account/day. Reaching it stops the bot. A balance at or below the configured account floor, or a recorded floor breach, locks the bot for that account/day. The $1,000 target is a goal, not a guaranteed result.</div>
+        <div class="faq-question">How does the daily target and survival lock work?<span>+</span></div>
+        <div class="faq-answer">The daily EMRON target defaults to $20 of recorded EMRON profit for the current account/day. Reaching it stops the bot. A balance at or below the configured account floor, or a recorded floor breach, locks the bot for that account/day. The target is a limit that stops the bot; it is not a prediction of profit.</div>
       </div>
       <div class="faq-item">
         <div class="faq-question">Does profitable demo trading automatically switch to REAL?<span>+</span></div>
-        <div class="faq-answer">No. EMRON can reach a LIVE-READY validation state after sufficient positive training evidence, but the REAL mode remains a manual human decision.</div>
+        <div class="faq-answer">No. EMRON can reach a DEMO-REVIEW validation state after sufficient positive training evidence, but the REAL mode remains a manual human decision.</div>
       </div>
     </div>
     <div class="faq-category">
@@ -1509,8 +1575,8 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 </main>
 
 <footer class="footer">
-  <div>© 2026 EMRON AI — Strategy Row + Pulse Engine · Free & Unlocked</div>
-  <div style="font-size:9px;color:var(--text-dim);">All trading involves risk. Demo-trade first.</div>
+  <div>© 2026 EMRON AI — Strategy Row + Pulse Engine</div>
+  <div style="font-size:11px;color:var(--accent-yellow);max-width:900px;line-height:1.5;">⚠️ Risk warning: trading digital options can lose your entire stake. Deriv's synthetic indices are random, so no signal, "AI" score or confidence figure predicts the next result. Nothing here is financial advice and no profit is guaranteed. Use a demo account first and only risk money you can afford to lose.</div>
 </footer>
 </div>
 
@@ -1599,6 +1665,21 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
   </div>
 </div>
 
+<div class="modal-overlay" id="riskModal" data-lock="1" role="dialog" aria-modal="true" aria-labelledby="riskModalTitle">
+  <div class="modal" style="max-width:460px;">
+    <div class="modal-header"><div class="modal-title" id="riskModalTitle">⚠️ Before you trade</div></div>
+    <div class="warning-box" style="font-size:12px;line-height:1.6;">
+      <strong>Trading can lose your whole stake.</strong><br>
+      • Deriv synthetic indices are random; payouts are below fair odds, so the expected result is a loss.<br>
+      • No signal, AI score, "confidence" or self-learning layer can predict the next tick.<br>
+      • Risk limits here live in your browser tab only. Closing or sleeping the tab stops them.<br>
+      • This tool is not financial advice. No profit is guaranteed.
+    </div>
+    <label style="display:flex;gap:8px;align-items:flex-start;font-size:12px;margin:10px 0;cursor:pointer;"><input type="checkbox" id="riskAckBox" style="margin-top:3px;"> <span>I understand these risks and will start on a DEMO account.</span></label>
+    <div class="modal-actions"><button class="btn btn-primary" id="riskAckBtn" disabled>I understand</button></div>
+  </div>
+</div>
+
 <div class="toast-container" id="toastContainer"></div>
 
 <script>
@@ -1664,8 +1745,8 @@ let botConfig = {
   pairTicks:1,
   rounds:30,
   lossesToSwitch:1,
-  takeProfit:1000.00,
-  dailyTarget:1000.00,
+  takeProfit:20.00,
+  dailyTarget:20.00,
   stopLoss:20.00,
   turbo:true,
   mainMode:true,
@@ -1675,7 +1756,7 @@ let botConfig = {
   minBuyGap:700,
   maxOpen:3,
   executionMode:'SEQUENTIAL_RECOVERY',
-  recoverySelection:'BEST_LIVE',
+  recoverySelection:'NEXT_STRATEGY',   // FIX: was 'BEST_LIVE' while the dropdown displayed "Next Strategy"
   confidenceFloor:65,
   autoSwitchMarkets:true,
   adaptiveLearning:true,
@@ -1793,7 +1874,7 @@ const HL = { MIN_TICKS:25 };
 const OU = { MIN_TICKS:25, LOOKBACK:50 };
 const MATCHES = { WINDOW:500, MIN_TICKS:300, MAX_GAP_PCT:0.3, CONFIRM_DISPLAY_TICKS:1 };
 const CONFIRM_PERSIST = 3;
-const MAX_BUFFER = 3000;
+const MAX_BUFFER = 6000;
 
 function averageAbsDelta(q, lb){ const n=Math.min(q.length-1, lb); if(n<2) return 0; let s=0; for(let i=q.length-n;i<q.length;i++) s+=Math.abs(q[i]-q[i-1]); return s/n; }
 function linSlope(q){ const n=q.length; if(n<3) return 0; const mx=(n-1)/2; let my=0; for(let i=0;i<n;i++) my+=q[i]; my/=n; let num=0,den=0; for(let i=0;i<n;i++){num+=(i-mx)*(q[i]-my);den+=(i-mx)*(i-mx);} return den===0?0:num/den; }
@@ -1984,7 +2065,7 @@ function startPublicFeed(){
       PULSE_SYMBOLS.concat(HUNTER.extraSymbols).forEach((s,i)=>{
         w.send(JSON.stringify({ticks:s.code,subscribe:1}));
         if((engineState.markets.get(s.code)||{digits:[]}).digits.length<400)
-          w.send(JSON.stringify({ticks_history:s.code,adjust_start_time:1,count:3000,end:'latest',style:'ticks',req_id:9000+i}));
+          w.send(JSON.stringify({ticks_history:s.code,adjust_start_time:1,count:5000,end:'latest',style:'ticks',req_id:9000+i}));
       });
       clearInterval(PUBFEED.ping);
       PUBFEED.ping=setInterval(()=>{ if(w.readyState===1) w.send(JSON.stringify({ping:1})); },30000);
@@ -2020,7 +2101,7 @@ function eoQuoteParts(quote,pipSize,fallbackDecimals){
 
 function ingestHistory(d){
   const sym=d.echo_req&&d.echo_req.ticks_history, mkt=engineState.markets.get(sym);
-  const prices=(d.history&&d.history.prices)||[]; if(!mkt||!prices.length||mkt.digits.length>=400) return;
+  const prices=(d.history&&d.history.prices)||[]; if(!mkt||!prices.length) return;
   const pip=d.pip_size, times=(d.history&&d.history.times)||[];
   const historyRows=[];
   prices.forEach((p,i)=>{
@@ -2043,6 +2124,7 @@ function ingestHistory(d){
   }
   mkt._ev=null;
   if(typeof eoScheduleDiscovery==='function') eoScheduleDiscovery();
+  if(typeof oudScheduleDiscovery==='function') oudScheduleDiscovery();
 }
 function pxConnectionLost(){
   [pendingProposalMap,pendingBuyMap].forEach(map=>{
@@ -2075,6 +2157,9 @@ function onPulseTick(symbolCode, quote, epoch=null, pipSize=null){
   mkt.lastQuote = qStr; mkt.lastDigit = lastDigit; mkt.tickCount++; mkt._at = Date.now();
   resolvePending(mkt);
   if(typeof eoOnLiveTick==='function') eoOnLiveTick(mkt,digitString,epoch);
+  if(typeof oudOnLiveTick==='function') oudOnLiveTick(mkt,epoch);
+  if(typeof oudMaybeRequestQuotes==='function') oudMaybeRequestQuotes(mkt);
+  if(typeof oudRender==='function') oudRender(false);
 
   const parity = lastDigit%2===0?'even':'odd';
   if(mkt.streak.dir===null) mkt.streak={dir:parity,len:1};
@@ -2425,7 +2510,7 @@ function liveReadiness(){
   const wins=all.reduce((a,m)=>a+Number(m.wins||0),0);
   const wr=trials ? wins/trials : 0;
   if(MODE==='DEMO' && trials>=botConfig.liveMinTrades && adaptiveEngine.session.lifeScore>=botConfig.liveMinLifeScore && rec.profit>0){
-    return {state:'LIVE-READY', detail:`${trials} trades · ${Math.round(wr*100)}% learned win rate · positive validation P/L`};
+    return {state:'DEMO-REVIEW', detail:`${trials} trades · ${Math.round(wr*100)}% learned win rate · positive validation P/L`};
   }
   if(adaptiveEngine.session.consecutiveLosses>=botConfig.maxConsecutiveLossesBeforeStandDown) return {state:'SURVIVAL',detail:'loss streak stand-down'};
   if(adaptiveEngine.session.dailyProfit>0) return {state:'ADAPTING',detail:`learning from +$${adaptiveEngine.session.dailyProfit.toFixed(2)} today`};
@@ -2453,7 +2538,7 @@ function refreshBrainStatus(){
   const gateEl=document.getElementById('brainGate');
   if(gateEl){ gateEl.textContent=adaptiveEngine.lastGate?.allowed ? 'READY' : 'BLOCKED'; gateEl.className='brain-value '+(adaptiveEngine.lastGate?.allowed?'good':'warn'); }
   const action=document.getElementById('brainAction'); if(action) action.textContent=adaptiveEngine.lastGate?.detail || 'Collecting evidence before the next entry…';
-  const state=document.getElementById('brainState'); if(state){state.textContent=readiness.state;state.style.color=readiness.state==='SURVIVAL'?'var(--accent-yellow)':readiness.state==='LIVE-READY'?'var(--accent-green)':'var(--accent-cyan)';}
+  const state=document.getElementById('brainState'); if(state){state.textContent=readiness.state;state.style.color=readiness.state==='SURVIVAL'?'var(--accent-yellow)':readiness.state==='DEMO-REVIEW'?'var(--accent-green)':'var(--accent-cyan)';}
 }
 function setAdaptiveGate(allowed,reason,detail){
   adaptiveEngine.lastGate={allowed,reason,detail};
@@ -2541,8 +2626,8 @@ function executionModeLabel(){
   return 'SEQUENTIAL RECOVERY';
 }
 function executionModeTag(){
-  if(selectedStrategies.length===0) return botConfig.pairMode ? 'HIGHER + LOWER · paired · no trigger strategy' : 'no strategies selected';
-  if(botConfig.pairMode) return `HIGHER + LOWER · paired · ${botConfig.pairBarrier} barrier · ${botConfig.pairTicks} tick${botConfig.pairTicks>1?'s':''}`;
+  if(selectedStrategies.length===0) return botConfig.pairMode ? 'OVER + UNDER · paired · no trigger strategy' : 'no strategies selected';
+  if(botConfig.pairMode) return `OVER + UNDER · paired · ${botConfig.pairBarrier} barrier · ${botConfig.pairTicks} tick${botConfig.pairTicks>1?'s':''}`;
   if(botConfig.executionMode==='SEQUENTIAL_RECOVERY'){
     return `RECOVERY · ${botConfig.recoverySelection==='BEST_LIVE'?'best live':`switch ${botConfig.lossesToSwitch} loss${botConfig.lossesToSwitch>1?'es':''}`}`;
   }
@@ -2567,8 +2652,8 @@ function updatePairModeUI(){
   if(panel) panel.classList.toggle('pair-on',on);
   if(help){
     help.innerHTML=on
-      ? `<b>PAIR ON:</b> one qualified signal submits <b>Higher</b> (DIGITOVER) and <b>Lower</b> (DIGITUNDER) back-to-back with barrier <b>${botConfig.pairBarrier}</b> for <b>${botConfig.pairTicks}</b> tick${botConfig.pairTicks>1?'s':''}. Stake is <b>$${Number(botConfig.defaultStake||0.35).toFixed(2)} per leg</b>.`
-      : 'Pair mode is off. Select <b>Higher + Lower Together</b> to submit DIGITOVER and DIGITUNDER using the same barrier and tick duration. The existing strategy/signal engine remains the entry trigger.';
+      ? `<b>PAIR ON:</b> one qualified signal submits <b>Over</b> (DIGITOVER) and <b>Under</b> (DIGITUNDER) back-to-back with barrier <b>${botConfig.pairBarrier}</b> for <b>${botConfig.pairTicks}</b> tick${botConfig.pairTicks>1?'s':''}. Stake is <b>$${Number(botConfig.defaultStake||0.35).toFixed(2)} per leg</b>.`
+      : 'Pair mode is off. Select <b>Over + Under (digits) Together</b> to submit DIGITOVER and DIGITUNDER using the same barrier and tick duration. The existing strategy/signal engine remains the entry trigger. <b>Note:</b> when the final digit equals the barrier, both legs lose.';
   }
 }
 function updateExecutionModeUI(){
@@ -2579,7 +2664,7 @@ function updateExecutionModeUI(){
   updatePairModeUI();
   if(help){
     help.textContent=botConfig.pairMode
-      ? 'Paired execution overrides the final contract choice: the selected signal triggers Higher + Lower together.'
+      ? 'Paired execution overrides the final contract choice: the selected signal triggers Over + Under together.'
       : botConfig.executionMode==='ALL_SELECTED'
         ? 'Every selected strategy with a live confirmed signal is submitted together on the active market.'
         : botConfig.executionMode==='BEST_CONFIDENCE'
@@ -2631,10 +2716,27 @@ function strategyMatchesCandidate(strat,conf){
   if(type==='LOW_TICK')return label.startsWith('LOW TICK');
   return false;
 }
+function overUnderCustomConf(strat,market){
+  const b=Number(strat.prediction), over=strat.type==='OVER';
+  if(!Number.isInteger(b)||(over&&(b<0||b>8))||(!over&&(b<1||b>9))) return null;
+  const d=market.digits.slice(-engineState.windowSize);
+  if(d.length<60) return null;
+  const hits=d.reduce((a,x)=>a+((over?x>b:x<b)?1:0),0);
+  const base=over?(9-b)/10:b/10;
+  const z=wilsonZ(hits,d.length,base);
+  if(z<2.0) return null;                       // same "strong" bar as the Pulse confirmation
+  return {label:over?'OVER':'UNDER',direction:over?'up':'down',confidence:confidenceFromZ(z),
+    meta:{barrier:b,hit:hits/d.length,base,z,custom:true}};
+}
 function getStrategyCandidate(strat,market){
   if(!strat||!market)return null;
   const def=STRATEGY_DEFS[strat.type];if(!def)return null;
-  const conf=engineState.activeConfirmations.get(`${market.code}|${def.category}`);
+  let conf=engineState.activeConfirmations.get(`${market.code}|${def.category}`);
+  // FIX: Pulse only confirms Over 3 / Under 6. If the user chose a different barrier, test THAT barrier
+  // against its own fair base rate instead of trading it on an Over-3/Under-6 signal.
+  if((strat.type==='OVER'||strat.type==='UNDER') && !(conf&&conf.meta&&Number(conf.meta.barrier)===Number(strat.prediction))){
+    conf=overUnderCustomConf(strat,market);
+  }
   if(!strategyMatchesCandidate(strat,conf))return null;
   const confidence=Number(conf.confidence||confidenceOf(conf)||0);
   if(confidence<botConfig.confidenceFloor)return null;
@@ -2797,7 +2899,7 @@ function placeStrategyContract(strat, marketOverride=null, options={}){
   const duration = isTickCt ? 5 : (strat.duration || def.duration);
   const params = {
     amount: stake, basis:'stake', contract_type: def.contract,
-    currency:'USD', duration, duration_unit:'t', underlying_symbol: marketSymbol,
+    currency:(accountInfo&&accountInfo.currency)||'USD', duration, duration_unit:'t', underlying_symbol: marketSymbol,
     subscribe:1
   };
   const roundTrip = Number(Number(params.amount).toFixed(2));
@@ -2861,19 +2963,20 @@ function finalizeHigherLowerPair(batch){
   pairBatches.delete(batch.pairId);
   const totalProfit=Number(batch.totalProfit||0);
   if(batch.settled===0){
-    lastAction=`Higher + Lower pair not completed · ${batch.errors.length?batch.errors[0]:'no leg settled'}`;
+    lastAction=`Over + Under pair not completed · ${batch.errors.length?batch.errors[0]:'no leg settled'}`;
     setAdaptiveGate(false,'pair_error',batch.errors.length?batch.errors[0]:'No pair leg completed.');
     updateEngineStatus();
     return;
   }
   const trigger=batch.triggerStrategy || selectedStrategies[currentStrategyIndex] || selectedStrategies[0];
-  if(trigger) applyBotOutcomeControl(trigger,totalProfit>0,totalProfit,batch.marketSymbol,1,'Higher + Lower pair');
+  if(trigger) applyBotOutcomeControl(trigger,totalProfit>0,totalProfit,batch.marketSymbol,1,'Over + Under pair');
   else {
     roundsRemaining=Math.max(0,roundsRemaining-1);
     updateStatsDisplay();updateProfitDisplay();updateEngineStatus();refreshBrainStatus();
   }
 }
 function onProposalReceived(data){
+  if(typeof oudHandleQuoteResponse==='function' && oudHandleQuoteResponse(data)) return;
   if(eoHandleQuoteResponse(data)) return;
   const t = pendingProposalMap.get(data.req_id);
   if(!t){ if(data.subscription&&data.subscription.id&&ws&&ws.readyState===1){ try{ ws.send(JSON.stringify({forget:data.subscription.id,req_id:wsReqId++})); }catch(e){} } return; }
@@ -2920,7 +3023,7 @@ function onBuyReceived(data){
     slotIdx: t.slotIdx, strategyRef:t.strategyRef || null, marketSymbol:t.marketSymbol || null,
     contractType:t.contractType, label:t.label, stake:t.stake, purpose:t.purpose||'bot',
     adaptiveContext:t.adaptiveContext||null, pairId:t.pairId||null, pairLeg:t.pairLeg||null,
-    premiumId:t.premiumId||null, sid:t.sid||null, pxCand:t.pxCand||null, pxPair:t.pxPair||null, eoSignal:t.eoSignal||null
+    premiumId:t.premiumId||null, sid:t.sid||null, pxCand:t.pxCand||null, pxPair:t.pxPair||null, eoSignal:t.eoSignal||null, ouSignal:t.ouSignal||null
   });
   if(t.purpose==='premium') premiumOnBought(cid,t);
   if(t.pairId){
@@ -2944,14 +3047,17 @@ function onContractUpdate(data){
   activeContracts.delete(cid);
   const profit = parseFloat(c.profit) || 0;
   const won = profit > 0;
-  if(rec.purpose==='bot'){
+  if(rec.purpose==='bot' && !rec.stale){
     const strat = rec.strategyRef || selectedStrategies[rec.slotIdx];
     if(strat) onStrategyResult(strat, won, profit, rec.stake, c.entry_tick, c.exit_tick, rec.marketSymbol, rec.adaptiveContext,
       rec.pairId ? {deferControl:true,pairLeg:rec.pairLeg} : {});
   }else if(rec.adaptiveContext){
+    // Hunter trades and contracts left over from a previous bot run: still feed learning + daily P/L,
+    // but never the new session's counters.
     updateLearningFromSettlement(rec.adaptiveContext, won, profit);
     refreshBrainStatus();
   }
+  if(rec.purpose==='hunter') hunterRecordSettlement(rec, c, profit, won);
   if(rec.pairId) resolvePairLegSettlement(rec,profit,won,c.entry_tick,c.exit_tick);
   if(wsConnected) ws.send(JSON.stringify({ balance:1, req_id:wsReqId++ }));
   if(!rec.pairId) setTimeout(() => { if(botRunning) evaluateBotOnTick(); }, (botConfig.delayOn ? botConfig.delayAfterSettle : 0) * 1000);
@@ -3102,20 +3208,20 @@ function placeHigherLowerPair(candidate){
     triggerStrategy:candidate.strat,marketSymbol,marketShort:market?.short||marketSymbol,barrier,ticks,stake,createdAt:Date.now(),finalized:false};
   pairBatches.set(pairId,batch);
 
-  const higher={type:'OVER',stake,duration:ticks,prediction:barrier,wins:0,losses:0,pl:0,pair:true,labelOverride:`Higher > ${barrier}`};
-  const lower={type:'UNDER',stake,duration:ticks,prediction:barrier,wins:0,losses:0,pl:0,pair:true,labelOverride:`Lower < ${barrier}`};
-  const sentHigher=placeStrategyContract(higher,marketSymbol,{purpose:'bot',candidate,stakeOverride:stake,bypassGap:true,pairId,pairLeg:'HIGHER',labelOverride:`Higher > ${barrier}`});
+  const higher={type:'OVER',stake,duration:ticks,prediction:barrier,wins:0,losses:0,pl:0,pair:true,labelOverride:`Over > ${barrier}`};
+  const lower={type:'UNDER',stake,duration:ticks,prediction:barrier,wins:0,losses:0,pl:0,pair:true,labelOverride:`Under < ${barrier}`};
+  const sentHigher=placeStrategyContract(higher,marketSymbol,{purpose:'bot',candidate,stakeOverride:stake,bypassGap:true,pairId,pairLeg:'HIGHER',labelOverride:`Over > ${barrier}`});
   if(sentHigher) batch.expected++;
-  const sentLower=placeStrategyContract(lower,marketSymbol,{purpose:'bot',candidate,stakeOverride:stake,bypassGap:true,pairId,pairLeg:'LOWER',labelOverride:`Lower < ${barrier}`});
+  const sentLower=placeStrategyContract(lower,marketSymbol,{purpose:'bot',candidate,stakeOverride:stake,bypassGap:true,pairId,pairLeg:'LOWER',labelOverride:`Under < ${barrier}`});
   if(sentLower) batch.expected++;
   if(batch.expected===0){pairBatches.delete(pairId);return false;}
   lastPairSignalKey=signalKey;
   adaptiveEngine.session.currentMarket=market?.short||marketSymbol;
-  adaptiveEngine.session.currentStrategy=`Higher + Lower @ ${barrier}`;
-  lastAction=`⚡ Pair submitted → Higher > ${barrier} + Lower < ${barrier} · ${ticks} tick${ticks>1?'s':''}`;
-  setAdaptiveGate(true,'pair_submitted',`Higher and Lower pair submitted back-to-back on ${market?.short||marketSymbol}; $${stake.toFixed(2)} per leg.`);
+  adaptiveEngine.session.currentStrategy=`Over + Under @ ${barrier}`;
+  lastAction=`⚡ Pair submitted → Over > ${barrier} + Under < ${barrier} · ${ticks} tick${ticks>1?'s':''}`;
+  setAdaptiveGate(true,'pair_submitted',`Over and Under pair submitted back-to-back on ${market?.short||marketSymbol}; $${stake.toFixed(2)} per leg.`);
   updateEngineStatus();
-  toast(`⚡ Higher + Lower submitted · barrier ${barrier} · ${ticks} tick${ticks>1?'s':''}`,'success');
+  toast(`⚡ Over + Under submitted · barrier ${barrier} · ${ticks} tick${ticks>1?'s':''}`,'success');
   return true;
 }
 function evaluateHigherLowerPairOnTick(){
@@ -3176,11 +3282,14 @@ function startBot(){
     toast(`✅ Daily target already reached: +$${daily.profit.toFixed(2)}. EMRON stays off until the next day.`,'success');
     return;
   }
+  if(!confirmRealMoney(`Trading Hub bot · ${selectedStrategies.length} strateg${selectedStrategies.length===1?'y':'ies'} · stake $${Number(botConfig.defaultStake).toFixed(2)} · stop loss $${Number(botConfig.stopLoss).toFixed(2)} · ${botConfig.rounds} rounds`)) return;
   botRunning = true;
   roundsRemaining = botConfig.rounds;
   sessionStake = 0; sessionPayout = 0; sessionWins = 0; sessionLosses = 0; sessionPL = 0;
   selectedStrategies.forEach(s => { s.wins = 0; s.losses = 0; s.pl = 0; });
-  activeContracts.clear();
+  // FIX: do not clear activeContracts — that orphaned open Hunter/Auto contracts and lost their settlements.
+  // Leftovers from a previous bot run are flagged stale so they settle without touching this session's counters.
+  activeContracts.forEach(rec=>{ if(rec && rec.purpose==='bot') rec.stale=true; });
   botFiredSignalKeys.clear();
   currentStrategyIndex = 0;
   lossAccumulator = 0;
@@ -3210,7 +3319,7 @@ function startBot(){
   updateProfitDisplay();
   renderActiveList();
   updateEngineStatus();
-  toast(`🚀 Bot started · ${botConfig.pairMode?'HIGHER + LOWER pair':'single contract'} · ${selectedStrategies.length} strategies · ${botConfig.rounds} rounds`, 'success');
+  toast(`🚀 Bot started · ${botConfig.pairMode?'OVER + UNDER pair':'single contract'} · ${selectedStrategies.length} strategies · ${botConfig.rounds} rounds`, 'success');
 }
 function stopBot(reason){
   if(!botRunning) return;
@@ -3227,7 +3336,7 @@ function stopBot(reason){
   renderActiveList();
   updateEngineStatus();
   refreshBrainStatus();
-  toast(reason==='account_breach'?'🛑 EMRON stopped permanently for this account/day.':reason==='daily_target'?'🎯 EMRON reached the $1,000 daily target.':'⏸ Bot stopped','info');
+  toast(reason==='account_breach'?'🛑 EMRON stopped permanently for this account/day.':reason==='daily_target'?`🎯 EMRON reached the $${Number(botConfig.dailyTarget).toFixed(2)} daily target.`:'⏸ Bot stopped','info');
 }
 
 /* ============================================================
@@ -3251,7 +3360,7 @@ function updateProfitDisplay(){
   document.getElementById('profitFill').style.width = pct + '%';
 }
 function updateEngineStatus(){
-  document.getElementById('engMode').textContent = botConfig.pairMode ? `HIGHER + LOWER · ${executionModeLabel()}` : executionModeLabel();
+  document.getElementById('engMode').textContent = botConfig.pairMode ? `OVER + UNDER · ${executionModeLabel()}` : executionModeLabel();
   document.getElementById('engRoundRemaining').textContent = botRunning ? roundsRemaining : 0;
   const spl = document.getElementById('engSessionPL');
   spl.textContent = `${sessionPL>=0?'+':''}$${sessionPL.toFixed(2)}`;
@@ -3283,10 +3392,10 @@ function renderTrades(){
     const cls = t.pl >= 0 ? 'profit' : 'loss';
     const sign = t.pl >= 0 ? '+' : '';
     return `<tr>
-      <td>${t.time}</td>
-      <td>${t.strategy}</td>
-      <td>${t.entry}</td>
-      <td>${t.exit}</td>
+      <td>${eoEsc(t.time)}</td>
+      <td>${eoEsc(t.strategy)}</td>
+      <td>${eoEsc(t.entry)}</td>
+      <td>${eoEsc(t.exit)}</td>
       <td>$${t.stake.toFixed(2)}</td>
       <td class="${cls}">${sign}$${t.pl.toFixed(2)}</td>
     </tr>`;
@@ -3298,7 +3407,7 @@ function addPulseFeed(text, symbol){
   const time = new Date().toLocaleTimeString();
   const el = document.createElement('div');
   el.style.cssText = 'display:flex;justify-content:space-between;padding:4px 6px;border-bottom:1px solid var(--border);';
-  el.innerHTML = `<span><span style="color:var(--accent-cyan);">${symbol}</span> ${text}</span><span style="color:var(--text-muted);font-size:10px;">${time}</span>`;
+  el.innerHTML = `<span><span style="color:var(--accent-cyan);">${eoEsc(symbol)}</span> ${eoEsc(text)}</span><span style="color:var(--text-muted);font-size:10px;">${eoEsc(time)}</span>`;
   feed.prepend(el);
   if(feed.children.length > 30) feed.removeChild(feed.lastChild);
 }
@@ -3369,7 +3478,7 @@ function renderPulsePanel(){
   document.getElementById('signalsHeading').textContent = tab === 'risefall' ? 'Rise / Fall readout'
     : tab === 'highlow' ? 'High / Low Tick readout'
     : tab === 'onlyupdown' ? 'Only Ups / Downs readout'
-    : tab === 'matchdiffer' ? 'Dollar Printer Matches readout'
+    : tab === 'matchdiffer' ? 'Matches (digit-frequency) readout'
     : 'Digit parity readout';
 
   const reticle = document.getElementById('resultReticle');
@@ -3842,6 +3951,7 @@ function handleWsMessage(ev){
     case 'portfolio': pxOnPortfolio(data); break;
     case 'proposal_open_contract': onContractUpdate(data); break;
     case 'error':
+      if(typeof oudHandleApiError==='function' && oudHandleApiError(data)) break;
       if(eoHandleApiError(data)) break;
       console.error('API error', data.error);
       toast('❌ ' + (data.error.message || 'API error'), 'error');
@@ -3878,6 +3988,21 @@ const deactivateBtn = document.getElementById('deactivateBtn');
 const connectBtn = document.getElementById('connectBtn');
 const toastContainer = document.getElementById('toastContainer');
 
+/* Single shared REAL-money confirmation used by every execution path (Hub bot, Hunter, Bulk, Auto). */
+function riskAcknowledged(){ try{ return localStorage.getItem('emron_risk_ack_v1')==='1'; }catch(e){ return false; } }
+function showRiskModal(){ const m=document.getElementById('riskModal'); if(m) m.classList.add('active'); }
+function setupRiskModal(){
+  const box=document.getElementById('riskAckBox'), btn=document.getElementById('riskAckBtn');
+  if(!box||!btn) return;
+  box.addEventListener('change',()=>{ btn.disabled=!box.checked; });
+  btn.addEventListener('click',()=>{ try{ localStorage.setItem('emron_risk_ack_v1','1'); }catch(e){} document.getElementById('riskModal').classList.remove('active'); });
+  if(!riskAcknowledged()) showRiskModal();
+}
+function confirmRealMoney(summary){
+  if(MODE!=='REAL') return true;
+  if(!riskAcknowledged()){ showRiskModal(); return false; }
+  return window.confirm(`⚠️ REAL MONEY\n\n${summary}\n\nThese contracts use your real account balance. Losses are real and no profit is guaranteed. Continue?`);
+}
 function toast(msg, type='info'){
   const el = document.createElement('div');
   el.className = `toast ${type}`;
@@ -3912,7 +4037,7 @@ function setupModals(){
     });
   });
   document.querySelectorAll('.modal-overlay').forEach(o => {
-    o.addEventListener('click', e => { if(e.target === o) o.classList.remove('active'); });
+    o.addEventListener('click', e => { if(e.target === o && !o.dataset.lock) o.classList.remove('active'); });
   });
 }
 function setupNavMenu(){
@@ -3985,7 +4110,7 @@ document.getElementById('botPairMode').addEventListener('change', e => {
     botConfig.pairTicks = Math.max(1,Math.min(10,parseInt(document.getElementById('botPairTicks').value,10)||botConfig.defaultTicks||1));
   }
   updateExecutionModeUI();
-  toast(botConfig.pairMode ? '↕️ Higher + Lower paired execution ON' : '↕️ Single contract execution restored','info');
+  toast(botConfig.pairMode ? '↕️ Over + Under paired execution ON' : '↕️ Single contract execution restored','info');
 });
 document.getElementById('botPairBarrier').addEventListener('change', e => {
   botConfig.pairBarrier = Math.max(1, Math.min(8, parseInt(e.target.value,10)||2));
@@ -4032,14 +4157,14 @@ document.getElementById('botConfidenceFloor').addEventListener('change', e => {
   updateExecutionModeUI();
 });
 document.getElementById('botTP').addEventListener('change', e => {
-  botConfig.takeProfit = Math.max(0.35,parseFloat(e.target.value)||1000);
+  botConfig.takeProfit = Math.max(0.35,parseFloat(e.target.value)||20);
   botConfig.dailyTarget = botConfig.takeProfit;
   updatePairModeUI();
   updateProfitDisplay();
   refreshBrainStatus();
 });
 document.getElementById('botPairTP').addEventListener('change', e => {
-  botConfig.takeProfit = Math.max(0.35,parseFloat(e.target.value)||1000);
+  botConfig.takeProfit = Math.max(0.35,parseFloat(e.target.value)||20);
   botConfig.dailyTarget = botConfig.takeProfit;
   document.getElementById('botTP').value = botConfig.takeProfit.toFixed(2);
   updateProfitDisplay();
@@ -4184,8 +4309,12 @@ document.getElementById('bulkBuyBtn').addEventListener('click', async () => {
   const stake = normalizeStake(parseFloat(document.getElementById('bulkStakeOverride').value) || 1);
   const override = document.getElementById('bulkContractOverride').value;
   const ct = override !== 'auto' ? override : 'DIGITEVEN';
+  // FIX: RUNHIGH/RUNLOW and TICKHIGH/TICKLOW cannot use a 1-tick duration (Deriv rejects them).
+  const bulkDuration = (ct==='RUNHIGH'||ct==='RUNLOW') ? 2 : (ct==='TICKHIGH'||ct==='TICKLOW') ? 5 : 1;
   const params = { contract_type: ct, underlying_symbol: getSymbol(botConfig.market),
-    currency:'USD', amount: stake, basis:'stake', duration:1, duration_unit:'t' };
+    currency:(accountInfo&&accountInfo.currency)||'USD', amount: stake, basis:'stake', duration:bulkDuration, duration_unit:'t' };
+  if(ct==='TICKHIGH'||ct==='TICKLOW') params.selected_tick = 1;
+  if(!confirmRealMoney(`Bulk purchase · ${accounts.length} account${accounts.length===1?'':'s'} × $${stake.toFixed(2)} ${ct} on ${getSymbol(botConfig.market)} = $${(accounts.length*stake).toFixed(2)} total stake`)) return;
   const status = document.getElementById('bulkStatus');
   status.textContent = `Submitting ${accounts.length}…`;
   try {
@@ -4197,9 +4326,10 @@ document.getElementById('bulkBuyBtn').addEventListener('click', async () => {
     if(!res.ok) throw new Error((json.errors||[]).map(e=>`${e.code}: ${e.message}`).join('; ') || res.statusText);
     const txs = (json.data && json.data.transactions) || [];
     status.textContent = `✅ ${txs.filter(t=>!t.error).length} ok · ${txs.filter(t=>t.error).length} failed`;
+    // FIX: escape every server-supplied string before it reaches innerHTML (tokens live in this page)
     document.getElementById('bulkResults').innerHTML = txs.map(t => t.error
-      ? `<div class="bulk-row fail"><span class="acct">${t.account_id || '—'}</span><span class="err">${t.error.message}</span></div>`
-      : `<div class="bulk-row ok"><span class="acct">${t.account_id || '—'}</span><span class="meta">ID ${t.contract_id || '—'}</span><span class="amt">$${parseFloat(t.buy_price||0).toFixed(2)}</span></div>`
+      ? `<div class="bulk-row fail"><span class="acct">${eoEsc(t.account_id || '—')}</span><span class="err">${eoEsc(t.error.message)}</span></div>`
+      : `<div class="bulk-row ok"><span class="acct">${eoEsc(t.account_id || '—')}</span><span class="meta">ID ${eoEsc(t.contract_id || '—')}</span><span class="amt">$${parseFloat(t.buy_price||0).toFixed(2)}</span></div>`
     ).join('');
   } catch(err){
     status.textContent = `❌ ${err.message}`;
@@ -4238,7 +4368,7 @@ document.getElementById('helpSearch').addEventListener('input', e => {
 const HUNTER = {
   window: 100,
   minTicks: 25,
-  threshold: 0.65,
+  threshold: 0.70,   // FIX: matches the ≥70% button that the HTML marks active
   mode: 'evenodd',
   tab: 'evenodd',
   best: null,
@@ -4345,13 +4475,18 @@ function hunterBarrier(mkt,b){
   if(n<HUNTER.minTicks) return null;
   // Over b wins on digits > b; Under (9-b) wins on digits < 9-b. Both share the same (9-b)/10 base.
   const over=d.reduce((a,x)=>a+(x>b?1:0),0), under=d.reduce((a,x)=>a+(x<(9-b)?1:0),0);
-  const po=hunterWilsonPct(over,n,(9-b)/10), pu=hunterWilsonPct(under,n,(9-b)/10);
-  const zo=wilsonZ(over,n,(9-b)/10), zu=wilsonZ(under,n,(9-b)/10);
-  const isOver=po>=pu;
+  const base=(9-b)/10;
+  const po=hunterWilsonPct(over,n,base), pu=hunterWilsonPct(under,n,base);
+  const zo=wilsonZ(over,n,base), zu=wilsonZ(under,n,base);
+  // FIX: compare each side against its own fair base rate (e.g. O1/U8 is 80% by chance alone).
+  // Readiness is driven by the z-score mapped to a confidence figure, not by the raw hit rate,
+  // otherwise O1/U8 would show "READY" on every market at all times.
+  const isOver=zo>=zu, z=Math.max(0,isOver?zo:zu);
+  const conf=confidenceFromZ(z)/100;
   return {market:mkt,kind:`O${b}/U${9-b}`,label:isOver?`OVER ${b}`:`UNDER ${9-b}`,
-    direction:isOver?'up':'down',pct:Math.max(po,pu),raw:isOver?over/n:under/n,
-    count:isOver?over:under,n,score:Math.max(zo,zu),
-    detail:`O${b} ${Math.round(po*100)}% · U${9-b} ${Math.round(pu*100)}%`};
+    direction:isOver?'up':'down',pct:conf,raw:isOver?over/n:under/n,
+    count:isOver?over:under,n,score:z,
+    detail:`O${b} ${Math.round(po*100)}% · U${9-b} ${Math.round(pu*100)}% vs ${Math.round(base*100)}% fair · z ${z.toFixed(2)}`};
 }
 function hunterJumble(mkt){
   const d=hunterWindow(mkt), n=d.length;
@@ -4420,15 +4555,54 @@ function updateHunterExecuteButton(rowsOverride=null){
     ? '🔎 JUMBLE SCANNER ONLY'
     : `⚡ EXECUTE ALL READY SIGNALS <span id="hunterExecuteCount">${executable}</span>`;
 }
+/* ---- Hunter risk layer (FIX: Hunter previously bypassed every risk check) ---- */
+const hunterSess={pl:0,stake:0,runs:0,wins:0,losses:0,busyUntil:0};
+const HUNTER_MAX_BATCH=15;
+function hunterOpenStake(){
+  let s=0;
+  activeContracts.forEach(r=>{ if(r&&r.purpose==='hunter') s+=Number(r.stake)||0; });
+  [pendingProposalMap,pendingBuyMap].forEach(m=>m.forEach(t=>{ if(t&&t.purpose==='hunter') s+=Number(t.stake)||0; }));
+  return s;
+}
+function hunterGate(want){
+  const stake=normalizeStake(botConfig.defaultStake);
+  const rec=getDailyRecord(), bal=Number(balance||0);
+  const start=Number(adaptiveEngine.session.startBalance||rec.startBalance||bal);
+  const floor=start>0?start*(botConfig.hardAccountFloorPct/100):0;
+  if(Date.now()<hunterSess.busyUntil) return {count:0,stake,why:'Please wait a moment between Hunter executions.'};
+  if(rec.floorBreached) return {count:0,stake,why:'This account/day is locked after a survival-floor breach.'};
+  if(bal<=0||(floor>0&&bal<=floor)) return {count:0,stake,why:`Account survival floor reached ($${Math.max(0,bal).toFixed(2)}).`};
+  if(rec.profit>=botConfig.dailyTarget) return {count:0,stake,why:`Daily target reached (+$${rec.profit.toFixed(2)}).`};
+  const hard=Math.max(0.01,Number(botConfig.stopLoss||20));
+  const buffer=hard+Math.min(0,hunterSess.pl)-hunterOpenStake();
+  if(hunterSess.pl<=-hard) return {count:0,stake,why:`Hunter session stop loss reached (-$${hard.toFixed(2)}). Use "Reset Hunter session P/L" to start a new session.`};
+  const byBuffer=Math.floor((buffer+1e-9)/stake);
+  const byBalance=bal>0?Math.floor(bal/stake):0;
+  const count=Math.max(0,Math.min(want,HUNTER_MAX_BATCH,byBuffer,byBalance));
+  if(count<1) return {count:0,stake,why:`Stop-loss buffer ($${Math.max(0,buffer).toFixed(2)}) is smaller than one $${stake.toFixed(2)} stake.`};
+  return {count,stake,why:count<want?`Limited to ${count} of ${want} signals by the stop-loss buffer / batch cap.`:''};
+}
+function hunterRecordSettlement(rec,c,profit,won){
+  hunterSess.pl+=profit; hunterSess.stake+=Number(rec.stake)||0; hunterSess.runs++;
+  if(won) hunterSess.wins++; else hunterSess.losses++;
+  trades.unshift({time:new Date().toLocaleTimeString(),strategy:`Hunter · ${rec.label}`,entry:c.entry_tick??'—',exit:c.exit_tick??'—',stake:Number(rec.stake)||0,pl:Number(profit)||0});
+  if(trades.length>200) trades.length=200;
+  renderTrades();
+  const hard=Math.max(0.01,Number(botConfig.stopLoss||20));
+  if(hunterSess.pl<=-hard) toast(`🛑 Hunter session stop loss reached (${hunterSess.pl.toFixed(2)} USD). No further Hunter orders until reset.`,'error');
+  const st=document.getElementById('hunterExecStatus');
+  if(st){ st.className='hunter-exec-status '+(hunterSess.pl>=0?'ok':'warn'); st.textContent=`Hunter session · ${hunterSess.runs} settled · ${hunterSess.wins}W/${hunterSess.losses}L · P/L ${hunterSess.pl>=0?'+':''}$${hunterSess.pl.toFixed(2)} (stop at -$${hard.toFixed(2)})`; }
+}
+function hunterResetSession(){ hunterSess.pl=0; hunterSess.stake=0; hunterSess.runs=0; hunterSess.wins=0; hunterSess.losses=0; }
 function hunterExecuteAll(){
-  const rows=hunterExecutableRows();
+  const allRows=hunterExecutableRows();
   const status=document.getElementById('hunterExecStatus');
   if(!wsConnected){
     toast('Connect the Deriv account before executing Hunter signals.','error');
     if(status){ status.className='hunter-exec-status warn'; status.textContent='Account not connected — no trades submitted.'; }
     return;
   }
-  if(!rows.length){
+  if(!allRows.length){
     if(status){ status.className='hunter-exec-status warn'; status.textContent='No READY signals meet the active threshold.'; }
     return;
   }
@@ -4436,39 +4610,53 @@ function hunterExecuteAll(){
     if(status){ status.className='hunter-exec-status warn'; status.textContent='Jumble has no verified contract mapping and was not executed.'; }
     return;
   }
+  const gate=hunterGate(allRows.length);
+  if(gate.count<1){
+    toast('🛑 '+gate.why,'error');
+    if(status){ status.className='hunter-exec-status warn'; status.textContent='Blocked — '+gate.why; }
+    return;
+  }
+  const rows=allRows.slice(0,gate.count);   // strongest signals first (already ranked)
+  if(!confirmRealMoney(`Hunter · ${rows.length} contract${rows.length===1?'':'s'} × $${gate.stake.toFixed(2)} = $${(rows.length*gate.stake).toFixed(2)} total stake\n${gate.why}`)) return;
+  hunterSess.busyUntil=Date.now()+1500;
 
   const submitted=[];
   rows.forEach(r=>{
     const c=hunterContractFor(r);
     if(!c) return;
     const strat={
-      type:c.type, stake:botConfig.defaultStake, duration:c.duration||1, prediction:c.prediction,
+      type:c.type, stake:gate.stake, duration:c.duration||1, prediction:c.prediction,
       wins:0, losses:0, pl:0, hunter:true, hunterMarket:r.market.short, hunterSignal:r.label, hunterPct:r.pct
     };
-    placeStrategyContract(strat, r.market.code, {purpose:'hunter', bypassGap:true});
-    submitted.push(`${r.market.short} ${r.label}`);
+    // FIX: only report markets whose request was really sent
+    if(placeStrategyContract(strat, r.market.code, {purpose:'hunter', bypassGap:true, stakeOverride:gate.stake})) submitted.push(`${r.market.short} ${r.label}`);
   });
 
   lastAction=`${hunterModeLabel()} → ${submitted.length} markets submitted together`;
   updateEngineStatus();
   if(status){
     status.className='hunter-exec-status live';
-    status.textContent=`⚡ Submitted ${submitted.length} market signals together: ${submitted.join(' · ')}`;
+    status.textContent=`⚡ Submitted ${submitted.length} of ${rows.length} market signals: ${submitted.join(' · ')}${gate.why?' — '+gate.why:''}`;
   }
-  toast(`⚡ ${submitted.length} ${hunterModeLabel()} signals submitted together`, 'success');
+  toast(`⚡ ${submitted.length} ${hunterModeLabel()} signal${submitted.length===1?'':'s'} submitted`, submitted.length?'success':'error');
 }
 function hunterExecute(r){
   const c=hunterContractFor(r);
   if(!c){ toast('Jumble is scanner-only in this reconstruction.','info'); return; }
   if(!wsConnected){ toast('Connect the Deriv account before executing a Hunter signal.','error'); return; }
+  const gate=hunterGate(1);
+  if(gate.count<1){ toast('🛑 '+gate.why,'error'); return; }
+  if(!confirmRealMoney(`Hunter · ${r.market.short} ${r.label} · stake $${gate.stake.toFixed(2)}`)) return;
+  hunterSess.busyUntil=Date.now()+1000;
   const strat={
-    type:c.type, stake:botConfig.defaultStake, duration:c.duration||1, prediction:c.prediction,
+    type:c.type, stake:gate.stake, duration:c.duration||1, prediction:c.prediction,
     wins:0, losses:0, pl:0,
     hunter:true, hunterMarket:r.market.short, hunterSignal:r.label, hunterPct:r.pct
   };
-  placeStrategyContract(strat, r.market.code, {purpose:'hunter', bypassGap:true});
-  lastAction=`Hunter → ${r.market.short} ${r.label} (${Math.round(r.pct*100)}%)`;
-  updateEngineStatus();
+  if(placeStrategyContract(strat, r.market.code, {purpose:'hunter', bypassGap:true, stakeOverride:gate.stake})){
+    lastAction=`Hunter → ${r.market.short} ${r.label} (${Math.round(r.pct*100)}%)`;
+    updateEngineStatus();
+  }
 }
 function renderHunter(){
   if(!isTabActive('hunter')) return;
@@ -4543,6 +4731,7 @@ function setupHunterUI(){
     });
   });
   document.getElementById('hunterExecuteAllBtn').addEventListener('click', hunterExecuteAll);
+  document.getElementById('hunterResetBtn').addEventListener('click',()=>{ hunterResetSession(); const st=document.getElementById('hunterExecStatus'); if(st){ st.className='hunter-exec-status'; st.textContent='Hunter session reset.'; } toast('Hunter session P/L reset','info'); });
 }
 
 /* ============================================================
@@ -4567,7 +4756,8 @@ const PX_SP_DEFAULT={
   over8:{window:100,side:'OVER',barrier:8,minZ:1.0,minConf:60},
   tickstrike:{lookback:10,threshold:0.6,minConf:60,ticks:3},
   switcher:{threshold:0.46,minConf:60,cooldown:30,ticks:1},
-  eoscanner:{profile:'imbalance',window:50}
+  eoscanner:{profile:'imbalance',window:50},
+  oudscanner:{profile:'cont2',duration:2}
 };
 const PX={
   cfg:{strategy:'matches',market:'1HZ100V',stake:1,target:20,maxLoss:10,maxBuyPrice:5,steps:0,recovery:1.6,guard:'warn',
@@ -4775,6 +4965,7 @@ function eoHandleApiError(data){
 }
 function eoHandleDisconnect(){
   EO.quotePending.clear();EO.quoteQueue=[];EO.quoteQueued.clear();EO.quoteAsked.clear();
+  if(typeof oudHandleDisconnect==='function') oudHandleDisconnect();
 }
 function eoCanTradeSignal(meta,ask,payout){
   if(!meta||meta.profile==='random')return {ok:false,why:'Random control is measurement-only.'};
@@ -4883,6 +5074,325 @@ function eoRunSelfTests(){
   eoRender(true);
   return EO.testsPass;
 }
+/* ============================================================
+   ONLY UPS / ONLY DOWNS RESEARCH + OPTIONAL EXECUTION GATE
+   Signal engine is independent from execution. All live orders still go
+   through PX's existing proposal -> premiumGuard -> buy -> settlement flow.
+   ============================================================ */
+const OUD_RULES={
+  cont1:{name:'R1 continuation k=1',tradeable:true}, cont2:{name:'R1 continuation k=2',tradeable:true},
+  cont3:{name:'R1 continuation k=3',tradeable:true}, cont4:{name:'R1 continuation k=4',tradeable:true},
+  rev2:{name:'R2 reversal k=2',tradeable:true}, rev3:{name:'R2 reversal k=3',tradeable:true}, rev4:{name:'R2 reversal k=4',tradeable:true},
+  trend:{name:'R3 trend confluence',tradeable:true}, lowvol:{name:'R4 low-volatility trend',tradeable:true},
+  share50:{name:'R5 up-tick share 50',tradeable:true}, share100:{name:'R5 up-tick share 100',tradeable:true},
+  share200:{name:'R5 up-tick share 200',tradeable:true}, random:{name:'R6 random control',tradeable:false}
+};
+const OUD_DURATIONS=[2,3,5];
+const OUD={version:2,profile:'cont2',duration:2,autoTradeEnabled:false,testsPass:false,testsReport:'Not run',
+  discovery:new Map(),validation:new Map(),confirmation:new Map(),forward:new Map(),pending:new Map(),lastSignalIndex:new Map(),
+  quotes:new Map(),quotePending:new Map(),quoteQueue:[],quoteQueued:new Set(),quoteAsked:new Map(),quoteTimer:null,
+  fdr:{discovery:new Set(),validation:new Set(),confirmation:new Set(),forward:new Set()},lastFDR:0,
+  logs:[],events:[],lastRender:0,lastSave:0,discoveryTimer:null,discoveryRunning:false,settlementsSinceFDR:0,lastUiSignal:new Map(),blocked:new Map(),ledger:{trades:0,wins:0,losses:0,turnover:0,realizedPL:0}};
+const oudStatKey=(profile,symbol,type,duration)=>`${profile}|${symbol}|${type}|${duration}`;
+const oudQuoteKey=(symbol,type,duration)=>`${symbol}|${type}|${duration}`;
+const oudDirectionType=dir=>dir==='up'?'RUNHIGH':'RUNLOW';
+const oudParseKey=key=>{const a=String(key).split('|');return {profile:a[0],symbol:a[1],type:a[2],duration:Number(a[3])};};
+const oudEmptyStat=()=>({n:0,w:0});
+function oudStat(map,profile,symbol,type,duration){return map.get(oudStatKey(profile,symbol,type,duration))||oudEmptyStat();}
+function oudAddStat(map,profile,symbol,type,duration,hit){const k=oudStatKey(profile,symbol,type,duration),x=map.get(k)||oudEmptyStat();x.n++;if(hit)x.w++;map.set(k,x);}
+function oudWilson(success,n,z=1.96){if(!(n>0))return 0;const p=success/n,z2=z*z,den=1+z2/n;return Math.max(0,(p+z2/(2*n)-z*Math.sqrt((p*(1-p)/n)+(z2/(4*n*n))))/den);}
+function oudWilsonUpper(success,n,z=1.96){if(!(n>0))return 1;const p=success/n,z2=z*z,den=1+z2/n;return Math.min(1,(p+z2/(2*n)+z*Math.sqrt((p*(1-p)/n)+(z2/(4*n*n))))/den);}
+function oudEsc(x){return String(x==null?'':x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function oudLog(kind,message){OUD.logs.unshift({at:Date.now(),kind,message:String(message)});if(OUD.logs.length>80)OUD.logs.length=80;}
+function oudHash(text){let h=2166136261;for(let i=0;i<text.length;i++){h^=text.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
+function oudStdMove(q,end,window){const start=Math.max(1,end-window+1);if(end-start<5)return null;let n=0,sum=0,sum2=0;for(let j=start;j<=end;j++){const x=q[j]-q[j-1];n++;sum+=x;sum2+=x*x;}if(!n)return null;return Math.sqrt(Math.max(0,sum2/n-(sum/n)**2));}
+function oudLowVolOK(q,i){
+  const cur=oudStdMove(q,i,20);if(cur==null||i<150)return false;const vals=[];
+  for(let j=Math.max(25,i-150);j<i;j+=5){const v=oudStdMove(q,j,20);if(v!=null)vals.push(v);}
+  if(vals.length<12)return false;vals.sort((a,b)=>a-b);return cur<=vals[Math.floor((vals.length-1)*0.25)];
+}
+function oudPredict(profile,q,i,symbol){
+  if(!Array.isArray(q)||i<1||i>=q.length||!OUD_RULES[profile])return null;
+  const diff=j=>Number(q[j])-Number(q[j-1]);
+  const streak=(k)=>{if(i-k+1<1)return null;let sign=0;for(let j=i-k+1;j<=i;j++){const d=diff(j);if(!Number.isFinite(d)||d===0)return null;const s=d>0?1:-1;if(sign&&s!==sign)return null;sign=s;}return sign;};
+  if(/^cont[1-4]$/.test(profile)){const k=Number(profile.slice(4)),s=streak(k);return s?{dir:s>0?'up':'down',rule:profile,k}:null;}
+  if(/^rev[2-4]$/.test(profile)){const k=Number(profile.slice(3)),s=streak(k);return s?{dir:s>0?'down':'up',rule:profile,k}:null;}
+  if(profile==='share50'||profile==='share100'||profile==='share200'){
+    const w=Number(profile.slice(5));if(i-w+1<1)return null;let up=0,down=0;
+    for(let j=i-w+1;j<=i;j++){const d=diff(j);if(d>0)up++;else if(d<0)down++;}
+    if(up/w>.55)return {dir:'up',rule:profile,upShare:up/w,window:w};
+    if(down/w>.55)return {dir:'down',rule:profile,downShare:down/w,window:w};return null;
+  }
+  if(profile==='trend'||profile==='lowvol'){
+    if(i<60)return null;
+    let e12=Number(q[Math.max(0,i-120)]),e26=e12,prev12=e12,prev26=e26;
+    const a12=2/13,a26=2/27,start=Math.max(0,i-120);
+    for(let j=start+1;j<=i;j++){prev12=e12;prev26=e26;e12+=a12*(q[j]-e12);e26+=a26*(q[j]-e26);}
+    const momentum=Number(q[i])-Number(q[i-10]),macd=e12-e26,prevMacd=prev12-prev26;
+    const up=macd>0&&momentum>0&&(macd-prevMacd)>=0,down=macd<0&&momentum<0&&(macd-prevMacd)<=0;
+    if(profile==='lowvol'&&!oudLowVolOK(q,i))return null;
+    if(up)return {dir:'up',rule:profile,momentum,macd};if(down)return {dir:'down',rule:profile,momentum,macd};return null;
+  }
+  if(profile==='random')return {dir:(oudHash(`${symbol}|${i}|OUD_CONTROL_V2`)&1)?'up':'down',rule:profile,control:true};
+  return null;
+}
+function oudGradeRun(q,signalIndex,duration,dir){
+  const entry=signalIndex+1,last=entry+duration;if(last>=q.length)return null;
+  let prev=Number(q[entry]);if(!Number.isFinite(prev))return false;
+  for(let j=entry+1;j<=last;j++){const cur=Number(q[j]);if(!Number.isFinite(cur))return null;if(dir==='up'?!(cur>prev):!(cur<prev))return false;prev=cur;}
+  return true;
+}
+function oudSampleRange(m,profile,duration,start,end,store){
+  const q=m.quotes||[],from=Math.max(30,start|0),to=Math.min(q.length,end|0);let lastSignal=-Infinity;
+  for(let i=from;i+duration+1<to;){
+    if(i-lastSignal<duration+2){i++;continue;}
+    const pred=oudPredict(profile,q,i,m.code);if(!pred){i++;continue;}
+    const hit=oudGradeRun(q,i,duration,pred.dir);if(hit===null){i++;continue;}
+    oudAddStat(store,profile,m.code,oudDirectionType(pred.dir),duration,hit);lastSignal=i;i+=duration+2;
+  }
+}
+function oudScheduleDiscovery(){if(OUD.discoveryTimer)clearTimeout(OUD.discoveryTimer);OUD.discoveryTimer=setTimeout(()=>oudRunDiscovery(false),1600);}
+async function oudRunDiscovery(showMessage=true){
+  if(OUD.discoveryRunning)return;OUD.discoveryRunning=true;const btn=document.getElementById('oudDiscoveryBtn');if(btn)btn.disabled=true;
+  const d=new Map(),v=new Map(),c=new Map();let markets=0,ticks=0;
+  try{
+    const pool=Array.from(engineState.markets.values());
+    for(let mi=0;mi<pool.length;mi++){
+      const m=pool[mi],q=m.quotes||[],n=q.length;if(n<1000)continue;markets++;ticks+=n;
+      const a=Math.floor(n*.60),b=Math.floor(n*.80);
+      Object.keys(OUD_RULES).forEach(profile=>OUD_DURATIONS.forEach(dur=>{
+        oudSampleRange(m,profile,dur,30,a,d);
+        oudSampleRange(m,profile,dur,a,b,v);
+        oudSampleRange(m,profile,dur,b,n,c);
+      }));
+      const status=document.getElementById('oudStatus');if(status)status.textContent=`Discovery replay ${mi+1}/${pool.length} markets · ${markets} with ≥1,000 ticks…`;
+      await new Promise(resolve=>setTimeout(resolve,0));
+    }
+    OUD.discovery=d;OUD.validation=v;OUD.confirmation=c;OUD.discoveryAt=Date.now();
+    oudUpdateFDR(true);oudLog('discovery',`Discovery rebuilt from ${markets} markets and ${ticks.toLocaleString()} buffered ticks; chronological 60/20/20 split.`);
+    if(showMessage)toast(`Only Ups/Downs discovery complete · ${markets} markets inspected.`,'info');
+  }catch(e){oudLog('error',`Discovery failed: ${e&&e.message||e}`);}
+  finally{OUD.discoveryRunning=false;if(btn)btn.disabled=false;oudRender(true);}
+  return {markets,ticks,discovery:d.size,validation:v.size,confirmation:c.size};
+}
+function oudSymbolDiagnostics(m){
+  const q=m&&m.quotes||[],tail=q.slice(-2001);if(tail.length<2001)return {ok:false,reason:`warm-up ${tail.length}/2,001 ticks`,tieRate:null,upRate:null,low:null,high:null,runsZ:null};
+  let up=0,down=0,ties=0,runs=0,last=0;
+  for(let i=1;i<tail.length;i++){const d=tail[i]-tail[i-1];if(d===0){ties++;continue;}const sign=d>0?1:-1;if(sign>0)up++;else down++;if(last===0||sign!==last)runs++;last=sign;}
+  const n=up+down,tieRate=ties/(tail.length-1),p=up/Math.max(1,n),low=oudWilson(up,n),high=oudWilsonUpper(up,n);
+  if(tieRate>.05)return {ok:false,reason:`tie rate ${(100*tieRate).toFixed(2)}% exceeds 5%`,tieRate,upRate:p,low,high,runsZ:null};
+  if(n<500)return {ok:false,reason:'not enough non-tie changes for runs test',tieRate,upRate:p,low,high,runsZ:null};
+  const n0=down,n1=up,nn=n0+n1,expected=2*n0*n1/nn+1,variance=(nn>1)?(2*n0*n1*(2*n0*n1-nn))/(nn*nn*(nn-1)):0;
+  const z=variance>0?(runs-expected)/Math.sqrt(variance):0;
+  if(low<=.5&&high>=.5)return {ok:false,reason:`empirical P(up) CI includes 50% (${(low*100).toFixed(1)}–${(high*100).toFixed(1)}%)`,tieRate,upRate:p,low,high,runsZ:z};
+  if(Math.abs(z)<1.96)return {ok:false,reason:`runs test does not reject randomness (Z=${z.toFixed(2)})`,tieRate,upRate:p,low,high,runsZ:z};
+  return {ok:true,reason:`asymmetry + runs test passed · P(up) ${(p*100).toFixed(1)}% CI ${(low*100).toFixed(1)}–${(high*100).toFixed(1)}% · runs Z ${z.toFixed(2)}`,tieRate,upRate:p,low,high,runsZ:z};
+}
+function oudLogGamma(z){const p=[676.5203681218851,-1259.1392167224028,771.3234287776531,-176.6150291621406,12.507343278686905,-0.13857109526572012,9.984369578019572e-6,1.5056327351493116e-7];if(z<.5)return Math.log(Math.PI)-Math.log(Math.sin(Math.PI*z))-oudLogGamma(1-z);z-=1;let x=.99999999999980993;for(let i=0;i<p.length;i++)x+=p[i]/(z+i+1);const t=z+p.length-.5;return .5*Math.log(2*Math.PI)+(z+.5)*Math.log(t)-t+Math.log(x);}
+function oudBinomialUpperTail(w,n,p0){
+  n=Math.floor(Number(n)||0);w=Math.floor(Number(w)||0);p0=Number(p0);
+  if(n<=0||w<=0||p0<=0)return w<=0?1:0;if(p0>=1)return w<=n?1:0;if(w<=n*p0)return 1;
+  let logp=oudLogGamma(n+1)-oudLogGamma(w+1)-oudLogGamma(n-w+1)+w*Math.log(p0)+(n-w)*Math.log1p(-p0);
+  let term=Math.exp(logp),sum=term;
+  for(let k=w;k<n;k++){term*=((n-k)/(k+1))*(p0/(1-p0));sum+=term;if(term===0)break;}
+  return Math.max(0,Math.min(1,sum));
+}
+function oudUpdateFDR(force=false){
+  const now=Date.now();if(!force&&now-OUD.lastFDR<5000)return;OUD.lastFDR=now;
+  const next={};[['discovery',OUD.discovery],['validation',OUD.validation],['confirmation',OUD.confirmation],['forward',OUD.forward]].forEach(([name,map])=>{
+    const arr=[];map.forEach((stat,key)=>{
+      if(stat.n<200)return;const x=oudParseKey(key),q=OUD.quotes.get(oudQuoteKey(x.symbol,x.type,x.duration));
+      if(!q||q.error||!Number.isFinite(q.breakEven)||Date.now()-q.at>120000)return;
+      arr.push({key,p:oudBinomialUpperTail(stat.w,stat.n,q.breakEven)});
+    });
+    arr.sort((a,b)=>a.p-b.p);let cutoff=-1;for(let i=0;i<arr.length;i++)if(arr[i].p<=.05*(i+1)/Math.max(1,arr.length))cutoff=i;
+    next[name]=new Set(cutoff>=0?arr.slice(0,cutoff+1).map(x=>x.key):[]);
+  });
+  OUD.fdr=next;
+}
+function oudRequiredSamples(p,be){if(!(p>be&&be>0&&be<1))return Infinity;const zA=1.645,zB=.842;return Math.max(300,Math.ceil(Math.pow((zA*Math.sqrt(be*(1-be))+zB*Math.sqrt(p*(1-p)))/(p-be),2)));}
+function oudCanTradeSignal(meta,ask,payout){
+  if(!meta||meta.profile==='random'||!OUD_RULES[meta.profile]?.tradeable)return {ok:false,why:'Random control is measurement-only.'};
+  const be=eoBreakEven(ask,payout);if(!be)return {ok:false,why:'Deriv proposal did not return an ask price and payout.'};
+  const d=oudStat(OUD.discovery,meta.profile,meta.symbol,meta.contractType,meta.duration),v=oudStat(OUD.validation,meta.profile,meta.symbol,meta.contractType,meta.duration),c=oudStat(OUD.confirmation,meta.profile,meta.symbol,meta.contractType,meta.duration),f=oudStat(OUD.forward,meta.profile,meta.symbol,meta.contractType,meta.duration);
+  if(d.n<200||v.n<200||c.n<200)return {ok:false,why:`Insufficient separated historical samples (Discovery ${d.n}, Validation ${v.n}, Confirmation ${c.n}; each needs 200).`};
+  const ld=oudWilson(d.w,d.n),lv=oudWilson(v.w,v.n),lc=oudWilson(c.w,c.n),lf=oudWilson(f.w,f.n);
+  if(d.n&&!(ld>be))return {ok:false,why:`Discovery lower bound ${(ld*100).toFixed(2)}% does not exceed live break-even ${(be*100).toFixed(2)}%.`};
+  if(!(lv>be))return {ok:false,why:`Validation lower bound ${(lv*100).toFixed(2)}% does not exceed live break-even ${(be*100).toFixed(2)}%.`};
+  if(!(lc>be))return {ok:false,why:`Untouched Confirmation lower bound ${(lc*100).toFixed(2)}% does not exceed live break-even ${(be*100).toFixed(2)}%.`};
+  const need=oudRequiredSamples(f.n?f.w/f.n:0,be);
+  if(f.n<need)return {ok:false,why:`Forward evidence ${f.n}/${Number.isFinite(need)?need:'—'} settled outcomes; power target not met.`};
+  if(!(lf>be))return {ok:false,why:`Forward lower bound ${(lf*100).toFixed(2)}% does not exceed live break-even ${(be*100).toFixed(2)}%.`};
+  oudUpdateFDR();const key=oudStatKey(meta.profile,meta.symbol,meta.contractType,meta.duration);
+  if(!OUD.fdr.discovery.has(key))return {ok:false,why:'Discovery does not pass the 5% Benjamini–Hochberg false-discovery gate.'};
+  if(!OUD.fdr.validation.has(key))return {ok:false,why:'Validation does not pass the 5% Benjamini–Hochberg false-discovery gate.'};
+  if(!OUD.fdr.confirmation.has(key))return {ok:false,why:'Confirmation does not pass the 5% Benjamini–Hochberg false-discovery gate.'};
+  if(!OUD.fdr.forward.has(key))return {ok:false,why:'Live Forward does not pass the 5% Benjamini–Hochberg false-discovery gate.'};
+  const ev=oudWilson(f.w,f.n)*Number(payout)/Number(ask)-1;if(!(ev>0))return {ok:false,why:`Conservative live expected value is ${(ev*100).toFixed(2)}%; requires positive EV.`};
+  return {ok:true,be,lower:lf,ev,discovery:d,validation:v,confirmation:c,forward:f,required:need};
+}
+function oudBuildTradeCandidate(m,profile,duration){
+  if(!OUD.autoTradeEnabled)return {ok:false,why:'Execution switch is OFF; scanner is signal-only.'};
+  if(!m||!Array.isArray(m.quotes)||m.quotes.length<1000)return {ok:false,why:'Need at least 1,000 ticks to evaluate this market.'};
+  if(!m._at||Date.now()-m._at>5000)return {ok:false,why:'Tick feed stale (must be under 5 seconds old).'};
+  if(profile==='random')return {ok:false,why:'Random control is measurement-only.'};
+  const diag=oudSymbolDiagnostics(m);if(!diag.ok)return {ok:false,why:diag.reason};
+  const signalIndex=m.quotes.length-1,pred=oudPredict(profile,m.quotes,signalIndex,m.code);
+  if(!pred)return {ok:false,why:`${OUD_RULES[profile]?.name||profile}: no current setup.`};
+  const type=oudDirectionType(pred.dir),key=oudStatKey(profile,m.code,type,duration),q=OUD.quotes.get(oudQuoteKey(m.code,type,duration));
+  if(!q||q.error||Date.now()-q.at>120000)return {ok:false,why:'Fresh payout proposal is not available yet.'};
+  const meta={profile,symbol:m.code,contractType:type,duration,signalTickCount:m.tickCount,signalPrice:Number(m.quotes[signalIndex]),decisionEpoch:(m.tickEpochs&&m.tickEpochs[signalIndex])||Date.now()/1000,rule:OUD_RULES[profile].name};
+  const gate=oudCanTradeSignal(meta,q.ask,q.payout);if(!gate.ok)return {ok:false,why:gate.why};
+  if(Array.from(activeContracts.values()).some(x=>x.marketSymbol===m.code))return {ok:false,why:'An open contract already exists on this market.'};
+  const blockedUntil=OUD.blocked.get(key)||0;if(blockedUntil>Date.now())return {ok:false,why:'This signal was recently blocked; cooldown active.'};
+  return {ok:true,cand:{family:'onlyupdown',kind:pred.dir==='up'?'ONLY UPS':'ONLY DOWNS',label:`${pred.dir==='up'?'Only Ups':'Only Downs'} · ${duration}t`,z:Math.max(0,(gate.lower-gate.be)*100),conf:Math.round(gate.lower*100),why:`${profile} · conservative Forward ${(gate.lower*100).toFixed(2)}% > live BE ${(gate.be*100).toFixed(2)}% · EV ${(gate.ev*100).toFixed(2)}% · ${gate.forward.n} Forward outcomes`,contract:{type,duration},ouMeta:meta}};
+}
+function oudSaveState(force=false){const now=Date.now();if(!force&&now-OUD.lastSave<10000)return;OUD.lastSave=now;try{localStorage.setItem('emron_oud_forward_v2',JSON.stringify({version:OUD.version,forward:Object.fromEntries(OUD.forward),ledger:OUD.ledger,events:OUD.events.slice(0,1000)}));}catch(_){}}
+function oudLoadState(){try{const x=JSON.parse(localStorage.getItem('emron_oud_forward_v2')||'null');if(!x||x.version!==OUD.version)return;if(x.forward)Object.entries(x.forward).forEach(([k,v])=>{if(v&&Number.isFinite(v.n)&&Number.isFinite(v.w)&&v.n>=v.w&&v.w>=0)OUD.forward.set(k,{n:v.n,w:v.w});});if(x.ledger)OUD.ledger=Object.assign(OUD.ledger,x.ledger);if(Array.isArray(x.events))OUD.events=x.events.slice(0,1000);}catch(_){}}
+function oudSaveEvent(e){OUD.events.unshift(e);if(OUD.events.length>1000)OUD.events.length=1000;oudSaveState();}
+function oudResolvePending(m,epoch){
+  const idx=m.tickCount,price=Number(m.quotes[m.quotes.length-1]);
+  for(const [key,p] of Array.from(OUD.pending.entries())){
+    if(p.symbol!==m.code||idx<=p.lastTickCount)continue;
+    p.lastTickCount=idx;
+    if(!p.entrySeen){p.entrySeen=true;p.entryQuote=price;p.previousQuote=price;p.entryEpoch=epoch??null;continue;}
+    const good=p.dir==='up'?price>p.previousQuote:price<p.previousQuote;p.previousQuote=price;
+    if(!good){oudAddStat(OUD.forward,p.profile,p.symbol,p.type,p.duration,false);OUD.pending.delete(key);oudSaveEvent({at:Date.now(),profile:p.profile,symbol:p.symbol,type:p.type,duration:p.duration,signalPrice:p.signalPrice,entryPrice:p.entryQuote,exitPrice:price,hit:false});OUD.settlementsSinceFDR++;continue;}
+    p.steps++;
+    if(p.steps>=p.duration){oudAddStat(OUD.forward,p.profile,p.symbol,p.type,p.duration,true);OUD.pending.delete(key);oudSaveEvent({at:Date.now(),profile:p.profile,symbol:p.symbol,type:p.type,duration:p.duration,signalPrice:p.signalPrice,entryPrice:p.entryQuote,exitPrice:price,hit:true});OUD.settlementsSinceFDR++;}
+  }
+}
+function oudOnLiveTick(m,epoch){
+  if(!m||!m.quotes||m.quotes.length<100)return;oudResolvePending(m,epoch);
+  const idx=m.tickCount;
+  for(const profile of Object.keys(OUD_RULES))for(const duration of OUD_DURATIONS){
+    const signalKey=`${profile}|${m.code}|${duration}`;if(OUD.pending.has(signalKey))continue;
+    const last=OUD.lastSignalIndex.get(signalKey)||-Infinity;if(idx-last<duration+2)continue;
+    const pred=oudPredict(profile,m.quotes,m.quotes.length-1,m.code);if(!pred)continue;
+    const type=oudDirectionType(pred.dir);OUD.lastSignalIndex.set(signalKey,idx);
+    OUD.pending.set(signalKey,{profile,symbol:m.code,type,duration,dir:pred.dir,signalTickCount:idx,lastTickCount:idx,signalPrice:Number(m.quotes[m.quotes.length-1]),signalEpoch:epoch??null,entrySeen:false,entryQuote:null,previousQuote:null,steps:0});
+    if(profile===OUD.profile&&duration===OUD.duration){const sigId=`${m.code}|${profile}|${duration}|${idx}`;if(OUD.lastUiSignal.get(m.code)!==sigId){OUD.lastUiSignal.set(m.code,sigId);oudLog('signal',`${m.short} ${pred.dir==='up'?'ONLY UPS':'ONLY DOWNS'} · ${duration} ticks · shadow outcome pending`);}}
+  }
+  if(OUD.settlementsSinceFDR>=20){OUD.settlementsSinceFDR=0;oudUpdateFDR(true);oudSaveState(true);}
+}
+function oudMaybeRequestQuotes(m){
+  if(!wsConnected||!ws||ws.readyState!==WebSocket.OPEN||!accessToken||!m)return;
+  for(const type of ['RUNHIGH','RUNLOW'])for(const duration of OUD_DURATIONS){
+    const key=oudQuoteKey(m.code,type,duration),asked=OUD.quoteAsked.get(key)||0,q=OUD.quotes.get(key);
+    if(Date.now()-asked<60000||OUD.quoteQueued.has(key)||(q&&Date.now()-q.at<60000))continue;
+    OUD.quoteQueued.add(key);OUD.quoteQueue.push({key,symbol:m.code,type,duration});
+  }
+  oudDispatchQuoteQueue();
+}
+function oudDispatchQuoteQueue(){
+  if(OUD.quoteTimer||!OUD.quoteQueue.length)return;
+  OUD.quoteTimer=setTimeout(()=>{
+    OUD.quoteTimer=null;if(!wsConnected||!ws||ws.readyState!==WebSocket.OPEN)return;
+    const job=OUD.quoteQueue.shift();if(!job)return;OUD.quoteQueued.delete(job.key);OUD.quoteAsked.set(job.key,Date.now());
+    const rid=wsReqId++,amount=stakeForApi(Math.max(.35,Number(PX.cfg.stake)||1)).number;
+    OUD.quotePending.set(rid,job);
+    try{ws.send(JSON.stringify({proposal:1,amount,basis:'stake',contract_type:job.type,currency:(accountInfo&&accountInfo.currency)||'USD',duration:job.duration,duration_unit:'t',underlying_symbol:job.symbol,req_id:rid}));}
+    catch(e){OUD.quotePending.delete(rid);OUD.quoteAsked.set(job.key,0);}
+    oudDispatchQuoteQueue();
+  },520);
+}
+function oudHandleQuoteResponse(data){
+  if(!data||data.req_id==null||!OUD.quotePending.has(data.req_id))return false;
+  const job=OUD.quotePending.get(data.req_id);OUD.quotePending.delete(data.req_id);
+  if(data.error||!data.proposal){OUD.quotes.set(job.key,{error:data.error&&data.error.message||'No proposal returned',at:Date.now()});oudLog('quote',`${job.symbol} ${job.type} ${job.duration}t unavailable: ${data.error&&data.error.message||'no proposal'}`);}
+  else{const p=data.proposal,ask=Number(p.ask_price),payout=Number(p.payout),be=eoBreakEven(ask,payout);OUD.quotes.set(job.key,{ask,payout,breakEven:be,at:Date.now()});}
+  oudUpdateFDR(true);oudRender(false);return true;
+}
+function oudHandleApiError(data){return oudHandleQuoteResponse(data);}
+function oudHandleDisconnect(){
+  const shouldStop=!!OUD.autoTradeEnabled&&PX.cfg?.strategy==='oudscanner';
+  OUD.quotePending.clear();OUD.quoteQueue=[];OUD.quoteQueued.clear();OUD.quoteAsked.clear();
+  if(OUD.quoteTimer){clearTimeout(OUD.quoteTimer);OUD.quoteTimer=null;}
+  if(OUD.autoTradeEnabled){OUD.autoTradeEnabled=false;const t=document.getElementById('oudExecutionToggle');if(t)t.checked=false;}
+  if(shouldStop){
+    if(PX.scanning&&typeof PX.scanAbort==='function')PX.scanAbort();
+    if(PX.running)pxStop('Only Ups/Downs execution stopped after the Deriv connection dropped. Reconnect and re-enable manually.');
+    oudLog('risk','Execution switch turned off after disconnect. Reconnection will not automatically restart trading.');
+  }
+}
+function oudRecordExecutionSettlement(meta,profit,stake,contract){
+  if(!meta)return;OUD.ledger.turnover+=Math.max(0,Number(stake)||0);OUD.ledger.realizedPL+=Number(profit)||0;OUD.ledger.trades++;if(Number(profit)>0)OUD.ledger.wins++;else OUD.ledger.losses++;
+  oudLog('settled',`${meta.symbol} ${meta.contractType} ${meta.duration}t · ${Number(profit)>=0?'+':''}${Number(profit||0).toFixed(2)} · entry ${(contract&&(contract.entry_tick??contract.entry_spot))??'—'}`);oudSaveState(true);oudRender(true);
+}
+function oudRender(force=false){
+  const body=document.getElementById('oudBoard');if(!body)return;const now=Date.now();if(!force&&now-OUD.lastRender<850)return;OUD.lastRender=now;
+  const profile=document.getElementById('oudProfileSelect')?.value||OUD.profile,duration=Number(document.getElementById('oudDurationSelect')?.value)||OUD.duration;OUD.profile=profile;OUD.duration=duration;
+  let discN=0,valN=0,fwdN=0,discW=0,abstained=0,rows=[];
+  for(const m of engineState.markets.values()){
+    const allD=Array.from(OUD.discovery.entries()).filter(([k])=>{const x=oudParseKey(k);return x.profile===profile&&x.symbol===m.code&&x.duration===duration;}).map(([,v])=>v);
+    const allV=Array.from(OUD.validation.entries()).filter(([k])=>{const x=oudParseKey(k);return x.profile===profile&&x.symbol===m.code&&x.duration===duration;}).map(([,v])=>v);
+    const allF=Array.from(OUD.forward.entries()).filter(([k])=>{const x=oudParseKey(k);return x.profile===profile&&x.symbol===m.code&&x.duration===duration;}).map(([,v])=>v);
+    discN+=allD.reduce((a,x)=>a+x.n,0);discW+=allD.reduce((a,x)=>a+x.w,0);valN+=allV.reduce((a,x)=>a+x.n,0);fwdN+=allF.reduce((a,x)=>a+x.n,0);
+    const pred=oudPredict(profile,m.quotes||[],(m.quotes||[]).length-1,m.code),diag=oudSymbolDiagnostics(m);
+    let label='—',reason='No current trigger',state='NO SIGNAL',stateCls='block',d=null,v=null,f=null,q=null;
+    if(profile==='random'){state='CONTROL';stateCls='control';reason='Non-executable random baseline';}
+    else if(!diag.ok){state='SUPPRESSED';stateCls='block';reason=diag.reason;}
+    else if(pred){
+      label=`${pred.dir==='up'?'ONLY UPS':'ONLY DOWNS'} · ${duration}t`;const type=oudDirectionType(pred.dir);d=oudStat(OUD.discovery,profile,m.code,type,duration);v=oudStat(OUD.validation,profile,m.code,type,duration);f=oudStat(OUD.forward,profile,m.code,type,duration);q=OUD.quotes.get(oudQuoteKey(m.code,type,duration));
+      const meta={profile,symbol:m.code,contractType:type,duration,signalTickCount:m.tickCount,signalPrice:Number(m.quotes[m.quotes.length-1]),decisionEpoch:Date.now()/1000,rule:OUD_RULES[profile].name};
+      const gate=q&&!q.error&&Date.now()-q.at<120000?oudCanTradeSignal(meta,q.ask,q.payout):{ok:false,why:'Fresh Deriv proposal pending.'};
+      if(gate.ok){state='QUALIFIED';stateCls='valid';reason=`LCB ${(gate.lower*100).toFixed(2)}% · EV ${(gate.ev*100).toFixed(2)}%`;}
+      else {state=(d.n<200||v.n<200||!f||f.n<300)?'UNPROVEN':'WATCH';stateCls='';reason=gate.why;}
+      const sigId=`${m.code}|${profile}|${duration}|${m.tickCount}|${type}`;
+      if(OUD.lastUiSignal.get(m.code)!==sigId){OUD.lastUiSignal.set(m.code,sigId);oudLog('signal',`${m.short} ${label} · ${state} · ${reason}`);}
+    }
+    if(state!=='QUALIFIED')abstained++;
+    const pct=s=>s&&s.n?(100*s.w/s.n).toFixed(2)+'% · '+s.n:'—';
+    const be=q&&Number.isFinite(q.breakEven)?(q.breakEven*100).toFixed(2)+'%':(q&&q.error?'unavailable':'pending');
+    rows.push({market:m, label, reason,state,stateCls,d,v,f,be,pred,diag});
+  }
+  rows.sort((a,b)=>({QUALIFIED:0,WATCH:1,UNPROVEN:2,SUPPRESSED:3,CONTROL:4,'NO SIGNAL':5}[a.state]-({QUALIFIED:0,WATCH:1,UNPROVEN:2,SUPPRESSED:3,CONTROL:4,'NO SIGNAL':5}[b.state]))||((b.f?.n||0)-(a.f?.n||0)));
+  body.innerHTML=rows.map(r=>{const pct=s=>s&&s.n?`${(100*s.w/s.n).toFixed(2)}% · ${s.n}`:'—';return `<tr><td>${oudEsc(r.market.short)}</td><td>${oudEsc(r.label)}</td><td>${pct(r.d)}</td><td>${pct(r.v)}</td><td>${pct(r.f)}</td><td>${oudEsc(r.be)}</td><td><span class="eo-state ${r.stateCls}">${oudEsc(r.state)}</span><div style="font-size:9px;color:var(--px-mut);max-width:190px;white-space:normal;line-height:1.4;margin-top:3px">${oudEsc(r.reason)}</div></td></tr>`;}).join('');
+  const n1=document.getElementById('oudDiscCount'),n2=document.getElementById('oudValCount'),n3=document.getElementById('oudFwdCount'),n4=document.getElementById('oudAbstained');if(n1)n1.textContent=discN.toLocaleString();if(n2)n2.textContent=valN.toLocaleString();if(n3)n3.textContent=fwdN.toLocaleString();if(n4)n4.textContent=abstained.toLocaleString();
+  const status=document.getElementById('oudStatus');if(status){if(OUD.discoveryRunning){status.className='eo-status warn';status.textContent='Building chronological discovery/validation/confirmation samples…';}else if(OUD.autoTradeEnabled&&PX.running&&PX.cfg.strategy==='oudscanner'){status.className='eo-status ok';status.textContent=`AUTO-TRADE ENABLED · ${OUD_RULES[profile]?.name||profile} · ${duration} ticks · orders only after all statistical, quote, freshness and risk gates pass.`;}else if(!OUD.testsPass){status.className='eo-status warn';status.textContent=`Self-tests: ${OUD.testsReport}. Execution remains disabled until tests pass.`;}else{status.className='eo-status warn';status.textContent='Signal-only monitoring is active. WATCH, UNPROVEN and SUPPRESSED candidates cannot place orders.';}}
+  const toggle=document.getElementById('oudExecutionToggle');if(toggle){toggle.checked=OUD.autoTradeEnabled;toggle.disabled=!OUD.testsPass||profile==='random'||OUD.discoveryRunning;}
+  const l=document.getElementById('oudExecutionLabel');if(l)l.textContent=OUD.autoTradeEnabled?'Only Ups/Downs auto-trading ENABLED — click to stop':'Enable auto-trading from Only Ups/Downs signals';
+  const ledger=document.getElementById('oudLedger');if(ledger){const edge=OUD.ledger.turnover>0?100*OUD.ledger.realizedPL/OUD.ledger.turnover:null;ledger.textContent=`Execution ledger · turnover ${pxMoney(OUD.ledger.turnover)} ${(accountInfo&&accountInfo.currency)||'USD'} · realised P/L ${pxSigned(OUD.ledger.realizedPL)} · edge ${edge==null?'—':(edge>=0?'+':'')+edge.toFixed(2)+'%'} · ${OUD.ledger.wins} wins / ${OUD.ledger.losses} losses · ${OUD.logs.slice(0,4).map(x=>x.kind+': '+x.message).join(' | ')}`;}
+  oudUpdateFDR();
+}
+function oudRunSelfTests(){
+  const fail=[];
+  const q=[100,101,102,103,104,105,106,107];if(oudGradeRun(q,0,2,'up')!==true)fail.push('2-tick RUNHIGH grading');
+  if(oudGradeRun([100,101,101,103,104],0,2,'up')!==false)fail.push('tie must lose');
+  if(oudGradeRun([100,99,98,97,96,95,94,93],0,5,'down')!==true)fail.push('5-tick RUNLOW grading');
+  const a=[100,101,102,103,102,101,100,99,98,97],p1=oudPredict('cont2',a,2,'SELF');const b=a.slice();b.splice(3,b.length-3,9999,8888,7777,6666,5555);const p2=oudPredict('cont2',b,2,'SELF');if(JSON.stringify(p1)!==JSON.stringify(p2))fail.push('future-data leakage');
+  const be=eoBreakEven(1,1.95);if(Math.abs(be-1/1.95)>1e-10)fail.push('live break-even arithmetic');
+  // One million deterministic random-control trials. The side choice is independent of the next run.
+  let state=0x12345678;const next=()=>{state^=state<<13;state^=state>>>17;state^=state<<5;state>>>=0;return state&1;};const N=1000000,dirs=new Uint8Array(N+7);for(let i=0;i<dirs.length;i++)dirs[i]=next();
+  for(const dur of [2,5]){let wins=0;for(let i=0;i<N;i++){const side=next();let hit=true;for(let j=1;j<=dur;j++){if(dirs[i+j]!==side){hit=false;break;}}if(hit)wins++;}const rate=wins/N,base=Math.pow(.5,dur);if(Math.abs(rate-base)>.001)fail.push(`random control outside 0.1 percentage points at ${dur} ticks (${(rate*100).toFixed(3)}%)`);}
+  const control=oudCanTradeSignal({profile:'random',symbol:'SELF',contractType:'RUNHIGH',duration:2},1,1.95);if(control.ok)fail.push('random control passed execution gate');
+  OUD.testsPass=fail.length===0;OUD.testsReport=fail.length?`FAIL: ${fail.join('; ')}`:'RUNHIGH/RUNLOW, ties, 1M random-control, live break-even and no-lookahead tests passed';
+  oudLog(fail.length?'error':'system',OUD.testsReport);oudRender(true);return OUD.testsPass;
+}
+function oudToggleExecution(enabled){
+  const toggle=document.getElementById('oudExecutionToggle'),profile=document.getElementById('oudProfileSelect')?.value||OUD.profile,duration=Number(document.getElementById('oudDurationSelect')?.value)||OUD.duration;
+  if(!enabled){OUD.autoTradeEnabled=false;if(PX.cfg.strategy==='oudscanner'&&PX.scanning&&typeof PX.scanAbort==='function')PX.scanAbort();if(PX.cfg.strategy==='oudscanner'&&PX.running)pxStop('Only Ups/Downs scanner execution disabled — no new trades will be opened.');if(toggle)toggle.checked=false;oudRender(true);return;}
+  if(!OUD.testsPass){if(toggle)toggle.checked=false;toast('Run and pass the Only Ups/Downs self-tests before enabling execution.','error');return;}
+  if(profile==='random'||!OUD_RULES[profile]?.tradeable){if(toggle)toggle.checked=false;toast('Random control is measurement-only and cannot execute trades.','error');return;}
+  if(botRunning||PX.running||PX.scanning){if(toggle)toggle.checked=false;toast('Stop the other EMRON trading engine first.','error');return;}
+  if(!wsConnected||!accessToken){if(toggle)toggle.checked=false;toast('Connect an authorised Deriv account with trading permission first. Scanner remains signal-only.','error');return;}
+  const account=MODE==='REAL'?accountSessions.real:accountSessions.demo;if(!account){if(toggle)toggle.checked=false;toast(`No ${MODE.toLowerCase()} account is available for this token.`,'error');return;}
+  OUD.profile=profile;OUD.duration=duration;OUD.autoTradeEnabled=true;
+  PX.cfg.pair.on=false;PX.cfg.strategy='oudscanner';PX.cfg.sp.oudscanner.profile=profile;PX.cfg.sp.oudscanner.duration=duration;PX.cfg.market='ALL';
+  if($px('pxMarket'))$px('pxMarket').value='ALL';pxWriteInputs();pxRenderSp();pxRenderCards();pxSaveCfg();oudRender(true);
+  Promise.resolve(pxStart()).then(()=>{if(!PX.running&&!PX.scanning){OUD.autoTradeEnabled=false;if(toggle)toggle.checked=false;oudRender(true);}}).catch(()=>{OUD.autoTradeEnabled=false;if(toggle)toggle.checked=false;oudRender(true);});
+}
+function setupOUDScannerUI(){
+  oudLoadState();
+  OUD.profile=PX.cfg.sp.oudscanner?.profile||OUD.profile;OUD.duration=Number(PX.cfg.sp.oudscanner?.duration)||OUD.duration;
+  const prof=document.getElementById('oudProfileSelect'),dur=document.getElementById('oudDurationSelect'),disc=document.getElementById('oudDiscoveryBtn'),test=document.getElementById('oudSelfTestBtn'),toggle=document.getElementById('oudExecutionToggle');
+  if(prof){prof.value=OUD.profile;prof.addEventListener('change',()=>{if(PX.running&&PX.cfg.strategy==='oudscanner'){prof.value=OUD.profile;toast('Stop Only Ups/Downs execution before changing its profile.','info');return;}OUD.profile=prof.value;PX.cfg.sp.oudscanner.profile=prof.value;oudRender(true);pxSaveCfg();});}
+  if(dur){dur.value=String(OUD.duration);dur.addEventListener('change',()=>{if(PX.running&&PX.cfg.strategy==='oudscanner'){dur.value=String(OUD.duration);toast('Stop Only Ups/Downs execution before changing duration.','info');return;}OUD.duration=Number(dur.value)||2;PX.cfg.sp.oudscanner.duration=OUD.duration;oudRender(true);pxSaveCfg();});}
+  if(disc)disc.addEventListener('click',()=>oudRunDiscovery(true));if(test)test.addEventListener('click',()=>{test.disabled=true;setTimeout(()=>{oudRunSelfTests();test.disabled=false;},20);});
+  if(toggle)toggle.addEventListener('change',()=>oudToggleExecution(toggle.checked));
+  oudRender(true);setTimeout(()=>oudRunDiscovery(false),2400);
+}
+
 const pxKey=c=>`${c.symbol}|${c.contract.type}|${c.contract.barrier??''}|${c.contract.selectedTick??''}|${c.contract.duration}`;
 const $px=id=>document.getElementById(id);
 const pxFmt=n=>Number(n||0).toFixed(2);
@@ -5009,7 +5519,7 @@ const PX_ICON={
   eoscanner:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg>'
 };
 const PX_STRATS={
-  matches:{ name:'Matches Printer', tag:'Digit Matches / Differs', family:'matches',
+  matches:{ name:'Matches Digit', tag:'Digit Matches / Differs', family:'matches',
     summary:sp=>`${sp.mode==='DIFF'?'Differs':'Matches'} the ${PX_POLICY[sp.policy]} digit · ${sp.window}-tick window`,
     need:sp=>sp.window,
     analyze(m,sp){
@@ -5028,7 +5538,7 @@ const PX_STRATS={
         contract:{type:diff?'DIGITDIFF':'DIGITMATCH',duration:1,barrier:pick.digit}}};
     }
   },
-  over8:{ name:'Over 8 Killer', tag:'Digit Over / Under', family:'overunder',
+  over8:{ name:'Over 8 (high risk)', tag:'Digit Over / Under', family:'overunder',
     summary:sp=>{ const o=sp.side==='OVER'; return `${o?'Over':'Under'} ${sp.barrier} · wins on ${o?(9-sp.barrier)+' digit'+(9-sp.barrier===1?'':'s'):sp.barrier+' digit'+(sp.barrier===1?'':'s')} · min z ${sp.minZ}`; },
     need:sp=>sp.window,
     analyze(m,sp){
@@ -5093,6 +5603,11 @@ const PX_STRATS={
       cand.strategy='eoscanner';cand.eoMeta.profile=profile;
       return {ok:true,cand};
     }
+  },
+  oudscanner:{ name:'Only Ups/Downs Research Scanner',tag:'RUNHIGH/RUNLOW · evidence-gated',family:'onlyupdown',
+    summary:sp=>`${OUD_RULES[sp.profile]?.name||sp.profile} · ${sp.duration||2}-tick contracts · live proposal EV`,
+    need:()=>2000,
+    analyze(m,sp){const x=oudBuildTradeCandidate(m,sp.profile||'cont2',Number(sp.duration)||2);if(!x.ok)return {ok:false,why:x.why};const cand=x.cand;cand.strategy='oudscanner';return {ok:true,cand};}
   }
 };
 const PX_SP_FIELDS={
@@ -5118,7 +5633,8 @@ const PX_SP_FIELDS={
     {k:'minConf',label:'Min confidence %',min:50,max:95,step:1,int:true},
     {k:'cooldown',label:'Switch cooldown (s)',min:5,max:900,step:5,int:true},
     {k:'ticks',label:'Trade duration (ticks)',min:1,max:10,step:1,int:true}],
-  eoscanner:[]
+  eoscanner:[],
+  oudscanner:[]
 };
 function pxClampSp(id){
   const sp=PX.cfg.sp[id];
@@ -5217,6 +5733,7 @@ function pxPlace(c){
   const t={purpose:'premium',premiumId:id,sid:PX.sid,slotIdx:-1,strategyRef:null,marketSymbol:c.symbol,
     contractType:c.contract.type,label:c.label,stake:sd.number,stakeText:sd.text,adaptiveContext:null,pairId:null,pairLeg:null,pxCand:c,pxParams:params,
     eoSignal:c.eoMeta?{profile:c.eoMeta.profile,symbol:c.eoMeta.symbol,prediction:c.eoMeta.prediction,contractType:c.eoMeta.contractType}:null,
+    ouSignal:c.ouMeta?Object.assign({},c.ouMeta):null,
     maxBuyPrice:Number(PX.cfg.maxBuyPrice)||5};
   pendingProposalMap.set(reqId,t);
   PX.open={id,cand:c,t,at:Date.now(),bought:false};
@@ -5262,7 +5779,7 @@ function premiumOnBought(cid,t){
 function premiumOnContractUpdate(c,rec){
   const row=PX.rows.find(r=>r.cid===c.contract_id);
   if(rec.sid!==PX.sid){ if(c.is_sold) activeContracts.delete(c.contract_id); return; }
-  if(!c.is_sold){ if(row){ row.value=Number(c.bid_price)||0; row.profit=Number(c.profit)||0; row.canSell=!!c.is_valid_to_sell; pxRenderRows(); } return; }
+  if(!c.is_sold){ if(rec.ouSignal&&c.entry_tick!=null&&!rec.ouEntryLogged){rec.ouEntryLogged=true;oudLog('entry',`${rec.ouSignal.symbol} actual entry spot ${c.entry_tick}; signal spot ${rec.ouSignal.signalPrice}; signal tick count ${rec.ouSignal.signalTickCount}.`);oudSaveState(true);oudRender(false);} if(row){ row.value=Number(c.bid_price)||0; row.profit=Number(c.profit)||0; row.canSell=!!c.is_valid_to_sell; pxRenderRows(); } return; }
   activeContracts.delete(c.contract_id);
   if(row&&row.status!=='open') return;               // duplicate settlement delivery — already counted
   const profit=Number(c.profit)||0, won=profit>0, stake=Number(c.buy_price)>0?Number(c.buy_price):rec.stake;
@@ -5270,6 +5787,7 @@ function premiumOnContractUpdate(c,rec){
   if(row){ row.status=won?'won':'lost'; row.profit=profit; row.value=payout; row.canSell=false; row.entry=c.entry_tick??c.entry_spot; row.exit=c.exit_tick??c.exit_spot; }
   const s=PX.stats; s.stake+=stake; s.payout+=payout; s.runs++; s.pl+=profit; if(won) s.won++; else s.lost++;
   if(rec.eoSignal) eoRecordSettlement(rec.eoSignal,profit,stake);
+  if(rec.ouSignal) oudRecordExecutionSettlement(rec.ouSignal,profit,stake,c);
   pxDailyAdd(profit);
   pxAudit('settled',`${rec.label} #${c.contract_id} ${won?'won':'lost'} ${pxSigned(profit)} (stake ${pxFmt(stake)}, payout ${pxFmt(payout)})`);
   if(rec.pxPair){ pxPairLegDone(rec,profit,won); pxPersist(); return; }
@@ -5309,7 +5827,7 @@ function pxOnPortfolio(data){
   if(list.length){
     const k=list[0], cid=k.contract_id;
     activeContracts.set(cid,{slotIdx:-1,strategyRef:null,marketSymbol:t.marketSymbol,contractType:t.contractType,label:t.label,stake:Number(k.buy_price)||t.stake,
-      purpose:'premium',adaptiveContext:null,pairId:null,pairLeg:null,premiumId:t.premiumId,sid:t.sid,pxCand:t.pxCand,pxPair:null});
+      purpose:'premium',adaptiveContext:null,pairId:null,pairLeg:null,premiumId:t.premiumId,sid:t.sid,pxCand:t.pxCand,pxPair:null,ouSignal:t.ouSignal||null,eoSignal:t.eoSignal||null});
     premiumOnBought(cid,t);
     ws.send(JSON.stringify({proposal_open_contract:1,contract_id:cid,subscribe:1}));
     pxAudit('system',`Reconciled: the order was filled — contract #${cid} is now being monitored`);
@@ -5330,6 +5848,8 @@ function pxReadInputs(){
   C.maxLoss=Math.max(C.stake,num('pxMaxLoss',10,0.35,1e6));
   C.maxBuyPrice=num('pxMaxBuy',5,0.35,100000);
   if($px('eoProfileSelect')) C.sp.eoscanner.profile=$px('eoProfileSelect').value||C.sp.eoscanner.profile||'imbalance';
+  if($px('oudProfileSelect')) C.sp.oudscanner.profile=$px('oudProfileSelect').value||C.sp.oudscanner.profile||'cont2';
+  if($px('oudDurationSelect')) C.sp.oudscanner.duration=Math.max(2,Math.min(5,Number($px('oudDurationSelect').value)||2));
   C.market=$px('pxMarket').value||'1HZ100V';
   C.cooldown=num('pxCool',3,0,3600,true); C.maxTrades=num('pxMaxTrades',50,1,10000,true);
   C.maxConsec=num('pxMaxConsec',3,1,50,true); C.maxDaily=Math.max(0.35,num('pxMaxDaily',30,0.35,1e6));
@@ -5366,6 +5886,7 @@ function pxValidate(){
 function pxStart(){
   if(PX.running||PX.scanning) return false;
   if(PX.cfg.strategy==='eoscanner'&&!EO.autoTradeEnabled){toast('Even/Odd scanner is in research mode. Turn on its separate execution switch to place orders.','info');return false;}
+  if(PX.cfg.strategy==='oudscanner'&&!OUD.autoTradeEnabled){toast('Only Ups/Downs is in signal-only mode. Turn on its separate execution switch to place orders.','info');return false;}
   if(botRunning){ toast('Stop the Trading Hub bot before using EMRON Auto.','error'); return; }
   if(!accessToken||!wsConnected){ toast('🔐 Connect a Deriv PAT first.','error'); connectBtn.click(); return; }
   if(PX.open||PX.pair||PX.recon){ toast('An earlier order is still open or being verified — wait for it to settle.','error'); return; }
@@ -5379,7 +5900,7 @@ function pxStart(){
   if(MODE==='REAL' && !window.confirm(`EMRON Auto will place REAL-money trades on your real account.\nStake $${pxFmt(PX.cfg.stake)} · target $${pxFmt(PX.cfg.target)} · max loss $${pxFmt(PX.cfg.maxLoss)} · daily loss $${pxFmt(PX.cfg.maxDaily)}.\nNo profit is guaranteed. Continue?`)) return;
   return pxShowScan().then(ok=>{
     /* Execution may have been disabled while preflight scanning was in progress. */
-    if(!ok||!wsConnected||(PX.cfg.strategy==='eoscanner'&&!EO.autoTradeEnabled)) return false;
+    if(!ok||!wsConnected||(PX.cfg.strategy==='eoscanner'&&!EO.autoTradeEnabled)||(PX.cfg.strategy==='oudscanner'&&!OUD.autoTradeEnabled)) return false;
     PX.running=true; PX.nextAt=0; PX.errStreak=0; PX.connLogged=false;
     if(!PX.startedAt) PX.startedAt=Date.now();
     pxAudit('system',`Run started · ${PX.cfg.pair.on?'Higher/Lower pair':PX_STRATS[PX.cfg.strategy].name} · ${PX.cfg.market==='ALL'?'all markets':PX.cfg.market} · stake ${pxFmt(PX.cfg.stake)} · ${MODE}`);
@@ -5392,6 +5913,7 @@ function pxStop(msg){
   if(!PX.running) return;
   PX.running=false;
   if(PX.cfg.strategy==='eoscanner'){EO.autoTradeEnabled=false;if($px('eoExecutionToggle'))$px('eoExecutionToggle').checked=false;}
+  if(PX.cfg.strategy==='oudscanner'){OUD.autoTradeEnabled=false;if($px('oudExecutionToggle'))$px('oudExecutionToggle').checked=false;}
   pxAudit('system',msg||'Stopped by user — no new orders; open contracts settle on their own');
   pxSetStatus(msg||'Stopped. Any open contract settles automatically.'); pxRenderAll();
 }
@@ -5403,6 +5925,7 @@ function pxReset(silent){
   PX.running=false;PX.sid++;PX.open=null;PX.recon=null;PX.rows=[];PX.stats={stake:0,payout:0,runs:0,lost:0,won:0,pl:0};
   /* Preserve scanner opt-in during an internal, silent session rollover. */
   if(!(silent&&PX.cfg.strategy==='eoscanner')){EO.autoTradeEnabled=false;if($px('eoExecutionToggle'))$px('eoExecutionToggle').checked=false;}
+  if(!(silent&&PX.cfg.strategy==='oudscanner')){OUD.autoTradeEnabled=false;if($px('oudExecutionToggle'))$px('oudExecutionToggle').checked=false;}
   PX.lossStreak=0; PX.finished=false; PX.errStreak=0; PX.bad.clear(); PX.pair=null; PX.sw={dir:null,lastSwitch:0,switches:0};
   PX.startedAt=null; PX.sessMode=null; PX.showRows=30; PX.restored=false;
   try{ localStorage.removeItem(PX_SESS_KEY); }catch(e){}
@@ -5422,6 +5945,7 @@ function pxFinish(kind){
   const F=PX_FIN[kind]||PX_FIN.maxloss, s=PX.stats;
   PX.running=false;
   if(PX.cfg.strategy==='eoscanner'){EO.autoTradeEnabled=false;if($px('eoExecutionToggle'))$px('eoExecutionToggle').checked=false;}
+  if(PX.cfg.strategy==='oudscanner'){OUD.autoTradeEnabled=false;if($px('oudExecutionToggle'))$px('oudExecutionToggle').checked=false;}
   PX.finished=!!F.done;
   pxSetStatus(F.status); pxAudit('risk',F.status);
   $px('pxModalIco').textContent=F.ico; $px('pxModalTitle').textContent=F.title; $px('pxModalText').textContent=F.text;
@@ -5946,6 +6470,7 @@ function premiumGuard(t,proposal){
   const c=t.pxCand,payout=Number(proposal&&proposal.payout),ask=Number(proposal&&proposal.ask_price);
   if(!(payout>0)||!(ask>0)){
     if(t.eoSignal){PX.open=null;PX.nextAt=Date.now()+3000;pxSetStatus('Scanner blocked the order: Deriv proposal did not include ask price and payout.');eoLog('risk','Order blocked: missing live proposal ask/payout.');eoRender(true);return false;}
+    if(t.ouSignal){PX.open=null;PX.nextAt=Date.now()+3000;pxSetStatus('Only Ups/Downs order blocked: live proposal omitted ask price or payout.');oudLog('risk','Order blocked: missing proposal ask/payout.');oudRender(true);return false;}
     return true;
   }
   const maxBuy=Number(t.maxBuyPrice||PX.cfg.maxBuyPrice||5);
@@ -5969,6 +6494,21 @@ function premiumGuard(t,proposal){
     pxSetStatus(`Positive proposal EV ${(gate.ev*100).toFixed(2)}% — placing ${c.short} ${c.label}.`);
     eoLog('signal',`${c.short} ${c.label} passed live EV gate: BE ${(gate.be*100).toFixed(2)}%, conservative estimate ${(gate.lower*100).toFixed(2)}%, EV ${(gate.ev*100).toFixed(2)}%.`);
     eoRender(true);return true;
+  }
+  if(t.ouSignal){
+    const meta=t.ouSignal,m=engineState.markets.get(meta.symbol),age=m?m.tickCount-Number(meta.signalTickCount):Infinity;
+    if(!m||!m._at||Date.now()-m._at>5000||age>1){
+      PX.open=null;PX.nextAt=Date.now()+2500;OUD.blocked.set(oudStatKey(meta.profile,meta.symbol,meta.contractType,meta.duration),Date.now()+15000);
+      const why=`Entry rejected: signal age ${Number.isFinite(age)?age:'unknown'} ticks (maximum one tick), or feed stale.`;pxAudit('risk',why);pxSetStatus(why);oudLog('risk',why);oudRender(true);return false;
+    }
+    OUD.quotes.set(oudQuoteKey(meta.symbol,meta.contractType,meta.duration),{ask,payout,breakEven:eoBreakEven(ask,payout),at:Date.now()});
+    oudUpdateFDR(true);const gate=oudCanTradeSignal(meta,ask,payout);t.quote={payout,ask};t.ev=gate.ev;
+    if(!gate.ok){
+      PX.open=null;PX.nextAt=Date.now()+2500;OUD.blocked.set(oudStatKey(meta.profile,meta.symbol,meta.contractType,meta.duration),Date.now()+15000);
+      pxAudit('risk',`${meta.symbol} ${meta.contractType} blocked · ${gate.why}`);pxSetStatus(gate.why);oudLog('risk',`${meta.symbol} ${meta.contractType}: ${gate.why}`);oudUpdateFDR(true);oudRender(true);return false;
+    }
+    pxAudit('quote',`OUD ${meta.symbol} ${meta.contractType} ${meta.duration}t · ask ${pxFmt(ask)} · payout ${pxFmt(payout)} · BE ${(gate.be*100).toFixed(2)}% · conservative Forward ${(gate.lower*100).toFixed(2)}% · EV ${(gate.ev*100).toFixed(2)}%`);
+    pxSetStatus(`Only Ups/Downs signal passed all gates — placing ${meta.symbol} ${meta.contractType} ${meta.duration}t.`);oudLog('order',`${meta.symbol} ${meta.contractType} ${meta.duration}t passed statistical and live quote gates.`);oudRender(true);return true;
   }
   if(c) { t.quote={payout,ask}; pxAudit('quote',`Proposal ${c.short} · ${c.label}: stake ${ask.toFixed(2)} → payout ${payout.toFixed(2)} (profit ${(payout-ask).toFixed(2)}, reward:risk ${((payout-ask)/ask).toFixed(2)}:1) · max loss ${ask.toFixed(2)}`); pxSetStatus(`Placing an authorized trade — ${c.short} · ${c.label}`); }
   const mode=PX.cfg.guard||'warn'; if(!c||mode==='off') return true;
@@ -6020,7 +6560,9 @@ setupTabs();
 setupModals();
 setupNavMenu();
 setupHunterUI();
+setupRiskModal();
 setupPremiumUI();
+setupOUDScannerUI();
 setupLabUI();
 loadAdaptiveState();
 getDailyRecord();
@@ -6052,7 +6594,6 @@ setTimeout(() => {
 }, 800);
 
 console.log('%c🔷 EMRON AI — Adaptive Survival Brain V2', 'color:#6677ff;font-weight:bold;font-size:14px');
-console.log('Sidebar removed — hamburger dropdown nav is active on all screen sizes.');
 console.log('Adaptive brain: learned entry gating, survival drawdown controls, daily target tracking, and cross-market rotation.');
 
 })();
