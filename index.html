@@ -739,6 +739,84 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 #bulkAccountsInput{-webkit-text-security:disc;text-security:disc}
 .risk-strip{display:flex;gap:10px;align-items:flex-start;padding:10px 14px;margin-bottom:14px;border:1px solid var(--accent-yellow);border-radius:var(--radius-md);background:rgba(255,214,0,.07);font-size:11px;line-height:1.55}
 .risk-strip strong{color:var(--accent-yellow)}
+
+/* ===== EMRON AUTO — responsive layouts (phone / tablet / laptop) ===== */
+#premium .px-shell{width:100%}
+#premium .px-shell .px-list{max-height:min(360px,55vh)}
+#premium .px-shell .px-table-safe{overflow-x:auto}
+#premium .eo-table-wrap{-webkit-overflow-scrolling:touch}
+
+/* PHONE (≤600px): fill the screen, 16px inputs so iOS does not zoom, thumb-sized controls */
+@media (max-width:600px){
+  #premium .px-shell{max-width:none;border-radius:14px;padding:10px 10px 6px}
+  #premium .px-input input,#premium .px-input select,#premium .px-field>select,#premium .eo-select{font-size:16px}
+  #premium .px-two{grid-template-columns:1fr}
+  #premium .px-stop,#premium .px-reset,#premium .px-adv-t,#premium .px-fam,#premium .eo-btn{min-height:42px}
+  #premium .px-sell{min-height:34px;padding:0 12px}
+  #premium .px-bot{padding-bottom:calc(6px + env(safe-area-inset-bottom,0px))}
+  #premium .px-acct-t b{font-size:12px}
+  #premium .px-scan-card{min-width:0;width:calc(100% - 28px);padding:16px 18px}
+  #premium .px-mc{max-width:none}
+}
+/* the inline grid on the Only Ups/Downs controls would otherwise beat the small-screen rule */
+@media (max-width:520px){
+  #premium .eo-controls{grid-template-columns:1fr 1fr!important}
+  #premium .eo-controls label{grid-column:1/-1}
+  #premium .eo-controls .eo-btn{width:100%}
+}
+@media (max-width:360px){
+  #premium .px-cards{grid-template-columns:1fr}
+  #premium .px-stats{grid-template-columns:1fr 1fr}
+  #premium .px-bot button{font-size:8px}
+}
+
+/* TABLET (601–1023px): wider single column, roomier grids */
+@media (min-width:601px) and (max-width:1023px){
+  #premium .px-shell{max-width:780px;padding:16px 18px 10px}
+  #premium .px-cards{grid-template-columns:repeat(3,1fr)}
+  #premium .px-stats{grid-template-columns:repeat(6,1fr)}
+  #premium .px-shell .px-list{max-height:min(480px,60vh)}
+  #premium .px-mc{max-width:380px}
+}
+
+/* LAPTOP / DESKTOP (≥1024px): settings on the left, live trading on the right */
+@media (min-width:1024px){
+  #premium .px-shell{max-width:1280px;padding:18px 22px 12px;display:grid;
+    grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);column-gap:22px;align-items:start}
+  #premium .px-head,#premium .px-collapse,#premium .px-ticker,#premium .px-bot{grid-column:1/-1}
+  #premium .px-head{grid-row:1}
+  #premium .px-collapse{grid-row:2}
+  #premium .px-ticker{grid-row:3}
+  #premium .px-shell{grid-template-rows:auto auto auto auto auto auto auto auto auto 1fr auto}
+  #premium .px-config{grid-column:1;grid-row:4/11;margin-bottom:0;max-height:max(520px,calc(100vh - 230px));overflow-y:auto;overscroll-behavior:contain;padding-right:6px;scrollbar-width:thin}
+  #premium .px-status{grid-column:2;grid-row:4}
+  #premium .px-chips{grid-column:2;grid-row:5}
+  #premium .px-logbox{grid-column:2;grid-row:6}
+  #premium .px-tx{grid-column:2;grid-row:7}
+  #premium .px-stats{grid-column:2;grid-row:8;grid-template-columns:repeat(3,1fr)}
+  #premium #pxSessNote{grid-column:2;grid-row:9}
+  #premium .px-bot{grid-row:11;max-width:560px;width:100%;justify-self:center}
+  #premium .px-status,#premium .px-chips,#premium .px-logbox,#premium .px-tx,#premium .px-stats,#premium #pxSessNote{align-self:start}
+  /* when the settings panel is collapsed, let the trading column use the full width */
+  #premium .px-shell:has(.px-config:not(.open)) :is(.px-status,.px-chips,.px-logbox,.px-tx,.px-stats,#pxSessNote){grid-column:1/-1}
+  #premium .px-shell:has(.px-config:not(.open)) .px-config{display:none}
+  #premium .px-cards{grid-template-columns:repeat(3,1fr)}
+  #premium .px-shell .px-list{max-height:min(560px,62vh)}
+  #premium .px-mc{max-width:400px}
+}
+@media (min-width:1600px){
+  #premium .px-shell{max-width:1500px}
+}
+/* touch screens of any size: bigger tap targets */
+@media (pointer:coarse){
+  #premium .px-ib{width:42px;height:42px}
+  #premium .px-card,#premium .px-fam{min-height:44px}
+}
+/* short landscape phones: keep the scan card and modal on screen */
+@media (max-height:480px){
+  #premium .px-scan-card{padding:10px 20px}
+  #premium .px-mc{max-height:92vh;overflow-y:auto}
+}
 </style>
 </head>
 <body>
@@ -5516,7 +5594,8 @@ const PX_ICON={
   over8:'<svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/><path d="M5 21h14"/></svg>',
   tickstrike:'<svg viewBox="0 0 24 24"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg>',
   switcher:'<svg viewBox="0 0 24 24"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>',
-  eoscanner:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg>'
+  eoscanner:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg>',
+  oudscanner:'<svg viewBox="0 0 24 24"><path d="M3 17l5-6 4 3 5-8 4 5"/><path d="M3 21h18"/></svg>'
 };
 const PX_STRATS={
   matches:{ name:'Matches Digit', tag:'Digit Matches / Differs', family:'matches',
