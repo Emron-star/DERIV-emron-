@@ -392,7 +392,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
   display:flex;flex-direction:column;gap:6px;pointer-events:none;max-width:400px;width:calc(100% - 24px)}
 .toast{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);
   padding:10px 14px;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:8px;
-  font-size:12px;animation:toastIn .3s ease;pointer-events:auto}
+  font-size:12px;animation:toastIn .3s ease;pointer-events:auto;cursor:pointer}
 .toast.success{border-color:var(--accent-green)}
 .toast.success::before{content:'✓';color:var(--accent-green);font-weight:700}
 .toast.error{border-color:var(--accent-red)}
@@ -1654,6 +1654,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 
 <footer class="footer">
   <div>© 2026 EMRON AI — Strategy Row + Pulse Engine</div>
+  <div id="apiUse" style="font-size:10px;color:var(--text-dim);" title="Deriv allows 360 proposal/buy/open-contract requests per minute and 14,400 per hour, shared by everything using your account">Deriv requests: 0/min</div>
   <div style="font-size:11px;color:var(--accent-yellow);max-width:900px;line-height:1.5;">⚠️ Risk warning: trading digital options can lose your entire stake. Deriv's synthetic indices are random, so no signal, "AI" score or confidence figure predicts the next result. Nothing here is financial advice and no profit is guaranteed. Use a demo account first and only risk money you can afford to lose.</div>
 </footer>
 </div>
@@ -1758,7 +1759,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
   </div>
 </div>
 
-<div class="toast-container" id="toastContainer"></div>
+<div class="toast-container" id="toastContainer" role="status" aria-live="polite"></div>
 
 <script>
 (function(){
@@ -3059,6 +3060,15 @@ function onProposalReceived(data){
   if(!t){ if(data.subscription&&data.subscription.id&&ws&&ws.readyState===1){ try{ ws.send(JSON.stringify({forget:data.subscription.id,req_id:wsReqId++})); }catch(e){} } return; }
   pendingProposalMap.delete(data.req_id);
   adaptiveEngine.pendingContexts.delete(data.req_id);
+  if(data.error&&derivIsRateLimit(data.error)){
+    const secs=derivNoteRateLimit();derivToastRateLimit(secs);
+    lastAction='Deriv rate limit reached · order will retry';
+    if(t.purpose==='premium')premiumOnRateLimited(t);
+    if(t.pairId)resolvePairLegFailure(t,'Deriv rate limit reached.');
+    setAdaptiveGate(false,'rate_limited','Deriv rate limit reached; retrying shortly.');
+    updateEngineStatus();
+    return;
+  }
   if(data.error){
     lastAction=`Proposal rejected · ${data.error.message || 'unknown error'}`;
     const rejectedStake=Number(t.stake||0).toFixed(2);
@@ -3085,6 +3095,15 @@ function onBuyReceived(data){
   if(!t) return;
   pendingBuyMap.delete(data.req_id);
   if(t.proposalSub && ws && ws.readyState===1){ try{ ws.send(JSON.stringify({forget:t.proposalSub,req_id:wsReqId++})); }catch(e){} }
+  if(data.error&&derivIsRateLimit(data.error)){
+    const secs=derivNoteRateLimit();derivToastRateLimit(secs);
+    lastAction='Deriv rate limit reached · order will retry';
+    if(t.purpose==='premium')premiumOnRateLimited(t);
+    if(t.pairId)resolvePairLegFailure(t,'Deriv rate limit reached.');
+    setAdaptiveGate(false,'rate_limited','Deriv rate limit reached; retrying shortly.');
+    updateEngineStatus();
+    return;
+  }
   if(data.error){
     lastAction=`Buy rejected · ${data.error.message || 'unknown error'}`;
     toast(`⚠️ Buy rejected — ${data.error.message || 'unknown error'}`,'error');
@@ -3716,7 +3735,40 @@ function renderAIScan(){
    WEBSOCKET — shared 330/min safety budget for proposal, open-contract,
    buy and sell requests (Deriv's documented shared ceiling is 360/min).
    ============================================================ */
-const DERIV_REQ_BUDGET={sent:[],queue:[],timer:null,lastDispatch:0,cap:330,minGap:85};
+/* Deriv's documented limits: proposal + proposal_open_contract + buy + sell share ONE counter of
+   360/minute AND 14,400/hour (= 240/minute on average). The hourly cap is the one long sessions hit.
+   - Orders and settlement traffic use the foreground lane and always go first.
+   - Scanner price quotes use a background lane that is capped well below the limit, pauses itself when
+     Deriv says "rate limit", and is skipped entirely when nobody is looking at the scanner.
+   - The counter is shared by every EMRON tab/window, so each tab takes an equal share. */
+const DERIV_REQ_BUDGET={sent:[],sentHour:[],queue:[],bgQueue:[],bg:new Map(),timer:null,lastDispatch:0,
+  baseCap:300,hourCap:13000,bgShare:.45,bgHourShare:.55,minGap:85,tabs:1,rlUntil:0,fgUntil:0,rlLevel:0,rlLast:0,rlToastAt:0,rlCount:0};
+function derivMarkBg(rid,onDrop){const m=DERIV_REQ_BUDGET.bg;m.set(rid,onDrop||null);if(m.size>600){const f=m.keys().next().value;m.delete(f);}}
+function derivIsRateLimit(err){return !!err&&(err.code==='RateLimit'||/rate.?limit/i.test(String(err.message||'')));}
+function derivNoteRateLimit(){
+  const B=DERIV_REQ_BUDGET,now=Date.now();
+  if(now-B.rlLast>180000)B.rlLevel=0;
+  if(now-B.rlLast>2000||!B.rlLevel){B.rlLevel=Math.min(5,B.rlLevel+1);B.rlCount++;}
+  B.rlLast=now;
+  B.rlUntil=now+Math.min(180000,15000*Math.pow(2,B.rlLevel-1));   // background quotes: 15s, 30s, 60s, 120s, 180s
+  B.fgUntil=now+Math.min(10000,2000*B.rlLevel);                   // orders: short pause only
+  return Math.ceil((B.rlUntil-now)/1000);
+}
+function derivToastRateLimit(secs){
+  const B=DERIV_REQ_BUDGET,now=Date.now();
+  if(now-B.rlToastAt<20000)return;B.rlToastAt=now;
+  toast(`⏳ Deriv rate limit reached. Price checks are paused for ${secs}s and orders will retry automatically.`,'info');
+}
+function derivBgPollingWanted(){
+  if(Date.now()<DERIV_REQ_BUDGET.rlUntil)return false;       // Deriv just said "rate limit": queue nothing until the pause ends
+  const exec=(typeof EO!=='undefined'&&EO.autoTradeEnabled||typeof OUD!=='undefined'&&OUD.autoTradeEnabled)&&typeof PX!=='undefined'&&PX.running;
+  if(exec)return true;
+  return !document.hidden&&isTabActive('premium');
+}
+function derivBgInterval(){
+  const exec=(typeof EO!=='undefined'&&EO.autoTradeEnabled||typeof OUD!=='undefined'&&OUD.autoTradeEnabled)&&typeof PX!=='undefined'&&PX.running;
+  return exec?55000:100000;
+}
 function installDerivRequestBudget(socket){
   if(!socket||socket.__emronBudgetWrapped)return;
   const native=socket.send.bind(socket);
@@ -3724,26 +3776,69 @@ function installDerivRequestBudget(socket){
     let obj=null;try{if(typeof raw==='string')obj=JSON.parse(raw);}catch(_){}
     const limited=!!(obj&&(obj.proposal===1||obj.proposal_open_contract===1||Object.prototype.hasOwnProperty.call(obj,'buy')||Object.prototype.hasOwnProperty.call(obj,'sell')));
     if(!limited)return native(raw);
-    DERIV_REQ_BUDGET.queue.push({socket,raw,native,at:Date.now()});
+    const B=DERIV_REQ_BUDGET,bg=!!(obj&&obj.proposal===1&&obj.req_id!=null&&B.bg.has(obj.req_id));
+    (bg?B.bgQueue:B.queue).push({socket,raw,native,at:Date.now(),bg,rid:obj&&obj.req_id});
     drainDerivRequestBudget();return;
   };
   socket.__emronBudgetWrapped=true;
 }
 function drainDerivRequestBudget(){
-  if(DERIV_REQ_BUDGET.timer)return;
+  const B=DERIV_REQ_BUDGET;
+  if(B.timer)return;
   const now=Date.now();
-  DERIV_REQ_BUDGET.sent=DERIV_REQ_BUDGET.sent.filter(t=>now-t<60000);
-  while(DERIV_REQ_BUDGET.queue.length&&DERIV_REQ_BUDGET.queue[0].socket.readyState!==WebSocket.OPEN)DERIV_REQ_BUDGET.queue.shift();
-  if(!DERIV_REQ_BUDGET.queue.length)return;
-  const waitRate=DERIV_REQ_BUDGET.sent.length>=DERIV_REQ_BUDGET.cap?Math.max(100,60010-(now-DERIV_REQ_BUDGET.sent[0])):0;
-  const waitGap=Math.max(0,DERIV_REQ_BUDGET.minGap-(now-DERIV_REQ_BUDGET.lastDispatch));
-  const wait=Math.max(waitRate,waitGap);
-  if(wait>0){DERIV_REQ_BUDGET.timer=setTimeout(()=>{DERIV_REQ_BUDGET.timer=null;drainDerivRequestBudget();},wait);return;}
-  const job=DERIV_REQ_BUDGET.queue.shift();
-  try{job.native(job.raw);DERIV_REQ_BUDGET.sent.push(Date.now());DERIV_REQ_BUDGET.lastDispatch=Date.now();}
+  while(B.sent.length&&now-B.sent[0]>=60000)B.sent.shift();
+  while(B.sentHour.length&&now-B.sentHour[0]>=3600000)B.sentHour.shift();
+  [B.queue,B.bgQueue].forEach(q=>{while(q.length&&q[0].socket.readyState!==WebSocket.OPEN)q.shift();});
+  // a quote that waited more than 25s is no longer useful: hand it back so the poller can ask again later
+  while(B.bgQueue.length&&now-B.bgQueue[0].at>25000){const j=B.bgQueue.shift();const cb=B.bg.get(j.rid);B.bg.delete(j.rid);if(cb){try{cb();}catch(_){}}}
+  if(!B.queue.length&&!B.bgQueue.length)return;
+  const share=Math.max(1,B.tabs),cap=Math.max(40,Math.floor(B.baseCap/share)),hourCap=Math.floor(B.hourCap/share);
+  const bgCap=Math.floor(cap*B.bgShare),bgHour=Math.floor(hourCap*B.bgHourShare);
+  let lane=null;
+  if(B.queue.length&&now>=B.fgUntil&&B.sent.length<cap&&B.sentHour.length<hourCap)lane=B.queue;
+  else if(B.bgQueue.length&&now>=B.rlUntil&&B.sent.length<bgCap&&B.sentHour.length<bgHour)lane=B.bgQueue;
+  if(!lane){
+    let w=1000;
+    if(B.sent.length>=bgCap&&B.sent.length)w=Math.max(200,Math.min(5000,60010-(now-B.sent[0])));
+    if(now<B.fgUntil)w=Math.min(w,Math.max(200,B.fgUntil-now));
+    B.timer=setTimeout(()=>{B.timer=null;drainDerivRequestBudget();},w);return;
+  }
+  const waitGap=Math.max(0,B.minGap-(now-B.lastDispatch));
+  if(waitGap>0){B.timer=setTimeout(()=>{B.timer=null;drainDerivRequestBudget();},waitGap);return;}
+  const job=lane.shift();
+  if(job.bg)B.bg.delete(job.rid);
+  try{job.native(job.raw);const t=Date.now();B.sent.push(t);B.sentHour.push(t);B.lastDispatch=t;}
   catch(e){console.warn('Deriv request send failed',e);}
-  if(DERIV_REQ_BUDGET.queue.length){DERIV_REQ_BUDGET.timer=setTimeout(()=>{DERIV_REQ_BUDGET.timer=null;drainDerivRequestBudget();},DERIV_REQ_BUDGET.minGap);}
+  if(B.queue.length||B.bgQueue.length){B.timer=setTimeout(()=>{B.timer=null;drainDerivRequestBudget();},B.minGap);}
 }
+/* every open EMRON tab writes a heartbeat; the count divides the shared Deriv allowance */
+(function emronTabShare(){
+  try{
+    const id='t'+Math.random().toString(36).slice(2),PFX='emron_tab_';
+    const beat=()=>{
+      const now=Date.now();let n=0;
+      try{
+        localStorage.setItem(PFX+id,String(now));
+        for(let i=localStorage.length-1;i>=0;i--){
+          const k=localStorage.key(i);if(!k||k.indexOf(PFX)!==0)continue;
+          const t=Number(localStorage.getItem(k));
+          if(now-t>9000){if(k!==PFX+id)localStorage.removeItem(k);}else n++;
+        }
+      }catch(_){n=1;}
+      n=Math.max(1,n);
+      const B=DERIV_REQ_BUDGET,was=B.tabs;B.tabs=n;
+      if(n>was&&n>1)toast(`⚠️ EMRON is open in ${n} tabs or windows. They share one Deriv request limit, so each one is slowed down. Close the extras to avoid rejected orders.`,'error');
+    };
+    window.addEventListener('beforeunload',()=>{try{localStorage.removeItem(PFX+id);}catch(_){}});
+    setInterval(beat,3000);setTimeout(beat,400);
+  }catch(_){}
+})();
+setInterval(()=>{
+  const el=document.getElementById('apiUse');if(!el)return;
+  const B=DERIV_REQ_BUDGET,now=Date.now();
+  const m=B.sent.filter(t=>now-t<60000).length,hr=B.sentHour.length;
+  el.textContent=`Deriv requests: ${m}/min · ${hr.toLocaleString()}/hour (limit 360 and 14,400, shared)${B.tabs>1?` · ${B.tabs} tabs open`:''}${now<B.rlUntil?' · price checks paused':''}`;
+},2000);
 async function connectWebSocket(token){
   const account = MODE === 'REAL' ? accountSessions.real : accountSessions.demo;
   const accountId = account && account.account_id;
@@ -4081,11 +4176,18 @@ function confirmRealMoney(summary){
   return window.confirm(`⚠️ REAL MONEY\n\n${summary}\n\nThese contracts use your real account balance. Losses are real and no profit is guaranteed. Continue?`);
 }
 function toast(msg, type='info'){
+  const ms = type==='error' ? 5200 : 3200, key = type+'|'+msg;
+  const same = Array.from(toastContainer.children).find(x => x.dataset.key===key);
+  if(same){                                       // identical message already showing: count it instead of stacking another card
+    const n = (Number(same.dataset.n)||1)+1; same.dataset.n = n; same.textContent = `${msg}  ×${n}`;
+    clearTimeout(same._t); same._t = setTimeout(() => same.remove(), ms); return;
+  }
   const el = document.createElement('div');
-  el.className = `toast ${type}`;
-  el.textContent = msg;
+  el.className = `toast ${type}`; el.dataset.key = key; el.textContent = msg; el.title = 'Click to dismiss';
+  el.addEventListener('click', () => el.remove());
+  while(toastContainer.children.length >= 4) toastContainer.firstElementChild.remove();
   toastContainer.appendChild(el);
-  setTimeout(() => el.remove(), 3200);
+  el._t = setTimeout(() => el.remove(), ms);
 }
 
 function syncNavActive(tabName){
@@ -4995,10 +5097,12 @@ function eoProfileSignals(profile){
 }
 function eoMaybeRequestQuotes(mkt){
   if(!wsConnected||!ws||ws.readyState!==WebSocket.OPEN||!accessToken||!mkt)return;
+  if(!derivBgPollingWanted())return;            // nobody is looking at the scanner and it is not trading: do not spend Deriv requests
+  const every=derivBgInterval();
   ['DIGITEVEN','DIGITODD'].forEach(type=>{
     const key=eoQuoteKey(mkt.code,type),last=EO.quoteAsked.get(key)||0;
     const q=EO.quotes.get(key);
-    if(Date.now()-last<60000||EO.quoteQueued.has(key)||(q&&Date.now()-q.at<60000))return;
+    if(Date.now()-last<every||EO.quoteQueued.has(key)||(q&&Date.now()-q.at<every))return;
     EO.quoteQueued.add(key);EO.quoteQueue.push({key,symbol:mkt.code,type});eoDispatchQuoteQueue();
   });
 }
@@ -5011,6 +5115,7 @@ function eoDispatchQuoteQueue(){
     EO.quoteQueued.delete(job.key);EO.quoteAsked.set(job.key,Date.now());
     const rid=wsReqId++;
     EO.quotePending.set(rid,job);
+    derivMarkBg(rid,()=>{EO.quotePending.delete(rid);EO.quoteAsked.set(job.key,0);});
     const amount=stakeForApi(Math.max(.35,Number(PX.cfg.stake)||1)).number;
     try{
       ws.send(JSON.stringify({proposal:1,amount,basis:'stake',contract_type:job.type,currency:(accountInfo&&accountInfo.currency)||'USD',
@@ -5023,6 +5128,7 @@ function eoDispatchQuoteQueue(){
 function eoHandleQuoteResponse(data){
   if(!data||data.req_id==null||!EO.quotePending.has(data.req_id))return false;
   const job=EO.quotePending.get(data.req_id);EO.quotePending.delete(data.req_id);
+  if(data.error&&derivIsRateLimit(data.error)){EO.quoteAsked.set(job.key,Date.now());derivNoteRateLimit();eoLog('quote','Deriv rate limit reached: scanner price checks paused for a while');return true;}
   if(data.error||!data.proposal){
     EO.quotes.set(job.key,{error:data.error&&data.error.message||'No proposal returned',at:Date.now()});
     eoLog('quote',`${job.symbol} ${job.type}: proposal unavailable`);
@@ -5350,9 +5456,11 @@ function oudOnLiveTick(m,epoch){
 }
 function oudMaybeRequestQuotes(m){
   if(!wsConnected||!ws||ws.readyState!==WebSocket.OPEN||!accessToken||!m)return;
+  if(!derivBgPollingWanted())return;            // nobody is looking at the scanner and it is not trading: do not spend Deriv requests
+  const every=derivBgInterval();
   for(const type of ['RUNHIGH','RUNLOW'])for(const duration of OUD_DURATIONS){
     const key=oudQuoteKey(m.code,type,duration),asked=OUD.quoteAsked.get(key)||0,q=OUD.quotes.get(key);
-    if(Date.now()-asked<60000||OUD.quoteQueued.has(key)||(q&&Date.now()-q.at<60000))continue;
+    if(Date.now()-asked<every||OUD.quoteQueued.has(key)||(q&&Date.now()-q.at<every))continue;
     OUD.quoteQueued.add(key);OUD.quoteQueue.push({key,symbol:m.code,type,duration});
   }
   oudDispatchQuoteQueue();
@@ -5364,6 +5472,7 @@ function oudDispatchQuoteQueue(){
     const job=OUD.quoteQueue.shift();if(!job)return;OUD.quoteQueued.delete(job.key);OUD.quoteAsked.set(job.key,Date.now());
     const rid=wsReqId++,amount=stakeForApi(Math.max(.35,Number(PX.cfg.stake)||1)).number;
     OUD.quotePending.set(rid,job);
+    derivMarkBg(rid,()=>{OUD.quotePending.delete(rid);OUD.quoteAsked.set(job.key,0);});
     try{ws.send(JSON.stringify({proposal:1,amount,basis:'stake',contract_type:job.type,currency:(accountInfo&&accountInfo.currency)||'USD',duration:job.duration,duration_unit:'t',underlying_symbol:job.symbol,req_id:rid}));}
     catch(e){OUD.quotePending.delete(rid);OUD.quoteAsked.set(job.key,0);}
     oudDispatchQuoteQueue();
@@ -5372,6 +5481,7 @@ function oudDispatchQuoteQueue(){
 function oudHandleQuoteResponse(data){
   if(!data||data.req_id==null||!OUD.quotePending.has(data.req_id))return false;
   const job=OUD.quotePending.get(data.req_id);OUD.quotePending.delete(data.req_id);
+  if(data.error&&derivIsRateLimit(data.error)){OUD.quoteAsked.set(job.key,Date.now());derivNoteRateLimit();oudLog('quote','Deriv rate limit reached: scanner price checks paused for a while');return true;}
   if(data.error||!data.proposal){OUD.quotes.set(job.key,{error:data.error&&data.error.message||'No proposal returned',at:Date.now()});oudLog('quote',`${job.symbol} ${job.type} ${job.duration}t unavailable: ${data.error&&data.error.message||'no proposal'}`);}
   else{const p=data.proposal,ask=Number(p.ask_price),payout=Number(p.payout),be=eoBreakEven(ask,payout);OUD.quotes.set(job.key,{ask,payout,breakEven:be,at:Date.now()});}
   oudUpdateFDR(true);oudRender(false);return true;
@@ -5816,6 +5926,13 @@ function pxPlace(c){
   pxAudit('signal',`${PX_STRATS[c.strategy].name} · ${c.short} · ${c.label} (${c.conf}%) — ${c.why}`);
   pxSetStatus(`Checking the proposed contract — ${c.short} · ${c.label}`);
   ws.send(JSON.stringify({proposal:1,...params,req_id:reqId}));
+}
+function premiumOnRateLimited(t){
+  if(t.sid!==PX.sid)return;
+  PX.open=null;                                   // nothing was bought; the next scan may try again
+  PX.nextAt=Date.now()+Math.max(3000,DERIV_REQ_BUDGET.fgUntil-Date.now()+1000);
+  pxAudit('error','Deriv rate limit reached: the order was not placed. Retrying shortly; background price checks are paused.');
+  pxSetStatus('Deriv rate limit reached — retrying in a few seconds…');
 }
 function premiumOnTradeError(t,msg,ambiguous){
   if(t.sid!==PX.sid) return;
