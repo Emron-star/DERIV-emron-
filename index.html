@@ -1606,7 +1606,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
       <h3>🎯 AI Hunter</h3>
       <div class="faq-item">
         <div class="faq-question">What does the Sniper Hunter scan?<span>+</span></div>
-        <div class="faq-answer">Sniper Hunter scans all 15 markets (10 Volatility + 5 Jump) across four signal families: Rise/Fall (momentum + structure + trend + efficiency ratio), Only Ups / Only Downs (2-tick run-length probability over the last 50 ticks), High/Low Tick (barrier-digit z-test against the fair baseline), and Over/Under (barrier z-test). Each tab re-ranks every market and only shows the strongest edges at or above the active threshold.</div>
+        <div class="faq-answer">Sniper Hunter scans all 10 Volatility markets across four signal families: Rise/Fall (momentum + structure + trend + efficiency ratio), Only Ups / Only Downs (2-tick run-length probability over the last 50 ticks), High/Low Tick (barrier-digit z-test against the fair baseline), and Over/Under (barrier z-test). Each tab re-ranks every market and only shows the strongest edges at or above the active threshold.</div>
       </div>
       <div class="faq-item">
         <div class="faq-question">How does the High / Low Tick tab pick a barrier?<span>+</span></div>
@@ -1777,8 +1777,7 @@ const ACCOUNTS_ENDPOINT = "/trading/v1/options/accounts";
 const MARKET_SYMBOLS = {
   'Volatility 10':'R_10','Volatility 25':'R_25','Volatility 50':'R_50','Volatility 75':'R_75','Volatility 100':'R_100',
   'Volatility 10 (1s)':'1HZ10V','Volatility 25 (1s)':'1HZ25V','Volatility 50 (1s)':'1HZ50V',
-  'Volatility 75 (1s)':'1HZ75V','Volatility 100 (1s)':'1HZ100V',
-  'Crash 500':'CRASH500N','Boom 500':'BOOM500N','Range Break':'RDBREAK'
+  'Volatility 75 (1s)':'1HZ75V','Volatility 100 (1s)':'1HZ100V'
 };
 const getSymbol = m => MARKET_SYMBOLS[m] || 'R_50';
 
@@ -4451,13 +4450,9 @@ const HUNTER = {
   tab: 'evenodd',
   best: null,
   lastRender: 0,
-  extraSymbols: [
-    { code:"JD10", short:"JD10", name:"Jump 10 Index", decimals:2 },
-    { code:"JD25", short:"JD25", name:"Jump 25 Index", decimals:2 },
-    { code:"JD50", short:"JD50", name:"Jump 50 Index", decimals:2 },
-    { code:"JD75", short:"JD75", name:"Jump 75 Index", decimals:2 },
-    { code:"JD100", short:"JD100", name:"Jump 100 Index", decimals:2 }
-  ]
+  // Jump, Boom, Crash, Step and Range Break indices were removed: the bots could not buy them.
+  // Kept as an empty list because other code concatenates it with the Volatility markets.
+  extraSymbols: []
 };
 HUNTER.extraSymbols.forEach(s => {
   if(!engineState.markets.has(s.code)){
