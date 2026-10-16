@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src data:; connect-src https://*.derivws.com wss://*.derivws.com https://*.deriv.com wss://*.deriv.com; base-uri 'none'; form-action 'none'; object-src 'none'">
-<title>EMRON AI — Strategy Row + Pulse Switch-on-Loss Engine</title>
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://api.derivws.com wss://api.derivws.com; img-src data: blob:; base-uri 'none'; form-action 'none'">
+<title>EMRON AI — Control Center · Auto Runs · Live Market Discovery</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -36,7 +36,7 @@ input,select,textarea{font-family:inherit;font-size:16px;touch-action:manipulati
 a{color:inherit;text-decoration:none}
 
 /* ===== APP SHELL — no sidebar column anymore ===== */
-.app{display:grid;grid-template-rows:var(--topbar-height) 1fr auto;
+.app{display:grid;grid-template-rows:var(--topbar-height) 1fr var(--footer-height);
   grid-template-columns:1fr;
   grid-template-areas:"topbar" "main" "footer";
   min-height:100vh;min-height:100dvh;position:relative;z-index:1;max-width:100vw;overflow:hidden}
@@ -392,7 +392,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
   display:flex;flex-direction:column;gap:6px;pointer-events:none;max-width:400px;width:calc(100% - 24px)}
 .toast{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);
   padding:10px 14px;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:8px;
-  font-size:12px;animation:toastIn .3s ease;pointer-events:auto;cursor:pointer}
+  font-size:12px;animation:toastIn .3s ease;pointer-events:auto}
 .toast.success{border-color:var(--accent-green)}
 .toast.success::before{content:'✓';color:var(--accent-green);font-weight:700}
 .toast.error{border-color:var(--accent-red)}
@@ -402,7 +402,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
 @keyframes toastIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 .footer{grid-area:footer;padding:10px 20px;border-top:1px solid var(--border);text-align:center;
   font-size:10px;color:var(--text-muted);background:var(--bg-card);display:flex;align-items:center;
-  justify-content:center;flex-wrap:wrap;gap:6px;min-height:var(--footer-height);height:auto}
+  justify-content:center;flex-wrap:wrap;gap:6px;min-height:var(--footer-height);height:var(--footer-height)}
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);display:none;
   align-items:center;justify-content:center;z-index:1000;padding:12px}
 .modal-overlay.active{display:flex;animation:fadeIn .2s ease}
@@ -736,87 +736,74 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
   #premium .eo-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 
-#bulkAccountsInput{-webkit-text-security:disc;text-security:disc}
-.risk-strip{display:flex;gap:10px;align-items:flex-start;padding:10px 14px;margin-bottom:14px;border:1px solid var(--accent-yellow);border-radius:var(--radius-md);background:rgba(255,214,0,.07);font-size:11px;line-height:1.55}
-.risk-strip strong{color:var(--accent-yellow)}
 
-/* ===== EMRON AUTO — responsive layouts (phone / tablet / laptop) ===== */
-#premium .px-shell{width:100%}
-#premium .px-shell .px-list{max-height:min(360px,55vh)}
-#premium .px-shell .px-table-safe{overflow-x:auto}
-#premium .eo-table-wrap{-webkit-overflow-scrolling:touch}
-
-/* PHONE (≤600px): fill the screen, 16px inputs so iOS does not zoom, thumb-sized controls */
-@media (max-width:600px){
-  #premium .px-shell{max-width:none;border-radius:14px;padding:10px 10px 6px}
-  #premium .px-input input,#premium .px-input select,#premium .px-field>select,#premium .eo-select{font-size:16px}
-  #premium .px-two{grid-template-columns:1fr}
-  #premium .px-stop,#premium .px-reset,#premium .px-adv-t,#premium .px-fam,#premium .eo-btn{min-height:42px}
-  #premium .px-sell{min-height:34px;padding:0 12px}
-  #premium .px-bot{padding-bottom:calc(6px + env(safe-area-inset-bottom,0px))}
-  #premium .px-acct-t b{font-size:12px}
-  #premium .px-scan-card{min-width:0;width:calc(100% - 28px);padding:16px 18px}
-  #premium .px-mc{max-width:none}
-}
-/* the inline grid on the Only Ups/Downs controls would otherwise beat the small-screen rule */
-@media (max-width:520px){
-  #premium .eo-controls{grid-template-columns:1fr 1fr!important}
-  #premium .eo-controls label{grid-column:1/-1}
-  #premium .eo-controls .eo-btn{width:100%}
-}
-@media (max-width:360px){
-  #premium .px-cards{grid-template-columns:1fr}
-  #premium .px-stats{grid-template-columns:1fr 1fr}
-  #premium .px-bot button{font-size:8px}
-}
-
-/* TABLET (601–1023px): wider single column, roomier grids */
-@media (min-width:601px) and (max-width:1023px){
-  #premium .px-shell{max-width:780px;padding:16px 18px 10px}
-  #premium .px-cards{grid-template-columns:repeat(3,1fr)}
-  #premium .px-stats{grid-template-columns:repeat(6,1fr)}
-  #premium .px-shell .px-list{max-height:min(480px,60vh)}
-  #premium .px-mc{max-width:380px}
-}
-
-/* LAPTOP / DESKTOP (≥1024px): settings on the left, live trading on the right */
-@media (min-width:1024px){
-  #premium .px-shell{max-width:1280px;padding:18px 22px 12px;display:grid;
-    grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);column-gap:22px;align-items:start}
-  #premium .px-head,#premium .px-collapse,#premium .px-ticker,#premium .px-bot{grid-column:1/-1}
-  #premium .px-head{grid-row:1}
-  #premium .px-collapse{grid-row:2}
-  #premium .px-ticker{grid-row:3}
-  #premium .px-shell{grid-template-rows:auto auto auto auto auto auto auto auto auto 1fr auto}
-  #premium .px-config{grid-column:1;grid-row:4/11;margin-bottom:0;max-height:max(520px,calc(100vh - 230px));overflow-y:auto;overscroll-behavior:contain;padding-right:6px;scrollbar-width:thin}
-  #premium .px-status{grid-column:2;grid-row:4}
-  #premium .px-chips{grid-column:2;grid-row:5}
-  #premium .px-logbox{grid-column:2;grid-row:6}
-  #premium .px-tx{grid-column:2;grid-row:7}
-  #premium .px-stats{grid-column:2;grid-row:8;grid-template-columns:repeat(3,1fr)}
-  #premium #pxSessNote{grid-column:2;grid-row:9}
-  #premium .px-bot{grid-row:11;max-width:560px;width:100%;justify-self:center}
-  #premium .px-status,#premium .px-chips,#premium .px-logbox,#premium .px-tx,#premium .px-stats,#premium #pxSessNote{align-self:start}
-  /* when the settings panel is collapsed, let the trading column use the full width */
-  #premium .px-shell:has(.px-config:not(.open)) :is(.px-status,.px-chips,.px-logbox,.px-tx,.px-stats,#pxSessNote){grid-column:1/-1}
-  #premium .px-shell:has(.px-config:not(.open)) .px-config{display:none}
-  #premium .px-cards{grid-template-columns:repeat(3,1fr)}
-  #premium .px-shell .px-list{max-height:min(560px,62vh)}
-  #premium .px-mc{max-width:400px}
-}
-@media (min-width:1600px){
-  #premium .px-shell{max-width:1500px}
-}
-/* touch screens of any size: bigger tap targets */
-@media (pointer:coarse){
-  #premium .px-ib{width:42px;height:42px}
-  #premium .px-card,#premium .px-fam{min-height:44px}
-}
-/* short landscape phones: keep the scan card and modal on screen */
-@media (max-height:480px){
-  #premium .px-scan-card{padding:10px 20px}
-  #premium .px-mc{max-height:92vh;overflow-y:auto}
-}
+/* ===== v3: Control Center · Auto Runs · safety banner ===== */
+.v3-sub{font-size:11px;color:var(--text-muted);margin-top:3px;line-height:1.5;max-width:70ch}
+.v3-banner{display:none;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;position:sticky;top:-16px;z-index:90;
+  margin:-16px -16px 14px;padding:10px 16px;background:rgba(255,23,68,.14);border-bottom:1px solid var(--accent-red);color:#ffd0d8;font-size:12px;font-weight:600;backdrop-filter:blur(6px)}
+.v3-banner .btn{min-height:28px}
+body.v3-real .topbar{box-shadow:inset 0 -2px 0 var(--accent-red)}
+#v3KillBtn{background:rgba(255,23,68,.16);color:#ff6b86;border:1px solid var(--accent-red);font-weight:700}
+#v3KillBtn:hover{background:var(--accent-red);color:#fff}
+@media(max-width:1000px){#v3KillBtn .v3-kill-txt{display:none}}
+@media(max-width:700px){.topbar .balance .currency{display:none}}
+.v3-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.v3-tile{background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius-md);padding:10px 12px;min-width:0}
+.v3-tile .k{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted)}
+.v3-tile .v{font-family:'JetBrains Mono',monospace;font-size:17px;font-weight:600;margin-top:4px;overflow-wrap:anywhere}
+.v3-tile .s{font-size:10px;color:var(--text-dim);margin-top:3px;overflow-wrap:anywhere}
+.v3-good{color:var(--accent-green)}.v3-bad{color:var(--accent-red)}.v3-warn{color:var(--accent-yellow)}
+.v3-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,310px),1fr));gap:14px;margin-bottom:14px}
+.v3-grid>.card{margin-bottom:0;min-width:0}
+.v3-row{display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px}
+.v3-row:last-child{border-bottom:0}
+.v3-row>span:first-child{color:var(--text-muted);flex-shrink:0}
+.v3-row>span:last-child{font-family:'JetBrains Mono',monospace;text-align:right;overflow-wrap:anywhere}
+.v3-bar-label{display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);gap:8px}
+.v3-bar-label span:last-child{font-family:'JetBrains Mono',monospace}
+.v3-bar{height:6px;background:var(--bg-surface);border-radius:3px;overflow:hidden;margin:4px 0 9px}
+.v3-bar>i{display:block;height:100%;border-radius:3px;transition:width .3s}
+.v3-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.v3-form label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:4px}
+.v3-form input,.v3-form select,.v3-form textarea{width:100%;background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius-md);color:var(--text-primary);padding:8px 10px;font-size:14px;min-height:36px}
+.v3-form input:focus,.v3-form select:focus,.v3-form textarea:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 2px var(--primary-glow)}
+.v3-form textarea{font-family:'JetBrains Mono',monospace;font-size:12px;min-height:96px;resize:vertical}
+.v3-form .wide{grid-column:1/-1}
+.v3-note{font-size:11px;color:var(--text-muted);line-height:1.55;margin-top:8px}
+.v3-check{display:flex;align-items:flex-start;gap:8px;font-size:12px;margin:8px 0;cursor:pointer;line-height:1.4}
+.v3-check input{margin-top:2px;width:16px;height:16px;flex-shrink:0}
+.v3-verdict{margin:12px 0;padding:10px 12px;border-radius:var(--radius-md);border:1px solid var(--border);background:var(--bg-surface);font-size:12px;line-height:1.55}
+.v3-verdict.v3-bad{border-color:var(--accent-red)}.v3-verdict.v3-good{border-color:var(--accent-green)}.v3-verdict.v3-warn{border-color:var(--accent-yellow)}
+.v3-chart{margin:12px 0;border:1px solid var(--border);border-radius:var(--radius-md);background:var(--bg-surface);padding:8px 10px}
+.v3-chart svg{display:block;width:100%;height:130px}
+.v3-chart-axis{display:flex;justify-content:space-between;font-size:10px;color:var(--text-dim);font-family:'JetBrains Mono',monospace;margin-top:4px}
+.v3-tbl{width:100%;border-collapse:collapse;font-size:12px}
+.v3-tbl th{text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);font-weight:600;padding:6px 8px;border-bottom:1px solid var(--border)}
+.v3-tbl td{padding:6px 8px;border-bottom:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:11px;overflow-wrap:anywhere}
+.v3-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.v3-empty{font-size:12px;color:var(--text-dim);padding:12px 0}
+.v3-logline{display:flex;gap:8px;font-size:11px;padding:4px 0;border-bottom:1px solid var(--border);align-items:baseline}
+.v3-logline time{font-family:'JetBrains Mono',monospace;color:var(--text-dim);flex-shrink:0}
+.v3-logline b{font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);flex-shrink:0;min-width:42px}
+.v3-logline span{overflow-wrap:anywhere;min-width:0}
+.v3-k-kill,.v3-k-guard,.v3-k-rate,.v3-k-auth{color:var(--accent-red)!important}
+.v3-k-net{color:var(--accent-yellow)!important}.v3-k-feed{color:var(--accent-cyan)!important}
+.v3-chip{display:inline-block;font-size:9px;font-family:'JetBrains Mono',monospace;padding:2px 6px;border-radius:10px;background:var(--bg-hover);color:var(--text-muted);margin:2px 3px 0 0}
+.v3-chips{margin:6px 0}
+.v3-strat,.v3-run{background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px;margin-bottom:10px}
+.v3-strat-h,.v3-run-h{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.v3-strat-h code{font-size:10px;color:var(--text-muted)}
+.v3-strat-d{font-size:12px;color:var(--text-muted);margin-top:4px;line-height:1.5}
+.v3-strat-p{font-size:11px;color:var(--text-dim);margin:6px 0 8px;overflow-wrap:anywhere}
+.v3-run-m{font-size:11px;color:var(--text-muted);margin-top:4px;overflow-wrap:anywhere}
+.v3-run-s{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;font-family:'JetBrains Mono',monospace;margin:8px 0}
+.v3-run-a{display:flex;gap:6px;flex-wrap:wrap}
+.v3-badge{font-size:10px;font-weight:700;letter-spacing:.06em;padding:3px 8px;border-radius:10px;background:var(--bg-hover);color:var(--text-muted)}
+.v3-badge.on{background:rgba(0,230,118,.14);color:var(--accent-green)}.v3-badge.pause{background:rgba(255,214,0,.14);color:var(--accent-yellow)}
+.v3-details pre{font-size:11px;font-family:'JetBrains Mono',monospace;background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius-md);padding:10px;overflow:auto;max-height:260px;margin-top:8px;white-space:pre-wrap;overflow-wrap:anywhere}
+.v3-details summary{cursor:pointer;font-size:12px;color:var(--text-muted);padding:4px 0}
+.v3-warnbox{border:1px solid var(--accent-yellow);background:rgba(255,214,0,.07);border-radius:var(--radius-md);padding:10px 12px;font-size:12px;line-height:1.55;margin-bottom:12px}
+.v3-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 </style>
 </head>
 <body>
@@ -831,25 +818,27 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
     <button class="tab" data-tab="hunter" role="tab">🎯 AI Hunter</button>
     <button class="tab" data-tab="premium" role="tab">⚡ EMRON Auto</button>
     <button class="tab" data-tab="lab" role="tab">🧪 Edge Lab</button>
+    <button class="tab" data-tab="control" role="tab">🛡️ Control</button>
+    <button class="tab" data-tab="autorun" role="tab">🤖 Auto Runs</button>
     <button class="tab" data-tab="api-playground" role="tab">API Playground</button>
     <button class="tab" data-tab="help" role="tab">Help</button>
   </nav>
   <div class="topbar-right">
     <div class="status-indicator" id="internetStatus"><div class="status-dot"></div><span>Online</span></div>
     <div class="balance"><span class="currency">USD</span> <span id="balanceValue">1000.00</span></div>
+    <button class="btn btn-sm" id="v3KillBtn" title="Stop every engine and refuse new orders"><span aria-hidden="true">⏹</span><span class="v3-kill-txt"> STOP ALL</span></button>
     <button class="btn btn-sm" id="topModeToggleBtn" style="border:1px solid var(--accent-yellow);color:var(--accent-yellow);font-weight:600;">
       MODE: <strong id="topModeLabel">DEMO</strong>
     </button>
     <button class="btn btn-primary btn-sm" id="connectBtn">Connect</button>
-    <div class="avatar" id="avatar" title="Account">👤</div>
+    <div class="avatar" id="avatar">JD</div>
   </div>
 </header>
 
 <main class="main">
+<div class="v3-banner" id="v3Banner" role="alert"><span id="v3BannerText"></span><button class="btn btn-ghost btn-sm" id="v3BannerRearm">↺ Re-arm trading</button></div>
 
 <div class="tab-content active" id="trading-hub">
-
-  <div class="risk-strip" role="note"><span>⚠️</span><span><strong>Real money is at risk.</strong> Deriv's synthetic indices are random with a payout below fair odds, so every strategy loses money on average. Signals and confidence scores describe recent history, not the next tick. Practise on DEMO, keep stakes small, and never trade money you cannot afford to lose. Limits below run in this browser tab only — they stop if you close or sleep the tab.</span></div>
 
   <div class="card">
     <div class="card-header">
@@ -944,7 +933,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
       </div>
       <div class="form-group">
         <label>Session Take Profit ($)</label>
-        <input class="form-control" id="botTP" type="number" step="0.01" value="20.00">
+        <input class="form-control" id="botTP" type="number" step="0.01" value="1000.00">
       </div>
       <div class="form-group">
         <label>Stop Loss ($)</label>
@@ -980,8 +969,8 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
   <div class="card hl-pair-panel">
     <div class="card-header">
       <div>
-        <div class="card-title">↕️ Over + Under Digit Pair Execution</div>
-        <div class="hl-pair-subtitle">Submit Over and Under digit contracts back-to-back from the same qualified signal. Both proposal requests are sent immediately; each contract is bought as soon as its proposal returns.</div>
+        <div class="card-title">↕️ Higher / Lower Pair Execution</div>
+        <div class="hl-pair-subtitle">Submit Higher and Lower contracts back-to-back from the same qualified signal. Both proposal requests are sent immediately; each contract is bought as soon as its proposal returns.</div>
       </div>
       <span class="free-badge" id="pairStatusTag">PAIR OFF</span>
     </div>
@@ -991,7 +980,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
         <label>Contract Mode</label>
         <select class="form-control" id="botPairMode">
           <option value="OFF" selected>Single Contract</option>
-          <option value="HIGHER_LOWER">Over + Under (digits) Together</option>
+          <option value="HIGHER_LOWER">Higher + Lower Together</option>
         </select>
       </div>
       <div class="form-group">
@@ -1008,11 +997,11 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
       </div>
       <div class="form-group">
         <label>Take Profit ($)</label>
-        <input class="form-control" id="botPairTP" type="number" min="0.35" step="0.01" value="20.00">
+        <input class="form-control" id="botPairTP" type="number" min="0.35" step="0.01" value="1000.00">
       </div>
     </div>
     <div class="hl-pair-note" id="pairModeHelp">
-      Pair mode is off. Select <b>Over + Under (digits) Together</b> to submit DIGITOVER and DIGITUNDER using the same barrier and tick duration. The existing strategy/signal engine remains the entry trigger. <b>Note:</b> when the final digit equals the barrier, both legs lose.
+      Pair mode is off. Select <b>Higher + Lower Together</b> to submit DIGITOVER and DIGITUNDER using the same barrier and tick duration. The existing strategy/signal engine remains the entry trigger.
     </div>
   </div>
 
@@ -1023,7 +1012,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
     </div>
     <div class="brain-grid">
       <div class="brain-box"><div class="brain-label">Daily EMRON P/L</div><div class="brain-value good" id="brainDailyPL">$0.00</div></div>
-      <div class="brain-box"><div class="brain-label">Daily Target</div><div class="brain-value cyan" id="brainDailyTarget">$20.00</div></div>
+      <div class="brain-box"><div class="brain-label">Daily Target</div><div class="brain-value cyan" id="brainDailyTarget">$1,000.00</div></div>
       <div class="brain-box"><div class="brain-label">Life Score</div><div class="brain-value cyan" id="brainLifeScore">50.0</div></div>
       <div class="brain-box"><div class="brain-label">Learning Updates</div><div class="brain-value" id="brainLearningUpdates">0</div></div>
     </div>
@@ -1034,7 +1023,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
       <div class="brain-box"><div class="brain-label">Entry Gate</div><div class="brain-value good" id="brainGate">WATCHING</div></div>
     </div>
     <div class="brain-gate"><span id="brainAction">Collecting evidence before the next entry…</span><strong id="brainState">TRAINING</strong></div>
-    <div class="brain-note">The engine learns from settled EMRON trades, raises the entry bar after weak conditions, reduces stake under drawdown, and can rotate across the configured markets/selected strategies when the current setup fails its adaptive gate. REAL mode is never enabled automatically; "DEMO-REVIEW" is only a flag that enough demo data exists to review manually — it is not evidence of future profit.</div>
+    <div class="brain-note">The engine learns from settled EMRON trades, raises the entry bar after weak conditions, reduces stake under drawdown, and can rotate across the configured markets/selected strategies when the current setup fails its adaptive gate. REAL mode is never enabled automatically; "LIVE-READY" is a validation state for manual review.</div>
   </div>
 
   <div class="card">
@@ -1050,7 +1039,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
     <div class="progress-container">
       <div class="progress-label">
         <span class="current">$<span id="windowProfit">0.00</span></span>
-        <span class="target">/ $<span id="profitTargetDisplay">20.00</span> DAILY · $<span id="stopLossDisplay">20.00</span> SL</span>
+        <span class="target">/ $<span id="profitTargetDisplay">1000.00</span> DAILY · $<span id="stopLossDisplay">20.00</span> SL</span>
       </div>
       <div class="progress-bar"><div class="progress-fill" id="profitFill" style="width:0%"></div></div>
     </div>
@@ -1266,7 +1255,6 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
       </button>
     </div>
     <div class="hunter-exec-status" id="hunterExecStatus">No executable signals yet.</div>
-    <button class="btn btn-ghost btn-sm" id="hunterResetBtn" type="button" style="margin:-4px 0 10px;">↺ Reset Hunter session P/L</button>
 
     <div class="hunter-tabs" id="hunterSignalTabs">
       <button class="hunter-tab active" data-htab="evenodd">Even / Odd</button>
@@ -1494,7 +1482,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
     </table></div>
     <div class="hunter-note" id="labBias" style="margin-top:12px"></div>
     <div class="hunter-note" id="labNote"></div>
-    <div class="hunter-note"><strong>How to read this:</strong> Deriv states that its synthetic indices are driven by a cryptographically secure, independently audited random number generator, and no staking pattern (including any recovery or doubling scheme) can change the expected result of a fair or negative-edge game. A healthy result here is therefore "No measurable edge". If a row ever shows "Edge — verify", treat it as a lead, not a fact: re-run later and confirm it holds on fresh ticks before risking money.</div>
+    <div class="hunter-note"><strong>How to read this:</strong> Deriv states that its synthetic indices are driven by a cryptographically secure, independently audited random number generator, and no staking pattern (including the x1.6 recovery) can change the expected result of a fair or negative-edge game. A healthy result here is therefore "No measurable edge". If a row ever shows "Edge — verify", treat it as a lead, not a fact: re-run later and confirm it holds on fresh ticks before risking money.</div>
   </div>
 </div>
 <div class="tab-content" id="api-playground">
@@ -1569,6 +1557,130 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
   </div>
 </div>
 
+<div class="tab-content" id="control">
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-title">🛡️ Control Center</div>
+        <div class="v3-sub">One place to see whether the site is healthy and safe, and what it has actually done. The guard here sits in front of every order from every engine.</div>
+      </div>
+      <div class="v3-actions">
+        <button class="btn btn-danger" id="v3KillBtn2">⏹ Stop everything</button>
+        <button class="btn btn-ghost" id="v3RearmBtn">↺ Re-arm trading</button>
+      </div>
+    </div>
+    <div class="v3-tiles" id="v3Tiles"></div>
+  </div>
+
+  <div class="v3-grid">
+    <div class="card">
+      <div class="card-header"><div class="card-title">📶 Connection &amp; request budget</div></div>
+      <div id="v3Health"></div>
+      <div class="v3-note">Deriv allows 360 proposals/orders per minute and 14,400 per hour on one account. EMRON paces itself to about 330 per minute and backs off automatically if Deriv ever answers with a rate-limit error.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><div class="card-title">🧯 Safety limits <span class="free-badge">ALL ENGINES</span></div></div>
+      <div class="v3-form">
+        <div><label for="v3CapDaily">Daily loss cap ($)</label><input id="v3CapDaily" type="number" min="0" step="0.01" placeholder="0 = off"></div>
+        <div><label for="v3CapStake">Max stake per order ($)</label><input id="v3CapStake" type="number" min="0" step="0.01" placeholder="0 = off"></div>
+        <div><label for="v3CapOpen">Max open contracts</label><input id="v3CapOpen" type="number" min="0" step="1" placeholder="0 = off"></div>
+        <div><label for="v3CapStreak">Stop after N losses in a row</label><input id="v3CapStreak" type="number" min="0" step="1" placeholder="0 = off"></div>
+        <div><label for="v3CapErr">Stop after N rejected orders</label><input id="v3CapErr" type="number" min="0" step="1" placeholder="0 = off"></div>
+      </div>
+      <div class="v3-note">These apply on top of each engine's own limits. When one trips, every engine and server-side run is stopped and new orders are refused until you re-arm. Leave a field at 0 to switch that limit off.</div>
+      <label class="v3-check"><input type="checkbox" id="v3Sound"><span>Play a sound when trading stops or a limit trips</span></label>
+      <label class="v3-check"><input type="checkbox" id="v3Notify"><span>Show a browser notification if this tab is in the background</span></label>
+      <label class="v3-check"><input type="checkbox" id="v3Wake"><span>Keep the screen awake while an engine is running (phones pause background tabs, which stops trading)</span></label>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div><div class="card-title">📒 Trade journal <span class="free-badge">ALL ENGINES</span></div>
+      <div class="v3-sub">Every contract that settles on this browser, whichever engine opened it. Stored only on this device.</div></div>
+      <div class="v3-actions">
+        <select class="form-control" id="v3JRange" style="min-height:32px;padding:4px 8px"><option value="today">Today</option><option value="all">All time</option></select>
+        <select class="form-control" id="v3JMode" style="min-height:32px;padding:4px 8px"><option value="current">Current mode only</option><option value="all">Demo + Real</option></select>
+        <button class="btn btn-ghost btn-sm" id="v3JExport">⬇ CSV</button>
+        <button class="btn btn-ghost btn-sm" id="v3JClear">Clear</button>
+      </div>
+    </div>
+    <div class="v3-tiles" id="v3JStats"></div>
+    <div class="v3-verdict" id="v3JVerdict"></div>
+    <div class="v3-chart" id="v3JChart"></div>
+    <div class="v3-grid">
+      <div class="v3-scroll"><table class="v3-tbl" id="v3JBy"></table></div>
+      <div class="v3-scroll"><table class="v3-tbl" id="v3JRecent"></table></div>
+    </div>
+  </div>
+
+  <div class="v3-grid">
+    <div class="card">
+      <div class="card-header"><div class="card-title">📡 Market feed</div></div>
+      <div class="v3-note" id="v3Catalogue" style="margin:0 0 8px"></div>
+      <div class="v3-scroll"><table class="v3-tbl" id="v3Feed"></table></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">🧾 Activity</div></div>
+      <div id="v3Log"></div>
+    </div>
+  </div>
+</div>
+
+<div class="tab-content" id="autorun">
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-title">🤖 Auto Runs <span class="free-badge">DERIV SERVER-SIDE · BETA</span></div>
+        <div class="v3-sub">Deriv's Automation API runs a strategy for you on Deriv's own servers, so it keeps going when this page is closed, your phone sleeps, or your connection drops. Pick a strategy Deriv offers, set the contract, and start it.</div>
+      </div>
+      <div class="v3-actions">
+        <button class="btn btn-primary btn-sm" id="arLoad">Load strategies</button>
+        <button class="btn btn-ghost btn-sm" id="arRefresh">↻ Refresh runs</button>
+        <button class="btn btn-danger btn-sm" id="arStopAll">⏹ Stop all runs</button>
+      </div>
+    </div>
+    <div class="v3-warnbox"><b>Read before starting.</b> A server-side run keeps placing contracts until it is stopped or its own limits trigger — including strategies that raise the stake after a loss. Synthetic indices are random, so no strategy has an edge over the payout margin; start on the Demo account, keep stakes small, and set any stop or round limits the strategy offers in its parameters.</div>
+    <div class="v3-note" id="arStatus" style="margin:0"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><div class="card-title">Available strategies</div></div>
+    <div id="arStrategies"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><div class="card-title">Start a run</div></div>
+    <div class="v3-form">
+      <div class="wide"><label for="arStrategy">Strategy</label><select id="arStrategy"></select></div>
+      <div><label for="arSymbol">Market</label><input id="arSymbol" list="arSymbolList" autocomplete="off" spellcheck="false" placeholder="1HZ100V"><datalist id="arSymbolList"></datalist></div>
+      <div><label for="arContract">Contract</label><select id="arContract"></select></div>
+      <div id="arWrapBasis"><label for="arBasis">Amount is</label><select id="arBasis"><option value="stake">Stake</option><option value="payout">Payout</option></select></div>
+      <div><label for="arAmount">Amount</label><input id="arAmount" type="number" min="0.35" step="0.01" value="1"></div>
+      <div id="arWrapDur"><label for="arDuration">Duration</label><input id="arDuration" type="number" min="1" step="1" value="1"></div>
+      <div id="arWrapUnit"><label for="arUnit">Unit</label><select id="arUnit"><option value="t">Ticks</option><option value="s">Seconds</option><option value="m">Minutes</option><option value="h">Hours</option><option value="d">Days</option></select></div>
+      <div id="arWrapBarrier"><label for="arBarrier">Barrier / digit</label><input id="arBarrier" placeholder="e.g. 5 or +0.5"></div>
+      <div id="arWrapBarrier2"><label for="arBarrier2">Low barrier</label><input id="arBarrier2" placeholder="e.g. -0.5"></div>
+      <div id="arWrapTick"><label for="arTick">Selected tick (1–5)</label><input id="arTick" type="number" min="1" max="5" step="1" value="3"></div>
+      <div id="arWrapGrowth"><label for="arGrowth">Growth rate</label><select id="arGrowth"><option value="0.01">1%</option><option value="0.02">2%</option><option value="0.03">3%</option><option value="0.04">4%</option><option value="0.05">5%</option></select></div>
+      <div id="arWrapMult"><label for="arMult">Multiplier</label><input id="arMult" type="number" min="1" step="1" value="10"></div>
+      <div id="arWrapTP"><label for="arTP">Take profit ($)</label><input id="arTP" type="number" min="0" step="0.01" placeholder="optional"></div>
+      <div id="arWrapSL"><label for="arSL">Stop loss ($)</label><input id="arSL" type="number" min="0" step="0.01" placeholder="optional"></div>
+      <div class="wide"><label for="arParams">Strategy parameters (JSON)</label><textarea id="arParams" spellcheck="false">{}</textarea></div>
+    </div>
+    <details class="v3-details"><summary>Parameter schema supplied by Deriv</summary><pre id="arParamsHint"></pre></details>
+    <div class="v3-actions" style="margin-top:12px"><button class="btn btn-success" id="arStart" style="min-height:40px">▶ Start run on <span id="arModeTag">this account</span></button></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><div class="card-title">Your runs</div></div>
+    <div id="arRuns"></div>
+    <details class="v3-details"><summary>Run details</summary><pre id="arDetails">Select “Details” on a run.</pre></details>
+    <details class="v3-details"><summary>Automation event log</summary><div id="arLogBody"></div></details>
+  </div>
+</div>
+
 <div class="tab-content" id="help">
   <div class="search-bar"><span class="search-icon">🔍</span><input type="text" id="helpSearch" placeholder="Search help articles…"></div>
   <div class="card">
@@ -1595,7 +1707,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
       <h3>📡 EMRON Pulse</h3>
       <div class="faq-item">
         <div class="faq-question">What signals does Pulse produce?<span>+</span></div>
-        <div class="faq-answer">Pulse runs six engines in parallel: Rise/Fall (price momentum + structure + regime), Even/Odd (digit parity), Over/Under (digit threshold), Matches (digit-frequency rule), High/Low Tick (barrier digit), and Only Ups/Downs (run-length probability).</div>
+        <div class="faq-answer">Pulse runs six engines in parallel: Rise/Fall (price momentum + structure + regime), Even/Odd (digit parity), Over/Under (digit threshold), Matches (Dollar Printer staged rules), High/Low Tick (barrier digit), and Only Ups/Downs (run-length probability).</div>
       </div>
       <div class="faq-item">
         <div class="faq-question">How does the bot pick a signal?<span>+</span></div>
@@ -1606,7 +1718,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
       <h3>🎯 AI Hunter</h3>
       <div class="faq-item">
         <div class="faq-question">What does the Sniper Hunter scan?<span>+</span></div>
-        <div class="faq-answer">Sniper Hunter scans all 10 Volatility markets across four signal families: Rise/Fall (momentum + structure + trend + efficiency ratio), Only Ups / Only Downs (2-tick run-length probability over the last 50 ticks), High/Low Tick (barrier-digit z-test against the fair baseline), and Over/Under (barrier z-test). Each tab re-ranks every market and only shows the strongest edges at or above the active threshold.</div>
+        <div class="faq-answer">Sniper Hunter scans all 15 markets (10 Volatility + 5 Jump) across four signal families: Rise/Fall (momentum + structure + trend + efficiency ratio), Only Ups / Only Downs (2-tick run-length probability over the last 50 ticks), High/Low Tick (barrier-digit z-test against the fair baseline), and Over/Under (barrier z-test). Each tab re-ranks every market and only shows the strongest edges at or above the active threshold.</div>
       </div>
       <div class="faq-item">
         <div class="faq-question">How does the High / Low Tick tab pick a barrier?<span>+</span></div>
@@ -1632,19 +1744,46 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
         <div class="faq-answer">With Auto Market Switch enabled, EMRON evaluates the selected strategies across the live market set and can move to another market that clears both the live signal threshold and the adaptive learning gate. It can also rotate strategy during recovery.</div>
       </div>
       <div class="faq-item">
-        <div class="faq-question">How does the daily target and survival lock work?<span>+</span></div>
-        <div class="faq-answer">The daily EMRON target defaults to $20 of recorded EMRON profit for the current account/day. Reaching it stops the bot. A balance at or below the configured account floor, or a recorded floor breach, locks the bot for that account/day. The target is a limit that stops the bot; it is not a prediction of profit.</div>
+        <div class="faq-question">How does the $1,000 target and survival lock work?<span>+</span></div>
+        <div class="faq-answer">The daily EMRON target defaults to $1,000 of recorded EMRON profit for the current account/day. Reaching it stops the bot. A balance at or below the configured account floor, or a recorded floor breach, locks the bot for that account/day. The $1,000 target is a goal, not a guaranteed result.</div>
       </div>
       <div class="faq-item">
         <div class="faq-question">Does profitable demo trading automatically switch to REAL?<span>+</span></div>
-        <div class="faq-answer">No. EMRON can reach a DEMO-REVIEW validation state after sufficient positive training evidence, but the REAL mode remains a manual human decision.</div>
+        <div class="faq-answer">No. EMRON can reach a LIVE-READY validation state after sufficient positive training evidence, but the REAL mode remains a manual human decision.</div>
+      </div>
+    </div>
+    <div class="faq-category">
+      <h3>🛡️ Control Center, Auto Runs &amp; what changed in v3</h3>
+      <div class="faq-item">
+        <div class="faq-question">What does STOP ALL do?<span>+</span></div>
+        <div class="faq-answer">It stops the Trading Hub bot, EMRON Auto, the Even/Odd and Only Ups/Downs scanner execution and every server-side Auto Run, and the safety guard then refuses any new order until you press Re-arm. Contracts that are already open cannot be cancelled and settle on their own.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question">How do the safety limits work?<span>+</span></div>
+        <div class="faq-answer">In 🛡️ Control you can set a daily loss cap, a maximum stake per order, a maximum number of open contracts, a stop after N losses in a row and a stop after N rejected orders. They sit in front of every order from every engine, on top of each engine's own limits. When one trips, everything stops and stays stopped until you re-arm. A value of 0 switches that limit off.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question">What are Auto Runs?<span>+</span></div>
+        <div class="faq-answer">Deriv's Automation API lets a strategy run on Deriv's servers, so it continues when this page is closed or your phone sleeps. The strategies, their parameters and the contract types they support are read live from Deriv, so the list always matches what Deriv currently offers. Runs can be paused, resumed and stopped here. They are marked beta because Deriv launched the API recently; always try one on the Demo account first.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question">Which markets are analysed now?<span>+</span></div>
+        <div class="faq-answer">On every start EMRON asks Deriv for its live symbol list. Any Volatility, Volatility (1s) or Jump index that Deriv offers is added to the scanners automatically, including newly launched ones. Other synthetic families (Boom/Crash, Step, Range Break, DEX, Drift) appear in the market catalogue and can be used by Auto Runs.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question">How does the trade journal judge my results?<span>+</span></div>
+        <div class="faq-answer">It records every settled contract, works out the break-even win rate from the payouts you actually received, and compares your win rate with it using a 95% confidence range. With a few dozen trades the answer is nearly always “inconclusive” — the panel says how many trades would be needed to tell. You can export the journal as CSV.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question">Why did the connection change?<span>+</span></div>
+        <div class="faq-answer">Following Deriv's best-practice guidance, the trading link now reconnects with growing, randomised delays instead of a fixed retry, sends a heartbeat, restarts itself if Deriv goes silent for 45 seconds, stops each contract's data stream once it settles, and pauses orders automatically if Deriv ever reports a rate limit. Each reconnect fetches a fresh one-time session link, because Deriv's links are valid for 120 seconds and single-use.</div>
       </div>
     </div>
     <div class="faq-category">
       <h3>🔒 Account & Security</h3>
       <div class="faq-item">
         <div class="faq-question">Is my data safe?<span>+</span></div>
-        <div class="faq-answer">Your PAT is kept in this browser session only. Authenticated REST calls use the PAT plus the EMRON Deriv App ID; trading WebSockets are opened from short-lived Deriv OTP URLs.</div>
+        <div class="faq-answer">Your PAT is kept in this browser session only (it is cleared when the tab is closed). Authenticated REST calls use the PAT plus the EMRON Deriv App ID; trading WebSockets are opened from short-lived Deriv OTP URLs. The page is locked down so it can only talk to Deriv's API servers. Use a token with only the scopes you need, and revoke it from your Deriv account if you ever lose control of this device.</div>
       </div>
     </div>
   </div>
@@ -1653,9 +1792,8 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 </main>
 
 <footer class="footer">
-  <div>© 2026 EMRON AI — Strategy Row + Pulse Engine</div>
-  <div id="apiUse" style="font-size:10px;color:var(--text-dim);" title="Deriv allows 360 proposal/buy/open-contract requests per minute and 14,400 per hour, shared by everything using your account">Deriv requests: 0/min</div>
-  <div style="font-size:11px;color:var(--accent-yellow);max-width:900px;line-height:1.5;">⚠️ Risk warning: trading digital options can lose your entire stake. Deriv's synthetic indices are random, so no signal, "AI" score or confidence figure predicts the next result. Nothing here is financial advice and no profit is guaranteed. Use a demo account first and only risk money you can afford to lose.</div>
+  <div>© 2026 EMRON AI — v3 · Control Center · Auto Runs · Free & Unlocked</div>
+  <div style="font-size:9px;color:var(--text-dim);">All trading involves risk. Demo-trade first.</div>
 </footer>
 </div>
 
@@ -1667,6 +1805,8 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
   <div class="nav-item" data-nav-tab="hunter" role="menuitem"><span class="nav-icon">🎯</span><span>AI Hunter</span></div>
   <div class="nav-item" data-nav-tab="premium" role="menuitem"><span class="nav-icon">⚡</span><span>EMRON Auto</span></div>
   <div class="nav-item" data-nav-tab="lab" role="menuitem"><span class="nav-icon">🧪</span><span>Edge Lab</span></div>
+  <div class="nav-item" data-nav-tab="control" role="menuitem"><span class="nav-icon">🛡️</span><span>Control Center</span></div>
+  <div class="nav-item" data-nav-tab="autorun" role="menuitem"><span class="nav-icon">🤖</span><span>Auto Runs</span></div>
   <div class="nav-item" data-nav-tab="api-playground" role="menuitem"><span class="nav-icon">🧪</span><span>API Playground</span></div>
   <div class="nav-item" data-nav-tab="help" role="menuitem"><span class="nav-icon">❓</span><span>Help Center</span></div>
 </div>
@@ -1744,22 +1884,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
   </div>
 </div>
 
-<div class="modal-overlay" id="riskModal" data-lock="1" role="dialog" aria-modal="true" aria-labelledby="riskModalTitle">
-  <div class="modal" style="max-width:460px;">
-    <div class="modal-header"><div class="modal-title" id="riskModalTitle">⚠️ Before you trade</div></div>
-    <div class="warning-box" style="font-size:12px;line-height:1.6;">
-      <strong>Trading can lose your whole stake.</strong><br>
-      • Deriv synthetic indices are random; payouts are below fair odds, so the expected result is a loss.<br>
-      • No signal, AI score, "confidence" or self-learning layer can predict the next tick.<br>
-      • Risk limits here live in your browser tab only. Closing or sleeping the tab stops them.<br>
-      • This tool is not financial advice. No profit is guaranteed.
-    </div>
-    <label style="display:flex;gap:8px;align-items:flex-start;font-size:12px;margin:10px 0;cursor:pointer;"><input type="checkbox" id="riskAckBox" style="margin-top:3px;"> <span>I understand these risks and will start on a DEMO account.</span></label>
-    <div class="modal-actions"><button class="btn btn-primary" id="riskAckBtn" disabled>I understand</button></div>
-  </div>
-</div>
-
-<div class="toast-container" id="toastContainer" role="status" aria-live="polite"></div>
+<div class="toast-container" id="toastContainer"></div>
 
 <script>
 (function(){
@@ -1778,7 +1903,8 @@ const ACCOUNTS_ENDPOINT = "/trading/v1/options/accounts";
 const MARKET_SYMBOLS = {
   'Volatility 10':'R_10','Volatility 25':'R_25','Volatility 50':'R_50','Volatility 75':'R_75','Volatility 100':'R_100',
   'Volatility 10 (1s)':'1HZ10V','Volatility 25 (1s)':'1HZ25V','Volatility 50 (1s)':'1HZ50V',
-  'Volatility 75 (1s)':'1HZ75V','Volatility 100 (1s)':'1HZ100V'
+  'Volatility 75 (1s)':'1HZ75V','Volatility 100 (1s)':'1HZ100V',
+  'Crash 500':'CRASH500N','Boom 500':'BOOM500N','Range Break':'RDBREAK'
 };
 const getSymbol = m => MARKET_SYMBOLS[m] || 'R_50';
 
@@ -1823,8 +1949,8 @@ let botConfig = {
   pairTicks:1,
   rounds:30,
   lossesToSwitch:1,
-  takeProfit:20.00,
-  dailyTarget:20.00,
+  takeProfit:1000.00,
+  dailyTarget:1000.00,
   stopLoss:20.00,
   turbo:true,
   mainMode:true,
@@ -1834,7 +1960,7 @@ let botConfig = {
   minBuyGap:700,
   maxOpen:3,
   executionMode:'SEQUENTIAL_RECOVERY',
-  recoverySelection:'NEXT_STRATEGY',   // FIX: was 'BEST_LIVE' while the dropdown displayed "Next Strategy"
+  recoverySelection:'BEST_LIVE',
   confidenceFloor:65,
   autoSwitchMarkets:true,
   adaptiveLearning:true,
@@ -2140,22 +2266,24 @@ function startPublicFeed(){
     const w=new WebSocket(WS_PUBLIC);
     w.onopen=()=>{
       PUBFEED.retry=0;
+      v3OnPublicOpen(w);
       PULSE_SYMBOLS.concat(HUNTER.extraSymbols).forEach((s,i)=>{
         w.send(JSON.stringify({ticks:s.code,subscribe:1}));
         if((engineState.markets.get(s.code)||{digits:[]}).digits.length<400)
           w.send(JSON.stringify({ticks_history:s.code,adjust_start_time:1,count:5000,end:'latest',style:'ticks',req_id:9000+i}));
       });
       clearInterval(PUBFEED.ping);
-      PUBFEED.ping=setInterval(()=>{ if(w.readyState===1) w.send(JSON.stringify({ping:1})); },30000);
+      PUBFEED.ping=setInterval(()=>v3PubPing(w),30000);
     };
     w.onmessage=ev=>{
       try{
         const d=JSON.parse(ev.data);
+        v3OnPublicMessage(d);
         if(d.msg_type==='tick'&&d.tick&&d.tick.quote) onPulseTick(d.tick.symbol,parseFloat(d.tick.quote),d.tick.epoch,d.tick.pip_size);
         else if(d.msg_type==='history'&&d.history) ingestHistory(d);
       }catch(e){}
     };
-    w.onclose=()=>{ clearInterval(PUBFEED.ping); setTimeout(startPublicFeed,Math.min(15000,1000*Math.pow(2,PUBFEED.retry++))); };
+    w.onclose=()=>{ clearInterval(PUBFEED.ping); V3.pub.reconnects++; setTimeout(startPublicFeed,Math.round(Math.min(15000,1000*Math.pow(2,PUBFEED.retry++))*(0.7+Math.random()*0.6))); };
     w.onerror=()=>{ try{w.close();}catch(e){} };
     window.__pulseWs=w;
   }catch(e){ setTimeout(startPublicFeed,5000); }
@@ -2588,7 +2716,7 @@ function liveReadiness(){
   const wins=all.reduce((a,m)=>a+Number(m.wins||0),0);
   const wr=trials ? wins/trials : 0;
   if(MODE==='DEMO' && trials>=botConfig.liveMinTrades && adaptiveEngine.session.lifeScore>=botConfig.liveMinLifeScore && rec.profit>0){
-    return {state:'DEMO-REVIEW', detail:`${trials} trades · ${Math.round(wr*100)}% learned win rate · positive validation P/L`};
+    return {state:'LIVE-READY', detail:`${trials} trades · ${Math.round(wr*100)}% learned win rate · positive validation P/L`};
   }
   if(adaptiveEngine.session.consecutiveLosses>=botConfig.maxConsecutiveLossesBeforeStandDown) return {state:'SURVIVAL',detail:'loss streak stand-down'};
   if(adaptiveEngine.session.dailyProfit>0) return {state:'ADAPTING',detail:`learning from +$${adaptiveEngine.session.dailyProfit.toFixed(2)} today`};
@@ -2616,7 +2744,7 @@ function refreshBrainStatus(){
   const gateEl=document.getElementById('brainGate');
   if(gateEl){ gateEl.textContent=adaptiveEngine.lastGate?.allowed ? 'READY' : 'BLOCKED'; gateEl.className='brain-value '+(adaptiveEngine.lastGate?.allowed?'good':'warn'); }
   const action=document.getElementById('brainAction'); if(action) action.textContent=adaptiveEngine.lastGate?.detail || 'Collecting evidence before the next entry…';
-  const state=document.getElementById('brainState'); if(state){state.textContent=readiness.state;state.style.color=readiness.state==='SURVIVAL'?'var(--accent-yellow)':readiness.state==='DEMO-REVIEW'?'var(--accent-green)':'var(--accent-cyan)';}
+  const state=document.getElementById('brainState'); if(state){state.textContent=readiness.state;state.style.color=readiness.state==='SURVIVAL'?'var(--accent-yellow)':readiness.state==='LIVE-READY'?'var(--accent-green)':'var(--accent-cyan)';}
 }
 function setAdaptiveGate(allowed,reason,detail){
   adaptiveEngine.lastGate={allowed,reason,detail};
@@ -2704,8 +2832,8 @@ function executionModeLabel(){
   return 'SEQUENTIAL RECOVERY';
 }
 function executionModeTag(){
-  if(selectedStrategies.length===0) return botConfig.pairMode ? 'OVER + UNDER · paired · no trigger strategy' : 'no strategies selected';
-  if(botConfig.pairMode) return `OVER + UNDER · paired · ${botConfig.pairBarrier} barrier · ${botConfig.pairTicks} tick${botConfig.pairTicks>1?'s':''}`;
+  if(selectedStrategies.length===0) return botConfig.pairMode ? 'HIGHER + LOWER · paired · no trigger strategy' : 'no strategies selected';
+  if(botConfig.pairMode) return `HIGHER + LOWER · paired · ${botConfig.pairBarrier} barrier · ${botConfig.pairTicks} tick${botConfig.pairTicks>1?'s':''}`;
   if(botConfig.executionMode==='SEQUENTIAL_RECOVERY'){
     return `RECOVERY · ${botConfig.recoverySelection==='BEST_LIVE'?'best live':`switch ${botConfig.lossesToSwitch} loss${botConfig.lossesToSwitch>1?'es':''}`}`;
   }
@@ -2730,8 +2858,8 @@ function updatePairModeUI(){
   if(panel) panel.classList.toggle('pair-on',on);
   if(help){
     help.innerHTML=on
-      ? `<b>PAIR ON:</b> one qualified signal submits <b>Over</b> (DIGITOVER) and <b>Under</b> (DIGITUNDER) back-to-back with barrier <b>${botConfig.pairBarrier}</b> for <b>${botConfig.pairTicks}</b> tick${botConfig.pairTicks>1?'s':''}. Stake is <b>$${Number(botConfig.defaultStake||0.35).toFixed(2)} per leg</b>.`
-      : 'Pair mode is off. Select <b>Over + Under (digits) Together</b> to submit DIGITOVER and DIGITUNDER using the same barrier and tick duration. The existing strategy/signal engine remains the entry trigger. <b>Note:</b> when the final digit equals the barrier, both legs lose.';
+      ? `<b>PAIR ON:</b> one qualified signal submits <b>Higher</b> (DIGITOVER) and <b>Lower</b> (DIGITUNDER) back-to-back with barrier <b>${botConfig.pairBarrier}</b> for <b>${botConfig.pairTicks}</b> tick${botConfig.pairTicks>1?'s':''}. Stake is <b>$${Number(botConfig.defaultStake||0.35).toFixed(2)} per leg</b>.`
+      : 'Pair mode is off. Select <b>Higher + Lower Together</b> to submit DIGITOVER and DIGITUNDER using the same barrier and tick duration. The existing strategy/signal engine remains the entry trigger.';
   }
 }
 function updateExecutionModeUI(){
@@ -2742,7 +2870,7 @@ function updateExecutionModeUI(){
   updatePairModeUI();
   if(help){
     help.textContent=botConfig.pairMode
-      ? 'Paired execution overrides the final contract choice: the selected signal triggers Over + Under together.'
+      ? 'Paired execution overrides the final contract choice: the selected signal triggers Higher + Lower together.'
       : botConfig.executionMode==='ALL_SELECTED'
         ? 'Every selected strategy with a live confirmed signal is submitted together on the active market.'
         : botConfig.executionMode==='BEST_CONFIDENCE'
@@ -2794,27 +2922,10 @@ function strategyMatchesCandidate(strat,conf){
   if(type==='LOW_TICK')return label.startsWith('LOW TICK');
   return false;
 }
-function overUnderCustomConf(strat,market){
-  const b=Number(strat.prediction), over=strat.type==='OVER';
-  if(!Number.isInteger(b)||(over&&(b<0||b>8))||(!over&&(b<1||b>9))) return null;
-  const d=market.digits.slice(-engineState.windowSize);
-  if(d.length<60) return null;
-  const hits=d.reduce((a,x)=>a+((over?x>b:x<b)?1:0),0);
-  const base=over?(9-b)/10:b/10;
-  const z=wilsonZ(hits,d.length,base);
-  if(z<2.0) return null;                       // same "strong" bar as the Pulse confirmation
-  return {label:over?'OVER':'UNDER',direction:over?'up':'down',confidence:confidenceFromZ(z),
-    meta:{barrier:b,hit:hits/d.length,base,z,custom:true}};
-}
 function getStrategyCandidate(strat,market){
   if(!strat||!market)return null;
   const def=STRATEGY_DEFS[strat.type];if(!def)return null;
-  let conf=engineState.activeConfirmations.get(`${market.code}|${def.category}`);
-  // FIX: Pulse only confirms Over 3 / Under 6. If the user chose a different barrier, test THAT barrier
-  // against its own fair base rate instead of trading it on an Over-3/Under-6 signal.
-  if((strat.type==='OVER'||strat.type==='UNDER') && !(conf&&conf.meta&&Number(conf.meta.barrier)===Number(strat.prediction))){
-    conf=overUnderCustomConf(strat,market);
-  }
+  const conf=engineState.activeConfirmations.get(`${market.code}|${def.category}`);
   if(!strategyMatchesCandidate(strat,conf))return null;
   const confidence=Number(conf.confidence||confidenceOf(conf)||0);
   if(confidence<botConfig.confidenceFloor)return null;
@@ -2977,7 +3088,7 @@ function placeStrategyContract(strat, marketOverride=null, options={}){
   const duration = isTickCt ? 5 : (strat.duration || def.duration);
   const params = {
     amount: stake, basis:'stake', contract_type: def.contract,
-    currency:(accountInfo&&accountInfo.currency)||'USD', duration, duration_unit:'t', underlying_symbol: marketSymbol,
+    currency:'USD', duration, duration_unit:'t', underlying_symbol: marketSymbol,
     subscribe:1
   };
   const roundTrip = Number(Number(params.amount).toFixed(2));
@@ -3041,13 +3152,13 @@ function finalizeHigherLowerPair(batch){
   pairBatches.delete(batch.pairId);
   const totalProfit=Number(batch.totalProfit||0);
   if(batch.settled===0){
-    lastAction=`Over + Under pair not completed · ${batch.errors.length?batch.errors[0]:'no leg settled'}`;
+    lastAction=`Higher + Lower pair not completed · ${batch.errors.length?batch.errors[0]:'no leg settled'}`;
     setAdaptiveGate(false,'pair_error',batch.errors.length?batch.errors[0]:'No pair leg completed.');
     updateEngineStatus();
     return;
   }
   const trigger=batch.triggerStrategy || selectedStrategies[currentStrategyIndex] || selectedStrategies[0];
-  if(trigger) applyBotOutcomeControl(trigger,totalProfit>0,totalProfit,batch.marketSymbol,1,'Over + Under pair');
+  if(trigger) applyBotOutcomeControl(trigger,totalProfit>0,totalProfit,batch.marketSymbol,1,'Higher + Lower pair');
   else {
     roundsRemaining=Math.max(0,roundsRemaining-1);
     updateStatsDisplay();updateProfitDisplay();updateEngineStatus();refreshBrainStatus();
@@ -3060,15 +3171,6 @@ function onProposalReceived(data){
   if(!t){ if(data.subscription&&data.subscription.id&&ws&&ws.readyState===1){ try{ ws.send(JSON.stringify({forget:data.subscription.id,req_id:wsReqId++})); }catch(e){} } return; }
   pendingProposalMap.delete(data.req_id);
   adaptiveEngine.pendingContexts.delete(data.req_id);
-  if(data.error&&derivIsRateLimit(data.error)){
-    const secs=derivNoteRateLimit();derivToastRateLimit(secs);
-    lastAction='Deriv rate limit reached · order will retry';
-    if(t.purpose==='premium')premiumOnRateLimited(t);
-    if(t.pairId)resolvePairLegFailure(t,'Deriv rate limit reached.');
-    setAdaptiveGate(false,'rate_limited','Deriv rate limit reached; retrying shortly.');
-    updateEngineStatus();
-    return;
-  }
   if(data.error){
     lastAction=`Proposal rejected · ${data.error.message || 'unknown error'}`;
     const rejectedStake=Number(t.stake||0).toFixed(2);
@@ -3095,15 +3197,6 @@ function onBuyReceived(data){
   if(!t) return;
   pendingBuyMap.delete(data.req_id);
   if(t.proposalSub && ws && ws.readyState===1){ try{ ws.send(JSON.stringify({forget:t.proposalSub,req_id:wsReqId++})); }catch(e){} }
-  if(data.error&&derivIsRateLimit(data.error)){
-    const secs=derivNoteRateLimit();derivToastRateLimit(secs);
-    lastAction='Deriv rate limit reached · order will retry';
-    if(t.purpose==='premium')premiumOnRateLimited(t);
-    if(t.pairId)resolvePairLegFailure(t,'Deriv rate limit reached.');
-    setAdaptiveGate(false,'rate_limited','Deriv rate limit reached; retrying shortly.');
-    updateEngineStatus();
-    return;
-  }
   if(data.error){
     lastAction=`Buy rejected · ${data.error.message || 'unknown error'}`;
     toast(`⚠️ Buy rejected — ${data.error.message || 'unknown error'}`,'error');
@@ -3143,17 +3236,14 @@ function onContractUpdate(data){
   activeContracts.delete(cid);
   const profit = parseFloat(c.profit) || 0;
   const won = profit > 0;
-  if(rec.purpose==='bot' && !rec.stale){
+  if(rec.purpose==='bot'){
     const strat = rec.strategyRef || selectedStrategies[rec.slotIdx];
     if(strat) onStrategyResult(strat, won, profit, rec.stake, c.entry_tick, c.exit_tick, rec.marketSymbol, rec.adaptiveContext,
       rec.pairId ? {deferControl:true,pairLeg:rec.pairLeg} : {});
   }else if(rec.adaptiveContext){
-    // Hunter trades and contracts left over from a previous bot run: still feed learning + daily P/L,
-    // but never the new session's counters.
     updateLearningFromSettlement(rec.adaptiveContext, won, profit);
     refreshBrainStatus();
   }
-  if(rec.purpose==='hunter') hunterRecordSettlement(rec, c, profit, won);
   if(rec.pairId) resolvePairLegSettlement(rec,profit,won,c.entry_tick,c.exit_tick);
   if(wsConnected) ws.send(JSON.stringify({ balance:1, req_id:wsReqId++ }));
   if(!rec.pairId) setTimeout(() => { if(botRunning) evaluateBotOnTick(); }, (botConfig.delayOn ? botConfig.delayAfterSettle : 0) * 1000);
@@ -3304,20 +3394,20 @@ function placeHigherLowerPair(candidate){
     triggerStrategy:candidate.strat,marketSymbol,marketShort:market?.short||marketSymbol,barrier,ticks,stake,createdAt:Date.now(),finalized:false};
   pairBatches.set(pairId,batch);
 
-  const higher={type:'OVER',stake,duration:ticks,prediction:barrier,wins:0,losses:0,pl:0,pair:true,labelOverride:`Over > ${barrier}`};
-  const lower={type:'UNDER',stake,duration:ticks,prediction:barrier,wins:0,losses:0,pl:0,pair:true,labelOverride:`Under < ${barrier}`};
-  const sentHigher=placeStrategyContract(higher,marketSymbol,{purpose:'bot',candidate,stakeOverride:stake,bypassGap:true,pairId,pairLeg:'HIGHER',labelOverride:`Over > ${barrier}`});
+  const higher={type:'OVER',stake,duration:ticks,prediction:barrier,wins:0,losses:0,pl:0,pair:true,labelOverride:`Higher > ${barrier}`};
+  const lower={type:'UNDER',stake,duration:ticks,prediction:barrier,wins:0,losses:0,pl:0,pair:true,labelOverride:`Lower < ${barrier}`};
+  const sentHigher=placeStrategyContract(higher,marketSymbol,{purpose:'bot',candidate,stakeOverride:stake,bypassGap:true,pairId,pairLeg:'HIGHER',labelOverride:`Higher > ${barrier}`});
   if(sentHigher) batch.expected++;
-  const sentLower=placeStrategyContract(lower,marketSymbol,{purpose:'bot',candidate,stakeOverride:stake,bypassGap:true,pairId,pairLeg:'LOWER',labelOverride:`Under < ${barrier}`});
+  const sentLower=placeStrategyContract(lower,marketSymbol,{purpose:'bot',candidate,stakeOverride:stake,bypassGap:true,pairId,pairLeg:'LOWER',labelOverride:`Lower < ${barrier}`});
   if(sentLower) batch.expected++;
   if(batch.expected===0){pairBatches.delete(pairId);return false;}
   lastPairSignalKey=signalKey;
   adaptiveEngine.session.currentMarket=market?.short||marketSymbol;
-  adaptiveEngine.session.currentStrategy=`Over + Under @ ${barrier}`;
-  lastAction=`⚡ Pair submitted → Over > ${barrier} + Under < ${barrier} · ${ticks} tick${ticks>1?'s':''}`;
-  setAdaptiveGate(true,'pair_submitted',`Over and Under pair submitted back-to-back on ${market?.short||marketSymbol}; $${stake.toFixed(2)} per leg.`);
+  adaptiveEngine.session.currentStrategy=`Higher + Lower @ ${barrier}`;
+  lastAction=`⚡ Pair submitted → Higher > ${barrier} + Lower < ${barrier} · ${ticks} tick${ticks>1?'s':''}`;
+  setAdaptiveGate(true,'pair_submitted',`Higher and Lower pair submitted back-to-back on ${market?.short||marketSymbol}; $${stake.toFixed(2)} per leg.`);
   updateEngineStatus();
-  toast(`⚡ Over + Under submitted · barrier ${barrier} · ${ticks} tick${ticks>1?'s':''}`,'success');
+  toast(`⚡ Higher + Lower submitted · barrier ${barrier} · ${ticks} tick${ticks>1?'s':''}`,'success');
   return true;
 }
 function evaluateHigherLowerPairOnTick(){
@@ -3350,6 +3440,7 @@ function evaluateHigherLowerPairOnTick(){
 
 function startBot(){
   if(botRunning) return;
+  if(v3Blocked()) return;
   if(PX.running){ toast('Stop EMRON Auto before running the Trading Hub bot.','error'); return; }
   if(!accessToken || !wsConnected){
     toast('🔐 Connect a valid Deriv PAT before running the bot.', 'error');
@@ -3378,14 +3469,11 @@ function startBot(){
     toast(`✅ Daily target already reached: +$${daily.profit.toFixed(2)}. EMRON stays off until the next day.`,'success');
     return;
   }
-  if(!confirmRealMoney(`Trading Hub bot · ${selectedStrategies.length} strateg${selectedStrategies.length===1?'y':'ies'} · stake $${Number(botConfig.defaultStake).toFixed(2)} · stop loss $${Number(botConfig.stopLoss).toFixed(2)} · ${botConfig.rounds} rounds`)) return;
   botRunning = true;
   roundsRemaining = botConfig.rounds;
   sessionStake = 0; sessionPayout = 0; sessionWins = 0; sessionLosses = 0; sessionPL = 0;
   selectedStrategies.forEach(s => { s.wins = 0; s.losses = 0; s.pl = 0; });
-  // FIX: do not clear activeContracts — that orphaned open Hunter/Auto contracts and lost their settlements.
-  // Leftovers from a previous bot run are flagged stale so they settle without touching this session's counters.
-  activeContracts.forEach(rec=>{ if(rec && rec.purpose==='bot') rec.stale=true; });
+  activeContracts.clear();
   botFiredSignalKeys.clear();
   currentStrategyIndex = 0;
   lossAccumulator = 0;
@@ -3415,7 +3503,7 @@ function startBot(){
   updateProfitDisplay();
   renderActiveList();
   updateEngineStatus();
-  toast(`🚀 Bot started · ${botConfig.pairMode?'OVER + UNDER pair':'single contract'} · ${selectedStrategies.length} strategies · ${botConfig.rounds} rounds`, 'success');
+  toast(`🚀 Bot started · ${botConfig.pairMode?'HIGHER + LOWER pair':'single contract'} · ${selectedStrategies.length} strategies · ${botConfig.rounds} rounds`, 'success');
 }
 function stopBot(reason){
   if(!botRunning) return;
@@ -3432,7 +3520,7 @@ function stopBot(reason){
   renderActiveList();
   updateEngineStatus();
   refreshBrainStatus();
-  toast(reason==='account_breach'?'🛑 EMRON stopped permanently for this account/day.':reason==='daily_target'?`🎯 EMRON reached the $${Number(botConfig.dailyTarget).toFixed(2)} daily target.`:'⏸ Bot stopped','info');
+  toast(reason==='account_breach'?'🛑 EMRON stopped permanently for this account/day.':reason==='daily_target'?'🎯 EMRON reached the $1,000 daily target.':'⏸ Bot stopped','info');
 }
 
 /* ============================================================
@@ -3456,7 +3544,7 @@ function updateProfitDisplay(){
   document.getElementById('profitFill').style.width = pct + '%';
 }
 function updateEngineStatus(){
-  document.getElementById('engMode').textContent = botConfig.pairMode ? `OVER + UNDER · ${executionModeLabel()}` : executionModeLabel();
+  document.getElementById('engMode').textContent = botConfig.pairMode ? `HIGHER + LOWER · ${executionModeLabel()}` : executionModeLabel();
   document.getElementById('engRoundRemaining').textContent = botRunning ? roundsRemaining : 0;
   const spl = document.getElementById('engSessionPL');
   spl.textContent = `${sessionPL>=0?'+':''}$${sessionPL.toFixed(2)}`;
@@ -3488,10 +3576,10 @@ function renderTrades(){
     const cls = t.pl >= 0 ? 'profit' : 'loss';
     const sign = t.pl >= 0 ? '+' : '';
     return `<tr>
-      <td>${eoEsc(t.time)}</td>
-      <td>${eoEsc(t.strategy)}</td>
-      <td>${eoEsc(t.entry)}</td>
-      <td>${eoEsc(t.exit)}</td>
+      <td>${t.time}</td>
+      <td>${t.strategy}</td>
+      <td>${t.entry}</td>
+      <td>${t.exit}</td>
       <td>$${t.stake.toFixed(2)}</td>
       <td class="${cls}">${sign}$${t.pl.toFixed(2)}</td>
     </tr>`;
@@ -3503,7 +3591,7 @@ function addPulseFeed(text, symbol){
   const time = new Date().toLocaleTimeString();
   const el = document.createElement('div');
   el.style.cssText = 'display:flex;justify-content:space-between;padding:4px 6px;border-bottom:1px solid var(--border);';
-  el.innerHTML = `<span><span style="color:var(--accent-cyan);">${eoEsc(symbol)}</span> ${eoEsc(text)}</span><span style="color:var(--text-muted);font-size:10px;">${eoEsc(time)}</span>`;
+  el.innerHTML = `<span><span style="color:var(--accent-cyan);">${symbol}</span> ${text}</span><span style="color:var(--text-muted);font-size:10px;">${time}</span>`;
   feed.prepend(el);
   if(feed.children.length > 30) feed.removeChild(feed.lastChild);
 }
@@ -3574,7 +3662,7 @@ function renderPulsePanel(){
   document.getElementById('signalsHeading').textContent = tab === 'risefall' ? 'Rise / Fall readout'
     : tab === 'highlow' ? 'High / Low Tick readout'
     : tab === 'onlyupdown' ? 'Only Ups / Downs readout'
-    : tab === 'matchdiffer' ? 'Matches (digit-frequency) readout'
+    : tab === 'matchdiffer' ? 'Dollar Printer Matches readout'
     : 'Digit parity readout';
 
   const reticle = document.getElementById('resultReticle');
@@ -3735,114 +3823,43 @@ function renderAIScan(){
    WEBSOCKET — shared 330/min safety budget for proposal, open-contract,
    buy and sell requests (Deriv's documented shared ceiling is 360/min).
    ============================================================ */
-/* Deriv's documented limits: proposal + proposal_open_contract + buy + sell share ONE counter of
-   360/minute AND 14,400/hour (= 240/minute on average). The hourly cap is the one long sessions hit.
-   - Orders and settlement traffic use the foreground lane and always go first.
-   - Scanner price quotes use a background lane that is capped well below the limit, pauses itself when
-     Deriv says "rate limit", and is skipped entirely when nobody is looking at the scanner.
-   - The counter is shared by every EMRON tab/window, so each tab takes an equal share. */
-const DERIV_REQ_BUDGET={sent:[],sentHour:[],queue:[],bgQueue:[],bg:new Map(),timer:null,lastDispatch:0,
-  baseCap:300,hourCap:13000,bgShare:.45,bgHourShare:.55,minGap:85,tabs:1,rlUntil:0,fgUntil:0,rlLevel:0,rlLast:0,rlToastAt:0,rlCount:0};
-function derivMarkBg(rid,onDrop){const m=DERIV_REQ_BUDGET.bg;m.set(rid,onDrop||null);if(m.size>600){const f=m.keys().next().value;m.delete(f);}}
-function derivIsRateLimit(err){return !!err&&(err.code==='RateLimit'||/rate.?limit/i.test(String(err.message||'')));}
-function derivNoteRateLimit(){
-  const B=DERIV_REQ_BUDGET,now=Date.now();
-  if(now-B.rlLast>180000)B.rlLevel=0;
-  if(now-B.rlLast>2000||!B.rlLevel){B.rlLevel=Math.min(5,B.rlLevel+1);B.rlCount++;}
-  B.rlLast=now;
-  B.rlUntil=now+Math.min(180000,15000*Math.pow(2,B.rlLevel-1));   // background quotes: 15s, 30s, 60s, 120s, 180s
-  B.fgUntil=now+Math.min(10000,2000*B.rlLevel);                   // orders: short pause only
-  return Math.ceil((B.rlUntil-now)/1000);
-}
-function derivToastRateLimit(secs){
-  const B=DERIV_REQ_BUDGET,now=Date.now();
-  if(now-B.rlToastAt<20000)return;B.rlToastAt=now;
-  toast(`⏳ Deriv rate limit reached. Price checks are paused for ${secs}s and orders will retry automatically.`,'info');
-}
-function derivBgPollingWanted(){
-  if(Date.now()<DERIV_REQ_BUDGET.rlUntil)return false;       // Deriv just said "rate limit": queue nothing until the pause ends
-  const exec=(typeof EO!=='undefined'&&EO.autoTradeEnabled||typeof OUD!=='undefined'&&OUD.autoTradeEnabled)&&typeof PX!=='undefined'&&PX.running;
-  if(exec)return true;
-  return !document.hidden&&isTabActive('premium');
-}
-function derivBgInterval(){
-  const exec=(typeof EO!=='undefined'&&EO.autoTradeEnabled||typeof OUD!=='undefined'&&OUD.autoTradeEnabled)&&typeof PX!=='undefined'&&PX.running;
-  return exec?55000:100000;
-}
+const DERIV_REQ_BUDGET={sent:[],queue:[],timer:null,lastDispatch:0,cap:330,minGap:85};
 function installDerivRequestBudget(socket){
   if(!socket||socket.__emronBudgetWrapped)return;
   const native=socket.send.bind(socket);
   socket.send=function(raw){
     let obj=null;try{if(typeof raw==='string')obj=JSON.parse(raw);}catch(_){}
+    if(obj&&obj.auto_start===1&&v3GuardSend(obj))return;   // server-side runs pass the same safety guard as orders
     const limited=!!(obj&&(obj.proposal===1||obj.proposal_open_contract===1||Object.prototype.hasOwnProperty.call(obj,'buy')||Object.prototype.hasOwnProperty.call(obj,'sell')));
     if(!limited)return native(raw);
-    const B=DERIV_REQ_BUDGET,bg=!!(obj&&obj.proposal===1&&obj.req_id!=null&&B.bg.has(obj.req_id));
-    (bg?B.bgQueue:B.queue).push({socket,raw,native,at:Date.now(),bg,rid:obj&&obj.req_id});
+    DERIV_REQ_BUDGET.queue.push({socket,raw,native,at:Date.now()});
     drainDerivRequestBudget();return;
   };
   socket.__emronBudgetWrapped=true;
 }
 function drainDerivRequestBudget(){
-  const B=DERIV_REQ_BUDGET;
-  if(B.timer)return;
+  if(DERIV_REQ_BUDGET.timer)return;
   const now=Date.now();
-  while(B.sent.length&&now-B.sent[0]>=60000)B.sent.shift();
-  while(B.sentHour.length&&now-B.sentHour[0]>=3600000)B.sentHour.shift();
-  [B.queue,B.bgQueue].forEach(q=>{while(q.length&&q[0].socket.readyState!==WebSocket.OPEN)q.shift();});
-  // a quote that waited more than 25s is no longer useful: hand it back so the poller can ask again later
-  while(B.bgQueue.length&&now-B.bgQueue[0].at>25000){const j=B.bgQueue.shift();const cb=B.bg.get(j.rid);B.bg.delete(j.rid);if(cb){try{cb();}catch(_){}}}
-  if(!B.queue.length&&!B.bgQueue.length)return;
-  const share=Math.max(1,B.tabs),cap=Math.max(40,Math.floor(B.baseCap/share)),hourCap=Math.floor(B.hourCap/share);
-  const bgCap=Math.floor(cap*B.bgShare),bgHour=Math.floor(hourCap*B.bgHourShare);
-  let lane=null;
-  if(B.queue.length&&now>=B.fgUntil&&B.sent.length<cap&&B.sentHour.length<hourCap)lane=B.queue;
-  else if(B.bgQueue.length&&now>=B.rlUntil&&B.sent.length<bgCap&&B.sentHour.length<bgHour)lane=B.bgQueue;
-  if(!lane){
-    let w=1000;
-    if(B.sent.length>=bgCap&&B.sent.length)w=Math.max(200,Math.min(5000,60010-(now-B.sent[0])));
-    if(now<B.fgUntil)w=Math.min(w,Math.max(200,B.fgUntil-now));
-    B.timer=setTimeout(()=>{B.timer=null;drainDerivRequestBudget();},w);return;
-  }
-  const waitGap=Math.max(0,B.minGap-(now-B.lastDispatch));
-  if(waitGap>0){B.timer=setTimeout(()=>{B.timer=null;drainDerivRequestBudget();},waitGap);return;}
-  const job=lane.shift();
-  if(job.bg)B.bg.delete(job.rid);
-  try{job.native(job.raw);const t=Date.now();B.sent.push(t);B.sentHour.push(t);B.lastDispatch=t;}
+  DERIV_REQ_BUDGET.sent=DERIV_REQ_BUDGET.sent.filter(t=>now-t<60000);
+  while(DERIV_REQ_BUDGET.queue.length&&DERIV_REQ_BUDGET.queue[0].socket.readyState!==WebSocket.OPEN)DERIV_REQ_BUDGET.queue.shift();
+  if(!DERIV_REQ_BUDGET.queue.length)return;
+  const waitRate=DERIV_REQ_BUDGET.sent.length>=DERIV_REQ_BUDGET.cap?Math.max(100,60010-(now-DERIV_REQ_BUDGET.sent[0])):0;
+  const waitGap=Math.max(0,DERIV_REQ_BUDGET.minGap-(now-DERIV_REQ_BUDGET.lastDispatch));
+  const waitPause=Math.max(0,V3.rate.until-now);   // Deriv told us to slow down
+  const wait=Math.max(waitRate,waitGap,waitPause);
+  if(wait>0){DERIV_REQ_BUDGET.timer=setTimeout(()=>{DERIV_REQ_BUDGET.timer=null;drainDerivRequestBudget();},wait);return;}
+  const job=DERIV_REQ_BUDGET.queue.shift();
+  let jobObj=null;try{jobObj=JSON.parse(job.raw);}catch(_){}
+  if(jobObj&&v3GuardSend(jobObj)){/* refused by the EMRON guard at the last moment — the caller already got an error reply */}
+  else try{job.native(job.raw);DERIV_REQ_BUDGET.sent.push(Date.now());V3.hourSent.push(Date.now());DERIV_REQ_BUDGET.lastDispatch=Date.now();}
   catch(e){console.warn('Deriv request send failed',e);}
-  if(B.queue.length||B.bgQueue.length){B.timer=setTimeout(()=>{B.timer=null;drainDerivRequestBudget();},B.minGap);}
+  if(DERIV_REQ_BUDGET.queue.length){DERIV_REQ_BUDGET.timer=setTimeout(()=>{DERIV_REQ_BUDGET.timer=null;drainDerivRequestBudget();},DERIV_REQ_BUDGET.minGap);}
 }
-/* every open EMRON tab writes a heartbeat; the count divides the shared Deriv allowance */
-(function emronTabShare(){
-  try{
-    const id='t'+Math.random().toString(36).slice(2),PFX='emron_tab_';
-    const beat=()=>{
-      const now=Date.now();let n=0;
-      try{
-        localStorage.setItem(PFX+id,String(now));
-        for(let i=localStorage.length-1;i>=0;i--){
-          const k=localStorage.key(i);if(!k||k.indexOf(PFX)!==0)continue;
-          const t=Number(localStorage.getItem(k));
-          if(now-t>9000){if(k!==PFX+id)localStorage.removeItem(k);}else n++;
-        }
-      }catch(_){n=1;}
-      n=Math.max(1,n);
-      const B=DERIV_REQ_BUDGET,was=B.tabs;B.tabs=n;
-      if(n>was&&n>1)toast(`⚠️ EMRON is open in ${n} tabs or windows. They share one Deriv request limit, so each one is slowed down. Close the extras to avoid rejected orders.`,'error');
-    };
-    window.addEventListener('beforeunload',()=>{try{localStorage.removeItem(PFX+id);}catch(_){}});
-    setInterval(beat,3000);setTimeout(beat,400);
-  }catch(_){}
-})();
-setInterval(()=>{
-  const el=document.getElementById('apiUse');if(!el)return;
-  const B=DERIV_REQ_BUDGET,now=Date.now();
-  const m=B.sent.filter(t=>now-t<60000).length,hr=B.sentHour.length;
-  el.textContent=`Deriv requests: ${m}/min · ${hr.toLocaleString()}/hour (limit 360 and 14,400, shared)${B.tabs>1?` · ${B.tabs} tabs open`:''}${now<B.rlUntil?' · price checks paused':''}`;
-},2000);
 async function connectWebSocket(token){
   const account = MODE === 'REAL' ? accountSessions.real : accountSessions.demo;
   const accountId = account && account.account_id;
   manualDisconnect = false;
+  V3.auth.fatal = false;
 
   if(!token || !accountId){
     wsConnected = false;
@@ -3864,7 +3881,9 @@ async function connectWebSocket(token){
     });
     const json = await res.json().catch(()=>({}));
     if(!res.ok){
-      throw new Error(formatDerivError(json, res.statusText || 'Failed to get OTP'));
+      const otpErr = new Error(formatDerivError(json, res.statusText || 'Failed to get OTP'));
+      otpErr.fatal = [400,401,403,404].indexOf(res.status) >= 0;   // a bad/expired token will not fix itself — do not retry
+      throw otpErr;
     }
 
     const url = json?.data?.url;
@@ -3885,6 +3904,7 @@ async function connectWebSocket(token){
       toast(`✅ Connected to ${MODE.toLowerCase()} account ${accountId}`, 'success');
 
       accountInfo = account;
+      v3OnAuthOpen();
       balance = Number(account.balance || 0);
       document.getElementById('patAccountId').textContent = accountId;
       document.getElementById('patBalance').textContent = `${account.currency || 'USD'} ${balance.toFixed(2)}`;
@@ -3900,7 +3920,7 @@ async function connectWebSocket(token){
 
       if(window.wsPing) clearInterval(window.wsPing);
       window.wsPing = setInterval(() => {
-        if(ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ ping:1 }));
+        v3Ping();
       }, 30000);
     };
 
@@ -3916,11 +3936,7 @@ async function connectWebSocket(token){
       const dot = document.getElementById(MODE === 'DEMO' ? 'demoStatusDot' : 'realStatusDot');
       if(status && status.textContent.startsWith('Connected')) status.textContent = 'Disconnected';
       if(dot) dot.className = 'status-dot offline';
-      if(accessToken && !manualDisconnect){
-        setTimeout(() => {
-          if(accessToken && !wsConnected) connectWebSocket(accessToken);
-        }, 2500);
-      }
+      if(accessToken && !manualDisconnect) v3ScheduleReconnect('connection closed');
     };
   } catch(err){
     console.error('PAT WebSocket authentication failed', err);
@@ -3928,6 +3944,8 @@ async function connectWebSocket(token){
     updateConnectionStatus(false);
     setAuthStatus('❌ ' + err.message, true);
     toast('❌ ' + err.message, 'error');
+    if(err && err.fatal){ V3.auth.fatal = true; V3.auth.lastError = err.message; v3Log('auth', err.message); }
+    else if(accessToken && !manualDisconnect) v3ScheduleReconnect('could not open a session');
   }
 }
 
@@ -4060,6 +4078,8 @@ async function connectWithPAT(token){
 
 function disconnectPAT(){
   manualDisconnect = true;
+  if(V3.auth.timer){ clearTimeout(V3.auth.timer); V3.auth.timer = null; }
+  V3.runs.clear(); V3.acct = null;
   if(botRunning) stopBot('manual');
   if(window.wsPing) clearInterval(window.wsPing);
   if(ws){ try{ ws.onclose = null; ws.close(); }catch(e){} ws = null; }
@@ -4097,6 +4117,7 @@ function subscribeTicks(){
 function handleWsMessage(ev){
   let data;
   try { data = JSON.parse(ev.data); } catch(e){ return; }
+  v3OnMessage(data);
   switch(data.msg_type){
     case 'balance':
       if(data.balance){
@@ -4160,34 +4181,12 @@ const deactivateBtn = document.getElementById('deactivateBtn');
 const connectBtn = document.getElementById('connectBtn');
 const toastContainer = document.getElementById('toastContainer');
 
-/* Single shared REAL-money confirmation used by every execution path (Hub bot, Hunter, Bulk, Auto). */
-function riskAcknowledged(){ try{ return localStorage.getItem('emron_risk_ack_v1')==='1'; }catch(e){ return false; } }
-function showRiskModal(){ const m=document.getElementById('riskModal'); if(m) m.classList.add('active'); }
-function setupRiskModal(){
-  const box=document.getElementById('riskAckBox'), btn=document.getElementById('riskAckBtn');
-  if(!box||!btn) return;
-  box.addEventListener('change',()=>{ btn.disabled=!box.checked; });
-  btn.addEventListener('click',()=>{ try{ localStorage.setItem('emron_risk_ack_v1','1'); }catch(e){} document.getElementById('riskModal').classList.remove('active'); });
-  if(!riskAcknowledged()) showRiskModal();
-}
-function confirmRealMoney(summary){
-  if(MODE!=='REAL') return true;
-  if(!riskAcknowledged()){ showRiskModal(); return false; }
-  return window.confirm(`⚠️ REAL MONEY\n\n${summary}\n\nThese contracts use your real account balance. Losses are real and no profit is guaranteed. Continue?`);
-}
 function toast(msg, type='info'){
-  const ms = type==='error' ? 5200 : 3200, key = type+'|'+msg;
-  const same = Array.from(toastContainer.children).find(x => x.dataset.key===key);
-  if(same){                                       // identical message already showing: count it instead of stacking another card
-    const n = (Number(same.dataset.n)||1)+1; same.dataset.n = n; same.textContent = `${msg}  ×${n}`;
-    clearTimeout(same._t); same._t = setTimeout(() => same.remove(), ms); return;
-  }
   const el = document.createElement('div');
-  el.className = `toast ${type}`; el.dataset.key = key; el.textContent = msg; el.title = 'Click to dismiss';
-  el.addEventListener('click', () => el.remove());
-  while(toastContainer.children.length >= 4) toastContainer.firstElementChild.remove();
+  el.className = `toast ${type}`;
+  el.textContent = msg;
   toastContainer.appendChild(el);
-  el._t = setTimeout(() => el.remove(), ms);
+  setTimeout(() => el.remove(), 3200);
 }
 
 function syncNavActive(tabName){
@@ -4216,7 +4215,7 @@ function setupModals(){
     });
   });
   document.querySelectorAll('.modal-overlay').forEach(o => {
-    o.addEventListener('click', e => { if(e.target === o && !o.dataset.lock) o.classList.remove('active'); });
+    o.addEventListener('click', e => { if(e.target === o) o.classList.remove('active'); });
   });
 }
 function setupNavMenu(){
@@ -4289,7 +4288,7 @@ document.getElementById('botPairMode').addEventListener('change', e => {
     botConfig.pairTicks = Math.max(1,Math.min(10,parseInt(document.getElementById('botPairTicks').value,10)||botConfig.defaultTicks||1));
   }
   updateExecutionModeUI();
-  toast(botConfig.pairMode ? '↕️ Over + Under paired execution ON' : '↕️ Single contract execution restored','info');
+  toast(botConfig.pairMode ? '↕️ Higher + Lower paired execution ON' : '↕️ Single contract execution restored','info');
 });
 document.getElementById('botPairBarrier').addEventListener('change', e => {
   botConfig.pairBarrier = Math.max(1, Math.min(8, parseInt(e.target.value,10)||2));
@@ -4336,14 +4335,14 @@ document.getElementById('botConfidenceFloor').addEventListener('change', e => {
   updateExecutionModeUI();
 });
 document.getElementById('botTP').addEventListener('change', e => {
-  botConfig.takeProfit = Math.max(0.35,parseFloat(e.target.value)||20);
+  botConfig.takeProfit = Math.max(0.35,parseFloat(e.target.value)||1000);
   botConfig.dailyTarget = botConfig.takeProfit;
   updatePairModeUI();
   updateProfitDisplay();
   refreshBrainStatus();
 });
 document.getElementById('botPairTP').addEventListener('change', e => {
-  botConfig.takeProfit = Math.max(0.35,parseFloat(e.target.value)||20);
+  botConfig.takeProfit = Math.max(0.35,parseFloat(e.target.value)||1000);
   botConfig.dailyTarget = botConfig.takeProfit;
   document.getElementById('botTP').value = botConfig.takeProfit.toFixed(2);
   updateProfitDisplay();
@@ -4488,12 +4487,8 @@ document.getElementById('bulkBuyBtn').addEventListener('click', async () => {
   const stake = normalizeStake(parseFloat(document.getElementById('bulkStakeOverride').value) || 1);
   const override = document.getElementById('bulkContractOverride').value;
   const ct = override !== 'auto' ? override : 'DIGITEVEN';
-  // FIX: RUNHIGH/RUNLOW and TICKHIGH/TICKLOW cannot use a 1-tick duration (Deriv rejects them).
-  const bulkDuration = (ct==='RUNHIGH'||ct==='RUNLOW') ? 2 : (ct==='TICKHIGH'||ct==='TICKLOW') ? 5 : 1;
   const params = { contract_type: ct, underlying_symbol: getSymbol(botConfig.market),
-    currency:(accountInfo&&accountInfo.currency)||'USD', amount: stake, basis:'stake', duration:bulkDuration, duration_unit:'t' };
-  if(ct==='TICKHIGH'||ct==='TICKLOW') params.selected_tick = 1;
-  if(!confirmRealMoney(`Bulk purchase · ${accounts.length} account${accounts.length===1?'':'s'} × $${stake.toFixed(2)} ${ct} on ${getSymbol(botConfig.market)} = $${(accounts.length*stake).toFixed(2)} total stake`)) return;
+    currency:'USD', amount: stake, basis:'stake', duration:1, duration_unit:'t' };
   const status = document.getElementById('bulkStatus');
   status.textContent = `Submitting ${accounts.length}…`;
   try {
@@ -4505,10 +4500,9 @@ document.getElementById('bulkBuyBtn').addEventListener('click', async () => {
     if(!res.ok) throw new Error((json.errors||[]).map(e=>`${e.code}: ${e.message}`).join('; ') || res.statusText);
     const txs = (json.data && json.data.transactions) || [];
     status.textContent = `✅ ${txs.filter(t=>!t.error).length} ok · ${txs.filter(t=>t.error).length} failed`;
-    // FIX: escape every server-supplied string before it reaches innerHTML (tokens live in this page)
     document.getElementById('bulkResults').innerHTML = txs.map(t => t.error
-      ? `<div class="bulk-row fail"><span class="acct">${eoEsc(t.account_id || '—')}</span><span class="err">${eoEsc(t.error.message)}</span></div>`
-      : `<div class="bulk-row ok"><span class="acct">${eoEsc(t.account_id || '—')}</span><span class="meta">ID ${eoEsc(t.contract_id || '—')}</span><span class="amt">$${parseFloat(t.buy_price||0).toFixed(2)}</span></div>`
+      ? `<div class="bulk-row fail"><span class="acct">${t.account_id || '—'}</span><span class="err">${t.error.message}</span></div>`
+      : `<div class="bulk-row ok"><span class="acct">${t.account_id || '—'}</span><span class="meta">ID ${t.contract_id || '—'}</span><span class="amt">$${parseFloat(t.buy_price||0).toFixed(2)}</span></div>`
     ).join('');
   } catch(err){
     status.textContent = `❌ ${err.message}`;
@@ -4547,14 +4541,18 @@ document.getElementById('helpSearch').addEventListener('input', e => {
 const HUNTER = {
   window: 100,
   minTicks: 25,
-  threshold: 0.70,   // FIX: matches the ≥70% button that the HTML marks active
+  threshold: 0.65,
   mode: 'evenodd',
   tab: 'evenodd',
   best: null,
   lastRender: 0,
-  // Jump, Boom, Crash, Step and Range Break indices were removed: the bots could not buy them.
-  // Kept as an empty list because other code concatenates it with the Volatility markets.
-  extraSymbols: []
+  extraSymbols: [
+    { code:"JD10", short:"JD10", name:"Jump 10 Index", decimals:2 },
+    { code:"JD25", short:"JD25", name:"Jump 25 Index", decimals:2 },
+    { code:"JD50", short:"JD50", name:"Jump 50 Index", decimals:2 },
+    { code:"JD75", short:"JD75", name:"Jump 75 Index", decimals:2 },
+    { code:"JD100", short:"JD100", name:"Jump 100 Index", decimals:2 }
+  ]
 };
 HUNTER.extraSymbols.forEach(s => {
   if(!engineState.markets.has(s.code)){
@@ -4650,18 +4648,13 @@ function hunterBarrier(mkt,b){
   if(n<HUNTER.minTicks) return null;
   // Over b wins on digits > b; Under (9-b) wins on digits < 9-b. Both share the same (9-b)/10 base.
   const over=d.reduce((a,x)=>a+(x>b?1:0),0), under=d.reduce((a,x)=>a+(x<(9-b)?1:0),0);
-  const base=(9-b)/10;
-  const po=hunterWilsonPct(over,n,base), pu=hunterWilsonPct(under,n,base);
-  const zo=wilsonZ(over,n,base), zu=wilsonZ(under,n,base);
-  // FIX: compare each side against its own fair base rate (e.g. O1/U8 is 80% by chance alone).
-  // Readiness is driven by the z-score mapped to a confidence figure, not by the raw hit rate,
-  // otherwise O1/U8 would show "READY" on every market at all times.
-  const isOver=zo>=zu, z=Math.max(0,isOver?zo:zu);
-  const conf=confidenceFromZ(z)/100;
+  const po=hunterWilsonPct(over,n,(9-b)/10), pu=hunterWilsonPct(under,n,(9-b)/10);
+  const zo=wilsonZ(over,n,(9-b)/10), zu=wilsonZ(under,n,(9-b)/10);
+  const isOver=po>=pu;
   return {market:mkt,kind:`O${b}/U${9-b}`,label:isOver?`OVER ${b}`:`UNDER ${9-b}`,
-    direction:isOver?'up':'down',pct:conf,raw:isOver?over/n:under/n,
-    count:isOver?over:under,n,score:z,
-    detail:`O${b} ${Math.round(po*100)}% · U${9-b} ${Math.round(pu*100)}% vs ${Math.round(base*100)}% fair · z ${z.toFixed(2)}`};
+    direction:isOver?'up':'down',pct:Math.max(po,pu),raw:isOver?over/n:under/n,
+    count:isOver?over:under,n,score:Math.max(zo,zu),
+    detail:`O${b} ${Math.round(po*100)}% · U${9-b} ${Math.round(pu*100)}%`};
 }
 function hunterJumble(mkt){
   const d=hunterWindow(mkt), n=d.length;
@@ -4730,54 +4723,16 @@ function updateHunterExecuteButton(rowsOverride=null){
     ? '🔎 JUMBLE SCANNER ONLY'
     : `⚡ EXECUTE ALL READY SIGNALS <span id="hunterExecuteCount">${executable}</span>`;
 }
-/* ---- Hunter risk layer (FIX: Hunter previously bypassed every risk check) ---- */
-const hunterSess={pl:0,stake:0,runs:0,wins:0,losses:0,busyUntil:0};
-const HUNTER_MAX_BATCH=15;
-function hunterOpenStake(){
-  let s=0;
-  activeContracts.forEach(r=>{ if(r&&r.purpose==='hunter') s+=Number(r.stake)||0; });
-  [pendingProposalMap,pendingBuyMap].forEach(m=>m.forEach(t=>{ if(t&&t.purpose==='hunter') s+=Number(t.stake)||0; }));
-  return s;
-}
-function hunterGate(want){
-  const stake=normalizeStake(botConfig.defaultStake);
-  const rec=getDailyRecord(), bal=Number(balance||0);
-  const start=Number(adaptiveEngine.session.startBalance||rec.startBalance||bal);
-  const floor=start>0?start*(botConfig.hardAccountFloorPct/100):0;
-  if(Date.now()<hunterSess.busyUntil) return {count:0,stake,why:'Please wait a moment between Hunter executions.'};
-  if(rec.floorBreached) return {count:0,stake,why:'This account/day is locked after a survival-floor breach.'};
-  if(bal<=0||(floor>0&&bal<=floor)) return {count:0,stake,why:`Account survival floor reached ($${Math.max(0,bal).toFixed(2)}).`};
-  if(rec.profit>=botConfig.dailyTarget) return {count:0,stake,why:`Daily target reached (+$${rec.profit.toFixed(2)}).`};
-  const hard=Math.max(0.01,Number(botConfig.stopLoss||20));
-  const buffer=hard+Math.min(0,hunterSess.pl)-hunterOpenStake();
-  if(hunterSess.pl<=-hard) return {count:0,stake,why:`Hunter session stop loss reached (-$${hard.toFixed(2)}). Use "Reset Hunter session P/L" to start a new session.`};
-  const byBuffer=Math.floor((buffer+1e-9)/stake);
-  const byBalance=bal>0?Math.floor(bal/stake):0;
-  const count=Math.max(0,Math.min(want,HUNTER_MAX_BATCH,byBuffer,byBalance));
-  if(count<1) return {count:0,stake,why:`Stop-loss buffer ($${Math.max(0,buffer).toFixed(2)}) is smaller than one $${stake.toFixed(2)} stake.`};
-  return {count,stake,why:count<want?`Limited to ${count} of ${want} signals by the stop-loss buffer / batch cap.`:''};
-}
-function hunterRecordSettlement(rec,c,profit,won){
-  hunterSess.pl+=profit; hunterSess.stake+=Number(rec.stake)||0; hunterSess.runs++;
-  if(won) hunterSess.wins++; else hunterSess.losses++;
-  trades.unshift({time:new Date().toLocaleTimeString(),strategy:`Hunter · ${rec.label}`,entry:c.entry_tick??'—',exit:c.exit_tick??'—',stake:Number(rec.stake)||0,pl:Number(profit)||0});
-  if(trades.length>200) trades.length=200;
-  renderTrades();
-  const hard=Math.max(0.01,Number(botConfig.stopLoss||20));
-  if(hunterSess.pl<=-hard) toast(`🛑 Hunter session stop loss reached (${hunterSess.pl.toFixed(2)} USD). No further Hunter orders until reset.`,'error');
-  const st=document.getElementById('hunterExecStatus');
-  if(st){ st.className='hunter-exec-status '+(hunterSess.pl>=0?'ok':'warn'); st.textContent=`Hunter session · ${hunterSess.runs} settled · ${hunterSess.wins}W/${hunterSess.losses}L · P/L ${hunterSess.pl>=0?'+':''}$${hunterSess.pl.toFixed(2)} (stop at -$${hard.toFixed(2)})`; }
-}
-function hunterResetSession(){ hunterSess.pl=0; hunterSess.stake=0; hunterSess.runs=0; hunterSess.wins=0; hunterSess.losses=0; }
 function hunterExecuteAll(){
-  const allRows=hunterExecutableRows();
+  if(v3Blocked()) return;
+  const rows=hunterExecutableRows();
   const status=document.getElementById('hunterExecStatus');
   if(!wsConnected){
     toast('Connect the Deriv account before executing Hunter signals.','error');
     if(status){ status.className='hunter-exec-status warn'; status.textContent='Account not connected — no trades submitted.'; }
     return;
   }
-  if(!allRows.length){
+  if(!rows.length){
     if(status){ status.className='hunter-exec-status warn'; status.textContent='No READY signals meet the active threshold.'; }
     return;
   }
@@ -4785,53 +4740,40 @@ function hunterExecuteAll(){
     if(status){ status.className='hunter-exec-status warn'; status.textContent='Jumble has no verified contract mapping and was not executed.'; }
     return;
   }
-  const gate=hunterGate(allRows.length);
-  if(gate.count<1){
-    toast('🛑 '+gate.why,'error');
-    if(status){ status.className='hunter-exec-status warn'; status.textContent='Blocked — '+gate.why; }
-    return;
-  }
-  const rows=allRows.slice(0,gate.count);   // strongest signals first (already ranked)
-  if(!confirmRealMoney(`Hunter · ${rows.length} contract${rows.length===1?'':'s'} × $${gate.stake.toFixed(2)} = $${(rows.length*gate.stake).toFixed(2)} total stake\n${gate.why}`)) return;
-  hunterSess.busyUntil=Date.now()+1500;
 
   const submitted=[];
   rows.forEach(r=>{
     const c=hunterContractFor(r);
     if(!c) return;
     const strat={
-      type:c.type, stake:gate.stake, duration:c.duration||1, prediction:c.prediction,
+      type:c.type, stake:botConfig.defaultStake, duration:c.duration||1, prediction:c.prediction,
       wins:0, losses:0, pl:0, hunter:true, hunterMarket:r.market.short, hunterSignal:r.label, hunterPct:r.pct
     };
-    // FIX: only report markets whose request was really sent
-    if(placeStrategyContract(strat, r.market.code, {purpose:'hunter', bypassGap:true, stakeOverride:gate.stake})) submitted.push(`${r.market.short} ${r.label}`);
+    placeStrategyContract(strat, r.market.code, {purpose:'hunter', bypassGap:true});
+    submitted.push(`${r.market.short} ${r.label}`);
   });
 
   lastAction=`${hunterModeLabel()} → ${submitted.length} markets submitted together`;
   updateEngineStatus();
   if(status){
     status.className='hunter-exec-status live';
-    status.textContent=`⚡ Submitted ${submitted.length} of ${rows.length} market signals: ${submitted.join(' · ')}${gate.why?' — '+gate.why:''}`;
+    status.textContent=`⚡ Submitted ${submitted.length} market signals together: ${submitted.join(' · ')}`;
   }
-  toast(`⚡ ${submitted.length} ${hunterModeLabel()} signal${submitted.length===1?'':'s'} submitted`, submitted.length?'success':'error');
+  toast(`⚡ ${submitted.length} ${hunterModeLabel()} signals submitted together`, 'success');
 }
 function hunterExecute(r){
+  if(v3Blocked()) return;
   const c=hunterContractFor(r);
   if(!c){ toast('Jumble is scanner-only in this reconstruction.','info'); return; }
   if(!wsConnected){ toast('Connect the Deriv account before executing a Hunter signal.','error'); return; }
-  const gate=hunterGate(1);
-  if(gate.count<1){ toast('🛑 '+gate.why,'error'); return; }
-  if(!confirmRealMoney(`Hunter · ${r.market.short} ${r.label} · stake $${gate.stake.toFixed(2)}`)) return;
-  hunterSess.busyUntil=Date.now()+1000;
   const strat={
-    type:c.type, stake:gate.stake, duration:c.duration||1, prediction:c.prediction,
+    type:c.type, stake:botConfig.defaultStake, duration:c.duration||1, prediction:c.prediction,
     wins:0, losses:0, pl:0,
     hunter:true, hunterMarket:r.market.short, hunterSignal:r.label, hunterPct:r.pct
   };
-  if(placeStrategyContract(strat, r.market.code, {purpose:'hunter', bypassGap:true, stakeOverride:gate.stake})){
-    lastAction=`Hunter → ${r.market.short} ${r.label} (${Math.round(r.pct*100)}%)`;
-    updateEngineStatus();
-  }
+  placeStrategyContract(strat, r.market.code, {purpose:'hunter', bypassGap:true});
+  lastAction=`Hunter → ${r.market.short} ${r.label} (${Math.round(r.pct*100)}%)`;
+  updateEngineStatus();
 }
 function renderHunter(){
   if(!isTabActive('hunter')) return;
@@ -4906,7 +4848,6 @@ function setupHunterUI(){
     });
   });
   document.getElementById('hunterExecuteAllBtn').addEventListener('click', hunterExecuteAll);
-  document.getElementById('hunterResetBtn').addEventListener('click',()=>{ hunterResetSession(); const st=document.getElementById('hunterExecStatus'); if(st){ st.className='hunter-exec-status'; st.textContent='Hunter session reset.'; } toast('Hunter session P/L reset','info'); });
 }
 
 /* ============================================================
@@ -5097,12 +5038,10 @@ function eoProfileSignals(profile){
 }
 function eoMaybeRequestQuotes(mkt){
   if(!wsConnected||!ws||ws.readyState!==WebSocket.OPEN||!accessToken||!mkt)return;
-  if(!derivBgPollingWanted())return;            // nobody is looking at the scanner and it is not trading: do not spend Deriv requests
-  const every=derivBgInterval();
   ['DIGITEVEN','DIGITODD'].forEach(type=>{
     const key=eoQuoteKey(mkt.code,type),last=EO.quoteAsked.get(key)||0;
     const q=EO.quotes.get(key);
-    if(Date.now()-last<every||EO.quoteQueued.has(key)||(q&&Date.now()-q.at<every))return;
+    if(Date.now()-last<60000||EO.quoteQueued.has(key)||(q&&Date.now()-q.at<60000))return;
     EO.quoteQueued.add(key);EO.quoteQueue.push({key,symbol:mkt.code,type});eoDispatchQuoteQueue();
   });
 }
@@ -5115,7 +5054,6 @@ function eoDispatchQuoteQueue(){
     EO.quoteQueued.delete(job.key);EO.quoteAsked.set(job.key,Date.now());
     const rid=wsReqId++;
     EO.quotePending.set(rid,job);
-    derivMarkBg(rid,()=>{EO.quotePending.delete(rid);EO.quoteAsked.set(job.key,0);});
     const amount=stakeForApi(Math.max(.35,Number(PX.cfg.stake)||1)).number;
     try{
       ws.send(JSON.stringify({proposal:1,amount,basis:'stake',contract_type:job.type,currency:(accountInfo&&accountInfo.currency)||'USD',
@@ -5128,7 +5066,6 @@ function eoDispatchQuoteQueue(){
 function eoHandleQuoteResponse(data){
   if(!data||data.req_id==null||!EO.quotePending.has(data.req_id))return false;
   const job=EO.quotePending.get(data.req_id);EO.quotePending.delete(data.req_id);
-  if(data.error&&derivIsRateLimit(data.error)){EO.quoteAsked.set(job.key,Date.now());derivNoteRateLimit();eoLog('quote','Deriv rate limit reached: scanner price checks paused for a while');return true;}
   if(data.error||!data.proposal){
     EO.quotes.set(job.key,{error:data.error&&data.error.message||'No proposal returned',at:Date.now()});
     eoLog('quote',`${job.symbol} ${job.type}: proposal unavailable`);
@@ -5456,11 +5393,9 @@ function oudOnLiveTick(m,epoch){
 }
 function oudMaybeRequestQuotes(m){
   if(!wsConnected||!ws||ws.readyState!==WebSocket.OPEN||!accessToken||!m)return;
-  if(!derivBgPollingWanted())return;            // nobody is looking at the scanner and it is not trading: do not spend Deriv requests
-  const every=derivBgInterval();
   for(const type of ['RUNHIGH','RUNLOW'])for(const duration of OUD_DURATIONS){
     const key=oudQuoteKey(m.code,type,duration),asked=OUD.quoteAsked.get(key)||0,q=OUD.quotes.get(key);
-    if(Date.now()-asked<every||OUD.quoteQueued.has(key)||(q&&Date.now()-q.at<every))continue;
+    if(Date.now()-asked<60000||OUD.quoteQueued.has(key)||(q&&Date.now()-q.at<60000))continue;
     OUD.quoteQueued.add(key);OUD.quoteQueue.push({key,symbol:m.code,type,duration});
   }
   oudDispatchQuoteQueue();
@@ -5472,7 +5407,6 @@ function oudDispatchQuoteQueue(){
     const job=OUD.quoteQueue.shift();if(!job)return;OUD.quoteQueued.delete(job.key);OUD.quoteAsked.set(job.key,Date.now());
     const rid=wsReqId++,amount=stakeForApi(Math.max(.35,Number(PX.cfg.stake)||1)).number;
     OUD.quotePending.set(rid,job);
-    derivMarkBg(rid,()=>{OUD.quotePending.delete(rid);OUD.quoteAsked.set(job.key,0);});
     try{ws.send(JSON.stringify({proposal:1,amount,basis:'stake',contract_type:job.type,currency:(accountInfo&&accountInfo.currency)||'USD',duration:job.duration,duration_unit:'t',underlying_symbol:job.symbol,req_id:rid}));}
     catch(e){OUD.quotePending.delete(rid);OUD.quoteAsked.set(job.key,0);}
     oudDispatchQuoteQueue();
@@ -5481,7 +5415,6 @@ function oudDispatchQuoteQueue(){
 function oudHandleQuoteResponse(data){
   if(!data||data.req_id==null||!OUD.quotePending.has(data.req_id))return false;
   const job=OUD.quotePending.get(data.req_id);OUD.quotePending.delete(data.req_id);
-  if(data.error&&derivIsRateLimit(data.error)){OUD.quoteAsked.set(job.key,Date.now());derivNoteRateLimit();oudLog('quote','Deriv rate limit reached: scanner price checks paused for a while');return true;}
   if(data.error||!data.proposal){OUD.quotes.set(job.key,{error:data.error&&data.error.message||'No proposal returned',at:Date.now()});oudLog('quote',`${job.symbol} ${job.type} ${job.duration}t unavailable: ${data.error&&data.error.message||'no proposal'}`);}
   else{const p=data.proposal,ask=Number(p.ask_price),payout=Number(p.payout),be=eoBreakEven(ask,payout);OUD.quotes.set(job.key,{ask,payout,breakEven:be,at:Date.now()});}
   oudUpdateFDR(true);oudRender(false);return true;
@@ -5678,6 +5611,7 @@ function pxDailyAdd(p){ const r=pxDailyGet(); r[MODE]=(Number(r[MODE])||0)+p; tr
 function pxAudit(type,msg){
   const e={t:Date.now(),type,msg,mode:MODE};
   PX.logs.unshift(e); if(PX.logs.length>80) PX.logs.length=80;
+  if(type==='risk') v3Alert(msg,'warn');
   try{ const a=JSON.parse(localStorage.getItem(PX_AUDIT_KEY)||'[]'); a.unshift(e); localStorage.setItem(PX_AUDIT_KEY,JSON.stringify(a.slice(0,300))); }catch(_){}
   pxRenderLog();
 }
@@ -5699,11 +5633,10 @@ const PX_ICON={
   over8:'<svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/><path d="M5 21h14"/></svg>',
   tickstrike:'<svg viewBox="0 0 24 24"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg>',
   switcher:'<svg viewBox="0 0 24 24"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>',
-  eoscanner:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg>',
-  oudscanner:'<svg viewBox="0 0 24 24"><path d="M3 17l5-6 4 3 5-8 4 5"/><path d="M3 21h18"/></svg>'
+  eoscanner:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg>'
 };
 const PX_STRATS={
-  matches:{ name:'Matches Digit', tag:'Digit Matches / Differs', family:'matches',
+  matches:{ name:'Matches Printer', tag:'Digit Matches / Differs', family:'matches',
     summary:sp=>`${sp.mode==='DIFF'?'Differs':'Matches'} the ${PX_POLICY[sp.policy]} digit · ${sp.window}-tick window`,
     need:sp=>sp.window,
     analyze(m,sp){
@@ -5722,7 +5655,7 @@ const PX_STRATS={
         contract:{type:diff?'DIGITDIFF':'DIGITMATCH',duration:1,barrier:pick.digit}}};
     }
   },
-  over8:{ name:'Over 8 (high risk)', tag:'Digit Over / Under', family:'overunder',
+  over8:{ name:'Over 8 Killer', tag:'Digit Over / Under', family:'overunder',
     summary:sp=>{ const o=sp.side==='OVER'; return `${o?'Over':'Under'} ${sp.barrier} · wins on ${o?(9-sp.barrier)+' digit'+(9-sp.barrier===1?'':'s'):sp.barrier+' digit'+(sp.barrier===1?'':'s')} · min z ${sp.minZ}`; },
     need:sp=>sp.window,
     analyze(m,sp){
@@ -5927,13 +5860,6 @@ function pxPlace(c){
   pxSetStatus(`Checking the proposed contract — ${c.short} · ${c.label}`);
   ws.send(JSON.stringify({proposal:1,...params,req_id:reqId}));
 }
-function premiumOnRateLimited(t){
-  if(t.sid!==PX.sid)return;
-  PX.open=null;                                   // nothing was bought; the next scan may try again
-  PX.nextAt=Date.now()+Math.max(3000,DERIV_REQ_BUDGET.fgUntil-Date.now()+1000);
-  pxAudit('error','Deriv rate limit reached: the order was not placed. Retrying shortly; background price checks are paused.');
-  pxSetStatus('Deriv rate limit reached — retrying in a few seconds…');
-}
 function premiumOnTradeError(t,msg,ambiguous){
   if(t.sid!==PX.sid) return;
   if(t.pxPair){ pxPairError(t,msg); return; }
@@ -6076,6 +6002,7 @@ function pxValidate(){
 }
 function pxStart(){
   if(PX.running||PX.scanning) return false;
+  if(v3Blocked()) return false;
   if(PX.cfg.strategy==='eoscanner'&&!EO.autoTradeEnabled){toast('Even/Odd scanner is in research mode. Turn on its separate execution switch to place orders.','info');return false;}
   if(PX.cfg.strategy==='oudscanner'&&!OUD.autoTradeEnabled){toast('Only Ups/Downs is in signal-only mode. Turn on its separate execution switch to place orders.','info');return false;}
   if(botRunning){ toast('Stop the Trading Hub bot before using EMRON Auto.','error'); return; }
@@ -6745,16 +6672,697 @@ function pxRenderRisk(){
 }
 
 /* ============================================================
+   EMRON v3 — reliability, safety, discovery, journal, server-side automation
+   Derived from the Deriv developer docs (Limits, Best practices, Automation API,
+   Product updates) — see the Help tab for the full list of what changed and why.
+   ============================================================ */
+const V3_PREF_KEY='emron_v3_prefs', V3_JOURNAL_KEY='emron_v3_journal';
+const V3={
+  killed:false, killReason:'', acct:null,
+  prefs:{capDaily:0,capStake:0,capOpen:0,capStreak:0,capErr:10,sound:true,notify:false,wake:true,jRange:'today',jMode:'current'},
+  auth:{attempt:0,timer:null,lastMsg:0,rtt:null,pingAt:0,reconnects:0,openedAt:0,lastError:'',fatal:false,nextAt:0},
+  pub:{lastMsg:0,rtt:null,pingAt:0,reconnects:0,openedAt:0,symReqAt:0},
+  hourSent:[],
+  rate:{strikes:0,lastStrike:0,until:0,hits:0},
+  errStreak:0,
+  settled:new Set(),
+  journal:[],
+  symbols:new Map(),
+  strategies:null,strategiesRaw:null,strategiesAt:0,
+  runs:new Map(),runLog:[],runPollAt:0,
+  wake:null,
+  log:[],
+  lastRender:0
+};
+const V3_CONTRACTS=[
+  ['DIGITMATCH','Digits · Matches'],['DIGITDIFF','Digits · Differs'],['DIGITOVER','Digits · Over'],['DIGITUNDER','Digits · Under'],
+  ['DIGITEVEN','Digits · Even'],['DIGITODD','Digits · Odd'],
+  ['CALL','Rise'],['PUT','Fall'],['CALLE','Rise (or equal)'],['PUTE','Fall (or equal)'],
+  ['HIGHER','Higher'],['LOWER','Lower'],['ONETOUCH','Touch'],['NOTOUCH','No Touch'],
+  ['RUNHIGH','Only Ups'],['RUNLOW','Only Downs'],['TICKHIGH','High Tick'],['TICKLOW','Low Tick'],
+  ['ACCU','Accumulator'],['MULTUP','Multiplier Up'],['MULTDOWN','Multiplier Down'],
+  ['TURBOSLONG','Turbo Long'],['TURBOSSHORT','Turbo Short'],['VANILLALONGCALL','Vanilla Call'],['VANILLALONGPUT','Vanilla Put'],
+  ['ASIANU','Asian Up'],['ASIAND','Asian Down'],['RESETCALL','Reset Call'],['RESETPUT','Reset Put'],
+  ['RANGE','Stays Between'],['UPORDOWN','Goes Outside'],['EXPIRYRANGE','Ends Between'],['EXPIRYRANGEE','Ends Between (incl.)'],
+  ['EXPIRYMISS','Ends Outside'],['EXPIRYMISSE','Ends Outside (incl.)']
+];
+const V3_DIGIT_CT=['DIGITMATCH','DIGITDIFF','DIGITOVER','DIGITUNDER'];
+const V3_NODUR_CT=['ACCU','MULTUP','MULTDOWN'];
+const V3_BARRIER_CT=['HIGHER','LOWER','ONETOUCH','NOTOUCH','TURBOSLONG','TURBOSSHORT','VANILLALONGCALL','VANILLALONGPUT','RANGE','UPORDOWN','EXPIRYRANGE','EXPIRYRANGEE','EXPIRYMISS','EXPIRYMISSE'];
+const V3_BARRIER2_CT=['RANGE','UPORDOWN','EXPIRYRANGE','EXPIRYRANGEE','EXPIRYMISS','EXPIRYMISSE'];
+
+const v3$=id=>document.getElementById(id);
+const v3Esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const v3Day=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
+const v3Pct=x=>(x*100).toFixed(1)+'%';
+const v3Money=n=>{n=Number(n)||0;return (n<0?'-':'+')+'$'+Math.abs(n).toFixed(2);};
+const v3Ago=ms=>{ if(!ms) return '—'; const s=Math.max(0,Math.round((Date.now()-ms)/1000)); return s<60?s+'s ago':s<3600?Math.floor(s/60)+'m ago':Math.floor(s/3600)+'h ago'; };
+function v3Log(kind,msg){
+  V3.log.unshift({t:Date.now(),kind,msg:String(msg)}); if(V3.log.length>120) V3.log.length=120;
+  if(isTabActive('control')) v3RenderLog();
+}
+function v3SavePrefs(){ try{ localStorage.setItem(V3_PREF_KEY,JSON.stringify(V3.prefs)); }catch(e){} }
+function v3LoadPrefs(){ try{ const p=JSON.parse(localStorage.getItem(V3_PREF_KEY)||'null'); if(p&&typeof p==='object') Object.keys(V3.prefs).forEach(k=>{ if(p[k]!==undefined&&typeof p[k]===typeof V3.prefs[k]) V3.prefs[k]=p[k]; }); }catch(e){} }
+function v3SaveJournal(){ try{ localStorage.setItem(V3_JOURNAL_KEY,JSON.stringify(V3.journal)); }catch(e){} }
+function v3LoadJournal(){ try{ const j=JSON.parse(localStorage.getItem(V3_JOURNAL_KEY)||'[]'); if(Array.isArray(j)){ V3.journal=j.filter(e=>e&&Number.isFinite(Number(e.profit))); V3.journal.forEach(e=>V3.settled.add(e.cid)); } }catch(e){} }
+
+/* ---------- global safety layer: one choke point in front of every purchase ---------- */
+function v3Active(){ return !!(botRunning||PX.running||PX.scanning); }
+function v3Engines(){
+  const a=[]; if(botRunning) a.push('Trading Hub bot'); if(PX.running||PX.scanning) a.push('EMRON Auto');
+  const runs=Array.from(V3.runs.values()).filter(r=>r.status==='running').length; if(runs) a.push(runs+' server run'+(runs>1?'s':''));
+  return a;
+}
+function v3Blocked(){
+  if(V3.killed){ toast('⏹ Trading is stopped by the kill switch — re-arm it in 🛡️ Control to continue.','error'); return true; }
+  return false;
+}
+function v3Guard(obj){
+  if(V3.killed) return 'kill switch is engaged — re-arm trading in the Control tab';
+  const P=V3.prefs;
+  if(Object.prototype.hasOwnProperty.call(obj,'buy')){
+    const price=Number(obj.price);
+    if(P.capStake>0&&price>P.capStake+1e-9) return `order price $${price.toFixed(2)} is above your max-stake cap of $${P.capStake.toFixed(2)}`;
+    if(P.capOpen>0){ const open=activeContracts.size+Math.max(0,pendingBuyMap.size-1); if(open>=P.capOpen) return `${open} contracts are already open (cap ${P.capOpen})`; }
+    if(P.capDaily>0){ const s=v3Stats(v3Rows({day:true,mode:MODE})); if(s.net<=-P.capDaily) return `daily loss cap reached (${v3Money(s.net)} today, cap $${P.capDaily.toFixed(2)})`; }
+  } else if(obj.auto_start===1){
+    const t=obj.contract_template||{}, amt=Number(t.amount);
+    if(P.capStake>0&&t.basis!=='payout'&&amt>P.capStake+1e-9) return `run stake $${amt.toFixed(2)} is above your max-stake cap of $${P.capStake.toFixed(2)}`;
+  }
+  return null;
+}
+/* Refuse a purchase and answer the caller with an error, so no engine is left waiting on a reply. */
+function v3GuardSend(obj){
+  const isBuy=Object.prototype.hasOwnProperty.call(obj,'buy'), isAuto=obj.auto_start===1;
+  if(!isBuy&&!isAuto) return false;
+  const why=v3Guard(obj); if(!why) return false;
+  v3Log('guard','Blocked '+(isBuy?'order':'server run')+': '+why);
+  setTimeout(()=>handleWsMessage({data:JSON.stringify({msg_type:isBuy?'buy':'auto_start',req_id:obj.req_id,echo_req:obj,error:{code:'EmronGuard',message:'EMRON guard: '+why}})}),0);
+  return true;
+}
+function v3KillAll(reason){
+  const first=!V3.killed;
+  V3.killed=true; V3.killReason=reason||'stopped by you';
+  /* unsent proposals can no longer lead anywhere — drop them; unsent buys are refused by the guard at dispatch time */
+  DERIV_REQ_BUDGET.queue=DERIV_REQ_BUDGET.queue.filter(j=>{
+    let o=null; try{o=JSON.parse(j.raw);}catch(_){}
+    if(o&&o.proposal===1){ pendingProposalMap.delete(o.req_id); adaptiveEngine.pendingContexts.delete(o.req_id); return false; }
+    return true;
+  });
+  try{ if(botRunning) stopBot('manual'); }catch(e){}
+  try{ if(PX.scanning&&typeof PX.scanAbort==='function') PX.scanAbort(); if(PX.running) pxStop('⏹ Kill switch — '+V3.killReason+'. No new orders; open contracts settle on their own.'); }catch(e){}
+  try{ eoToggleExecution(false); }catch(e){}
+  try{ oudToggleExecution(false); }catch(e){}
+  v3StopAllRuns(true);
+  if(first){ v3Log('kill','Kill switch engaged — '+V3.killReason); toast('⏹ Everything stopped — '+V3.killReason,'error'); v3Alert('Trading stopped: '+V3.killReason,'warn'); }
+  v3RenderAll();
+}
+function v3Rearm(){
+  if(!V3.killed) return;
+  V3.killed=false; V3.killReason=''; V3.errStreak=0;
+  v3Log('kill','Trading re-armed'); toast('✅ Trading re-armed — engines stay off until you start them.','success'); v3RenderAll();
+}
+
+/* ---------- alerts + keep-awake ---------- */
+let v3Audio=null;
+function v3Beep(level){
+  try{
+    v3Audio=v3Audio||new (window.AudioContext||window.webkitAudioContext)();
+    const ctx=v3Audio, t0=ctx.currentTime, tones=level==='warn'?[440,330]:[660,880];
+    tones.forEach((f,i)=>{ const o=ctx.createOscillator(), g=ctx.createGain(); o.frequency.value=f; o.type='sine'; g.gain.setValueAtTime(0.0001,t0+i*0.18); g.gain.exponentialRampToValueAtTime(0.12,t0+i*0.18+0.02); g.gain.exponentialRampToValueAtTime(0.0001,t0+i*0.18+0.16); o.connect(g); g.connect(ctx.destination); o.start(t0+i*0.18); o.stop(t0+i*0.18+0.17); });
+  }catch(e){}
+}
+function v3Alert(msg,level){
+  if(V3.prefs.sound) v3Beep(level);
+  if(V3.prefs.notify&&'Notification' in window&&Notification.permission==='granted'&&document.hidden){ try{ new Notification('EMRON AI',{body:msg}); }catch(e){} }
+}
+function v3UpdateWake(){
+  if(!('wakeLock' in navigator)) return;
+  const want=V3.prefs.wake&&(v3Active()||Array.from(V3.runs.values()).some(r=>r.status==='running'))&&!document.hidden;
+  if(want&&!V3.wake){
+    navigator.wakeLock.request('screen').then(l=>{ V3.wake=l; l.addEventListener('release',()=>{ if(V3.wake===l) V3.wake=null; }); }).catch(()=>{});
+  } else if(!want&&V3.wake){ try{ V3.wake.release(); }catch(e){} V3.wake=null; }
+}
+
+/* ---------- connection hardening: backoff + jitter, heartbeat, silent-death watchdog ---------- */
+function v3ScheduleReconnect(why){
+  if(V3.auth.timer||manualDisconnect||!accessToken||V3.auth.fatal) return;
+  const a=V3.auth.attempt++;
+  const d=Math.round(Math.min(30000,1000*Math.pow(2,a))*(0.7+Math.random()*0.6));
+  V3.auth.reconnects++; V3.auth.nextAt=Date.now()+d;
+  v3Log('net',`Trading link down (${why||'connection lost'}) — retry ${a+1} in ${(d/1000).toFixed(1)}s`);
+  setAuthStatus(`🟠 Reconnecting in ${Math.ceil(d/1000)}s… (${why||'connection lost'})`,true);
+  V3.auth.timer=setTimeout(()=>{ V3.auth.timer=null; V3.auth.nextAt=0; if(accessToken&&!manualDisconnect&&!wsConnected) connectWebSocket(accessToken); },d);
+}
+function v3OnAuthOpen(){
+  V3.auth.attempt=0; V3.auth.fatal=false; V3.auth.openedAt=Date.now(); V3.auth.lastMsg=Date.now(); V3.auth.lastError=''; V3.auth.nextAt=0;
+  const acct=accountInfo&&accountInfo.account_id;
+  if(V3.acct!==acct){ V3.acct=acct; V3.runs.clear(); V3.runPollAt=0; }   // runs belong to one account — never show demo runs under a real account
+  if(V3.auth.timer){ clearTimeout(V3.auth.timer); V3.auth.timer=null; }
+  v3Log('net','Trading link connected');
+  setTimeout(()=>{ if(wsConnected) v3PollRuns(true); },800);
+}
+function v3Ping(){
+  if(ws&&ws.readyState===1){ V3.auth.pingAt=Date.now(); try{ ws.send(JSON.stringify({ping:1})); }catch(e){} }
+}
+function v3PubPing(w){
+  if(w&&w.readyState===1){ V3.pub.pingAt=Date.now(); try{ w.send(JSON.stringify({ping:1})); }catch(e){} }
+}
+function v3ForceClose(sock,label){
+  v3Log('net',`No data from Deriv for 45s on the ${label} — restarting it`);
+  try{ sock.close(); }catch(e){}
+  setTimeout(()=>{ if(sock.readyState!==3&&(sock===ws||sock===window.__pulseWs)){ const h=sock.onclose; sock.onclose=null; if(typeof h==='function'){ try{ h.call(sock); }catch(e){} } } },3000);
+}
+function v3Watchdog(){
+  const now=Date.now();
+  if(ws&&ws.readyState===1&&V3.auth.lastMsg&&now-V3.auth.lastMsg>45000){ V3.auth.lastMsg=now; v3ForceClose(ws,'trading link'); }
+  const pw=window.__pulseWs;
+  if(pw&&pw.readyState===1&&V3.pub.lastMsg&&now-V3.pub.lastMsg>45000){ V3.pub.lastMsg=now; v3ForceClose(pw,'market feed'); }
+}
+function v3OnVisible(){
+  if(document.hidden) return;
+  if(accessToken&&!wsConnected&&!manualDisconnect&&!V3.auth.fatal&&!authBusy){
+    if(V3.auth.timer){ clearTimeout(V3.auth.timer); V3.auth.timer=null; }
+    V3.auth.attempt=0; v3Log('net','Tab is back in the foreground — reconnecting now'); connectWebSocket(accessToken);
+  }
+  v3UpdateWake();
+}
+
+/* ---------- message hooks ---------- */
+function v3OnMessage(d){
+  V3.auth.lastMsg=Date.now();
+  const mt=d.msg_type;
+  if(mt==='ping'){ if(V3.auth.pingAt){ const r=Date.now()-V3.auth.pingAt; V3.auth.rtt=V3.auth.rtt==null?r:Math.round(V3.auth.rtt*0.7+r*0.3); V3.auth.pingAt=0; } return; }
+  if(d.error) v3OnApiError(d);
+  else if(mt==='buy'&&d.buy) V3.errStreak=0;
+  if(mt==='proposal_open_contract'&&d.proposal_open_contract) v3OnPOC(d.proposal_open_contract,d.subscription);
+  else if(mt&&mt.indexOf('auto_')===0) v3OnAuto(d);
+  else if(mt==='active_symbols') v3OnActiveSymbols(d);
+}
+function v3OnPublicMessage(d){
+  V3.pub.lastMsg=Date.now();
+  const mt=d.msg_type;
+  if(mt==='tick') return;
+  if(mt==='ping'){ if(V3.pub.pingAt){ const r=Date.now()-V3.pub.pingAt; V3.pub.rtt=V3.pub.rtt==null?r:Math.round(V3.pub.rtt*0.7+r*0.3); V3.pub.pingAt=0; } return; }
+  if(mt==='active_symbols'){ v3OnActiveSymbols(d); return; }
+  if(d.req_id===7001&&d.error){ try{ const w=window.__pulseWs; if(w&&w.readyState===1) w.send(JSON.stringify({active_symbols:'brief',req_id:7002})); }catch(e){} return; }
+  if(mt==='auto_list_strategies'||d.req_id===7100){
+    if(d.error&&ws&&ws.readyState===1){ try{ ws.send(JSON.stringify({auto_list_strategies:1,req_id:7101})); }catch(e){} return; }
+    v3OnAuto(d);
+  }
+}
+function v3OnPublicOpen(w){
+  V3.pub.openedAt=Date.now(); V3.pub.lastMsg=Date.now();
+  try{ w.send(JSON.stringify({active_symbols:'brief',product_type:'basic',req_id:7001})); V3.pub.symReqAt=Date.now(); }catch(e){}
+}
+function v3OnApiError(d){
+  const e=d.error||{}, code=String(e.code||''), msg=String(e.message||''), txt=(code+' '+msg).toLowerCase();
+  if(/ratelimit|rate.?limit|too many request|throttl/.test(txt)){
+    const now=Date.now(); if(now-V3.rate.lastStrike>120000) V3.rate.strikes=0;
+    V3.rate.strikes++; V3.rate.hits++; V3.rate.lastStrike=now;
+    const ms=Math.round(Math.min(60000,2000*Math.pow(2,V3.rate.strikes-1))*(0.85+Math.random()*0.3));
+    V3.rate.until=now+ms;
+    v3Log('rate',`Deriv rate limit hit — pausing proposals/orders for ${Math.round(ms/1000)}s (strike ${V3.rate.strikes})`);
+    toast(`⏳ Deriv rate limit — pausing orders for ${Math.round(ms/1000)}s`,'error');
+  } else if(/invalidtoken|authorizationrequired|insufficientscope|tokenexpired|unauthori/.test(code.toLowerCase())){
+    V3.auth.lastError=(code||'auth')+': '+msg; v3Log('auth',V3.auth.lastError);
+  }
+  if(d.msg_type==='buy'&&code!=='EmronGuard'){
+    V3.errStreak++;
+    if(V3.prefs.capErr>0&&V3.errStreak>=V3.prefs.capErr) v3KillAll(`circuit breaker — ${V3.errStreak} rejected orders in a row`);
+  }
+}
+/* Every settled contract, whichever engine opened it, lands in one journal. Also stops its stream (Deriv best practice). */
+function v3OnPOC(c,sub){
+  if(!c||!c.is_sold) return;
+  const cid=c.contract_id; if(cid==null) return;
+  const sid=sub&&sub.id;
+  if(sid&&ws&&ws.readyState===1){ try{ ws.send(JSON.stringify({forget:sid})); }catch(e){} }
+  if(V3.settled.has(cid)) return;
+  V3.settled.add(cid);
+  const rec=activeContracts.get(cid)||null;
+  const stake=Number(c.buy_price)>0?Number(c.buy_price):(rec?Number(rec.stake)||0:0);
+  const sp=Number(c.sell_price), hasSp=c.sell_price!=null&&Number.isFinite(sp);
+  let profit=Number(c.profit); if(!Number.isFinite(profit)) profit=hasSp?sp-stake:0;
+  const e={t:Date.now(),day:v3Day(),mode:MODE,cid,
+    sym:String(c.underlying_symbol||c.underlying||(rec&&rec.marketSymbol)||''),type:String(c.contract_type||(rec&&rec.contractType)||''),
+    label:String((rec&&rec.label)||''),src:String((rec&&rec.purpose)||'manual/other'),
+    stake:+stake.toFixed(2),payout:+(hasSp?sp:Math.max(0,stake+profit)).toFixed(2),profit:+profit.toFixed(2),won:profit>0};
+  V3.journal.push(e); if(V3.journal.length>2000) V3.journal.splice(0,V3.journal.length-2000);
+  v3SaveJournal();
+  const P=V3.prefs, rows=v3Rows({mode:MODE});
+  const st=v3Stats(rows);
+  if(P.capStreak>0&&st.curStreak>=P.capStreak) v3KillAll(`${st.curStreak} losses in a row (limit ${P.capStreak})`);
+  else if(P.capDaily>0){ const d=v3Stats(v3Rows({day:true,mode:MODE})); if(d.net<=-P.capDaily) v3KillAll(`daily loss cap reached (${v3Money(d.net)})`); }
+  if(isTabActive('control')) v3RenderJournal();
+}
+
+/* ---------- journal maths ---------- */
+function v3Rows(o){
+  o=o||{};
+  return V3.journal.filter(e=>(!o.day||e.day===v3Day())&&(!o.mode||e.mode===o.mode));
+}
+function v3Stats(rows){
+  let n=rows.length,w=0,net=0,gp=0,gl=0,stake=0,peak=0,eq=0,dd=0,run=0,maxRun=0,odds=0;
+  rows.forEach(e=>{
+    stake+=e.stake; net+=e.profit; eq+=e.profit; if(eq>peak) peak=eq; dd=Math.max(dd,peak-eq);
+    if(e.profit>0){ w++; gp+=e.profit; odds+=e.stake>0?e.profit/e.stake:0; run=0; } else { gl-=e.profit; run++; if(run>maxRun) maxRun=run; }
+  });
+  const avgOdds=w?odds/w:0, be=avgOdds>0?1/(1+avgOdds):null;
+  return {n,w,l:n-w,net,wr:n?w/n:0,pf:gl>0?gp/gl:(gp>0?Infinity:0),stake,dd,maxRun,curStreak:run,avgOdds,be};
+}
+function v3Wilson(k,n,z){
+  z=z||1.96; if(!n) return [0,1];
+  const p=k/n,z2=z*z,den=1+z2/n,c=p+z2/(2*n),h=z*Math.sqrt(p*(1-p)/n+z2/(4*n*n));
+  return [Math.max(0,(c-h)/den),Math.min(1,(c+h)/den)];
+}
+function v3Verdict(s){
+  if(s.n<30||s.be==null) return {cls:'',txt:`Too early to judge — ${s.n} settled trade${s.n===1?'':'s'}. Several hundred are needed before a win rate means anything.`};
+  const w=v3Wilson(s.w,s.n), lo=w[0], hi=w[1];
+  if(hi<s.be) return {cls:'v3-bad',txt:`Win rate ${v3Pct(s.wr)} is below the ${v3Pct(s.be)} break-even even at its optimistic end (${v3Pct(hi)}). This setup is losing beyond luck.`};
+  if(lo>s.be) return {cls:'v3-good',txt:`Win rate ${v3Pct(s.wr)} clears the ${v3Pct(s.be)} break-even even at its pessimistic end (${v3Pct(lo)}). Treat it as a lead and confirm on fresh trades before staking more.`};
+  const d=Math.abs(s.wr-s.be), need=d>0.0005?Math.ceil(3.84*s.wr*(1-s.wr)/(d*d)):Infinity;
+  return {cls:'v3-warn',txt:`Inconclusive: ${v3Pct(s.wr)} against a ${v3Pct(s.be)} break-even (95% range ${v3Pct(lo)}–${v3Pct(hi)}). Roughly ${need===Infinity?'an unbounded number of':need.toLocaleString()} trades are needed to tell these apart.`};
+}
+
+/* ---------- live market discovery (active_symbols) ---------- */
+const V3_TRADABLE_RE=/^(R_\d+|1HZ\d+V|JD\d+)$/;
+function v3Decimals(pip,fallback){
+  /* same reading as eoQuoteParts: an integer is a decimal-place count, a fraction (0.01) is the step size */
+  const p=Number(pip);
+  if(Number.isInteger(p)&&p>=0&&p<=8) return p;
+  if(Number.isFinite(p)&&p>0&&p<1){ const dp=Math.round(-Math.log10(p)); if(dp>=0&&dp<=8&&Math.abs(Math.pow(10,-dp)-p)<1e-10) return dp; }
+  return fallback;
+}
+function v3ShortName(code,name){
+  const m=/^Volatility\s+(\d+)\s*(\(1s\))?/i.exec(name||''); if(m) return 'V'+m[1]+(m[2]?' (1s)':'');
+  return code;
+}
+function v3AddMarket(s){
+  const decimals=v3Decimals(s.pip,2), obj={code:s.code,short:v3ShortName(s.code,s.name),name:s.name,decimals,v3:true};
+  HUNTER.extraSymbols.push(obj);
+  engineState.markets.set(s.code,{...obj,digits:[],quotes:[],tickCount:0,lastQuote:null,lastDigit:null,streak:{dir:null,len:0},
+    matches:{stage:'watching',oppositeRun:0,stageTicks:0,setup:null,lastSignal:null,lastSignalTick:-Infinity}});
+  const w=window.__pulseWs;
+  if(w&&w.readyState===1){
+    try{ w.send(JSON.stringify({ticks:s.code,subscribe:1})); w.send(JSON.stringify({ticks_history:s.code,adjust_start_time:1,count:5000,end:'latest',style:'ticks'})); }catch(e){}
+  }
+  if(ws&&ws.readyState===1){ try{ ws.send(JSON.stringify({ticks:s.code,subscribe:1,req_id:wsReqId++})); }catch(e){} }
+  const key=(s.name||s.code).replace(/\s+Index$/i,'');
+  MARKET_SYMBOLS[key]=s.code;
+}
+function v3OnActiveSymbols(d){
+  const list=Array.isArray(d.active_symbols)?d.active_symbols:[];
+  if(!list.length) return;
+  let added=0, seen=0;
+  list.forEach(s=>{
+    if(!s||typeof s!=='object') return;
+    const code=String(s.underlying_symbol||s.symbol||''); if(!code) return;
+    const market=String(s.market||'').toLowerCase();
+    const synthetic=/synthetic|derived|volidx|random/.test(market)||/^(R_\d+|1HZ\d+V|JD\d+|BOOM|CRASH|stpRNG|RDBULL|RDBEAR|RB\d+|DEX|DRIFT)/i.test(code);
+    if(!synthetic) return;
+    seen++;
+    const suspended=!!s.is_trading_suspended||s.exchange_is_open===0||s.exchange_is_open===false;
+    const rec={code,name:String(s.display_name||s.underlying_symbol_display||code),market,submarket:String(s.submarket||'').toLowerCase(),pip:s.pip_size,suspended};
+    V3.symbols.set(code,rec);
+    if(V3_TRADABLE_RE.test(code)&&!engineState.markets.has(code)&&!suspended&&added<20){ v3AddMarket(rec); added++; }
+  });
+  v3Log('feed',`Market catalogue loaded — ${seen} synthetic symbols${added?`, ${added} new market${added>1?'s':''} added to the analysis engines`:''}`);
+  if(added) v3RefreshMarketSelects();
+  v3FillSymbolList();
+  v3RenderAll();
+}
+function v3RefreshMarketSelects(){
+  const px=v3$('pxMarket');
+  if(px){
+    const cur=px.value;
+    px.innerHTML=PULSE_SYMBOLS.concat(HUNTER.extraSymbols).map(s=>`<option value="${v3Esc(s.code)}">${v3Esc(s.name.replace(' Index',''))}</option>`).join('')+'<option value="ALL">All markets (best signal)</option>';
+    px.value=Array.from(px.options).some(o=>o.value===cur)?cur:PX.cfg.market;
+  }
+  const bm=v3$('botMarket');
+  if(bm){
+    let g=bm.querySelector('optgroup[data-v3]'); if(g) g.remove();
+    const extra=HUNTER.extraSymbols.filter(s=>s.v3);
+    if(extra.length){
+      g=document.createElement('optgroup'); g.label='Auto-discovered'; g.setAttribute('data-v3','1');
+      extra.forEach(s=>{ const o=document.createElement('option'); const n=s.name.replace(/\s+Index$/i,''); o.value=n; o.textContent=n.replace('Volatility','Vol'); g.appendChild(o); });
+      bm.appendChild(g);
+    }
+  }
+}
+
+/* ---------- server-side automation (Deriv Automation API) ---------- */
+function v3ArLog(msg){ V3.runLog.unshift({t:Date.now(),msg:String(msg)}); if(V3.runLog.length>60) V3.runLog.length=60; if(isTabActive('autorun')) v3RenderAuto(); }
+function v3FindRuns(x){
+  const out=[];
+  (function walk(n,depth){
+    if(!n||typeof n!=='object'||depth>3) return;
+    if(Array.isArray(n)){ n.forEach(i=>walk(i,depth+1)); return; }
+    if(typeof n.run_id==='string'){ out.push(n); return; }
+    Object.keys(n).forEach(k=>walk(n[k],depth+1));
+  })(x,0);
+  return out;
+}
+function v3UpsertRun(r){
+  const prev=V3.runs.get(r.run_id)||{};
+  V3.runs.set(r.run_id,Object.assign({},prev,r,{seenAt:Date.now()}));
+}
+function v3OnAuto(d){
+  const mt=d.msg_type||'';
+  if(d.error){
+    v3ArLog(`${mt||'auto'} → ${d.error.code||'error'}: ${d.error.message||''}`);
+    if(mt==='auto_start'||mt==='auto_pause'||mt==='auto_resume'||mt==='auto_stop') toast('❌ '+(d.error.message||'Automation request failed'),'error');
+    return;
+  }
+  if(mt==='auto_list_strategies'){
+    const body=d.auto_list_strategies||{};
+    V3.strategies=Array.isArray(body.strategies)?body.strategies:[]; V3.strategiesRaw=body; V3.strategiesAt=Date.now();
+    v3ArLog(`Loaded ${V3.strategies.length} strateg${V3.strategies.length===1?'y':'ies'}`);
+    v3FillStrategySelect(); v3RenderAuto(); return;
+  }
+  const runs=v3FindRuns(d[mt]);
+  runs.forEach(v3UpsertRun);
+  if(mt==='auto_start'&&runs[0]){ v3ArLog(`Run ${runs[0].run_id} ${runs[0].status||'started'}`); toast('🤖 Server-side run started','success'); }
+  if((mt==='auto_pause'||mt==='auto_resume'||mt==='auto_stop')&&!runs.length) setTimeout(()=>v3PollRuns(true),600);
+  if(mt==='auto_stop'&&runs[0]) v3ArLog(`Run ${runs[0].run_id} stopped`);
+  v3RenderAuto();
+}
+function v3SendAuth(obj){
+  if(!ws||ws.readyState!==1){ toast('🔐 Connect your Deriv token first.','error'); return false; }
+  obj.req_id=obj.req_id||wsReqId++;
+  ws.send(JSON.stringify(obj)); return true;
+}
+function v3LoadStrategies(){
+  const req={auto_list_strategies:1,req_id:7100}, w=window.__pulseWs;
+  if(w&&w.readyState===1) w.send(JSON.stringify(req));
+  else if(ws&&ws.readyState===1) ws.send(JSON.stringify({auto_list_strategies:1,req_id:7101}));
+  else toast('Market feed is offline — try again in a moment.','error');
+}
+function v3PollRuns(force){
+  if(!ws||ws.readyState!==1) return;
+  const now=Date.now(); if(!force&&now-V3.runPollAt<14000) return;
+  V3.runPollAt=now; try{ ws.send(JSON.stringify({auto_list:1,req_id:wsReqId++})); }catch(e){}
+}
+function v3StopAllRuns(silent){
+  const live=Array.from(V3.runs.values()).filter(r=>r.status==='running'||r.status==='paused');
+  if(!live.length){ if(!silent) toast('No active server-side runs to stop.','info'); return; }
+  live.forEach(r=>{ try{ if(ws&&ws.readyState===1) ws.send(JSON.stringify({auto_stop:1,run_id:r.run_id,req_id:wsReqId++})); }catch(e){} });
+  v3ArLog(`Stop sent to ${live.length} run${live.length>1?'s':''}`);
+  setTimeout(()=>v3PollRuns(true),900);
+}
+function v3RunAction(act,id){
+  if(!id) return;
+  if(act==='details'){ const r=V3.runs.get(id); const el=v3$('arDetails'); if(el){ el.textContent=JSON.stringify(r||{},null,2); el.parentElement.open=true; } return; }
+  const key=act==='pause'?'auto_pause':act==='resume'?'auto_resume':'auto_stop';
+  if(key==='auto_resume'&&V3.killed){ v3Blocked(); return; }
+  if(v3SendAuth({[key]:1,run_id:id})){ v3ArLog(`${key} → ${id}`); setTimeout(()=>v3PollRuns(true),700); }
+}
+function v3RunStats(r){
+  const cs=Array.isArray(r.contracts)?r.contracts:[];
+  let open=0,won=0,lost=0,net=0;
+  cs.forEach(c=>{
+    if(c.contract_status==='open'||(c.sell_price==null&&c.contract_status!=='won'&&c.contract_status!=='lost')) open++;
+    else { const p=Number(c.sell_price)-Number(c.buy_price); if(c.contract_status==='won'||p>0) won++; else lost++; if(Number.isFinite(p)) net+=p; }
+  });
+  return {n:cs.length,open,won,lost,net};
+}
+function v3ReadRunForm(){
+  const strategyId=v3$('arStrategy').value, ct=v3$('arContract').value, sym=v3$('arSymbol').value.trim();
+  const amount=Number(v3$('arAmount').value), basis=v3$('arBasis').value;
+  if(!strategyId) return {error:'Pick a strategy first (Load strategies).'};
+  if(!sym) return {error:'Choose a market.'};
+  if(!(amount>=0.35)) return {error:'Stake must be at least 0.35.'};
+  const cur=(accountInfo&&accountInfo.currency)||'USD';
+  const t={contract_type:ct,currency:cur,underlying_symbol:sym,amount:+amount.toFixed(2),basis};
+  if(V3_DIGIT_CT.indexOf(ct)>=0){
+    const b=v3$('arBarrier').value.trim(); if(!/^[0-9]$/.test(b)) return {error:'Digit contracts need a single digit (0–9) as the barrier.'};
+    t.barrier=b; t.duration=Math.max(1,Math.min(10,parseInt(v3$('arDuration').value,10)||1)); t.duration_unit='t';
+  } else if(ct==='TICKHIGH'||ct==='TICKLOW'){
+    const k=parseInt(v3$('arTick').value,10); if(!(k>=1&&k<=5)) return {error:'High/Low Tick needs a selected tick from 1 to 5.'};
+    t.selected_tick=k; t.duration=5; t.duration_unit='t';
+  } else if(ct==='ACCU'){
+    const g=Number(v3$('arGrowth').value); if(!(g>=0.01&&g<=0.05)) return {error:'Accumulator growth rate must be between 0.01 and 0.05.'};
+    t.growth_rate=g; delete t.basis; t.basis='stake';
+  } else if(ct==='MULTUP'||ct==='MULTDOWN'){
+    const m=Number(v3$('arMult').value); if(!(m>0)) return {error:'Multiplier must be above 0.'};
+    t.multiplier=m; t.basis='stake';
+  } else {
+    const dur=parseInt(v3$('arDuration').value,10); if(!(dur>=1)) return {error:'Enter a duration.'};
+    t.duration=dur; t.duration_unit=v3$('arUnit').value;
+    if(V3_BARRIER_CT.indexOf(ct)>=0){ const b=v3$('arBarrier').value.trim(); if(b) t.barrier=b; if(V3_BARRIER2_CT.indexOf(ct)>=0){ const b2=v3$('arBarrier2').value.trim(); if(b2) t.barrier2=b2; } }
+  }
+  if(ct==='ACCU'||ct==='MULTUP'||ct==='MULTDOWN'){
+    const tp=Number(v3$('arTP').value), sl=Number(v3$('arSL').value), lo={};
+    if(tp>0) lo.take_profit=tp; if(sl>0&&ct!=='ACCU') lo.stop_loss=sl;
+    if(Object.keys(lo).length) t.limit_order=lo;
+  }
+  let params={};
+  const raw=v3$('arParams').value.trim();
+  if(raw){ try{ params=JSON.parse(raw); }catch(e){ return {error:'Strategy parameters must be valid JSON.'}; } if(!params||typeof params!=='object'||Array.isArray(params)) return {error:'Strategy parameters must be a JSON object.'}; }
+  return {template:t,strategy_id:strategyId,params};
+}
+function v3StartRun(){
+  if(v3Blocked()) return;
+  if(!accessToken||!ws||ws.readyState!==1){ toast('🔐 Connect your Deriv token first.','error'); return; }
+  const f=v3ReadRunForm(); if(f.error){ toast(f.error,'error'); return; }
+  const t=f.template;
+  if(MODE==='REAL'&&!window.confirm(`Start a SERVER-SIDE run on your REAL account?\n\nStrategy: ${f.strategy_id}\nMarket: ${t.underlying_symbol} · ${t.contract_type}\nStake: ${t.amount} ${t.currency}\n\nThe run keeps trading on Deriv's servers even if you close this page, until it is stopped or its own limits trigger. No profit is guaranteed. Continue?`)) return;
+  const req={auto_start:1,contract_template:t,strategy_id:f.strategy_id,strategy_parameters:f.params,subscribe:1,req_id:wsReqId++};
+  ws.send(JSON.stringify(req));
+  v3ArLog(`auto_start → ${f.strategy_id} · ${t.underlying_symbol} · ${t.contract_type} · ${t.amount}`);
+}
+function v3DefaultsFromSchema(p){
+  const out={}; if(!p||typeof p!=='object') return out;
+  const props=(p.properties&&typeof p.properties==='object')?p.properties:p;
+  Object.keys(props).forEach(k=>{ const d=props[k]; if(d&&typeof d==='object'&&d.default!==undefined) out[k]=d.default; });
+  return out;
+}
+function v3FillStrategySelect(){
+  const sel=v3$('arStrategy'); if(!sel) return;
+  const cur=sel.value, list=V3.strategies||[];
+  sel.innerHTML=list.length?list.map(s=>`<option value="${v3Esc(s.strategy_id)}">${v3Esc(s.display_name||s.strategy_id)}</option>`).join(''):'<option value="">— load strategies first —</option>';
+  if(cur&&Array.from(sel.options).some(o=>o.value===cur)) sel.value=cur;
+  /* first load (or the chosen strategy vanished): prefill the parameter box with Deriv's own defaults; keep the user's edits otherwise */
+  const box=v3$('arParams'), untouched=!box.value.trim()||box.value.trim()==='{}';
+  v3OnStrategyChange(sel.value!==cur||untouched);
+}
+function v3OnStrategyChange(resetParams){
+  const sel=v3$('arStrategy'), s=(V3.strategies||[]).find(x=>x.strategy_id===sel.value);
+  const cs=v3$('arContract'), cur=cs.value;
+  const allowed=s&&Array.isArray(s.supported_contract_types)&&s.supported_contract_types.length?s.supported_contract_types:null;
+  const known=V3_CONTRACTS.filter(c=>!allowed||allowed.indexOf(c[0])>=0);
+  const extra=(allowed||[]).filter(a=>!V3_CONTRACTS.some(c=>c[0]===a)).map(a=>[a,a]);
+  cs.innerHTML=known.concat(extra).map(c=>`<option value="${c[0]}">${v3Esc(c[1])} (${c[0]})</option>`).join('');
+  if(Array.from(cs.options).some(o=>o.value===cur)) cs.value=cur;
+  if(resetParams!==false&&s){ const d=v3DefaultsFromSchema(s.parameters); v3$('arParams').value=Object.keys(d).length?JSON.stringify(d,null,2):'{}'; }
+  const hint=v3$('arParamsHint');
+  if(hint) hint.textContent=s&&s.parameters&&Object.keys(s.parameters).length?JSON.stringify(s.parameters):'';
+  v3OnContractChange();
+}
+function v3OnContractChange(){
+  const ct=v3$('arContract').value;
+  const show=(id,on)=>{ const el=v3$(id); if(el) el.style.display=on?'':'none'; };
+  const digit=V3_DIGIT_CT.indexOf(ct)>=0, tick=ct==='TICKHIGH'||ct==='TICKLOW', nodur=V3_NODUR_CT.indexOf(ct)>=0;
+  show('arWrapBarrier',digit||V3_BARRIER_CT.indexOf(ct)>=0); show('arWrapBarrier2',V3_BARRIER2_CT.indexOf(ct)>=0);
+  show('arWrapTick',tick); show('arWrapGrowth',ct==='ACCU'); show('arWrapMult',ct==='MULTUP'||ct==='MULTDOWN');
+  show('arWrapDur',!nodur&&!tick); show('arWrapUnit',!nodur&&!tick&&!digit);
+  show('arWrapTP',nodur); show('arWrapSL',ct==='MULTUP'||ct==='MULTDOWN');
+  show('arWrapBasis',!nodur);
+}
+function v3FillSymbolList(){
+  const dl=v3$('arSymbolList'); if(!dl) return;
+  const opts=Array.from(V3.symbols.values()).sort((a,b)=>a.code.localeCompare(b.code));
+  const base=PULSE_SYMBOLS.concat(HUNTER.extraSymbols).map(s=>({code:s.code,name:s.name}));
+  const seen=new Set(), all=[];
+  opts.concat(base).forEach(s=>{ if(!seen.has(s.code)){ seen.add(s.code); all.push(s); } });
+  dl.innerHTML=all.map(s=>`<option value="${v3Esc(s.code)}">${v3Esc(s.name)}</option>`).join('');
+}
+
+/* ---------- rendering ---------- */
+function v3RenderBanner(){
+  const b=v3$('v3Banner'); if(!b) return;
+  b.style.display=V3.killed?'flex':'none';
+  if(V3.killed) v3$('v3BannerText').textContent='⏹ TRADING STOPPED — '+V3.killReason+'. Open orders settle on their own; nothing new will be placed.';
+  document.body.classList.toggle('v3-real',MODE==='REAL');
+  const r=v3$('v3RearmBtn'); if(r) r.style.display=V3.killed?'':'none';
+  const k=v3$('v3KillBtn2'); if(k) k.style.display=V3.killed?'none':'';
+}
+function v3AuthState(){
+  if(V3.auth.fatal) return {t:'Auth failed',c:'v3-bad'};
+  if(wsConnected) return {t:'Connected',c:'v3-good'};
+  if(V3.auth.timer) return {t:'Reconnecting…',c:'v3-warn'};
+  if(!accessToken) return {t:'Not connected',c:''};
+  return {t:'Offline',c:'v3-bad'};
+}
+function v3RenderTiles(){
+  const el=v3$('v3Tiles'); if(!el) return;
+  const a=v3AuthState(), eng=v3Engines(), td=v3Stats(v3Rows({day:true,mode:MODE}));
+  el.innerHTML=
+    `<div class="v3-tile"><div class="k">Account mode</div><div class="v ${MODE==='REAL'?'v3-bad':'v3-good'}">${MODE}</div><div class="s">${v3Esc((accountInfo&&accountInfo.account_id)||'no account linked')}</div></div>`+
+    `<div class="v3-tile"><div class="k">Trading link</div><div class="v ${a.c}">${a.t}</div><div class="s">${V3.auth.rtt!=null?V3.auth.rtt+' ms round trip':'latency n/a'}</div></div>`+
+    `<div class="v3-tile"><div class="k">Safety guard</div><div class="v ${V3.killed?'v3-bad':'v3-good'}">${V3.killed?'STOPPED':'Armed'}</div><div class="s">${V3.killed?v3Esc(V3.killReason):'every order passes the guard'}</div></div>`+
+    `<div class="v3-tile"><div class="k">Running now</div><div class="v">${eng.length?eng.length:'Idle'}</div><div class="s">${eng.length?v3Esc(eng.join(' · ')):'no engine is trading'}</div></div>`+
+    `<div class="v3-tile"><div class="k">Today (${MODE.toLowerCase()})</div><div class="v ${td.net>0?'v3-good':td.net<0?'v3-bad':''}">${v3Money(td.net)}</div><div class="s">${td.n} trade${td.n===1?'':'s'} · ${td.n?v3Pct(td.wr)+' won':'—'}</div></div>`;
+}
+function v3Bar(label,used,cap,note){
+  const p=Math.min(100,cap?used/cap*100:0), cls=p>85?'v3-bad':p>60?'v3-warn':'v3-good';
+  return `<div class="v3-bar-label"><span>${v3Esc(label)}</span><span class="${cls}">${used} / ${cap}${note?' · '+note:''}</span></div><div class="v3-bar"><i style="width:${p.toFixed(1)}%;background:var(--accent-${p>85?'red':p>60?'yellow':'green'})"></i></div>`;
+}
+function v3RenderHealth(){
+  const el=v3$('v3Health'); if(!el) return;
+  const now=Date.now();
+  DERIV_REQ_BUDGET.sent=DERIV_REQ_BUDGET.sent.filter(t=>now-t<60000);
+  V3.hourSent=V3.hourSent.filter(t=>now-t<3600000);
+  const a=v3AuthState(), pubOpen=!!(window.__pulseWs&&window.__pulseWs.readyState===1);
+  const pause=Math.max(0,V3.rate.until-now);
+  el.innerHTML=
+    `<div class="v3-row"><span>Trading link</span><span class="${a.c}">${a.t}${V3.auth.timer?' · retry in '+Math.max(0,Math.ceil((V3.auth.nextAt-now)/1000))+'s':''}</span></div>`+
+    `<div class="v3-row"><span>Link age · last data</span><span>${V3.auth.openedAt&&wsConnected?v3Ago(V3.auth.openedAt).replace(' ago',''):'—'} · ${wsConnected?v3Ago(V3.auth.lastMsg):'—'}</span></div>`+
+    `<div class="v3-row"><span>Reconnects this session</span><span>${V3.auth.reconnects}</span></div>`+
+    `<div class="v3-row"><span>Market feed (public)</span><span class="${pubOpen?'v3-good':'v3-bad'}">${pubOpen?'Live':'Offline'}${V3.pub.rtt!=null?' · '+V3.pub.rtt+' ms':''}</span></div>`+
+    `<div class="v3-row"><span>Feed reconnects</span><span>${V3.pub.reconnects}</span></div>`+
+    (V3.auth.lastError?`<div class="v3-row"><span>Last auth error</span><span class="v3-bad">${v3Esc(V3.auth.lastError)}</span></div>`:'')+
+    `<div style="margin-top:10px">`+
+    v3Bar('Orders & quotes · last 60 s',DERIV_REQ_BUDGET.sent.length,360,'Deriv cap 360')+
+    v3Bar('Orders & quotes · last hour',V3.hourSent.length,14400,'Deriv cap 14,400')+
+    `</div>`+
+    `<div class="v3-row"><span>Queued requests</span><span>${DERIV_REQ_BUDGET.queue.length}</span></div>`+
+    `<div class="v3-row"><span>Server rate-limit pause</span><span class="${pause?'v3-warn':'v3-good'}">${pause?Math.ceil(pause/1000)+'s left':'none'} · ${V3.rate.hits} hit${V3.rate.hits===1?'':'s'}</span></div>`+
+    `<div class="v3-row"><span>Open contracts</span><span>${activeContracts.size}</span></div>`;
+}
+function v3RenderLog(){
+  const el=v3$('v3Log'); if(!el) return;
+  el.innerHTML=V3.log.length?V3.log.slice(0,40).map(l=>`<div class="v3-logline"><time>${new Date(l.t).toTimeString().slice(0,8)}</time><b class="v3-k-${v3Esc(l.kind)}">${v3Esc(l.kind)}</b><span>${v3Esc(l.msg)}</span></div>`).join(''):'<div class="v3-empty">Nothing yet — connection, guard and discovery events appear here.</div>';
+}
+function v3RenderFeed(){
+  const el=v3$('v3Feed'); if(!el) return;
+  const now=Date.now(), rows=Array.from(engineState.markets.values());
+  el.innerHTML=`<tr><th>Market</th><th>Ticks held</th><th>Last tick</th><th>Last digit</th><th>Status</th></tr>`+rows.map(m=>{
+    const age=m._at?now-m._at:null, live=age!=null&&age<20000;
+    return `<tr><td>${v3Esc(m.short)}${m.v3?' <span class="v3-chip">new</span>':''}</td><td>${(m.digits||[]).length.toLocaleString()}</td><td>${age==null?'—':(age/1000).toFixed(1)+'s ago'}</td><td>${m.lastDigit==null?'—':m.lastDigit}</td><td class="${live?'v3-good':'v3-bad'}">${live?'Live':'Stale'}</td></tr>`;
+  }).join('');
+  const cat=v3$('v3Catalogue');
+  if(cat){
+    const total=V3.symbols.size, integ=Array.from(V3.symbols.keys()).filter(c=>engineState.markets.has(c)).length;
+    cat.textContent=total?`Deriv lists ${total} synthetic symbols right now; ${integ} are wired into the analysis and trading engines. The rest (Boom/Crash, Step, Range Break, DEX, Drift…) are available to server-side Auto Runs.`:'Waiting for Deriv\'s symbol list…';
+  }
+}
+function v3RenderJournal(){
+  const stEl=v3$('v3JStats'); if(!stEl) return;
+  const rows=v3Rows({day:V3.prefs.jRange==='today',mode:V3.prefs.jMode==='current'?MODE:null});
+  const s=v3Stats(rows), v=v3Verdict(s);
+  stEl.innerHTML=
+    `<div class="v3-tile"><div class="k">Trades</div><div class="v">${s.n}</div><div class="s">${s.w} won · ${s.l} lost</div></div>`+
+    `<div class="v3-tile"><div class="k">Win rate</div><div class="v">${s.n?v3Pct(s.wr):'—'}</div><div class="s">break-even ${s.be?v3Pct(s.be):'—'}</div></div>`+
+    `<div class="v3-tile"><div class="k">Net result</div><div class="v ${s.net>0?'v3-good':s.net<0?'v3-bad':''}">${v3Money(s.net)}</div><div class="s">staked $${s.stake.toFixed(2)}</div></div>`+
+    `<div class="v3-tile"><div class="k">Profit factor</div><div class="v">${s.pf===Infinity?'∞':s.pf.toFixed(2)}</div><div class="s">&gt;1 means ahead</div></div>`+
+    `<div class="v3-tile"><div class="k">Max drawdown</div><div class="v v3-bad">-$${s.dd.toFixed(2)}</div><div class="s">peak to trough</div></div>`+
+    `<div class="v3-tile"><div class="k">Longest loss run</div><div class="v">${s.maxRun}</div><div class="s">now ${s.curStreak}</div></div>`;
+  const ve=v3$('v3JVerdict'); ve.className='v3-verdict '+v.cls; ve.textContent=v.txt;
+  /* equity curve */
+  const ch=v3$('v3JChart');
+  if(rows.length>=2){
+    let eq=0; const pts=[0].concat(rows.map(e=>(eq+=e.profit))), mn=Math.min.apply(null,pts), mx=Math.max.apply(null,pts), span=(mx-mn)||1, W=600,H=130;
+    const X=i=>(i/(pts.length-1))*W, Y=y=>H-6-((y-mn)/span)*(H-12);
+    const line=pts.map((y,i)=>X(i).toFixed(1)+','+Y(y).toFixed(1)).join(' ');
+    ch.innerHTML=`<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Equity curve over ${rows.length} trades, ending ${v3Money(eq)}"><line x1="0" x2="${W}" y1="${Y(0).toFixed(1)}" y2="${Y(0).toFixed(1)}" stroke="var(--border-light)" stroke-dasharray="4 4"/><polyline fill="none" stroke="${eq>=0?'var(--accent-green)':'var(--accent-red)'}" stroke-width="2" vector-effect="non-scaling-stroke" points="${line}"/></svg><div class="v3-chart-axis"><span>${v3Money(mn)}</span><span>${rows.length} trades</span><span>${v3Money(mx)}</span></div>`;
+  } else ch.innerHTML='<div class="v3-empty">The equity curve appears after two settled trades.</div>';
+  /* by contract */
+  const by={}; rows.forEach(e=>{ const k=(e.label||e.type||'?')+(e.sym?' · '+e.sym:''); const b=by[k]||(by[k]={n:0,w:0,net:0}); b.n++; if(e.profit>0) b.w++; b.net+=e.profit; });
+  const keys=Object.keys(by).sort((a,b)=>by[b].n-by[a].n).slice(0,12);
+  v3$('v3JBy').innerHTML=keys.length?'<tr><th>Contract</th><th>Trades</th><th>Win</th><th>Net</th></tr>'+keys.map(k=>`<tr><td>${v3Esc(k)}</td><td>${by[k].n}</td><td>${v3Pct(by[k].w/by[k].n)}</td><td class="${by[k].net>=0?'v3-good':'v3-bad'}">${v3Money(by[k].net)}</td></tr>`).join(''):'<tr><td class="v3-empty">No settled trades in this view yet.</td></tr>';
+  v3$('v3JRecent').innerHTML=rows.length?'<tr><th>Time</th><th>Market</th><th>Contract</th><th>Stake</th><th>Result</th></tr>'+rows.slice(-25).reverse().map(e=>`<tr><td>${new Date(e.t).toTimeString().slice(0,8)}</td><td>${v3Esc(e.sym||'—')}</td><td>${v3Esc(e.label||e.type)}</td><td>$${e.stake.toFixed(2)}</td><td class="${e.profit>0?'v3-good':'v3-bad'}">${v3Money(e.profit)}</td></tr>`).join(''):'';
+}
+function v3RenderAuto(){
+  if(!isTabActive('autorun')) return;
+  const st=v3$('arStatus'), tag=v3$('arModeTag'); if(tag) tag.textContent=MODE+' account';
+  st.textContent=accessToken?(wsConnected?`Connected · ${MODE} account ${accountInfo&&accountInfo.account_id||''}`:'Trading link is reconnecting…'):'Not connected — add your token in API Playground to start or manage runs.';
+  const sEl=v3$('arStrategies'), list=V3.strategies;
+  sEl.innerHTML=list==null?'<div class="v3-empty">Press “Load strategies” to fetch the strategies Deriv currently offers.</div>':
+    (list.length?list.map(s=>`<div class="v3-strat"><div class="v3-strat-h"><b>${v3Esc(s.display_name||s.strategy_id)}</b><code>${v3Esc(s.strategy_id)}</code></div><div class="v3-strat-d">${v3Esc(s.description||'No description supplied.')}</div><div class="v3-chips">${(s.supported_contract_types||[]).map(c=>`<span class="v3-chip">${v3Esc(c)}</span>`).join('')}</div><div class="v3-strat-p">Parameters: ${v3Esc(Object.keys((s.parameters&&s.parameters.properties)||s.parameters||{}).join(', ')||'none listed')}</div><button class="btn btn-ghost btn-sm" data-use="${v3Esc(s.strategy_id)}">Use this strategy</button></div>`).join(''):'<div class="v3-empty">Deriv returned no strategies.</div>');
+  const runs=Array.from(V3.runs.values()).sort((a,b)=>(b.start_time||0)-(a.start_time||0));
+  v3$('arRuns').innerHTML=runs.length?runs.map(r=>{
+    const s=v3RunStats(r), t=r.contract_template||{}, live=r.status==='running', paused=r.status==='paused';
+    return `<div class="v3-run"><div class="v3-run-h"><b>${v3Esc(r.strategy_id||'run')}</b><span class="v3-badge ${live?'on':paused?'pause':'off'}">${v3Esc((r.status||'?').toUpperCase())}</span></div>`+
+      `<div class="v3-run-m">${v3Esc(t.underlying_symbol||'')} · ${v3Esc(t.contract_type||'')} · stake ${v3Esc(t.amount!=null?t.amount:'')} ${v3Esc(t.currency||'')}${r.start_time?' · started '+new Date(r.start_time*1000).toTimeString().slice(0,8):''}</div>`+
+      `<div class="v3-run-s"><span>${s.n} contracts</span><span>${s.open} open</span><span class="v3-good">${s.won} won</span><span class="v3-bad">${s.lost} lost</span><span class="${s.net>=0?'v3-good':'v3-bad'}">settled ${v3Money(s.net)}</span></div>`+
+      (r.stop_reason?`<div class="v3-run-m">Stopped: ${v3Esc(r.stop_reason)}${r.stop_reason_code?' ('+v3Esc(r.stop_reason_code)+')':''}</div>`:'')+
+      `<div class="v3-run-a">${live?`<button class="btn btn-ghost btn-sm" data-act="pause" data-id="${v3Esc(r.run_id)}">⏸ Pause</button>`:''}${paused?`<button class="btn btn-ghost btn-sm" data-act="resume" data-id="${v3Esc(r.run_id)}">▶ Resume</button>`:''}${live||paused?`<button class="btn btn-danger btn-sm" data-act="stop" data-id="${v3Esc(r.run_id)}">⏹ Stop</button>`:''}<button class="btn btn-ghost btn-sm" data-act="details" data-id="${v3Esc(r.run_id)}">{ } Details</button></div></div>`;
+  }).join(''):'<div class="v3-empty">No runs yet. Start one below, or press “Refresh runs” to load the ones already on your account.</div>';
+  v3$('arLogBody').innerHTML=V3.runLog.slice(0,30).map(l=>`<div class="v3-logline"><time>${new Date(l.t).toTimeString().slice(0,8)}</time><span>${v3Esc(l.msg)}</span></div>`).join('')||'<div class="v3-empty">No automation events yet.</div>';
+}
+function v3RenderAll(){
+  v3RenderBanner();
+  if(isTabActive('control')){ v3RenderTiles(); v3RenderHealth(); v3RenderLog(); v3RenderFeed(); v3RenderJournal(); }
+  if(isTabActive('autorun')) v3RenderAuto();
+}
+function v3Tick(){
+  v3RenderBanner();
+  v3UpdateWake();
+  if(isTabActive('control')){ v3RenderTiles(); v3RenderHealth(); v3RenderFeed(); }
+  if(isTabActive('autorun')){ v3PollRuns(false); }
+  if(wsConnected&&Array.from(V3.runs.values()).some(r=>r.status==='running')) v3PollRuns(false);
+}
+
+/* ---------- CSV export ---------- */
+function v3ExportCsv(){
+  const rows=v3Rows({day:V3.prefs.jRange==='today',mode:V3.prefs.jMode==='current'?MODE:null});
+  if(!rows.length){ toast('Nothing to export yet.','info'); return; }
+  const esc=x=>'"'+String(x==null?'':x).replace(/"/g,'""')+'"';
+  const head=['time_iso','day','mode','contract_id','symbol','contract_type','label','source','stake','payout','profit','result'];
+  const csv=[head.join(',')].concat(rows.map(e=>[new Date(e.t).toISOString(),e.day,e.mode,e.cid,e.sym,e.type,e.label,e.src,e.stake,e.payout,e.profit,e.profit>0?'win':'loss'].map(esc).join(','))).join('\n');
+  const blob=new Blob([csv],{type:'text/csv'}), url=URL.createObjectURL(blob), a=document.createElement('a');
+  a.href=url; a.download='emron-journal-'+v3Day()+'.csv'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),2000);
+}
+
+/* ---------- wiring ---------- */
+function setupV3(){
+  v3LoadPrefs(); v3LoadJournal();
+  const bindNum=(id,key)=>{ const el=v3$(id); if(!el) return; el.value=V3.prefs[key]||''; el.addEventListener('change',()=>{ const n=Math.max(0,Number(el.value)||0); V3.prefs[key]=key==='capOpen'||key==='capStreak'||key==='capErr'?Math.round(n):n; el.value=V3.prefs[key]||''; v3SavePrefs(); toast('🛡️ Safety limit saved','success'); }); };
+  bindNum('v3CapDaily','capDaily'); bindNum('v3CapStake','capStake'); bindNum('v3CapOpen','capOpen'); bindNum('v3CapStreak','capStreak'); bindNum('v3CapErr','capErr');
+  const bindChk=(id,key,fn)=>{ const el=v3$(id); if(!el) return; el.checked=!!V3.prefs[key]; el.addEventListener('change',()=>{ V3.prefs[key]=el.checked; v3SavePrefs(); if(fn) fn(el.checked); }); };
+  bindChk('v3Sound','sound',on=>{ if(on) v3Beep('ok'); });
+  bindChk('v3Notify','notify',on=>{ if(on&&'Notification' in window&&Notification.permission==='default') Notification.requestPermission(); });
+  bindChk('v3Wake','wake',()=>v3UpdateWake());
+  const jr=v3$('v3JRange'), jm=v3$('v3JMode');
+  if(jr){ jr.value=V3.prefs.jRange; jr.addEventListener('change',()=>{ V3.prefs.jRange=jr.value; v3SavePrefs(); v3RenderJournal(); }); }
+  if(jm){ jm.value=V3.prefs.jMode; jm.addEventListener('change',()=>{ V3.prefs.jMode=jm.value; v3SavePrefs(); v3RenderJournal(); }); }
+  v3$('v3KillBtn').addEventListener('click',()=>v3KillAll('stopped by you'));
+  v3$('v3KillBtn2').addEventListener('click',()=>v3KillAll('stopped by you'));
+  v3$('v3RearmBtn').addEventListener('click',v3Rearm);
+  v3$('v3BannerRearm').addEventListener('click',v3Rearm);
+  v3$('v3JExport').addEventListener('click',v3ExportCsv);
+  v3$('v3JClear').addEventListener('click',()=>{ if(window.confirm('Clear the whole trade journal (all modes)? This cannot be undone.')){ V3.journal=[]; V3.settled=new Set(); v3SaveJournal(); v3RenderAll(); } });
+  /* Auto Runs */
+  v3$('arLoad').addEventListener('click',v3LoadStrategies);
+  v3$('arRefresh').addEventListener('click',()=>v3PollRuns(true));
+  v3$('arStopAll').addEventListener('click',()=>{ if(window.confirm('Stop every active server-side run?')) v3StopAllRuns(false); });
+  v3$('arStart').addEventListener('click',v3StartRun);
+  v3$('arStrategy').addEventListener('change',()=>v3OnStrategyChange(true));
+  v3$('arContract').addEventListener('change',v3OnContractChange);
+  v3$('arStrategies').addEventListener('click',e=>{ const b=e.target.closest('[data-use]'); if(!b) return; v3$('arStrategy').value=b.dataset.use; v3OnStrategyChange(true); v3$('arStart').scrollIntoView({behavior:'smooth',block:'center'}); });
+  v3$('arRuns').addEventListener('click',e=>{ const b=e.target.closest('[data-act]'); if(b) v3RunAction(b.dataset.act,b.dataset.id); });
+  v3FillSymbolList(); v3OnStrategyChange(false); v3OnContractChange();
+  if(!v3$('arSymbol').value) v3$('arSymbol').value='1HZ100V';
+  document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>setTimeout(()=>{ v3RenderAll(); if(t.dataset.tab==='autorun'){ if(V3.strategies==null) setTimeout(v3LoadStrategies,300); if(wsConnected) v3PollRuns(true); } },0)));
+  document.addEventListener('visibilitychange',v3OnVisible);
+  window.addEventListener('online',()=>{ v3Log('net','Browser is back online'); v3OnVisible(); });
+  window.addEventListener('offline',()=>v3Log('net','Browser went offline'));
+  setInterval(v3Watchdog,5000); setInterval(v3Tick,1000);
+  v3RenderAll();
+}
+
+/* ============================================================
    BOOT
    ============================================================ */
 setupTabs();
 setupModals();
 setupNavMenu();
 setupHunterUI();
-setupRiskModal();
 setupPremiumUI();
 setupOUDScannerUI();
 setupLabUI();
+setupV3();
 loadAdaptiveState();
 getDailyRecord();
 refreshBrainStatus();
@@ -6784,7 +7392,8 @@ setTimeout(() => {
   renderHunter();
 }, 800);
 
-console.log('%c🔷 EMRON AI — Adaptive Survival Brain V2', 'color:#6677ff;font-weight:bold;font-size:14px');
+console.log('%c🔷 EMRON AI v3 — Control Center · Auto Runs · Live Market Discovery', 'color:#6677ff;font-weight:bold;font-size:14px');
+console.log('Sidebar removed — hamburger dropdown nav is active on all screen sizes.');
 console.log('Adaptive brain: learned entry gating, survival drawdown controls, daily target tracking, and cross-market rotation.');
 
 })();
