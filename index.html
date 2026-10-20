@@ -1,194 +1,289 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src https://api.derivws.com wss://api.derivws.com; script-src 'self'; style-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'">
-  <title>Nexora AI</title>
-  <link rel="stylesheet" href="styles.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src https://api.derivws.com wss://api.derivws.com; img-src data:; base-uri 'none'; form-action 'none'">
+<title>EMRON Autopilot — Deriv options bot</title>
+<style>
+:root{--bg:#06141a;--card:#0c222b;--line:#17384a;--tx:#e6f1f5;--mu:#8aa6b3;--ac:#22d3ee;--up:#2dd4bf;--dn:#fb7185;--r:14px}
+[data-theme=light]{--bg:#f3f8fa;--card:#fff;--line:#d3e3ea;--tx:#0b2530;--mu:#547080;--ac:#0891b2;--up:#0d9488;--dn:#e11d48}
+*{box-sizing:border-box;margin:0}
+body{background:var(--bg);color:var(--tx);font:15px/1.55 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+.mono,.num{font-family:ui-monospace,Menlo,Consolas,monospace}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1080px;margin:0 auto;padding:0 18px}
+header{position:sticky;top:10px;z-index:20;margin:10px auto 0;max-width:1080px;padding:0 10px}
+.pill{display:flex;align-items:center;gap:14px;background:color-mix(in srgb,var(--card) 88%,transparent);backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:999px;padding:8px 10px 8px 18px}
+.logo{font-weight:800;letter-spacing:.5px}.logo b{color:var(--ac)}
+nav{display:flex;gap:16px;margin-left:auto;color:var(--mu);font-size:14px}
+nav a:hover{color:var(--tx)}
+.btn{border:1px solid var(--line);background:transparent;color:var(--tx);border-radius:999px;padding:8px 16px;font:inherit;font-weight:600;cursor:pointer}
+.btn:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+.btn.p{background:var(--ac);border-color:var(--ac);color:#04222a}
+.btn.d{background:var(--dn);border-color:var(--dn);color:#fff}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.hero{padding:76px 0 44px;text-align:center}
+.hero h1{font-size:clamp(34px,6vw,60px);line-height:1.1;font-weight:800}
+.hero h1 span{color:var(--ac)}
+.hero p{color:var(--mu);max-width:560px;margin:16px auto 26px;font-size:17px}
+.row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.trust{margin-top:18px;color:var(--mu);font-size:13px}
+h2{font-size:28px;margin:56px 0 8px;text-align:center}
+.sub{color:var(--mu);text-align:center;margin-bottom:24px}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px}
+.card h3{font-size:16px;margin-bottom:4px}.card p{color:var(--mu);font-size:14px}
+.mk{display:flex;justify-content:space-between;align-items:center}
+.mk .n{color:var(--mu);font-size:13px}.mk .v{font-weight:700}
+.up{color:var(--up)}.dn{color:var(--dn)}
+.step{counter-increment:s}.step::before{content:counter(s);display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--ac);color:#04222a;font-weight:800;margin-bottom:10px}
+.steps{counter-reset:s}
+details{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px 18px;margin-bottom:10px}
+summary{cursor:pointer;font-weight:600}details p{color:var(--mu);margin-top:8px;font-size:14px}
+footer{margin:60px 0 30px;text-align:center;color:var(--mu);font-size:13px}
+#dash{padding:26px 0 40px}
+body:not([data-view=app]) #dash,body[data-view=app] .land{display:none}
+.two{display:grid;gap:14px;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr)}
+@media(max-width:760px){.two{grid-template-columns:1fr}nav{display:none}.pill{padding-left:14px}.pill .btn{margin-left:auto}}
+label{display:block;font-size:12px;color:var(--mu);margin:10px 0 4px}
+input,select{width:100%;background:var(--bg);color:var(--tx);border:1px solid var(--line);border-radius:10px;padding:10px;font:inherit}
+.seg{display:flex;gap:6px}.seg .btn{flex:1;border-radius:10px}.seg .on{background:var(--ac);color:#04222a;border-color:var(--ac)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px}
+.stat small{color:var(--mu);display:block}.stat b{font-size:19px}
+@media(max-width:560px){.stats{grid-template-columns:repeat(2,1fr)}}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{color:var(--mu);text-align:left;font-weight:500}td,th{padding:6px 4px;border-bottom:1px solid var(--line)}
+.scroll{overflow-x:auto;max-height:300px;overflow-y:auto}
+#log{font-size:12px;color:var(--mu);max-height:110px;overflow:auto;margin-top:10px}
+.chip{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12px;border:1px solid var(--line);color:var(--mu)}
+.chip.on{color:var(--up);border-color:var(--up)}
+dialog{background:var(--card);color:var(--tx);border:1px solid var(--line);border-radius:var(--r);max-width:480px;padding:24px}
+dialog::backdrop{background:rgba(0,0,0,.7)}
+</style>
 </head>
-<body>
-  <div id="kill-banner" class="kill-banner" hidden>
-    <span>⏹ Trading stopped — <span id="kill-reason"></span></span>
-    <button id="rearm-btn" class="btn-secondary">Re-arm trading</button>
+<body data-view="home">
+
+<dialog id="risk">
+  <h3>Before you continue</h3>
+  <p style="color:var(--mu);margin:10px 0">Trading options carries a high risk of losing your whole stake. Automated trading does not remove that risk and does not create an edge. This tool is independent and not affiliated with Deriv. Your token stays in this browser tab and is sent only to Deriv's API. Start on a demo account.</p>
+  <button class="btn p" id="ack">I understand the risks</button>
+</dialog>
+
+<header><div class="pill">
+  <a class="logo" href="#top">EMRON<b>·</b>Autopilot</a>
+  <nav><a href="#features" data-home>Features</a><a href="#markets" data-home>Markets</a><a href="#how" data-home>How it works</a><a href="#faq" data-home>FAQ</a></nav>
+  <button class="btn" id="theme" aria-label="Toggle theme">◐</button>
+  <button class="btn p" id="goApp">Connect account</button>
+</div></header>
+
+<main id="top">
+<div class="land">
+ <section class="hero wrap">
+  <h1>Trade Deriv options<br><span>on autopilot</span></h1>
+  <p>Pick a strategy, set your risk limits, and let the bot execute one contract at a time while you watch live P&amp;L. No coding required.</p>
+  <div class="row"><button class="btn p" data-go>Connect account</button><a class="btn" href="#how">How it works</a></div>
+  <div class="trust">Demo-first · Token never leaves your browser · Hard stop limits</div>
+ </section>
+
+ <section class="wrap" id="features">
+  <h2>Everything you need to trade with discipline</h2><p class="sub">Built around limits first, signals second.</p>
+  <div class="grid">
+   <div class="card"><h3>Five automated strategies</h3><p>Rise/Fall, Even/Odd, Over/Under, Matches and Differs, each driven by a rolling tick window.</p></div>
+   <div class="card"><h3>Live market data</h3><p>Real-time ticks streamed straight from Deriv's public feed.</p></div>
+   <div class="card"><h3>Risk controls</h3><p>Stake, take-profit, max loss and max trades. The bot halts the moment one is hit.</p></div>
+   <div class="card"><h3>Demo first</h3><p>Real accounts need an extra confirmation before the bot can start.</p></div>
+   <div class="card"><h3>Private by design</h3><p>No backend. Your scoped token lives in this tab's session storage only.</p></div>
+   <div class="card"><h3>Full trade log</h3><p>Every signal, entry and result is listed with the reason it fired.</p></div>
   </div>
+ </section>
 
-  <header class="topbar">
-    <div class="brand">
-      <div class="logo">N</div>
-      <span class="name">Nexora AI</span>
-    </div>
-    <div id="account-bar" class="account-bar">
-      <span id="mode-label" class="mode-pill">Not connected</span>
-      <span id="account-label">No account</span>
-      <span id="balance" class="balance">—</span>
-    </div>
-    <div class="actions">
-      <span id="conn-status" class="conn off">Disconnected</span>
-      <button id="kill-btn" class="btn-danger">Stop all</button>
-      <button id="connect-btn" class="btn-primary">Connect</button>
-    </div>
-  </header>
+ <section class="wrap" id="markets">
+  <h2>Live markets</h2><p class="sub">Change shown since you opened this page.</p>
+  <div class="grid" id="mkGrid"></div>
+ </section>
 
-  <nav class="tabs">
-    <button class="tab-btn" data-tab="manual">Manual Trading</button>
-    <button class="tab-btn" data-tab="free">Nexora AI Free</button>
-    <button class="tab-btn active" data-tab="premium">Nexora AI Premium</button>
-    <button class="tab-btn" data-tab="pricing">AI Pricing</button>
-  </nav>
-
-  <main class="main">
-    <section id="manual" class="tab-pane">
-      <div class="empty-pane">
-        <h2>Manual Trading</h2>
-        <p>Single-contract buy/sell is not part of this build. Use Nexora AI Premium for automated demo runs.</p>
-      </div>
-    </section>
-
-    <section id="free" class="tab-pane">
-      <div class="empty-pane">
-        <h2>Nexora AI Free</h2>
-        <p>Basic strategies without martingale arrive in the next build. Nexora AI Premium is available now on demo accounts.</p>
-      </div>
-    </section>
-
-    <section id="premium" class="tab-pane active">
-      <div class="premium-layout">
-        <div class="config-panel">
-          <div class="config-header">
-            <h2>Configure demo run</h2>
-            <p class="sub">Demo only. Real-account execution is disabled in this build.</p>
-          </div>
-
-          <label class="field">
-            <span>Market</span>
-            <select id="cfg-market">
-              <optgroup label="1-second indices">
-                <option value="1HZ10V">Volatility 10 (1s)</option>
-                <option value="1HZ25V">Volatility 25 (1s)</option>
-                <option value="1HZ50V">Volatility 50 (1s)</option>
-                <option value="1HZ75V">Volatility 75 (1s)</option>
-                <option value="1HZ100V" selected>Volatility 100 (1s)</option>
-              </optgroup>
-              <optgroup label="2-second indices">
-                <option value="R_10">Volatility 10</option>
-                <option value="R_25">Volatility 25</option>
-                <option value="R_50">Volatility 50</option>
-                <option value="R_75">Volatility 75</option>
-                <option value="R_100">Volatility 100</option>
-              </optgroup>
-            </select>
-          </label>
-
-          <label class="field">
-            <span>Strategy</span>
-            <select id="cfg-strategy">
-              <option value="RISE" selected>Rise</option>
-              <option value="FALL">Fall</option>
-              <option value="EVEN">Even</option>
-              <option value="ODD">Odd</option>
-            </select>
-          </label>
-
-          <fieldset class="risk-selector">
-            <legend>Risk level</legend>
-            <label class="risk-option">
-              <input type="radio" name="risk" value="LOW" checked>
-              <div><strong>Low</strong><small>Flat stake · no martingale</small></div>
-            </label>
-            <label class="risk-option">
-              <input type="radio" name="risk" value="MEDIUM">
-              <div><strong>Medium</strong><small>Martingale ×1.6 on loss · capped at 3 steps</small></div>
-            </label>
-            <label class="risk-option">
-              <input type="radio" name="risk" value="HIGH">
-              <div><strong>High</strong><small>Martingale ×2.0 on loss · capped at 3 steps</small></div>
-            </label>
-          </fieldset>
-
-          <label class="field">
-            <span>Stake per trade</span>
-            <div class="input-wrap"><input id="cfg-stake" type="number" min="0.35" step="0.01" value="1.00"><em>USD</em></div>
-          </label>
-
-          <label class="field">
-            <span>Profit target</span>
-            <div class="input-wrap"><input id="cfg-target" type="number" min="0.01" step="0.01" value="200"><em>USD</em></div>
-          </label>
-
-          <label class="field">
-            <span>Max loss</span>
-            <div class="input-wrap"><input id="cfg-maxloss" type="number" min="0.35" step="0.01" value="50"><em>USD</em></div>
-          </label>
-
-          <div id="cfg-exposure" class="exposure-box"></div>
-          <div id="cfg-error" class="config-error"></div>
-
-          <div class="config-actions">
-            <button id="run-btn" class="btn-primary" disabled>Connect demo to run</button>
-            <button id="stop-btn" class="btn-danger" hidden>Stop</button>
-          </div>
-        </div>
-
-        <div class="run-view">
-          <div class="run-header">
-            <h2>Live session</h2>
-            <span id="run-status" class="run-status">Idle</span>
-          </div>
-
-          <div class="stat-cards">
-            <div class="stat-card"><span>Total stake</span><strong id="stat-stake">$0.00</strong></div>
-            <div class="stat-card"><span>Total payout</span><strong id="stat-payout">$0.00</strong></div>
-            <div class="stat-card"><span>No. of runs</span><strong id="stat-runs">0</strong></div>
-            <div class="stat-card"><span>Contracts lost</span><strong id="stat-lost" class="neg">0</strong></div>
-            <div class="stat-card"><span>Contracts won</span><strong id="stat-won" class="pos">0</strong></div>
-            <div class="stat-card"><span>Total P/L</span><strong id="stat-pl">$0.00</strong></div>
-          </div>
-
-          <div class="trades-wrap">
-            <table class="trades">
-              <thead>
-                <tr><th>Time</th><th>Strategy</th><th>Stake</th><th>Result</th><th>P/L</th><th></th></tr>
-              </thead>
-              <tbody id="run-trades"></tbody>
-            </table>
-            <div id="run-empty" class="run-empty">No trades yet. Start a run to see live activity.</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="pricing" class="tab-pane">
-      <div class="empty-pane">
-        <h2>AI Pricing</h2>
-        <p>Nexora AI Premium is free on demo accounts during this build. Real-account pricing will be published before real execution is enabled.</p>
-      </div>
-    </section>
-  </main>
-
-  <div id="auth-modal" class="modal">
-    <div class="modal-inner">
-      <button id="auth-close" class="modal-close">×</button>
-      <h2>Connect demo account</h2>
-      <p class="sub">Paste a Deriv Personal Access Token that has a demo account.</p>
-      <label class="field">
-        <span>Personal Access Token</span>
-        <input id="pat-input" type="password" autocomplete="off" spellcheck="false" placeholder="eyJ0eXAiOiJKV1Q…">
-      </label>
-      <div id="auth-error" class="auth-error"></div>
-      <button id="auth-submit" class="btn-primary full">Connect demo</button>
-      <p class="small">Token is kept in this tab only and cleared when you close it.</p>
-    </div>
+ <section class="wrap" id="how">
+  <h2>How it works</h2><p class="sub">Three steps.</p>
+  <div class="grid steps">
+   <div class="card step"><h3>Connect</h3><p>Paste a scoped Deriv personal access token. Create one in your Deriv account settings with only the permissions you need.</p></div>
+   <div class="card step"><h3>Pick a strategy</h3><p>Choose the contract type, market, stake and your stop limits.</p></div>
+   <div class="card step"><h3>Go live and monitor</h3><p>The bot buys, waits for settlement, then evaluates the next signal.</p></div>
   </div>
+ </section>
 
-  <div id="result-modal" class="modal">
-    <div class="modal-inner">
-      <button id="result-close" class="modal-close">×</button>
-      <h2 id="result-title">Session ended</h2>
-      <div id="result-body"></div>
-    </div>
+ <section class="wrap" id="faq">
+  <h2>FAQ</h2><p class="sub">&nbsp;</p>
+  <details><summary>Is this affiliated with Deriv?</summary><p>No. It is an independent tool that talks to Deriv's public API.</p></details>
+  <details><summary>Is my login safe?</summary><p>You provide a token you create and can revoke at any time. It is held in session storage and discarded when the tab closes.</p></details>
+  <details><summary>Does the bot make money?</summary><p>No strategy here has a proven edge. Payouts price in a house margin, so expect losses over time. Test on demo.</p></details>
+  <details><summary>Can I use a demo account?</summary><p>Yes, and it is the default.</p></details>
+ </section>
+</div>
+
+<section id="dash" class="wrap">
+ <div class="stats">
+  <div class="stat"><small>Balance</small><b class="num" id="sBal">—</b></div>
+  <div class="stat"><small>Session P&amp;L</small><b class="num" id="sPnl">0.00</b></div>
+  <div class="stat"><small>Trades</small><b class="num" id="sN">0</b></div>
+  <div class="stat"><small>Win rate</small><b class="num" id="sWr">—</b></div>
+ </div>
+ <div class="two">
+  <div class="card">
+   <h3>Account <span class="chip" id="conn">offline</span></h3>
+   <label for="pat">Personal access token</label>
+   <input id="pat" type="password" autocomplete="off" placeholder="Paste token">
+   <div class="seg" style="margin-top:10px"><button class="btn on" id="mDemo">Demo</button><button class="btn" id="mReal">Real</button></div>
+   <button class="btn p" id="connect" style="width:100%;margin-top:10px">Connect</button>
+   <h3 style="margin-top:18px">Strategy</h3>
+   <label for="strat">Contract type</label>
+   <select id="strat"><option value="rf">Rise / Fall (5 ticks)</option><option value="eo">Even / Odd</option><option value="ou">Over / Under</option><option value="md">Matches</option><option value="df">Differs</option></select>
+   <label for="sym">Market</label><select id="sym"></select>
+   <div class="row" style="justify-content:stretch">
+    <div style="flex:1"><label for="stake">Stake</label><input id="stake" type="number" min="0.35" step="0.01" value="1"></div>
+    <div style="flex:1"><label for="tp">Take profit</label><input id="tp" type="number" min="0" step="0.5" value="5"></div>
+   </div>
+   <div class="row" style="justify-content:stretch">
+    <div style="flex:1"><label for="ml">Max loss</label><input id="ml" type="number" min="0" step="0.5" value="5"></div>
+    <div style="flex:1"><label for="mt">Max trades</label><input id="mt" type="number" min="1" step="1" value="30"></div>
+   </div>
+   <div class="row" style="margin-top:14px"><button class="btn p" id="start" style="flex:1" disabled>Start bot</button><button class="btn d" id="stop" style="flex:1" disabled>Stop</button></div>
+   <div id="log" class="mono" aria-live="polite"></div>
   </div>
+  <div class="card">
+   <h3>Trades <span class="chip" id="state">idle</span></h3>
+   <div class="scroll"><table><thead><tr><th>#</th><th>Type</th><th>Why</th><th>Result</th></tr></thead><tbody id="tb"></tbody></table></div>
+  </div>
+ </div>
+ <p class="sub" style="margin-top:20px"><a href="#top" id="goHome" style="text-decoration:underline">← Back to home</a></p>
+</section>
+</main>
+<footer class="wrap">Independent tool · not affiliated with Deriv · Trading involves risk of loss.</footer>
 
-  <script type="module" src="src/main.js"></script>
+<script>
+'use strict';
+const APP_ID='34c3rTXvfnC6XKk5nbzJM',API='https://api.derivws.com',ACC='/trading/v1/options/accounts',PUB='wss://api.derivws.com/trading/v1/options/ws/public';
+const MK=[['R_10','Volatility 10'],['R_25','Volatility 25'],['R_50','Volatility 50'],['R_75','Volatility 75'],['R_100','Volatility 100'],['1HZ100V','Volatility 100 (1s)']];
+const $=i=>document.getElementById(i),H={},first={};
+const S={mode:'demo',accts:[],acc:null,ws:null,ready:false,run:false,busy:false,pnl:0,n:0,w:0,rid:1,pend:{},cts:{},cool:0,cur:'USD',cid:null};
+
+/* ---------- UI shell ---------- */
+const view=v=>{document.body.dataset.view=v;scrollTo(0,0)};
+try{const t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t}catch(e){}
+$('theme').onclick=()=>{const t=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=t;try{localStorage.setItem('theme',t)}catch(e){}};
+$('goApp').onclick=()=>view('app');document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>view('app'));
+$('goHome').onclick=e=>{e.preventDefault();view('home')};
+document.querySelectorAll('[data-home]').forEach(a=>a.addEventListener('click',()=>{document.body.dataset.view='home'}));
+const risk=$('risk');let seen=false;try{seen=sessionStorage.getItem('ack')}catch(e){}
+if(!seen)risk.showModal();$('ack').onclick=()=>{risk.close();try{sessionStorage.setItem('ack','1')}catch(e){}};
+$('mkGrid').innerHTML=MK.map(([s,n])=>`<div class="card mk"><div><div class="n">${n}</div><div class="v num" id="p_${s}">—</div></div><div class="num" id="c_${s}">—</div></div>`).join('');
+$('sym').innerHTML=MK.map(([s,n])=>`<option value="${s}">${n}</option>`).join('');
+const log=m=>{const l=$('log'),d=document.createElement('div');d.textContent=new Date().toLocaleTimeString()+' '+m;l.prepend(d);while(l.childNodes.length>40)l.lastChild.remove()};
+const money=x=>(x<0?'-':'')+Math.abs(x).toFixed(2);
+
+/* ---------- public tick feed ---------- */
+let pub;
+function startPub(){
+  pub=new WebSocket(PUB);
+  pub.onopen=()=>MK.forEach(([s])=>pub.send(JSON.stringify({ticks:s,subscribe:1})));
+  pub.onmessage=e=>{const d=JSON.parse(e.data);if(d.msg_type==='tick'&&d.tick)onTick(d.tick)};
+  pub.onclose=()=>setTimeout(startPub,3000);
+}
+function onTick(t){
+  const s=t.symbol,q=+t.quote,p=t.pip_size??2,h=H[s]||(H[s]={q:[],d:[]});
+  h.q.push(q);h.d.push(+q.toFixed(p).slice(-1));if(h.q.length>100){h.q.shift();h.d.shift()}
+  first[s]??=q;
+  const pe=$('p_'+s),ce=$('c_'+s);
+  if(pe){pe.textContent=q.toFixed(p);const c=(q/first[s]-1)*100;ce.textContent=(c>=0?'+':'')+c.toFixed(2)+'%';ce.className='num '+(c>=0?'up':'dn')}
+  if(S.run&&!S.busy&&S.ready&&s===$('sym').value&&Date.now()>S.cool)step(h);
+}
+
+/* ---------- signal engine (rolling tick windows; heuristics, no proven edge) ---------- */
+function signal(h){
+  const q=h.q,d=h.d,k=$('strat').value;
+  if(k==='rf'&&q.length>=21){let u=0;for(let i=q.length-20;i<q.length;i++)if(q[i]>q[i-1])u++;
+    if(u>=14)return{type:'CALL',dur:5,why:u+'/20 up'};if(u<=6)return{type:'PUT',dur:5,why:u+'/20 up'}}
+  if(k==='eo'&&d.length>=40){const e=d.slice(-40).filter(v=>v%2===0).length;
+    if(e>=24)return{type:'DIGITEVEN',dur:1,why:e+'/40 even'};if(e<=16)return{type:'DIGITODD',dur:1,why:(40-e)+'/40 odd'}}
+  if(k==='ou'&&d.length>=50){const x=d.slice(-50),o=x.filter(v=>v>3).length,u=x.filter(v=>v<6).length;
+    if(o>=35)return{type:'DIGITOVER',barrier:3,dur:1,why:o+'/50 >3'};if(u>=35)return{type:'DIGITUNDER',barrier:6,dur:1,why:u+'/50 <6'}}
+  if((k==='md'||k==='df')&&d.length>=100){const c=Array(10).fill(0);d.forEach(v=>c[v]++);
+    const hi=c.indexOf(Math.max(...c)),lo=c.indexOf(Math.min(...c));
+    if(k==='md'&&c[hi]>=16)return{type:'DIGITMATCH',barrier:hi,dur:1,why:`digit ${hi} ×${c[hi]}/100`};
+    if(k==='df'&&c[lo]<=6)return{type:'DIGITDIFF',barrier:lo,dur:1,why:`digit ${lo} ×${c[lo]}/100`}}
+  return null;
+}
+function step(h){const sig=signal(h);if(sig)trade(sig)}
+
+/* ---------- trading socket (PAT -> account list -> OTP -> authenticated WS) ---------- */
+const hdr=tok=>({Authorization:'Bearer '+tok,'Deriv-App-ID':APP_ID,'Content-Type':'application/json'});
+const err=(j,f)=>j?.errors?.[0]?.message||j?.error?.message||f;
+async function connect(){
+  const tok=$('pat').value.trim();if(!tok)return log('Paste a token first.');
+  $('connect').disabled=true;
+  try{
+    const r=await fetch(API+ACC,{headers:hdr(tok)}),j=await r.json().catch(()=>({}));
+    if(!r.ok)throw new Error(err(j,'Account lookup failed ('+r.status+')'));
+    const raw=j.data??j,list=(Array.isArray(raw)?raw:Object.values(raw)).filter(a=>a&&typeof a==='object'&&(a.account_id||a.loginid));
+    S.accts=list.map(a=>{const id=a.account_id||a.loginid,t=(a.account_type||(/^D[TO]/.test(id)?'demo':'real')).toLowerCase();return{id,type:t,cur:a.currency||'USD'}});
+    S.acc=S.accts.find(a=>a.type===S.mode);if(!S.acc)throw new Error('No '+S.mode+' account on this token.');
+    const o=await fetch(`${API}${ACC}/${encodeURIComponent(S.acc.id)}/otp`,{method:'POST',headers:hdr(tok),body:'{}'}),oj=await o.json().catch(()=>({}));
+    if(!o.ok||!oj?.data?.url)throw new Error(err(oj,'OTP request failed ('+o.status+')'));
+    S.cur=S.acc.cur;openWs(oj.data.url);
+  }catch(e){log('⚠ '+e.message);$('connect').disabled=false}
+}
+function openWs(url){
+  if(S.ws){S.ws.onclose=null;S.ws.close()}
+  const ws=S.ws=new WebSocket(url);
+  ws.onopen=()=>{S.ready=true;$('conn').textContent=S.acc.id;$('conn').className='chip on';$('start').disabled=false;$('connect').disabled=false;
+    $('pat').value='';ws.send(JSON.stringify({balance:1,subscribe:1}));log('Connected · '+S.acc.id)};
+  ws.onclose=()=>{S.ready=false;S.run=false;S.busy=false;$('conn').textContent='offline';$('conn').className='chip';$('start').disabled=true;$('stop').disabled=true;state('idle');log('Disconnected')};
+  ws.onmessage=e=>onMsg(JSON.parse(e.data));
+}
+const send=o=>S.ws.send(JSON.stringify(o));
+function onMsg(d){
+  if(d.msg_type==='balance'&&d.balance){$('sBal').textContent=Number(d.balance.balance).toFixed(2)+' '+(d.balance.currency||S.cur)}
+  const p=S.pend[d.req_id];
+  if(d.error){log('⚠ '+d.error.message);if(p){delete S.pend[d.req_id];release(3000)}return}
+  if(d.msg_type==='proposal'&&p&&p.stage==='prop'){p.stage='buy';const id=S.rid++;S.pend[id]=p;delete S.pend[d.req_id];
+    send({buy:d.proposal.id,price:Number(d.proposal.ask_price),req_id:id})}
+  else if(d.msg_type==='buy'&&p){delete S.pend[d.req_id];const cid=d.buy.contract_id;S.cts[cid]=p;log(`Bought ${p.sig.type} (${p.sig.why})`);
+    send({proposal_open_contract:1,contract_id:cid,subscribe:1})}
+  else if(d.msg_type==='proposal_open_contract'){const c=d.proposal_open_contract,t=c&&S.cts[c.contract_id];if(t&&c.is_sold)settle(c,t)}
+}
+function trade(sig){
+  S.busy=true;const id=S.rid++,stake=+$('stake').value;S.pend[id]={stage:'prop',sig,stake};
+  const q={proposal:1,amount:stake,basis:'stake',contract_type:sig.type,currency:S.cur,duration:sig.dur,duration_unit:'t',underlying_symbol:$('sym').value,req_id:id};
+  if(sig.barrier!=null)q.barrier=String(sig.barrier);send(q);
+  setTimeout(()=>{if(S.pend[id]){delete S.pend[id];release(0)}},20000);
+}
+function release(ms){S.busy=false;S.cool=Date.now()+ms}
+function settle(c,t){
+  delete S.cts[c.contract_id];const pr=Number(c.profit);S.pnl+=pr;S.n++;if(pr>0)S.w++;
+  const tr=document.createElement('tr');tr.innerHTML=`<td>${S.n}</td><td>${t.sig.type.replace('DIGIT','')}${t.sig.barrier!=null?' '+t.sig.barrier:''}</td><td></td><td class="num ${pr>=0?'up':'dn'}">${money(pr)}</td>`;
+  tr.children[2].textContent=t.sig.why;$('tb').prepend(tr);
+  $('sPnl').textContent=money(S.pnl);$('sPnl').className='num '+(S.pnl>=0?'up':'dn');$('sN').textContent=S.n;$('sWr').textContent=Math.round(S.w/S.n*100)+'%';
+  release(0);
+  const tp=+$('tp').value,ml=+$('ml').value,mt=+$('mt').value;
+  if(tp>0&&S.pnl>=tp)halt('take-profit reached');else if(ml>0&&S.pnl<=-ml)halt('max loss reached');else if(S.n>=mt)halt('max trades reached');
+}
+const state=t=>{$('state').textContent=t;$('state').className='chip'+(t==='running'?' on':'')};
+function halt(why){S.run=false;$('start').disabled=!S.ready;$('stop').disabled=true;state('stopped');log('■ Stopped: '+why)}
+
+/* ---------- controls ---------- */
+$('connect').onclick=connect;
+$('mDemo').onclick=()=>setMode('demo');$('mReal').onclick=()=>setMode('real');
+function setMode(m){S.mode=m;$('mDemo').className='btn'+(m==='demo'?' on':'');$('mReal').className='btn'+(m==='real'?' on':'');log('Mode: '+m+' — reconnect to switch account')}
+$('start').onclick=()=>{
+  if(S.acc.type==='real'&&!confirm('You are about to trade REAL money with an automated bot. Continue?'))return;
+  if(!(+$('stake').value>0))return log('⚠ Enter a stake.');
+  S.pnl=S.n=S.w=0;$('tb').innerHTML='';['sPnl'].forEach(i=>$(i).textContent='0.00');$('sN').textContent='0';$('sWr').textContent='—';
+  S.run=true;$('start').disabled=true;$('stop').disabled=false;state('running');log('▶ Started');
+};
+$('stop').onclick=()=>halt('stopped by you');
+window.addEventListener('beforeunload',()=>{try{S.ws&&S.ws.close()}catch(e){}});
+startPub();
+</script>
 </body>
 </html>
